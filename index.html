@@ -2079,4 +2079,24 @@ html body .zc-motion-reveal{transition:opacity .62s ease,transform .62s cubic-be
   margin-left:3px!important;max-width:max-content!important;
 }
 </style>
+
+<style id="zc-deposit-network-card-height-v2">
+/* Reduce each wallet/network row's vertical footprint without changing the scrollable list. */
+#app-content #zc-deposit-options .deposit-asset-option{
+  flex:0 0 76px!important;
+  min-height:76px!important;
+  height:76px!important;
+  padding:7px 10px!important;
+  gap:8px!important;
+  box-sizing:border-box!important;
+}
+#app-content #zc-deposit-options .asset-logo-stack>.asset-logo:not(.chain){
+  width:36px!important;height:36px!important;flex:0 0 36px!important;
+}
+#app-content #zc-deposit-options .asset-logo-stack>.asset-logo:not(.chain) img{
+  width:25px!important;height:25px!important;max-width:25px!important;max-height:25px!important;
+}
+#app-content #zc-deposit-options .network-meta small{line-height:1.15!important}
+#app-content #zc-deposit-options .deposit-asset-option>.btn{padding:6px 10px!important}
+</style>
 </body></html>
