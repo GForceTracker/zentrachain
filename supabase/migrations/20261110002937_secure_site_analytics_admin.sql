@@ -1,0 +1,1 @@
+create index if not exists site_events_created_at_idx on public.site_events (created_at desc); create index if not exists site_events_event_created_idx on public.site_events (event_type, created_at desc); alter table public.site_events enable row level security; revoke all on table public.site_events from anon, authenticated; grant usage on schema public to anon, authenticated;
