@@ -1029,7 +1029,7 @@ renderAdmin=async function(){
  const order=['usdt-trc20','usdt-erc20','usdt-bep20','btc-bitcoin','eth-ethereum','trx-tron','doge-dogecoin','sol-solana'];
  const logos={USDT:{s:'₮',c:'#26a17b',f:'usdt'},BTC:{s:'₿',c:'#f7931a',f:'btc'},ETH:{s:'◆',c:'#627eea',f:'eth'},SOL:{s:'≋',c:'#9945ff',f:'sol'},TRX:{s:'△',c:'#e84142',f:'trx'},DOGE:{s:'Ð',c:'#c2a633',f:'doge'}};
  function coin(n){const x=logos[n.asset_code]||{s:(n.asset_code||'?').slice(0,1),c:'#718096',f:(n.asset_code||'').toLowerCase()};return '<span class="zc-coin-logo" style="--coin-color:'+x.c+'"><span class="zc-coin-fallback">'+x.s+'</span><img src="https://cdn.jsdelivr.net/npm/cryptocurrency-icons@0.18.1/svg/color/'+x.f+'.svg" alt="'+esc(n.asset_code)+' logo" loading="eager" onload="this.previousElementSibling.style.display=\'none\'" onerror="this.style.display=\'none\'"></span>'}
- function network(n){const code=n.network_code||'';const mark=code==='TRC20'?'T':code==='ERC20'?'Ξ':code==='BEP20'?'◆':code==='BITCOIN'?'₿':code==='ETHEREUM'?'◆':code==='TRON'?'△':code==='DOGECOIN'?'Ð':'≋';return '<div class="zc-wallet-logos">'+coin(n)+'<span class="zc-chain-logo">'+mark+'</span></div>'}
+ function network(n){return '<div class="zc-wallet-logos">'+coin(n)+'</div>'}
  window.zcRefreshDepositOptions=function(){
   const s=$('zc-deposit-network'),el=$('zc-deposit-options');if(!s||!el)return;
   let list=Array.isArray(walletNetworks)?walletNetworks.slice():[];
@@ -1743,8 +1743,7 @@ html body .zc-motion-reveal{transition:opacity .62s ease,transform .62s cubic-be
   const marks={USDT:'₮',BTC:'₿',ETH:'◆',SOL:'◎',TRX:'',DOGE:'Ð'};
   const color={USDT:'#26a17b',BTC:'#f7931a',ETH:'#627eea',SOL:'#8b5cf6',TRX:'#ef0027',DOGE:'#c2a633'};
   const coin=code==='TRX'?tron:'<b>'+String(marks[code]||code)+'</b>';
-  const chain=id==='usdt-trc20'||code==='TRX'?'<span class="asset-logo chain trx" style="background:#fff1f2;border:1px solid #ef0027;color:#ef0027">'+tron+'</span>':(id==='usdt-erc20'?'<span class="asset-logo chain eth">Ξ</span>':(id==='usdt-bep20'?'<span class="asset-logo chain">B</span>':''));
-  return '<div class="asset-logo-stack"><span class="asset-logo '+(code.toLowerCase())+'" style="background:'+color[code]+';color:white;border-radius:50%;display:grid;place-items:center;width:36px;height:36px;overflow:hidden">'+coin+'</span>'+chain+'</div>';
+  return '<div class="asset-logo-stack"><span class="asset-logo '+(code.toLowerCase())+'" style="background:'+color[code]+';color:white;border-radius:50%;display:grid;place-items:center;width:36px;height:36px;overflow:hidden">'+coin+'</span></div>';
  };
 
 (function(){
@@ -2032,4 +2031,11 @@ html body .zc-motion-reveal{transition:opacity .62s ease,transform .62s cubic-be
 }
 </style>
 
+
+<style id="zc-remove-secondary-network-logo-v1">
+/* Show only the asset logo; the chain is already written beside the asset name. */
+#app-content #zc-deposit-options .zc-wallet-logos{gap:0!important;flex:0 0 42px!important;width:42px!important}
+#app-content #zc-deposit-options .zc-chain-logo,
+#app-content #zc-deposit-options .asset-logo-stack>.asset-logo.chain{display:none!important}
+</style>
 </body></html>
