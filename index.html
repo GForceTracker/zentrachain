@@ -897,7 +897,7 @@ const walletCatalog=[
 {id:'sol-solana',asset_code:'SOL',network_code:'SOLANA',asset_name:'Solana',network_name:'Solana',symbol:'◎',cls:'sol'},
 {id:'eth-ethereum',asset_code:'ETH',network_code:'ETHEREUM',asset_name:'Ethereum',network_name:'Ethereum',symbol:'◆',cls:'eth'}
 ];
-function networkLogo(n){const x=walletCatalog.find(v=>v.id===n.id)||walletCatalog.find(v=>v.asset_code===n.asset_code);const coin=({USDT:'tether',BTC:'bitcoin',ETH:'ethereum',SOL:'solana',TRX:'tron',DOGE:'dogecoin'})[n.asset_code]||'bitcoin';const chain=({'usdt-trc20':'tron','usdt-erc20':'ethereum','usdt-bep20':'bnbchain'})[n.id];const make=(slug,label,fallback,small)=>'<span class="asset-logo '+(small?'chain ':'')+(x?.cls||'')+'" data-fallback="'+fallback+'"><img src="https://cdn.simpleicons.org/'+slug+'" alt="'+label+'" loading="lazy" referrerpolicy="no-referrer" onerror="this.parentNode.classList.add(\'logo-failed\');this.parentNode.textContent=this.parentNode.dataset.fallback"></span>';return '<div class="asset-logo-stack">'+make(coin,n.asset_code,x?.symbol||n.asset_code,false)+(chain?make(chain,n.network_name||n.network_code,n.network_code==='TRC20'?'T':n.network_code==='ERC20'?'Ξ':'B',true):'')+'</div>'}
+function networkLogo(n){const x=walletCatalog.find(v=>v.id===n.id)||walletCatalog.find(v=>v.asset_code===n.asset_code);const coin=({USDT:'tether',BTC:'bitcoin',ETH:'ethereum',SOL:'solana',TRX:'tron',DOGE:'dogecoin'})[n.asset_code]||'bitcoin';const make=(slug,label,fallback)=>'<span class="asset-logo '+(x?.cls||'')+'" data-fallback="'+fallback+'"><img src="https://cdn.simpleicons.org/'+slug+'" alt="'+label+' logo" loading="eager" referrerpolicy="no-referrer" onerror="this.parentNode.classList.add(\'logo-failed\');this.parentNode.textContent=this.parentNode.dataset.fallback"></span>';return '<div class="asset-logo-stack">'+make(coin,n.asset_code,x?.symbol||n.asset_code)+'</div>'}
 async function loadWalletNetworks(){const {data,error}=await db.from('crypto_asset_networks').select('id,asset_code,network_code,asset_name,network_name,is_enabled,contract_address,decimals').order('asset_code');walletNetworks=error?walletCatalog.map(x=>({...x,is_enabled:false})):data||[];return walletNetworks}
 function renderDepositPage(){const c=$('app-content');c.innerHTML='<div class="page-title"><div><div class="eyebrow">FUND YOUR ACCOUNT</div><h1>Deposit assets</h1><p class="muted">Choose the exact coin and blockchain network before sending funds.</p></div><span class="pill pending">Wallet setup in progress</span></div><div class="wallet-warning"><b>Important — deposits are not open yet.</b><br>Unique wallet-address generation and automatic on-chain deposit monitoring are still being validated. Do not send cryptocurrency to any address or use an address from a message. No deposit address is currently authorized for customer funding.</div><section class="card panel" style="margin-top:18px"><div class="market-panel-head"><div><div class="eyebrow">SUPPORTED ASSET NETWORKS</div><h3 style="margin-top:5px">Select a deposit network</h3></div><span class="muted" style="font-size:11px">8 planned networks</span></div><div id="deposit-network-grid" class="deposit-network-grid"><div class="empty">Loading network options…</div></div><div id="deposit-address-result"></div></section><section class="card panel"><h3>How a deposit will work</h3><div class="deposit-steps"><div class="deposit-step"><div class="step-num">1</div><b>Choose asset & network</b><p>For example, USDT on TRON (TRC20). The sending and receiving networks must match.</p></div><div class="deposit-step"><div class="step-num">2</div><b>Get your personal address</b><p>Your unique deposit address and QR code will appear here when that network is activated.</p></div><div class="deposit-step"><div class="step-num">3</div><b>Send & wait</b><p>Wait for the required blockchain confirmations. Never send a test amount to an unverified address.</p></div><div class="deposit-step"><div class="step-num">4</div><b>Verify & record</b><p>The transaction is checked on-chain before any account ledger credit is posted.</p></div></div><div class="flow-diagram"><div class="flow-node"><b>Wallet</b><small>Customer sends</small></div><span class="flow-arrow">→</span><div class="flow-node"><b>Blockchain</b><small>Confirmations</small></div><span class="flow-arrow">→</span><div class="flow-node"><b>Verification</b><small>Deposit checked</small></div><span class="flow-arrow">→</span><div class="flow-node"><b>Ledger</b><small>Credit recorded</small></div></div></section><section class="card panel"><h3>Your deposit activity</h3>'+requestsTable(deposits,'deposit')+'</section>';loadWalletNetworks().then(renderWalletNetworkCards)}
 function renderWalletNetworkCards(){const el=$('deposit-network-grid');if(!el)return;el.innerHTML=walletNetworks.map(n=>'<div class="deposit-network">'+networkLogo(n)+'<div class="network-meta"><b>'+esc(n.asset_code)+' · '+esc(n.network_code)+'</b><small>'+esc(n.asset_name||n.asset_code)+' on '+esc(n.network_name||n.network_code)+'</small></div><button class="btn '+(n.is_enabled?'primary':'')+'" '+(n.is_enabled?'':'disabled')+' onclick="selectWalletNetwork(\''+n.id+'\')">'+(n.is_enabled?'Get address':'Not active')+'</button></div>').join('');}
@@ -2037,5 +2037,37 @@ html body .zc-motion-reveal{transition:opacity .62s ease,transform .62s cubic-be
 #app-content #zc-deposit-options .zc-wallet-logos{gap:0!important;flex:0 0 42px!important;width:42px!important}
 #app-content #zc-deposit-options .zc-chain-logo,
 #app-content #zc-deposit-options .asset-logo-stack>.asset-logo.chain{display:none!important}
+</style>
+
+<style id="zc-wallet-card-refinement-v1">
+/* Compact network labels and show about three-and-a-half wallet rows before scrolling. */
+#app-content #zc-deposit-options.deposit-asset-list{
+  display:flex!important;flex-direction:column!important;gap:10px!important;
+  max-height:390px!important;overflow-y:auto!important;overflow-x:hidden!important;
+  overscroll-behavior:contain!important;-webkit-overflow-scrolling:touch!important;
+  scrollbar-width:thin!important;scrollbar-color:#397bb8 #0b1d30!important;
+  padding:4px 7px 4px 0!important;
+}
+#app-content #zc-deposit-options .deposit-asset-option{
+  flex:0 0 96px!important;min-height:96px!important;box-sizing:border-box!important;
+  padding:10px 12px!important;gap:10px!important;
+}
+#app-content #zc-deposit-options .asset-logo-stack{gap:0!important;flex:0 0 46px!important;width:46px!important}
+#app-content #zc-deposit-options .asset-logo-stack>.asset-logo:not(.chain){
+  width:42px!important;height:42px!important;flex:0 0 42px!important;
+  display:grid!important;place-items:center!important;border-radius:50%!important;
+  background:#26a17b!important;overflow:hidden!important;
+}
+#app-content #zc-deposit-options .asset-logo-stack>.asset-logo:not(.chain) img{
+  width:29px!important;height:29px!important;max-width:29px!important;max-height:29px!important;
+  object-fit:contain!important;
+}
+#app-content #zc-deposit-options .zc-network-chip{
+  font-size:10px!important;line-height:1!important;padding:3px 6px!important;
+  letter-spacing:.25px!important;border-radius:7px!important;vertical-align:middle!important;
+}
+#app-content #zc-deposit-options .network-meta b{font-size:14px!important}
+#app-content #zc-deposit-options .network-meta small{font-size:11px!important;line-height:1.3!important}
+#app-content #zc-deposit-options .deposit-asset-option>.btn{padding:8px 11px!important;font-size:12px!important}
 </style>
 </body></html>
