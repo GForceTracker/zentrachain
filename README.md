@@ -1,21 +1,31 @@
 # ZentraChain
 
-ZentraChain digital asset platform website.
+ZentraChain digital asset platform.
 
-## Project files
+## Website source
 
-- `index.html` — complete website, including responsive layouts and client-side application logic.
+- `index.html` — full recovered HTML snapshot of the current website.
+- `src/api/site.js` — original Vercel Node.js serverless handler.
+- `src/chunks/part_00.js` through `part_33.js` — compressed website payload consumed by that handler.
+- `src/vercel.json` — original Vercel rewrite configuration.
 
-## Deployment
+## Backend architecture
 
-This repository is connected to the Vercel project **zentrachain**. Pushes to `main` trigger a production deployment. Vercel serves the root `index.html` as the site entry point.
+The backend is not Python in the inspected live project. It uses **Supabase Edge Functions written in TypeScript (Deno)** plus a **Supabase PostgreSQL** database. The Vercel website handler is Node.js.
 
-## Supabase configuration and security
+Recovered Edge Functions:
+- `site-analytics`
+- `generate-deposit-address`
+- `bootstrap-admin`
+- `ensure-admin-account`
+- `market-data`
 
-The website uses the Supabase JavaScript client from the browser. Any Supabase URL and anon/public key used by a browser app are public configuration, not secrets. Keep the Supabase service-role key, database passwords, access tokens, and other private credentials out of this repository and out of browser code.
+The deposit-address function derives blockchain deposit addresses and depends on the private `WALLET_MNEMONIC` Supabase secret. Other privileged functions also use server-side Supabase secrets.
 
-Protect database access with appropriate Row Level Security policies and server-side authorization. Never rely on frontend visibility or disabled buttons as security controls.
+## Secrets and deployment
 
-## Source recovery
+Never commit service-role keys, wallet recovery phrases, admin setup secrets, admin passwords, or provider API keys. Keep these in Supabase Edge Function secrets or Vercel environment variables.
 
-The website HTML was recovered from a previously successful ZentraChain Vercel production deployment and restored as a single deployable entry point.
+## Database migration note
+
+The connected Supabase project is `g-force-analytics`. The live database currently has 11 recorded migrations. Their SQL source files have not yet been exported into this repository, so this repository is not yet a fully reproducible database backup.
