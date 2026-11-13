@@ -2099,4 +2099,36 @@ html body .zc-motion-reveal{transition:opacity .62s ease,transform .62s cubic-be
 #app-content #zc-deposit-options .network-meta small{line-height:1.15!important}
 #app-content #zc-deposit-options .deposit-asset-option>.btn{padding:6px 10px!important}
 </style>
+
+<style id="zc-deposit-network-card-height-v3">
+/* Compact rows and show approximately 3.5 wallet cards in the scroll viewport. */
+#app-content #zc-deposit-options.deposit-asset-list{
+  max-height:248px!important;
+  gap:8px!important;
+  overflow-y:auto!important;
+  overflow-x:hidden!important;
+  -webkit-overflow-scrolling:touch!important;
+  overscroll-behavior:contain!important;
+}
+#app-content #zc-deposit-options .deposit-asset-option{
+  flex:0 0 64px!important;
+  min-height:64px!important;
+  height:64px!important;
+  padding:6px 9px!important;
+  gap:7px!important;
+  box-sizing:border-box!important;
+}
+#app-content #zc-deposit-options .asset-logo-stack{
+  flex:0 0 34px!important;width:34px!important;
+}
+#app-content #zc-deposit-options .asset-logo-stack>.asset-logo:not(.chain){
+  width:32px!important;height:32px!important;flex:0 0 32px!important;
+}
+#app-content #zc-deposit-options .asset-logo-stack>.asset-logo:not(.chain) img{
+  width:22px!important;height:22px!important;max-width:22px!important;max-height:22px!important;
+}
+#app-content #zc-deposit-options .network-meta b{font-size:13px!important;line-height:1.05!important}
+#app-content #zc-deposit-options .network-meta small{font-size:10px!important;line-height:1.05!important}
+#app-content #zc-deposit-options .deposit-asset-option>.btn{padding:5px 9px!important;font-size:11px!important}
+</style>
 </body></html>
