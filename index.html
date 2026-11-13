@@ -2088,4 +2088,125 @@ html body .zc-motion-reveal{transition:opacity .62s ease,transform .62s cubic-be
  width:36px!important;height:36px!important;flex:0 0 36px!important;
 }
 </style>
+
+<script id="zc-deposit-wallet-first-layout-v18">
+(function () {
+  function arrangeDepositLayout() {
+    const root = document.getElementById('app-content');
+    if (!root) return;
+
+    const grid = root.querySelector('.deposit-flow-grid');
+    if (grid) {
+      const cards = Array.from(grid.querySelectorAll(':scope > .deposit-form-card'));
+      const walletCard = cards.find(card => card.querySelector('#zc-deposit-options'));
+      const amountCard = cards.find(card => card.querySelector('#zc-deposit-amount'));
+      if (walletCard && amountCard && walletCard !== amountCard &&
+          walletCard.parentElement === amountCard.parentElement &&
+          walletCard.nextElementSibling !== amountCard) {
+        grid.insertBefore(walletCard, amountCard);
+      }
+
+      if (amountCard) {
+        const input = amountCard.querySelector('#zc-deposit-amount');
+        const field = input && (input.closest('.field') || input.parentElement);
+        const quote = amountCard.querySelector('#zc-quote-summary');
+        const proceed = root.querySelector('#zc-deposit-proceed');
+
+        if (quote && field && quote.parentElement === amountCard &&
+            field.nextElementSibling !== quote) {
+          amountCard.insertBefore(quote, field.nextElementSibling);
+        }
+        if (proceed && proceed.parentElement !== amountCard) {
+          amountCard.appendChild(proceed);
+        } else if (proceed && proceed.parentElement === amountCard &&
+                   proceed !== amountCard.lastElementChild) {
+          amountCard.appendChild(proceed);
+        }
+      }
+    }
+
+    const card = root.querySelector('.zc-deposit-original-card');
+    if (card) {
+      const input = card.querySelector('#zc-deposit-amount');
+      const field = input && (input.closest('.field') || input.parentElement);
+      const quote = card.querySelector('#zc-quote-summary');
+      const options = card.querySelector('#zc-deposit-options');
+      const proceed = card.querySelector('#zc-deposit-proceed');
+      const direct = Array.from(card.children);
+      const findEyebrow = pattern => direct.find(node =>
+        node.classList && node.classList.contains('eyebrow') &&
+        pattern.test(node.textContent || '')
+      );
+      const ordered = [
+        findEyebrow(/NEW DEPOSIT/i),
+        findEyebrow(/SUPPORTED DEPOSIT WALLETS|STEP\\s*1/i),
+        direct.find(node => node.tagName === 'H3' && /choose|wallet|coin|network/i.test(node.textContent || '')),
+        card.querySelector('#zc-deposit-network'),
+        options,
+        findEyebrow(/ENTER DEPOSIT AMOUNT|STEP\\s*2/i),
+        field,
+        quote && quote.parentElement === card ? quote : null,
+        card.querySelector('#zc-deposit-load-state'),
+        direct.find(node => node.classList && node.classList.contains('risk')),
+        proceed
+      ].filter(node => node && node.parentElement === card);
+
+      let cursor = card.firstElementChild;
+      for (const node of ordered) {
+        if (node !== cursor) card.insertBefore(node, cursor);
+        cursor = node.nextElementSibling;
+      }
+    }
+  }
+
+  const previousRender = window.renderDepositPage;
+  if (typeof previousRender === 'function' && !previousRender.__zcWalletFirstV18) {
+    const wrappedRender = async function () {
+      const result = await previousRender.apply(this, arguments);
+      arrangeDepositLayout();
+      return result;
+    };
+    wrappedRender.__zcWalletFirstV18 = true;
+    window.renderDepositPage = wrappedRender;
+  }
+
+  function observeDepositRoot() {
+    const root = document.getElementById('app-content');
+    if (!root || root.__zcWalletFirstObserverV18) return;
+    root.__zcWalletFirstObserverV18 = true;
+    const observer = new MutationObserver(arrangeDepositLayout);
+    observer.observe(root, { childList: true, subtree: true });
+    arrangeDepositLayout();
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', observeDepositRoot, { once: true });
+  } else {
+    observeDepositRoot();
+  }
+
+  const style = document.createElement('style');
+  style.id = 'zc-deposit-wallet-first-layout-v18-css';
+  style.textContent = `
+    #app-content .deposit-flow-grid {
+      display: flex !important;
+      flex-direction: column !important;
+      gap: 14px !important;
+    }
+    #app-content .deposit-flow-grid > .deposit-form-card {
+      width: 100% !important;
+      max-width: 100% !important;
+      box-sizing: border-box !important;
+    }
+    #app-content #zc-deposit-proceed {
+      display: block !important;
+      width: 100% !important;
+      box-sizing: border-box !important;
+      margin-top: 14px !important;
+    }
+  `;
+  document.head.appendChild(style);
+})();
+</script>
+
 </body></html>
