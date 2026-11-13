@@ -2209,4 +2209,126 @@ html body .zc-motion-reveal{transition:opacity .62s ease,transform .62s cubic-be
 })();
 </script>
 
+
+<style id="zc-deposit-wallet-first-layout-v19-css">
+  #app-content .deposit-flow-grid {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 14px !important;
+  }
+  #app-content .deposit-flow-grid > .deposit-form-card {
+    display: block !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+  }
+  #app-content #zc-deposit-proceed {
+    display: block !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+  }
+</style>
+<script id="zc-deposit-wallet-first-layout-v19">
+(function () {
+  function placeAfter(anchor, node) {
+    if (!anchor || !node || anchor === node) return;
+    if (anchor.nextElementSibling !== node) {
+      anchor.insertAdjacentElement('afterend', node);
+    }
+  }
+
+  function arrangeDepositLayout() {
+    const root = document.getElementById('app-content');
+    if (!root) return;
+
+    const grid = root.querySelector('.deposit-flow-grid');
+    if (grid) {
+      const cards = Array.from(grid.children).filter(node =>
+        node.classList && node.classList.contains('deposit-form-card')
+      );
+      const walletCard = cards.find(node =>
+        node.querySelector('#zc-deposit-options')
+      );
+      const amountCard = cards.find(node =>
+        node.querySelector('#zc-deposit-amount')
+      );
+
+      if (walletCard && amountCard && walletCard !== amountCard) {
+        if (grid.firstElementChild !== walletCard) {
+          grid.insertBefore(walletCard, grid.firstElementChild);
+        }
+
+        const proceed = root.querySelector('#zc-deposit-proceed');
+        if (proceed) {
+          const risk = amountCard.querySelector('.risk');
+          const quote = amountCard.querySelector('#zc-quote-summary');
+          const field = amountCard.querySelector('#zc-deposit-amount')?.closest('.field');
+          const anchor = risk || quote || field;
+          if (anchor) placeAfter(anchor, proceed);
+          else if (proceed.parentElement !== amountCard || proceed !== amountCard.lastElementChild) {
+            amountCard.appendChild(proceed);
+          }
+        }
+      }
+    }
+
+    const singleCard = root.querySelector('.zc-deposit-original-card');
+    if (singleCard) {
+      const options = singleCard.querySelector('#zc-deposit-options');
+      const amountInput = singleCard.querySelector('#zc-deposit-amount');
+      const amountField = amountInput && (amountInput.closest('.field') || amountInput.parentElement);
+      if (options && amountField && options.parentElement === singleCard &&
+          amountField.parentElement === singleCard &&
+          options.compareDocumentPosition(amountField) & Node.DOCUMENT_POSITION_FOLLOWING) {
+        // Already wallet-first.
+      } else if (options && amountField && options.parentElement === singleCard &&
+                 amountField.parentElement === singleCard) {
+        singleCard.insertBefore(options, amountField);
+      }
+
+      const proceed = singleCard.querySelector('#zc-deposit-proceed') ||
+                      root.querySelector('#zc-deposit-proceed');
+      if (proceed && proceed.parentElement === singleCard) {
+        const risk = singleCard.querySelector('.risk');
+        const quote = singleCard.querySelector('#zc-quote-summary');
+        const field = amountInput && (amountInput.closest('.field') || amountInput.parentElement);
+        const anchor = risk || quote || field;
+        if (anchor) placeAfter(anchor, proceed);
+      }
+    }
+  }
+
+  const previousRender = window.renderDepositPage;
+  if (typeof previousRender === 'function' && !previousRender.__zcWalletFirstV19) {
+    const wrappedRender = async function () {
+      const result = await previousRender.apply(this, arguments);
+      arrangeDepositLayout();
+      return result;
+    };
+    wrappedRender.__zcWalletFirstV19 = true;
+    window.renderDepositPage = wrappedRender;
+  }
+
+  function attachObserver() {
+    const root = document.getElementById('app-content');
+    if (!root || root.__zcWalletFirstObserverV19) return;
+    root.__zcWalletFirstObserverV19 = true;
+    const observer = new MutationObserver(arrangeDepositLayout);
+    observer.observe(root, { childList: true, subtree: true });
+    arrangeDepositLayout();
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', attachObserver, { once: true });
+  } else {
+    attachObserver();
+  }
+
+  // The route can render after the app shell has loaded.
+  document.addEventListener('click', function () {
+    Promise.resolve().then(arrangeDepositLayout);
+  }, true);
+})();
+</script>
+
 </body></html>
