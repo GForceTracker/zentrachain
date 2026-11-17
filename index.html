@@ -2442,7 +2442,7 @@ body[data-zc-theme] #app-content #wd-network-cards::-webkit-scrollbar-thumb{back
   ['activity-audit','◷','Activity & Audit','Review administrator activity records']
  ];
  const safe=v=>String(v??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
- const fmtUSD=v=>'</html>+Number(v||0).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
+ const fmtUSD=v=>String.fromCharCode(36)+Number(v||0).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
  const $=id=>document.getElementById(id);
  const admin=()=>typeof profile!=='undefined'&&profile?.role==='admin';
  function ensureMenu(){
