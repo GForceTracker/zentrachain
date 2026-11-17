@@ -3108,4 +3108,33 @@ body[data-zc-theme] #app-content #wd-network-cards::-webkit-scrollbar-thumb{back
 }
 </style>
 
+
+
+<style id="zc-plan-artwork-wave-v1">
+/* A soft carved wave at the bottom of each public plan image. */
+#public-plan-cards .gf-plan-artwork{
+ position:relative!important;
+ height:150px!important;
+ min-height:150px!important;
+ max-height:150px!important;
+ overflow:hidden!important;
+ isolation:isolate;
+}
+#public-plan-cards .gf-plan-artwork::after{
+ content:"";
+ position:absolute;
+ z-index:2;
+ left:0;right:0;bottom:-1px;
+ height:25px;
+ pointer-events:none;
+ background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 600 36' preserveAspectRatio='none'%3E%3Cpath d='M0 15 C38 0 72 0 110 15 S182 30 220 15 S292 0 330 15 S402 30 440 15 S512 0 550 15 S582 24 600 15 L600 36 L0 36 Z' fill='%230b2b1d'/%3E%3C/svg%3E");
+ background-size:100% 100%;
+ background-position:center bottom;
+ background-repeat:no-repeat;
+}
+#public-plan-cards .gf-plan-artwork img{object-position:center 48%!important}
+@media(min-width:700px){
+ #public-plan-cards .gf-plan-artwork{height:170px!important;min-height:170px!important;max-height:170px!important}
+}
+</style>
 </body></html>
