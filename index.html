@@ -3065,4 +3065,47 @@ body[data-zc-theme] #app-content #wd-network-cards::-webkit-scrollbar-thumb{back
 }
 </style>
 
+
+<style id="zc-public-plan-card-size-v3">
+/* Keep every published plan in the horizontal carousel while giving each card a little more room. */
+#public-plan-cards{
+ display:flex!important;
+ flex-flow:row nowrap!important;
+ overflow-x:auto!important;
+ overflow-y:hidden!important;
+ scroll-snap-type:x mandatory!important;
+ -webkit-overflow-scrolling:touch!important;
+}
+#public-plan-cards>.plan-card{
+ flex:0 0 68%!important;
+ width:68%!important;
+ min-width:0!important;
+ max-width:none!important;
+ scroll-snap-align:start!important;
+}
+#public-plan-cards .gf-plan-artwork{
+ height:132px!important;
+ min-height:132px!important;
+ max-height:132px!important;
+}
+#public-plan-cards .gf-plan-artwork img{
+ width:100%!important;
+ height:100%!important;
+ object-fit:cover!important;
+ object-position:center 48%!important;
+}
+@media(min-width:700px){
+ #public-plan-cards>.plan-card{
+  flex:0 0 34%!important;
+  width:34%!important;
+  max-width:390px!important;
+ }
+ #public-plan-cards .gf-plan-artwork{
+  height:152px!important;
+  min-height:152px!important;
+  max-height:152px!important;
+ }
+}
+</style>
+
 </body></html>
