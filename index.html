@@ -2255,7 +2255,7 @@ body[data-zc-theme] #app-content #wd-network-cards::-webkit-scrollbar-thumb{back
  };
  window.gfCard=function(p,s){
   const badge=p.badge_label?'<span class="gf-plan-public-badge">'+escapeValue(p.badge_label)+'</span>':'';
-  return '<article class="plan-card">'+cardLogo(p)+badge+'<div class="eyebrow">'+escapeValue(p.name)+'</div>'+(p.tagline?'<p class="muted" style="margin:5px 0 8px">'+escapeValue(p.tagline)+'</p>':'')+'<div class="plan-rate">'+fmt(p.percentage)+'%</div><div class="muted">Fixed illustrative rate</div><p class="muted">'+escapeValue(p.description||'Plan details configured by the administrator.')+'</p><div class="plan-meta"><span>Amount range</span><b>'+money(p.min_amount)+' – '+money(p.max_amount)+'</b></div><div class="plan-meta"><span>Duration</span><b>'+p.duration_value+' '+escapeValue(p.duration_unit)+'</b></div><button class="btn" style="width:100%;margin-top:14px" onclick="gfChoose(&quot;'+s+'&quot;,&quot;'+p.id+'&quot;)">Calculate scenario</button></article>';
+  return '<article class="plan-card gf-plan-compact-card"><div class="gf-plan-card-heading">'+cardLogo(p)+'<div class="gf-plan-card-title"><div class="eyebrow">'+escapeValue(p.name)+'</div>'+(p.tagline?'<p class="muted">'+escapeValue(p.tagline)+'</p>':'')+badge+'</div></div><div class="plan-rate">'+fmt(p.percentage)+'%</div><div class="muted gf-plan-rate-note">Illustrative rate</div><p class="muted gf-plan-description">'+escapeValue(p.description||'Plan details configured by the administrator.')+'</p><div class="plan-meta"><span>Amount range</span><b>'+money(p.min_amount)+' – '+money(p.max_amount)+'</b></div><div class="plan-meta"><span>Duration</span><b>'+p.duration_value+' '+escapeValue(p.duration_unit)+'</b></div><button class="btn" style="width:100%;margin-top:10px" onclick="gfChoose(&quot;'+s+'&quot;,&quot;'+p.id+'&quot;)">Calculate scenario</button></article>';
  };
  window.gfLogoPublicUrl=logoUrl;
  window.gfAdminPanel=function(rows){
@@ -2361,7 +2361,7 @@ body[data-zc-theme] #app-content #wd-network-cards::-webkit-scrollbar-thumb{back
   if(!c||profile?.role!=='admin')return;
   c.innerHTML='<div class="card panel"><p class="muted">Loading your plan workspace…</p></div>';
   const rows=await gfAdminRows();
-  c.innerHTML='<div class="page-title"><div><div class="eyebrow">ADMIN WORKSPACE</div><h1>Investment plan manager</h1><p class="muted">Create plans, upload logos, edit every visible detail and control which plans are published.</p></div><button class="btn" onclick="gfOpenAdmin()">Back to Admin</button></div>'+gfAdminPanel(rows);
+  c.innerHTML='<div class="zc-admin-page-head"><button type="button" class="zc-admin-back" aria-label="Back" onclick="zcOpenAdminSection(\\'dashboard\\')"><svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 18-6-6 6-6"/><path d="M20 12H9"/></svg></button><div class="zc-admin-page-copy"><div class="eyebrow">ADMIN ACCESS</div><h1>Investment Plans</h1><p class="muted">Create plans, upload logos, edit their details and control publication.</p></div></div>'+gfAdminPanel(rows);
   const starter=rows.find(p=>p.name==='Plan 1');
   if(starter)await gfEdit(starter.id);else gfReset();
  };
@@ -2476,7 +2476,8 @@ body[data-zc-theme] #app-content #wd-network-cards::-webkit-scrollbar-thumb{back
   document.querySelectorAll('[data-zc-admin-section]').forEach(b=>b.classList.toggle('active',b.dataset.zcAdminSection===id));
  }
  function head(title,sub){
-  return '<div class="zc-admin-page-head"><div><div class="eyebrow">ADMIN ACCESS</div><h1>'+safe(title)+'</h1><p class="muted">'+safe(sub)+'</p></div><span class="zc-admin-status good">Administrator</span></div>';
+  const back=title==='Admin dashboard'?'navigate(\\'overview\\')':'zcOpenAdminSection(\\'dashboard\\')';
+  return '<div class="zc-admin-page-head"><button type="button" class="zc-admin-back" aria-label="Back" onclick="'+back+'"><svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 18-6-6 6-6"/><path d="M20 12H9"/></svg></button><div class="zc-admin-page-copy"><div class="eyebrow">ADMIN ACCESS</div><h1>'+safe(title)+'</h1><p class="muted">'+safe(sub)+'</p></div><span class="zc-admin-status good">Administrator</span></div>';
  }
  function sectionCard(id,icon,title,desc){
   return '<button type="button" class="zc-admin-section-card" onclick="zcOpenAdminSection(\''+id+'\')"><span class="zc-admin-icon">'+icon+'</span><b>'+title+'</b><small>'+desc+'</small></button>';
@@ -2487,10 +2488,9 @@ body[data-zc-theme] #app-content #wd-network-cards::-webkit-scrollbar-thumb{back
  }
  async function dashboard(){
   const root=$('app-content');
-  root.innerHTML=head('Admin dashboard','Manage your platform from one organized workspace. Select a section below or use the expandable Admin Access menu.')+
+  root.innerHTML=head('Admin dashboard','Your administrator workspace. Open Admin Access in the sidebar to select one area at a time.')+
    '<div class="stats zc-admin-stats"><div class="card stat"><small>Registered users</small><strong id="zc-admin-count-users">—</strong></div><div class="card stat"><small>Investment plans</small><strong id="zc-admin-count-plans">—</strong></div><div class="card stat"><small>Deposit requests</small><strong id="zc-admin-count-deposits">—</strong></div><div class="card stat"><small>Withdrawal requests</small><strong id="zc-admin-count-withdrawals">—</strong></div></div>'+
-   '<section class="card panel"><div class="eyebrow">MANAGEMENT CENTRE</div><h2 style="margin:5px 0 16px">Choose what you want to manage</h2><div class="zc-admin-section-grid">'+
-   menuItems.slice(1).map(x=>sectionCard(x[0],x[1],x[2],x[3])).join('')+'</div></section>';
+   '<section class="card panel"><div class="eyebrow">ADMIN ACCESS</div><h2 style="margin:5px 0 8px">Manage ZentraChain</h2><p class="muted" style="margin:0">Choose a single section from the expanded Admin Access menu. Each section opens on its own page with a back arrow.</p></section>';
   const tasks=[['profiles','zc-admin-count-users'],['gforce_investment_plans','zc-admin-count-plans'],['deposit_requests','zc-admin-count-deposits'],['withdrawal_requests','zc-admin-count-withdrawals']];
   await Promise.all(tasks.map(async x=>{try{const n=await count(x[0]);const node=$(x[1]);if(node)node.textContent=n.toLocaleString()}catch(e){const node=$(x[1]);if(node)node.textContent='—'}}));
  }
@@ -2602,4 +2602,70 @@ body[data-zc-theme] #app-content #wd-network-cards::-webkit-scrollbar-thumb{back
  ensureMenu();syncShowApp();
 })();
 </script>
+<style id="zc-compact-plans-and-admin-back-v1">
+/* Public plan cards: compact, horizontally swipeable, with 1.5 cards in view on phones. */
+#public #public-plan-cards,
+#public-plan-cards{
+ display:flex!important;flex-flow:row nowrap!important;align-items:stretch!important;gap:12px!important;
+ width:100%!important;max-width:100%!important;overflow-x:auto!important;overflow-y:hidden!important;
+ padding:4px 3px 16px!important;scroll-snap-type:x mandatory!important;scrollbar-width:none!important;
+ -webkit-overflow-scrolling:touch!important;overscroll-behavior-x:contain!important;
+}
+#public-plan-cards::-webkit-scrollbar{display:none!important}
+#public-plan-cards>.plan-card{
+ flex:0 0 calc((100% - 12px)*.6667)!important;width:calc((100% - 12px)*.6667)!important;
+ min-width:0!important;max-width:none!important;min-height:0!important;box-sizing:border-box!important;
+ padding:13px!important;border-radius:16px!important;scroll-snap-align:start!important;
+ display:flex!important;flex-direction:column!important;align-items:stretch!important;gap:3px!important;
+}
+#public-plan-cards .gf-plan-card-heading{display:flex;align-items:center;gap:10px;min-width:0;margin-bottom:4px}
+#public-plan-cards .gf-plan-card-heading .gf-plan-public-logo,
+#public-plan-cards .gf-plan-card-heading .gf-plan-public-logo-empty{
+ width:54px!important;height:54px!important;min-width:54px!important;max-width:54px!important;
+ margin:0!important;padding:5px!important;border-radius:14px!important;box-sizing:border-box!important;
+ object-fit:contain!important;display:grid;place-items:center;
+}
+#public-plan-cards .gf-plan-card-title{min-width:0;flex:1}
+#public-plan-cards .gf-plan-card-title .eyebrow{font-size:14px;font-weight:850;line-height:1.2;margin:0 0 3px}
+#public-plan-cards .gf-plan-card-title p{font-size:10px;line-height:1.35;margin:0!important;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+#public-plan-cards .gf-plan-public-badge{font-size:8px!important;margin:4px 0 0!important;padding:3px 6px!important}
+#public-plan-cards .plan-rate{font-size:25px!important;line-height:1.12!important;margin:7px 0 1px!important}
+#public-plan-cards .gf-plan-rate-note{font-size:10px!important}
+#public-plan-cards .gf-plan-description{font-size:11px!important;line-height:1.4!important;margin:6px 0!important;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;min-height:31px}
+#public-plan-cards .plan-meta{font-size:10px!important;padding:6px 0!important;gap:5px!important}
+#public-plan-cards .plan-meta b{font-size:10px!important;text-align:right}
+#public-plan-cards .plan-card .btn{font-size:11px!important;padding:9px 8px!important;border-radius:10px!important;margin-top:8px!important}
+@media(min-width:700px){
+ #public-plan-cards>.plan-card{flex-basis:calc((100% - 24px)/3)!important;width:calc((100% - 24px)/3)!important;max-width:360px!important}
+}
+/* Compact Admin Access accordion control. */
+#side-nav .zc-admin-group{gap:4px!important;margin:0!important}
+#side-nav .zc-admin-toggle{
+ min-height:40px!important;height:40px!important;padding:8px 11px!important;gap:9px!important;
+ border-radius:11px!important;font-size:12px!important;font-weight:750!important;line-height:1!important;
+}
+#side-nav .zc-admin-toggle>span:first-child{
+ width:22px!important;height:22px!important;flex:0 0 22px!important;font-size:14px!important;
+}
+#side-nav .zc-admin-toggle .zc-admin-chevron{font-size:11px!important}
+#side-nav .zc-admin-subnav{gap:3px!important;padding-top:3px!important;padding-bottom:3px!important}
+#side-nav .zc-admin-subnav button{min-height:36px!important;padding:8px 10px!important;font-size:11px!important;border-radius:9px!important}
+/* Consistent arrow/back header on every Admin Access subpage. */
+#app-content .zc-admin-page-head{display:grid!important;grid-template-columns:40px minmax(0,1fr) auto!important;align-items:center!important;gap:11px!important}
+#app-content .zc-admin-back{
+ display:grid!important;place-items:center!important;width:38px!important;height:38px!important;
+ border-radius:12px!important;border:1px solid var(--line)!important;background:var(--panel2)!important;
+ color:var(--text)!important;padding:0!important;cursor:pointer!important;flex:0 0 auto!important;
+}
+#app-content .zc-admin-back svg{width:19px;height:19px}
+#app-content .zc-admin-page-copy{min-width:0}
+#app-content .zc-admin-page-head h1{font-size:clamp(20px,4vw,27px)!important;line-height:1.16!important}
+#app-content .zc-admin-page-head p{font-size:12px!important;line-height:1.5!important}
+#app-content .zc-admin-page-head>.zc-admin-status{white-space:nowrap}
+@media(max-width:560px){
+ #app-content .zc-admin-page-head{grid-template-columns:36px minmax(0,1fr)!important;gap:9px!important}
+ #app-content .zc-admin-page-head>.zc-admin-status{grid-column:2;justify-self:start}
+ #app-content .zc-admin-back{width:34px!important;height:34px!important}
+}
+</style>
 </body></html>
