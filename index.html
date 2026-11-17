@@ -3697,6 +3697,33 @@ body[data-zc-theme] #app-content #wd-network-cards::-webkit-scrollbar-thumb{back
  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();
 })();
 </script>
+
+<style id="zc-member-plan-image-edge-fix-v2">
+/* Keep the member artwork clean: the only divider is the contour at its lower edge. */
+#dash-cards .gf-plan-artwork .zc-plan-flow-line{display:none!important;visibility:hidden!important}
+#dash-cards .gf-plan-artwork .zc-plan-carve-divider{
+ display:block!important;position:absolute!important;left:0!important;right:0!important;bottom:-1px!important;
+ width:100%!important;height:76px!important;z-index:30!important;pointer-events:none!important;overflow:visible!important;
+}
+#dash-cards .gf-plan-artwork .zc-plan-carve-stroke{stroke-width:2.5!important}
+</style>
+<script id="zc-member-plan-image-edge-fix-v2">
+(function(){
+ const d='M0 222 C120 236 220 236 300 224 C390 212 500 212 600 224 L600 240 L0 240 Z';
+ const l='M0 222 C120 236 220 236 300 224 C390 212 500 212 600 224';
+ function update(){
+  document.querySelectorAll('#dash-cards .gf-plan-artwork .zc-plan-carve-divider').forEach(function(svg){
+   const paths=svg.querySelectorAll('path');
+   if(paths[0])paths[0].setAttribute('d',d);
+   if(paths[1])paths[1].setAttribute('d',l);
+  });
+  document.querySelectorAll('#dash-cards .gf-plan-artwork .zc-plan-flow-line').forEach(function(svg){svg.remove()});
+ }
+ function init(){update();new MutationObserver(update).observe(document.body,{childList:true,subtree:true})}
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();
+})();
+</script>
+
 </body></html>
 
 <style id="zc-plan-tap-only-demarcation-v6">
