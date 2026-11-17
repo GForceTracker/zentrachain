@@ -763,6 +763,14 @@ html body .modal-head .brand{white-space:nowrap!important;min-width:0!important}
 </style>
 <style id="zc-exact-deposit-lines">.gf-plan-details,.gf-plan-detail-line{display:block}.gf-plan-detail-line,.gf-calc-detail-line{display:flex;align-items:center;justify-content:flex-start;gap:9px;width:100%;padding:7px 0;line-height:1.45;color:#a9c1b4;border-bottom:1px solid #ffffff12}.gf-plan-detail-line:last-child,.gf-calc-detail-line:last-child{border-bottom:0}.gf-plan-detail-line i,.gf-calc-detail-line i{width:16px;height:16px;flex:0 0 16px;color:#77e8b4}.gf-plan-detail-line b,.gf-calc-detail-line b{color:#effaf4;font-weight:750}.gf-calc-detail-line{font-size:13px}.gf-calc-detail-line span{display:inline}</style>
 <style id="zc-home-nav-button-v1">#side-nav .zc-home-nav-icon{display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;margin-right:8px;vertical-align:middle}#side-nav .zc-home-nav-icon svg{width:17px;height:17px;stroke:currentColor;stroke-width:2}</style>
+
+<style id="zc-public-plans-swipe-dots-v1">
+#public-plan-cards{scroll-behavior:smooth}
+#zc-public-plan-dots{display:flex;justify-content:center;align-items:center;gap:7px;padding:2px 0 0;margin:0 auto 4px}
+#zc-public-plan-dots button{appearance:none;border:0;width:6px;height:6px;min-width:6px;padding:0;border-radius:50%;background:#638575;opacity:.62;transition:width .2s ease,background .2s ease,opacity .2s ease}
+#zc-public-plan-dots button[aria-current="true"]{width:17px;border-radius:8px;background:#42d99a;opacity:1}
+#zc-public-plan-dots button:focus-visible{outline:2px solid #9be8c5;outline-offset:4px}
+</style>
 </head><body><div class="zc-particle-field" aria-hidden="true"></div>
 <div id="public">
 <header class="wrap topbar"><div class="brand"><div class="logo zc-brand-mark"><svg viewBox="0 0 40 40" width="27" height="27" aria-hidden="true" focusable="false"><defs><linearGradient id="zcLogoGrad" x1="4" y1="4" x2="36" y2="36" gradientUnits="userSpaceOnUse"><stop stop-color="#e0fff0"/><stop offset=".48" stop-color="#56e6ad"/><stop offset="1" stop-color="#16a978"/></linearGradient></defs><path d="M20 2.8 35.2 11.4v17.2L20 37.2 4.8 28.6V11.4L20 2.8Z" fill="none" stroke="url(#zcLogoGrad)" stroke-width="2.2"/><path d="M12 13.1h16L15.4 26.9H28" fill="none" stroke="url(#zcLogoGrad)" stroke-width="4.1" stroke-linecap="round" stroke-linejoin="round"/><circle cx="28.1" cy="13.1" r="2.1" fill="#e0fff0"/><circle cx="12" cy="26.9" r="2.1" fill="#56e6ad"/></svg></div>ZENTRACHAIN </div><nav class="nav"><a href="#how">How it works</a><a href="#markets">Markets</a><a href="#faq">FAQs</a><a href="#risk">Risk</a></nav><div id="public-account-actions" style="display:flex;gap:9px"><button class="btn ghost" id="public-login-button" onclick="showAuth('login')">Log in</button><button class="btn primary" id="public-signup-button" onclick="showAuth('signup')">Create account</button><button class="btn primary hidden" id="public-dashboard-button" onclick="zcGoDashboard()">Dashboard</button></div></header>
@@ -2984,6 +2992,38 @@ body[data-zc-theme] #app-content #wd-network-cards::-webkit-scrollbar-thumb{back
  window.zcGoLanding=function(){if(!$('public')||!$('application'))return;$('public').classList.remove('hidden');$('application').classList.add('hidden');syncPublicActions();window.scrollTo({top:0,behavior:'smooth'});if(window.lucide?.createIcons)window.lucide.createIcons()};
  window.zcGoDashboard=function(){if(!signedIn()){window.showAuth?.('login');return}if(typeof window.showApp==='function')window.showApp();else{$('public')?.classList.add('hidden');$('application')?.classList.remove('hidden')}if(typeof window.navigate==='function')window.navigate('overview');if(typeof window.closeDrawer==='function')window.closeDrawer()};
  syncPublicActions();
+})();
+</script>
+
+<script id="zc-public-plans-swipe-dots-script-v1">
+(function(){
+ function setup(){
+  const cards=document.getElementById('public-plan-cards');
+  if(!cards||cards.dataset.zcDotsReady==='1')return;
+  cards.dataset.zcDotsReady='1';
+  const dots=document.createElement('div');
+  dots.id='zc-public-plan-dots';
+  dots.setAttribute('aria-label','Plan carousel position');
+  dots.innerHTML='<button type="button" aria-label="First plans" aria-current="true"></button><button type="button" aria-label="Middle plans" aria-current="false"></button><button type="button" aria-label="Last plans" aria-current="false"></button>';
+  cards.insertAdjacentElement('afterend',dots);
+  const controls=Array.from(dots.querySelectorAll('button'));
+  function update(){
+   const max=Math.max(0,cards.scrollWidth-cards.clientWidth);
+   const ratio=max?cards.scrollLeft/max:0;
+   const active=Math.min(2,Math.round(ratio*2));
+   controls.forEach((button,index)=>button.setAttribute('aria-current',index===active?'true':'false'));
+   dots.hidden=cards.querySelectorAll(':scope > .plan-card').length<2;
+  }
+  controls.forEach((button,index)=>button.addEventListener('click',()=>{
+   const max=Math.max(0,cards.scrollWidth-cards.clientWidth);
+   cards.scrollTo({left:max*(index/2),behavior:'smooth'});
+  }));
+  cards.addEventListener('scroll',update,{passive:true});
+  if(window.ResizeObserver){new ResizeObserver(update).observe(cards)}
+  new MutationObserver(update).observe(cards,{childList:true});
+  update();
+ }
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',setup,{once:true});else setup();
 })();
 </script>
 </body></html>
