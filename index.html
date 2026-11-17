@@ -3653,3 +3653,84 @@ body[data-zc-theme] #app-content #wd-network-cards::-webkit-scrollbar-thumb{back
 })();
 </script>
 </body></html>
+
+<style id="zc-plan-tap-only-demarcation-v6">
+#public-plan-cards{gap:22px!important;padding:10px 7px 24px!important}
+#public-plan-cards>.gf-plan-compact-card{margin:0!important}
+#public-plan-cards .gf-plan-artwork{height:210px!important;min-height:210px!important;max-height:210px!important;flex-basis:210px!important}
+#dash-cards{gap:24px!important;padding:8px 2px 24px!important}
+#dash-cards>.gf-plan-compact-card{margin:0!important}
+#dash-cards .gf-plan-artwork{height:224px!important;min-height:224px!important;max-height:224px!important;flex-basis:224px!important}
+#public-plan-cards .gf-plan-artwork .zc-plan-flow-line,#dash-cards .gf-plan-artwork .zc-plan-flow-line{
+ position:absolute!important;inset:0!important;width:100%!important;height:100%!important;display:block!important;
+ z-index:12!important;pointer-events:none!important;overflow:visible!important;opacity:1!important;color:var(--green)!important;
+ filter:drop-shadow(0 0 3px var(--green)) drop-shadow(0 0 8px var(--green)) drop-shadow(0 0 13px color-mix(in srgb,var(--green) 75%,transparent))!important;
+}
+#public-plan-cards .gf-plan-artwork .zc-plan-flow-line path,#dash-cards .gf-plan-artwork .zc-plan-flow-line path{
+ fill:none!important;stroke:var(--mint)!important;stroke-width:4.5!important;stroke-linecap:round!important;
+ stroke-dasharray:none!important;stroke-dashoffset:0!important;animation:none!important;
+}
+#public-plan-cards>.gf-plan-compact-card.is-scroll-active,#dash-cards>.gf-plan-compact-card.is-scroll-active,
+#public-plan-cards>.gf-plan-compact-card.is-selected:not(.is-tap-selected),#dash-cards>.gf-plan-compact-card.is-selected:not(.is-tap-selected){
+ border:1px solid rgba(129,174,149,.28)!important;outline:0!important;box-shadow:none!important;transform:none!important;z-index:auto!important;
+}
+#public-plan-cards>.gf-plan-compact-card.is-scroll-active::after,#dash-cards>.gf-plan-compact-card.is-scroll-active::after,
+#public-plan-cards>.gf-plan-compact-card.is-selected:not(.is-tap-selected)::after,#dash-cards>.gf-plan-compact-card.is-selected:not(.is-tap-selected)::after{
+ opacity:0!important;animation:none!important;
+}
+#public-plan-cards>.gf-plan-compact-card.is-tap-selected,#dash-cards>.gf-plan-compact-card.is-tap-selected{
+ position:relative!important;z-index:6!important;border:2px solid color-mix(in srgb,var(--green) 92%,white)!important;
+ outline:1px solid color-mix(in srgb,var(--green) 55%,transparent)!important;outline-offset:2px!important;
+ box-shadow:0 0 0 1px color-mix(in srgb,var(--green) 30%,transparent),0 0 16px color-mix(in srgb,var(--green) 58%,transparent),
+ 0 0 34px color-mix(in srgb,var(--green) 30%,transparent),0 14px 32px rgba(0,0,0,.34),inset 0 0 20px color-mix(in srgb,var(--green) 10%,transparent)!important;
+ transform:translateY(-3px)!important;
+}
+#public-plan-cards>.gf-plan-compact-card.is-tap-selected::after,#dash-cards>.gf-plan-compact-card.is-tap-selected::after{
+ opacity:1!important;animation:zc-theme-edge-run 6.5s linear infinite!important;
+}
+@media(max-width:700px){
+ #public-plan-cards{gap:19px!important}
+ #public-plan-cards .gf-plan-artwork{height:202px!important;min-height:202px!important;max-height:202px!important;flex-basis:202px!important}
+ #dash-cards{gap:21px!important}
+ #dash-cards .gf-plan-artwork{height:210px!important;min-height:210px!important;max-height:210px!important;flex-basis:210px!important}
+}
+@media(prefers-reduced-motion:reduce){
+ #public-plan-cards>.gf-plan-compact-card.is-tap-selected::after,#dash-cards>.gf-plan-compact-card.is-tap-selected::after{animation:none!important}
+}
+</style>
+<script id="zc-plan-tap-only-demarcation-v6">
+(function(){
+ if(window.__zcPlanTapOnlyV6)return;window.__zcPlanTapOnlyV6=true;
+ const selector='#public-plan-cards,#dash-cards';
+ function clearScrollState(root){root.querySelectorAll('.gf-plan-compact-card.is-scroll-active').forEach(card=>card.classList.remove('is-scroll-active'))}
+ function selectCard(card){
+  const rail=card&&card.closest(selector);if(!rail)return;
+  rail.querySelectorAll(':scope > .gf-plan-compact-card').forEach(item=>item.classList.toggle('is-tap-selected',item===card));
+ }
+ document.addEventListener('click',function(event){
+  const card=event.target.closest&&event.target.closest('.gf-plan-compact-card[data-gf-plan-id]');
+  if(card&&card.closest(selector))selectCard(card);
+ },true);
+ document.addEventListener('keydown',function(event){
+  if(event.key!=='Enter'&&event.key!==' ')return;
+  const card=event.target.closest&&event.target.closest('.gf-plan-compact-card[data-gf-plan-id]');
+  if(card&&card.closest(selector)){event.preventDefault();selectCard(card)}
+ },true);
+ function scan(){
+  document.querySelectorAll(selector).forEach(root=>{
+   clearScrollState(root);
+   root.querySelectorAll('.gf-plan-artwork').forEach(art=>{
+    if(art.querySelector('.zc-plan-flow-line'))return;
+    const svg=document.createElementNS('http://www.w3.org/2000/svg','svg');
+    svg.setAttribute('class','zc-plan-flow-line');svg.setAttribute('viewBox','0 0 600 180');
+    svg.setAttribute('preserveAspectRatio','none');svg.setAttribute('aria-hidden','true');
+    const path=document.createElementNS('http://www.w3.org/2000/svg','path');
+    path.setAttribute('d','M600 146 C550 139 500 139 450 146 S350 153 300 146 S200 139 150 146 S50 153 0 146');
+    svg.appendChild(path);art.appendChild(svg);
+   });
+  });
+ }
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',scan,{once:true});else scan();
+ new MutationObserver(scan).observe(document.body,{childList:true,subtree:true});
+})();
+</script>
