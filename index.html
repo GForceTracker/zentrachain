@@ -1823,7 +1823,7 @@ html body .zc-motion-reveal{transition:opacity .62s ease,transform .62s cubic-be
  };
  function withdrawalNetworkLogo(n){
   const x=withdrawalLogos[n.asset_code]||{s:(n.asset_code||'?').slice(0,1),c:'#718096',f:(n.asset_code||'').toLowerCase()};
-  return '<div class="zc-wallet-logos"><span class="zc-coin-logo" style="--coin-color:'+x.c+'"><span class="zc-coin-fallback">'+x.s+'</span><img src="https://cdn.jsdelivr.net/npm/cryptocurrency-icons@0.18.1/svg/color/'+x.f+'.svg" alt="'+safe(n.asset_code)+' logo" loading="eager" onload="this.previousElementSibling.style.display=\\'none\\'" onerror="this.style.display=\\'none\\'"></span></div>';
+  return '<div class="zc-wallet-logos"><span class="zc-coin-logo" style="--coin-color:'+x.c+'"><span class="zc-coin-fallback">'+x.s+'</span><img src="https://cdn.jsdelivr.net/npm/cryptocurrency-icons@0.18.1/svg/color/'+x.f+'.svg" alt="'+safe(n.asset_code)+' logo" loading="eager" onload="this.previousElementSibling.style.display=&quot;none&quot;" onerror="this.style.display=&quot;none&quot;"></span></div>';
  }
  function quote(){
   const n=availableNetworks.find(x=>x.id===selectedId),usd=Number($id('wd-amount')?.value||0),box=$id('wd-quote');
