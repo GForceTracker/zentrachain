@@ -908,7 +908,7 @@ function planUpdate(s){
  else a.value=Math.min(Number(p.max_amount),Math.max(Number(p.min_amount),Number(a.value)));
  r.min=p.min_amount;r.max=p.max_amount;r.step=Math.max(.01,(Number(p.max_amount)-Number(p.min_amount))/1000);r.value=a.value;
  if(days){const base=Math.max(1,Number(p.duration_value||1)*(String(p.duration_unit).toLowerCase().startsWith('hour')?1/24:1));days.value=Math.min(365,Math.max(1,Math.round(base)));const out=$(s+'-days-value');if(out)out.textContent=days.value;}
- $(s+'-limits').innerHTML='<div class="gf-calc-detail-line"><i data-lucide="arrow-down-to-line" aria-hidden="true"></i><span>Min deposit: <b>'+money(p.min_amount)+'</b></span></div><div class="gf-calc-detail-line"><i data-lucide="arrow-up-from-line" aria-hidden="true"></i><span>Max deposit: <b>'+money(p.max_amount)+'</b></span></div><div class="gf-calc-detail-line"><i data-lucide="percent" aria-hidden="true"></i><span>Plan percentage: <b>'+fmt(p.percentage)+'%</b></span></div>'if(window.lucide&&window.lucide.createIcons)window.lucide.createIcons({root:$(s+'-limits')});
+ $(s+'-limits').innerHTML='<div class="gf-calc-detail-line"><i data-lucide="arrow-down-to-line" aria-hidden="true"></i><span>Min deposit: <b>'+money(p.min_amount)+'</b></span></div><div class="gf-calc-detail-line"><i data-lucide="arrow-up-from-line" aria-hidden="true"></i><span>Max deposit: <b>'+money(p.max_amount)+'</b></span></div><div class="gf-calc-detail-line"><i data-lucide="percent" aria-hidden="true"></i><span>Plan percentage: <b>'+fmt(p.percentage)+'%</b></span></div>';if(window.lucide&&window.lucide.createIcons)window.lucide.createIcons({root:$(s+'-limits')});
  planCalc(s);
 }
 function planSync(s,from){
