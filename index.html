@@ -2160,15 +2160,15 @@ html body .zc-motion-reveal{transition:opacity .62s ease,transform .62s cubic-be
       .filter(style=>style.id!=='zc-withdraw-deposit-clone-css' &&
         style.textContent && style.textContent.includes('#zc-deposit-options'));
     const css=sourceStyles.map(style=>style.textContent
-      .replace(/#app-content\\s+#zc-deposit-options/g,'#app-content #wd-network-cards')
-      .replace(/#zc-deposit-options/g,'#wd-network-cards')
-    ).join('\\n');
+      .replaceAll('#app-content #zc-deposit-options','#app-content #wd-network-cards')
+      .replaceAll('#zc-deposit-options','#wd-network-cards')
+    ).join(String.fromCharCode(10));
 
     let target=document.getElementById('zc-withdraw-deposit-clone-css');
     if(!target){
       target=document.createElement('style');
       target.id='zc-withdraw-deposit-clone-css';
-      document.head.appendChild(target);
+      document.body.appendChild(target);
     }
     target.textContent=css;
   }
