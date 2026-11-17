@@ -3450,4 +3450,83 @@ body[data-zc-theme] #app-content #wd-network-cards::-webkit-scrollbar-thumb{back
 })();
 </script>
 
+
+<style id="zc-plan-vertical-dashboard-and-slow-edge-v4">
+/* The member Plans page is a vertical list, not a horizontal carousel. */
+#dash-cards{
+ display:flex!important;flex-direction:column!important;align-items:stretch!important;
+ gap:18px!important;width:100%!important;max-width:760px!important;margin:0 auto!important;
+}
+#dash-cards>.gf-plan-compact-card{
+ width:100%!important;min-width:0!important;max-width:100%!important;flex:0 0 auto!important;
+ scroll-snap-align:none!important;
+}
+#dash-cards .gf-plan-artwork{height:178px!important;min-height:178px!important;max-height:178px!important;aspect-ratio:auto!important}
+#dash-cards>.gf-plan-compact-card.is-scroll-active{
+ border:2px solid color-mix(in srgb,var(--green) 88%,white)!important;
+ outline:1px solid color-mix(in srgb,var(--green) 42%,transparent)!important;outline-offset:1px!important;
+ box-shadow:0 0 0 1px color-mix(in srgb,var(--green) 22%,transparent),0 0 13px color-mix(in srgb,var(--green) 45%,transparent),0 0 28px color-mix(in srgb,var(--green) 20%,transparent),0 12px 30px rgba(0,0,0,.28),inset 0 0 18px color-mix(in srgb,var(--green) 8%,transparent)!important;
+}
+#public-plan-cards>.gf-plan-compact-card.is-scroll-active::after,
+#public-plan-cards>.gf-plan-compact-card:hover::after,
+#dash-cards>.gf-plan-compact-card.is-scroll-active::after{
+ animation:zc-theme-edge-run 6.5s linear infinite!important;
+}
+#public-plan-cards .gf-plan-artwork .zc-plan-flow-line path,
+#dash-cards .gf-plan-artwork .zc-plan-flow-line path{
+ stroke-dasharray:none!important;animation:none!important;stroke-width:3.2!important;
+ filter:drop-shadow(0 0 3px var(--green)) drop-shadow(0 0 7px var(--green))!important;
+}
+#public-plan-cards .gf-plan-artwork .zc-plan-flow-line,
+#dash-cards .gf-plan-artwork .zc-plan-flow-line{
+ color:var(--green)!important;opacity:.98!important;
+}
+@media(hover:hover) and (pointer:fine){
+ #dash-cards>.gf-plan-compact-card:hover{
+  transform:translateY(-3px)!important;border-color:var(--green)!important;
+  box-shadow:0 0 0 1px color-mix(in srgb,var(--green) 20%,transparent),0 0 15px color-mix(in srgb,var(--green) 35%,transparent),0 14px 30px rgba(0,0,0,.28)!important;
+ }
+ #dash-cards>.gf-plan-compact-card:hover::after{opacity:1!important;animation:zc-theme-edge-run 6.5s linear infinite!important}
+}
+@media(max-width:700px){
+ #dash-cards{gap:15px!important;padding:0 1px!important}
+ #dash-cards .gf-plan-artwork{height:166px!important;min-height:166px!important;max-height:166px!important}
+}
+</style>
+<script id="zc-plan-scroll-focus-all-pages-v4">
+(function(){
+ const selector='#public-plan-cards, #dash-cards';
+ function init(){
+  function attach(rail){
+   if(!rail||rail.dataset.zcFocusAllReady==='1')return;
+   rail.dataset.zcFocusAllReady='1';
+   let frame=0;
+   function update(){
+    frame=0;
+    const cards=Array.from(rail.querySelectorAll(':scope > .gf-plan-compact-card'));
+    if(!cards.length)return;
+    const center=rail.id==='dash-cards'?window.innerHeight*.48:(()=>{const r=rail.getBoundingClientRect();return r.top+r.height/2})();
+    let active=null,best=Infinity;
+    cards.forEach(card=>{
+     const r=card.getBoundingClientRect();
+     if(r.bottom<=0||r.top>=window.innerHeight)return;
+     const d=Math.abs((r.top+r.height/2)-center);
+     if(d<best){best=d;active=card}
+    });
+    cards.forEach(card=>card.classList.toggle('is-scroll-active',card===active));
+   }
+   function schedule(){if(!frame)frame=requestAnimationFrame(update)}
+   if(rail.id==='public-plan-cards')rail.addEventListener('scroll',schedule,{passive:true});
+   window.addEventListener('scroll',schedule,{passive:true});
+   window.addEventListener('resize',schedule,{passive:true});
+   new MutationObserver(schedule).observe(rail,{childList:true});
+   schedule();
+  }
+  document.querySelectorAll(selector).forEach(attach);
+  new MutationObserver(()=>document.querySelectorAll(selector).forEach(attach)).observe(document.body,{childList:true,subtree:true});
+ }
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();
+})();
+</script>
+
 </body></html>
