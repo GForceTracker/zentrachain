@@ -1816,6 +1816,15 @@ html body .zc-motion-reveal{transition:opacity .62s ease,transform .62s cubic-be
  const safe=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
  let selectedId='usdt-trc20',availableNetworks=[],withdrawalBusy=false;
  const $id=id=>document.getElementById(id);
+ const withdrawalLogos={
+  USDT:{s:'₮',c:'#26a17b',f:'usdt'},BTC:{s:'₿',c:'#f7931a',f:'btc'},
+  ETH:{s:'◆',c:'#627eea',f:'eth'},SOL:{s:'≋',c:'#9945ff',f:'sol'},
+  TRX:{s:'△',c:'#e84142',f:'trx'},DOGE:{s:'Ð',c:'#c2a633',f:'doge'}
+ };
+ function withdrawalNetworkLogo(n){
+  const x=withdrawalLogos[n.asset_code]||{s:(n.asset_code||'?').slice(0,1),c:'#718096',f:(n.asset_code||'').toLowerCase()};
+  return '<div class="zc-wallet-logos"><span class="zc-coin-logo" style="--coin-color:'+x.c+'"><span class="zc-coin-fallback">'+x.s+'</span><img src="https://cdn.jsdelivr.net/npm/cryptocurrency-icons@0.18.1/svg/color/'+x.f+'.svg" alt="'+safe(n.asset_code)+' logo" loading="eager" onload="this.previousElementSibling.style.display=\\'none\\'" onerror="this.style.display=\\'none\\'"></span></div>';
+ }
  function quote(){
   const n=availableNetworks.find(x=>x.id===selectedId),usd=Number($id('wd-amount')?.value||0),box=$id('wd-quote');
   if(!box)return;
@@ -1831,7 +1840,7 @@ html body .zc-motion-reveal{transition:opacity .62s ease,transform .62s cubic-be
   const sel=$id('wd-network');if(sel)sel.value=id;
   document.querySelectorAll('#wd-network-cards .deposit-asset-option').forEach(card=>{
    const active=card.dataset.networkRow===id;card.classList.toggle('selected',active);
-   const b=card.querySelector('button');if(b)b.textContent=active?'Selected':'Select';
+   const b=card.querySelector('button');if(b){b.textContent=active?'Selected':'Select';b.setAttribute('aria-pressed',active?'true':'false')}
   });
   const label=$id('wd-selected-network');if(label&&n)label.textContent=n.asset_code+' · '+n.network_code;
   quote();
@@ -1848,7 +1857,7 @@ html body .zc-motion-reveal{transition:opacity .62s ease,transform .62s cubic-be
    const rank=n=>n.id==='usdt-trc20'?0:n.asset_code==='USDT'?1:2;
    availableNetworks.sort((a,b)=>rank(a)-rank(b)||String(a.network_code).localeCompare(String(b.network_code)));
    if(!availableNetworks.length){list.innerHTML='<div class="wallet-warning">No enabled payout networks are currently configured. Contact support.</div>';return}
-   list.innerHTML=availableNetworks.map(n=>'<div class="deposit-asset-option" data-network-row="'+safe(n.id)+'" role="button" tabindex="0" style="cursor:pointer">'+(typeof window.networkLogo==='function'?window.networkLogo(n):'')+'<div class="network-meta"><b>'+safe(n.asset_code)+' · '+safe(n.network_code)+'</b><small>'+safe(n.asset_name||n.asset_code)+' on '+safe(n.network_name||n.network_code)+'</small></div><button class="btn" type="button">'+(n.id===selectedId?'Selected':'Select')+'</button></div>').join('');
+   list.innerHTML=availableNetworks.map(n=>'<article class="deposit-asset-option '+(n.id===selectedId?'selected':'')+'" data-network-row="'+safe(n.id)+'" role="button" tabindex="0" aria-label="Select '+safe(n.asset_code)+' '+safe(n.network_code)+'">'+withdrawalNetworkLogo(n)+'<div class="network-meta"><b>'+safe(n.asset_code)+' <span class="zc-network-chip">'+safe(n.network_code)+'</span></b><small>'+safe(n.asset_name||n.asset_code)+' · '+safe(n.network_name||n.network_code)+'</small><small class="zc-network-availability">'+(n.is_enabled?'Available':'Temporarily unavailable')+'</small></div><button class="btn" type="button" data-network="'+safe(n.id)+'" aria-pressed="'+(n.id===selectedId?'true':'false')+'">'+(n.id===selectedId?'Selected':'Select')+'</button></article>').join('');
    sel.innerHTML=availableNetworks.map(n=>'<option value="'+safe(n.id)+'">'+safe(n.asset_code)+' · '+safe(n.network_code)+'</option>').join('');
    if(!availableNetworks.some(n=>n.id===selectedId))selectedId=(availableNetworks.find(n=>n.id==='usdt-trc20')||availableNetworks[0]).id;
    list.addEventListener('click',e=>{const card=e.target.closest('.deposit-asset-option[data-network-row]');if(card)select(card.dataset.networkRow)});
@@ -2004,32 +2013,7 @@ html body .zc-motion-reveal{transition:opacity .62s ease,transform .62s cubic-be
 #app-content .asset-logo-stack>.asset-logo.chain{display:none!important}
 #app-content .deposit-asset-option>.asset-logo-stack{margin:0!important}
 </style>
-<style id="zc-withdraw-network-match-deposit-v1">
-/* Match Withdrawal network rows to the Deposit network rows exactly. */
-#app-content #wd-network-cards .deposit-asset-option{
- display:flex!important;align-items:center!important;gap:13px!important;
- padding:14px!important;border:1px solid #ffffff19!important;border-radius:15px!important;
- background:linear-gradient(135deg,#102c20,#091a12)!important;
-}
-#app-content #wd-network-cards .deposit-asset-option.selected{
- border-color:#36d895!important;background:linear-gradient(135deg,#16462f,#0b2117)!important;
-}
-#app-content #wd-network-cards .network-meta{flex:1!important;min-width:0!important}
-#app-content #wd-network-cards .network-meta b{
- display:block!important;font-size:14px!important;font-weight:700!important;line-height:normal!important;
-}
-#app-content #wd-network-cards .network-meta small{
- display:block!important;color:#91aa9c!important;margin-top:4px!important;
-}
-#app-content #wd-network-cards .asset-logo-stack{
- display:inline-flex!important;align-items:center!important;justify-content:center!important;
- gap:0!important;position:relative!important;flex:0 0 38px!important;width:38px!important;height:38px!important;
-}
-#app-content #wd-network-cards .asset-logo-stack>.asset-logo.chain{display:none!important}
-#app-content #wd-network-cards .asset-logo-stack>.asset-logo:not(.chain){
- width:36px!important;height:36px!important;flex:0 0 36px!important;
-}
-</style>
+
 
 
 <style id="zc-remove-secondary-network-logo-v1">
