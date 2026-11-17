@@ -1848,7 +1848,7 @@ html body .zc-motion-reveal{transition:opacity .62s ease,transform .62s cubic-be
    const rank=n=>n.id==='usdt-trc20'?0:n.asset_code==='USDT'?1:2;
    availableNetworks.sort((a,b)=>rank(a)-rank(b)||String(a.network_code).localeCompare(String(b.network_code)));
    if(!availableNetworks.length){list.innerHTML='<div class="wallet-warning">No enabled payout networks are currently configured. Contact support.</div>';return}
-   list.innerHTML=availableNetworks.map(n=>'<div class="deposit-asset-option" data-network-row="'+safe(n.id)+'" role="button" tabindex="0" style="cursor:pointer">'+(typeof networkLogo==='function'?networkLogo(n):'')+'<div class="network-meta"><b>'+safe(n.asset_code)+' · '+safe(n.network_code)+'</b><small>'+safe(n.asset_name||n.asset_code)+' on '+safe(n.network_name||n.network_code)+'</small></div><button class="btn" type="button">'+(n.id===selectedId?'Selected':'Select')+'</button></div>').join('');
+   list.innerHTML=availableNetworks.map(n=>'<div class="deposit-asset-option" data-network-row="'+safe(n.id)+'" role="button" tabindex="0" style="cursor:pointer">'+(typeof window.networkLogo==='function'?window.networkLogo(n):'')+'<div class="network-meta"><b>'+safe(n.asset_code)+' · '+safe(n.network_code)+'</b><small>'+safe(n.asset_name||n.asset_code)+' on '+safe(n.network_name||n.network_code)+'</small></div><button class="btn" type="button">'+(n.id===selectedId?'Selected':'Select')+'</button></div>').join('');
    sel.innerHTML=availableNetworks.map(n=>'<option value="'+safe(n.id)+'">'+safe(n.asset_code)+' · '+safe(n.network_code)+'</option>').join('');
    if(!availableNetworks.some(n=>n.id===selectedId))selectedId=(availableNetworks.find(n=>n.id==='usdt-trc20')||availableNetworks[0]).id;
    list.addEventListener('click',e=>{const card=e.target.closest('.deposit-asset-option[data-network-row]');if(card)select(card.dataset.networkRow)});
@@ -2149,4 +2149,56 @@ html body .zc-motion-reveal{transition:opacity .62s ease,transform .62s cubic-be
 #app-content #zc-deposit-options .network-meta small{font-size:9px!important;line-height:1!important;margin:0!important}
 #app-content #zc-deposit-options .deposit-asset-option>.btn{padding:4px 8px!important;font-size:10px!important;line-height:1!important;min-height:26px!important}
 </style>
+
+<style id="zc-withdraw-network-card-height-v2">
+/* Mirror the current Deposit selector's exact icon and row sizing. */
+#app-content #wd-network-cards.deposit-asset-list{
+  display:flex!important;flex-direction:column!important;
+  max-height:198px!important;gap:6px!important;
+  overflow-y:auto!important;overflow-x:hidden!important;
+  -webkit-overflow-scrolling:touch!important;overscroll-behavior:contain!important;
+  padding:4px 7px 4px 0!important;
+  scrollbar-width:thin!important;scrollbar-color:#397bb8 #0b1d30!important;
+}
+#app-content #wd-network-cards .deposit-asset-option{
+  display:flex!important;flex:0 0 52px!important;
+  height:52px!important;min-height:52px!important;max-height:52px!important;
+  padding:4px 8px!important;gap:6px!important;box-sizing:border-box!important;
+  align-items:center!important;overflow:hidden!important;
+  border:1px solid #ffffff19!important;border-radius:15px!important;
+  background:linear-gradient(135deg,#102c20,#091a12)!important;
+}
+#app-content #wd-network-cards .deposit-asset-option.selected{
+  border-color:#36d895!important;background:linear-gradient(135deg,#16462f,#0b2117)!important;
+}
+#app-content #wd-network-cards .asset-logo-stack{
+  display:inline-flex!important;align-items:center!important;justify-content:center!important;
+  flex:0 0 29px!important;width:29px!important;height:29px!important;
+  gap:0!important;position:relative!important;
+}
+#app-content #wd-network-cards .asset-logo-stack>.asset-logo:not(.chain){
+  display:grid!important;place-items:center!important;
+  width:28px!important;height:28px!important;min-width:28px!important;min-height:28px!important;
+  flex:0 0 28px!important;border-radius:50%!important;overflow:hidden!important;
+}
+#app-content #wd-network-cards .asset-logo-stack>.asset-logo:not(.chain) img{
+  width:19px!important;height:19px!important;max-width:19px!important;max-height:19px!important;
+  object-fit:contain!important;
+}
+#app-content #wd-network-cards .network-meta{
+  flex:1!important;min-width:0!important;line-height:1!important;gap:2px!important;
+}
+#app-content #wd-network-cards .network-meta b{
+  display:block!important;font-size:12px!important;line-height:1!important;margin:0!important;
+}
+#app-content #wd-network-cards .network-meta small{
+  display:block!important;font-size:9px!important;line-height:1!important;margin:0!important;
+  color:#91aa9c!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important;
+}
+#app-content #wd-network-cards .deposit-asset-option>.btn{
+  flex:0 0 auto!important;padding:4px 8px!important;font-size:10px!important;
+  line-height:1!important;min-height:26px!important;white-space:nowrap!important;
+}
+</style>
+
 </body></html>
