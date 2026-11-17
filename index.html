@@ -3026,4 +3026,43 @@ body[data-zc-theme] #app-content #wd-network-cards::-webkit-scrollbar-thumb{back
  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',setup,{once:true});else setup();
 })();
 </script>
+
+<style id="zc-public-plan-card-size-v2">
+/* Give public investment cards more room and make their plan photos taller. */
+#public-plan-cards>.plan-card{
+ flex:0 0 74%!important;
+ width:74%!important;
+}
+#public-plan-cards .gf-plan-artwork{
+ height:128px!important;
+ min-height:128px!important;
+ max-height:128px!important;
+}
+#public-plan-cards .gf-plan-artwork img{
+ width:100%!important;
+ height:100%!important;
+ object-fit:cover!important;
+ object-position:center 48%!important;
+}
+@media(min-width:700px){
+ #public-plan-cards>.plan-card{
+  flex-basis:34%!important;
+  width:34%!important;
+  max-width:390px!important;
+ }
+ #public-plan-cards .gf-plan-artwork{
+  height:148px!important;
+  min-height:148px!important;
+  max-height:148px!important;
+ }
+}
+@media(max-width:700px){
+ #public-plan-cards .gf-plan-artwork{
+  height:118px!important;
+  min-height:118px!important;
+  max-height:118px!important;
+ }
+}
+</style>
+
 </body></html>
