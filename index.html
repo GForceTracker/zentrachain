@@ -3384,4 +3384,69 @@ body[data-zc-theme] #app-content #wd-network-cards::-webkit-scrollbar-thumb{back
 })();
 </script>
 
+
+<style id="zc-plan-theme-following-flow-v3">
+@property --zc-edge-angle{
+ syntax:"<angle>";
+ inherits:false;
+ initial-value:0deg;
+}
+#public-plan-cards>.gf-plan-compact-card{isolation:isolate!important}
+#public-plan-cards>.gf-plan-compact-card::after{
+ content:""!important;position:absolute!important;inset:-1px!important;z-index:8!important;
+ pointer-events:none!important;border-radius:inherit!important;padding:3.5px!important;
+ background:conic-gradient(from var(--zc-edge-angle),transparent 0deg,transparent 225deg,color-mix(in srgb,var(--green) 25%,transparent) 244deg,var(--green) 264deg,var(--mint) 281deg,#fff 287deg,var(--mint) 294deg,var(--green) 307deg,color-mix(in srgb,var(--green) 25%,transparent) 326deg,transparent 345deg,transparent 360deg)!important;
+ -webkit-mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0)!important;
+ -webkit-mask-composite:xor!important;mask-composite:exclude!important;opacity:0!important;
+}
+#public-plan-cards>.gf-plan-compact-card.is-scroll-active{
+ z-index:5!important;border:2px solid color-mix(in srgb,var(--green) 88%,white)!important;
+ outline:1px solid color-mix(in srgb,var(--green) 48%,transparent)!important;outline-offset:1px!important;
+ box-shadow:0 0 0 1px color-mix(in srgb,var(--green) 24%,transparent),0 0 13px color-mix(in srgb,var(--green) 52%,transparent),0 0 30px color-mix(in srgb,var(--green) 24%,transparent),0 12px 30px rgba(0,0,0,.3),inset 0 0 18px color-mix(in srgb,var(--green) 9%,transparent)!important;
+}
+#public-plan-cards>.gf-plan-compact-card.is-scroll-active::after{
+ opacity:1!important;animation:zc-theme-edge-run 2.15s linear infinite!important;
+}
+@keyframes zc-theme-edge-run{to{--zc-edge-angle:360deg}}
+@media(hover:hover) and (pointer:fine){
+ #public-plan-cards>.gf-plan-compact-card:hover::after{opacity:1!important;animation:zc-theme-edge-run 2.15s linear infinite!important}
+}
+#public-plan-cards .gf-plan-artwork{position:relative!important}
+#public-plan-cards .gf-plan-artwork .zc-plan-flow-line{
+ position:absolute!important;inset:0!important;width:100%!important;height:100%!important;
+ pointer-events:none!important;z-index:4!important;overflow:visible!important;color:var(--green)!important;
+ filter:drop-shadow(0 0 2px var(--green)) drop-shadow(0 0 5px var(--green))!important;
+}
+#public-plan-cards .gf-plan-artwork .zc-plan-flow-line path{
+ fill:none!important;stroke:currentColor!important;stroke-width:3.2!important;stroke-linecap:round!important;
+ stroke-dasharray:42 18 8 18!important;animation:zc-wave-line-run 2.2s linear infinite!important;
+}
+@keyframes zc-wave-line-run{to{stroke-dashoffset:-172}}
+@media(prefers-reduced-motion:reduce){
+ #public-plan-cards>.gf-plan-compact-card.is-scroll-active::after,
+ #public-plan-cards>.gf-plan-compact-card:hover::after,
+ #public-plan-cards .gf-plan-artwork .zc-plan-flow-line path{animation:none!important}
+}
+</style>
+<script id="zc-plan-theme-following-flow-v3">
+(function(){
+ function init(){
+  const rail=document.getElementById('public-plan-cards');if(!rail||rail.dataset.zcThemeFlowReady==='1')return;
+  rail.dataset.zcThemeFlowReady='1';
+  function addWaveLines(){
+   rail.querySelectorAll('.gf-plan-artwork').forEach(art=>{
+    if(art.querySelector('.zc-plan-flow-line'))return;
+    const svg=document.createElementNS('http://www.w3.org/2000/svg','svg');
+    svg.setAttribute('class','zc-plan-flow-line');svg.setAttribute('viewBox','0 0 600 180');svg.setAttribute('preserveAspectRatio','none');svg.setAttribute('aria-hidden','true');
+    const path=document.createElementNS('http://www.w3.org/2000/svg','path');
+    path.setAttribute('d','M600 150 C550 144 500 144 450 150 S350 156 300 150 S200 144 150 150 S50 156 0 150');
+    svg.appendChild(path);art.appendChild(svg);
+   });
+  }
+  addWaveLines();new MutationObserver(addWaveLines).observe(rail,{childList:true,subtree:true});
+ }
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();
+})();
+</script>
+
 </body></html>
