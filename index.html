@@ -3221,12 +3221,14 @@ body[data-zc-theme] #app-content #wd-network-cards::-webkit-scrollbar-thumb{back
   function step(){
    const items=cards();
    if(!visible||paused||document.hidden||items.length<2)return;
-   const current=items.reduce((best,card,index)=>{
-    const distance=Math.abs(card.offsetLeft-rail.scrollLeft);
+   const railLeft=rail.getBoundingClientRect().left;
+   const positions=items.map(card=>rail.scrollLeft+card.getBoundingClientRect().left-railLeft);
+   const current=positions.reduce((best,left,index)=>{
+    const distance=Math.abs(left-rail.scrollLeft);
     return distance<best.distance?{index,distance}:best;
    },{index:0,distance:Infinity}).index;
    const next=(current+1)%items.length;
-   rail.scrollTo({left:next===0?0:items[next].offsetLeft,behavior:reduced?'auto':'smooth'});
+   rail.scrollTo({left:next===0?0:positions[next],behavior:reduced?'auto':'smooth'});
   }
   function start(){
    stop();
