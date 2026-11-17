@@ -2385,4 +2385,221 @@ body[data-zc-theme] #app-content #wd-network-cards::-webkit-scrollbar-thumb{back
 
 })();
 </script>
+<style id="zc-admin-access-v3-css">
+#side-nav .zc-admin-group{display:flex;flex-direction:column;gap:7px;width:100%;margin:2px 0}
+#side-nav .zc-admin-toggle{display:flex;align-items:center;gap:12px;width:100%;text-align:left;font-weight:800}
+#side-nav .zc-admin-toggle .zc-admin-chevron{margin-left:auto;transition:transform .18s ease;font-size:13px;opacity:.8}
+#side-nav .zc-admin-group.is-open .zc-admin-chevron{transform:rotate(180deg)}
+#side-nav .zc-admin-subnav{display:none;grid-template-columns:1fr;gap:5px;padding:5px 0 5px 13px;margin-left:12px;border-left:1px solid rgba(120,170,220,.28)}
+#side-nav .zc-admin-group.is-open .zc-admin-subnav{display:grid}
+#side-nav .zc-admin-subnav button{min-height:42px;padding:10px 12px;border-radius:11px;font-size:13px;line-height:1.3;text-align:left;justify-content:flex-start;background:transparent;border:1px solid transparent;color:var(--muted)}
+#side-nav .zc-admin-subnav button:before{content:"";width:6px;height:6px;border-radius:50%;background:currentColor;opacity:.45;margin-right:9px;flex:0 0 auto}
+#side-nav .zc-admin-subnav button.active{color:var(--text);background:rgba(70,145,220,.13);border-color:rgba(90,160,235,.28)}
+#app-content .zc-admin-page-head{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;flex-wrap:wrap;margin-bottom:20px}
+#app-content .zc-admin-page-head h1{margin:4px 0 6px}
+#app-content .zc-admin-page-head p{margin:0;max-width:680px}
+#app-content .zc-admin-section-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:13px}
+#app-content .zc-admin-section-card{display:flex;flex-direction:column;gap:9px;min-height:126px;text-align:left;padding:18px;border:1px solid var(--line);border-radius:16px;background:var(--panel);color:var(--text);cursor:pointer;transition:border-color .16s,transform .16s}
+#app-content .zc-admin-section-card:hover{border-color:var(--accent,#4b9fff);transform:translateY(-1px)}
+#app-content .zc-admin-section-card .zc-admin-icon{width:36px;height:36px;border-radius:11px;display:grid;place-items:center;background:var(--panel2);font-size:18px}
+#app-content .zc-admin-section-card b{font-size:14px}
+#app-content .zc-admin-section-card small{font-size:12px;line-height:1.5;color:var(--muted)}
+#app-content .zc-admin-settings-card{max-width:820px}
+#app-content .zc-admin-settings-fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+#app-content .zc-admin-settings-fields .field{min-width:0}
+#app-content .zc-admin-settings-fields input{width:100%;box-sizing:border-box}
+#app-content .zc-admin-settings-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:18px}
+#app-content .zc-admin-table-tools{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:14px}
+#app-content .zc-admin-table-tools input{max-width:420px;width:100%}
+#app-content .zc-admin-status{display:inline-flex;align-items:center;padding:5px 9px;border-radius:30px;background:var(--panel2);font-size:11px;font-weight:800}
+#app-content .zc-admin-status.good{color:#38c88b}
+#app-content .zc-admin-status.warn{color:#e6ad4a}
+#app-content .zc-admin-mobile-table{overflow-x:auto}
+#app-content .zc-admin-mobile-table table{min-width:620px;width:100%}
+@media(max-width:560px){
+ #app-content .zc-admin-section-grid{grid-template-columns:1fr}
+ #app-content .zc-admin-settings-fields{grid-template-columns:1fr}
+ #app-content .zc-admin-settings-actions{justify-content:stretch}
+ #app-content .zc-admin-settings-actions .btn{width:100%}
+ #side-nav .zc-admin-subnav{padding-left:9px}
+}
+</style>
+<script id="zc-admin-access-v3">
+(function(){
+ if(window.__zcAdminAccessV3)return;
+ window.__zcAdminAccessV3=true;
+ const nav=document.getElementById('side-nav');
+ const menuItems=[
+  ['dashboard','▦','Dashboard','Admin overview and shortcuts'],
+  ['investment-plans','◈','Investment Plans','Create, edit, brand and publish plans'],
+  ['deposit-settings','↓','Deposit Settings','Set minimum and maximum deposits'],
+  ['withdrawal-settings','↑','Withdrawal Settings','Set minimum and maximum withdrawals'],
+  ['users','♙','Users','View customer names, emails and roles'],
+  ['deposit-requests','⇩','Deposit Requests','Review customer deposit submissions'],
+  ['withdrawal-requests','⇧','Withdrawal Requests','Review and record completed payouts'],
+  ['wallet-networks','⌘','Wallet Networks','Review supported asset and network status'],
+  ['trading-reports','▤','Trading Reports','View performance reports and publication status'],
+  ['activity-audit','◷','Activity & Audit','Review administrator activity records']
+ ];
+ const safe=v=>String(v??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+ const fmtUSD=v=>'</html>+Number(v||0).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
+ const $=id=>document.getElementById(id);
+ const admin=()=>typeof profile!=='undefined'&&profile?.role==='admin';
+ function ensureMenu(){
+  if(!nav)return;
+  $('admin-nav')?.remove();$('admin-plans-nav')?.remove();
+  let group=$('zc-admin-access-group');
+  if(!group){
+   const submenu=menuItems.map(x=>'<button type="button" data-zc-admin-section="'+x[0]+'" onclick="zcOpenAdminSection(\''+x[0]+'\')">'+x[1]+' '+x[2]+'</button>').join('');
+   group=document.createElement('div');group.className='zc-admin-group hidden';group.id='zc-admin-access-group';
+   group.innerHTML='<button type="button" class="zc-admin-toggle" id="zc-admin-access-toggle" aria-expanded="false" onclick="zcToggleAdminAccess()"><span>⚙</span><span>Admin Access</span><span class="zc-admin-chevron">⌄</span></button><div class="zc-admin-subnav" id="zc-admin-access-subnav">'+submenu+'</div>';
+   const profileNav=nav.querySelector('[data-page="profile"]');
+   if(profileNav)nav.insertBefore(group,profileNav);else nav.appendChild(group);
+  }
+  group.classList.toggle('hidden',!admin());
+ }
+ function syncShowApp(){
+  ensureMenu();
+  const group=$('zc-admin-access-group');
+  if(group)group.classList.toggle('hidden',!admin());
+ }
+ window.zcToggleAdminAccess=function(){
+  if(!admin()){if(typeof toast==='function')toast('Administrator access required.',true);return}
+  ensureMenu();
+  const group=$('zc-admin-access-group'),toggle=$('zc-admin-access-toggle');
+  if(!group)return;
+  const open=group.classList.toggle('is-open');
+  if(toggle)toggle.setAttribute('aria-expanded',String(open));
+  if(open)group.scrollIntoView({block:'nearest',behavior:'smooth'});
+ };
+ function setActive(id){
+  document.querySelectorAll('[data-zc-admin-section]').forEach(b=>b.classList.toggle('active',b.dataset.zcAdminSection===id));
+ }
+ function head(title,sub){
+  return '<div class="zc-admin-page-head"><div><div class="eyebrow">ADMIN ACCESS</div><h1>'+safe(title)+'</h1><p class="muted">'+safe(sub)+'</p></div><span class="zc-admin-status good">Administrator</span></div>';
+ }
+ function sectionCard(id,icon,title,desc){
+  return '<button type="button" class="zc-admin-section-card" onclick="zcOpenAdminSection(\''+id+'\')"><span class="zc-admin-icon">'+icon+'</span><b>'+title+'</b><small>'+desc+'</small></button>';
+ }
+ async function count(table){
+  const r=await db.from(table).select('id',{count:'exact',head:true});
+  if(r.error)throw r.error;return r.count||0;
+ }
+ async function dashboard(){
+  const root=$('app-content');
+  root.innerHTML=head('Admin dashboard','Manage your platform from one organized workspace. Select a section below or use the expandable Admin Access menu.')+
+   '<div class="stats zc-admin-stats"><div class="card stat"><small>Registered users</small><strong id="zc-admin-count-users">—</strong></div><div class="card stat"><small>Investment plans</small><strong id="zc-admin-count-plans">—</strong></div><div class="card stat"><small>Deposit requests</small><strong id="zc-admin-count-deposits">—</strong></div><div class="card stat"><small>Withdrawal requests</small><strong id="zc-admin-count-withdrawals">—</strong></div></div>'+
+   '<section class="card panel"><div class="eyebrow">MANAGEMENT CENTRE</div><h2 style="margin:5px 0 16px">Choose what you want to manage</h2><div class="zc-admin-section-grid">'+
+   menuItems.slice(1).map(x=>sectionCard(x[0],x[1],x[2],x[3])).join('')+'</div></section>';
+  const tasks=[['profiles','zc-admin-count-users'],['gforce_investment_plans','zc-admin-count-plans'],['deposit_requests','zc-admin-count-deposits'],['withdrawal_requests','zc-admin-count-withdrawals']];
+  await Promise.all(tasks.map(async x=>{try{const n=await count(x[0]);const node=$(x[1]);if(node)node.textContent=n.toLocaleString()}catch(e){const node=$(x[1]);if(node)node.textContent='—'}}));
+ }
+ async function loadSettings(keys){
+  const {data,error}=await db.from('site_settings').select('setting_key,numeric_value').in('setting_key',keys);
+  if(error)throw error;
+  return Object.fromEntries((data||[]).map(x=>[x.setting_key,Number(x.numeric_value)]));
+ }
+ function limitsPage(kind){
+  const deposit=kind==='deposit';
+  const title=deposit?'Deposit Settings':'Withdrawal Settings';
+  const minKey=deposit?'minimum_deposit_usd':'minimum_withdrawal_usd';
+  const maxKey=deposit?'maximum_deposit_usd':'maximum_withdrawal_usd';
+  const minLabel=deposit?'Minimum deposit':'Minimum withdrawal';
+  const maxLabel=deposit?'Maximum deposit':'Maximum withdrawal';
+  const minDefault=deposit?10:0.01,maxDefault=10000000,minFloor=deposit?10:0.01;
+  const note=deposit?'These limits control the USD amount customers can enter before starting a deposit.':'These limits are checked again by the withdrawal request functions on the server. Changes apply to new withdrawal requests; existing requests are not altered.';
+  const root=$('app-content');
+  root.innerHTML=head(title,note)+'<section class="card panel zc-admin-settings-card"><div class="eyebrow">TRANSACTION LIMITS · USD</div><h2 style="margin:5px 0 6px">Amount limits</h2><p class="muted" style="margin:0 0 18px">Enter the permitted range for one '+(deposit?'deposit':'withdrawal')+' request. Maximum supported value is $10,000,000.</p><div class="zc-admin-settings-fields"><div class="field"><label for="zc-admin-min-limit">'+minLabel+' (USD)</label><input id="zc-admin-min-limit" type="number" inputmode="decimal" min="'+minFloor+'" max="'+maxDefault+'" step="0.01" placeholder="'+minDefault+'"></div><div class="field"><label for="zc-admin-max-limit">'+maxLabel+' (USD)</label><input id="zc-admin-max-limit" type="number" inputmode="decimal" min="'+minFloor+'" max="'+maxDefault+'" step="0.01" placeholder="'+maxDefault+'"></div></div><div class="zc-admin-settings-actions"><button class="btn" type="button" onclick="zcOpenAdminSection(\'dashboard\')">Cancel</button><button class="btn primary" id="zc-admin-save-limits" type="button" onclick="zcSaveAdminLimits(\''+kind+'\')">Save settings</button></div><div id="zc-admin-limits-status" class="muted" style="font-size:12px;margin-top:12px">Loading saved values…</div></section>';
+  loadSettings([minKey,maxKey]).then(values=>{
+   const min=$( 'zc-admin-min-limit'),max=$('zc-admin-max-limit'),status=$('zc-admin-limits-status');
+   if(min)min.value=(values[minKey]??minDefault).toString();
+   if(max)max.value=(values[maxKey]??maxDefault).toString();
+   if(status)status.textContent='Current saved range: '+fmtUSD(values[minKey]??minDefault)+' minimum · '+fmtUSD(values[maxKey]??maxDefault)+' maximum';
+  }).catch(e=>{const status=$('zc-admin-limits-status');if(status)status.textContent='Could not load settings: '+(e.message||'Please retry')});
+ }
+ window.zcSaveAdminLimits=async function(kind){
+  if(!admin())return toast('Administrator access required.',true);
+  const deposit=kind==='deposit',minKey=deposit?'minimum_deposit_usd':'minimum_withdrawal_usd',maxKey=deposit?'maximum_deposit_usd':'maximum_withdrawal_usd';
+  const min=Number($('zc-admin-min-limit')?.value),max=Number($('zc-admin-max-limit')?.value),floor=deposit?10:0.01,btn=$('zc-admin-save-limits'),status=$('zc-admin-limits-status');
+  if(!Number.isFinite(min)||!Number.isFinite(max)||min<floor||max<min||max>10000000)return toast('Enter a valid range. Minimum must be at least '+fmtUSD(floor)+' and maximum cannot exceed $10,000,000.',true);
+  if(btn){btn.disabled=true;btn.textContent='Saving…'}
+  try{
+   const now=new Date().toISOString(),rows=[
+    {setting_key:minKey,numeric_value:min,updated_at:now,updated_by:currentUser.id},
+    {setting_key:maxKey,numeric_value:max,updated_at:now,updated_by:currentUser.id}
+   ];
+   const {error}=await db.from('site_settings').upsert(rows,{onConflict:'setting_key'});
+   if(error)throw error;
+   if(deposit&&typeof window.zcRefreshDepositLimits==='function')await window.zcRefreshDepositLimits();
+   if(status)status.textContent='Saved successfully · '+fmtUSD(min)+' minimum · '+fmtUSD(max)+' maximum';
+   toast(titleText(kind)+' updated successfully.');
+  }catch(e){if(status)status.textContent='Save failed: '+(e.message||'Unknown error');toast('Could not save limits: '+(e.message||'Please retry'),true)}
+  finally{if(btn){btn.disabled=false;btn.textContent='Save settings'}}
+ };
+ function titleText(kind){return kind==='deposit'?'Deposit settings':'Withdrawal settings'}
+ async function usersPage(){
+  const root=$('app-content');root.innerHTML=head('Users','View registered customer accounts, email addresses, roles and account creation dates.')+'<section class="card panel"><div class="zc-admin-table-tools"><input id="zc-admin-user-search" type="search" placeholder="Search by name or email" oninput="zcFilterAdminUsers(this.value)"><span id="zc-admin-user-count" class="muted">Loading users…</span></div><div class="table-wrap zc-admin-mobile-table" id="zc-admin-users-table"></div></section>';
+  const {data,error}=await db.from('profiles').select('id,full_name,email,role,created_at').order('created_at',{ascending:false});
+  if(error)throw error;window.zcAdminUsers=data||[];window.zcFilterAdminUsers('');
+ }
+ window.zcFilterAdminUsers=function(query){
+  const rows=window.zcAdminUsers||[],q=String(query||'').trim().toLowerCase(),filtered=rows.filter(x=>(x.full_name||'').toLowerCase().includes(q)||(x.email||'').toLowerCase().includes(q));
+  const box=$('zc-admin-users-table'),countNode=$('zc-admin-user-count');if(countNode)countNode.textContent=filtered.length+' of '+rows.length+' users';
+  if(box)box.innerHTML=filtered.length?'<table><thead><tr><th>Name</th><th>Email address</th><th>Role</th><th>Joined</th></tr></thead><tbody>'+filtered.map(x=>'<tr><td><b>'+safe(x.full_name||'Not provided')+'</b></td><td>'+safe(x.email||'—')+'</td><td><span class="zc-admin-status '+(x.role==='admin'?'good':'')+'">'+safe(x.role||'user')+'</span></td><td>'+safe(x.created_at?new Date(x.created_at).toLocaleDateString():'—')+'</td></tr>').join('')+'</tbody></table>':'<div class="empty">No users match that search.</div>';
+ };
+ async function requestsPage(kind){
+  const deposit=kind==='deposit',title=deposit?'Deposit Requests':'Withdrawal Requests',table=deposit?'deposit_requests':'withdrawal_requests';
+  const root=$('app-content');root.innerHTML=head(title,deposit?'Review incoming deposit submissions. Verify transactions independently before crediting an account.':'Review withdrawal requests. Record a payout only after the transfer is completed and its transaction hash is available.')+'<section class="card panel"><div id="zc-admin-requests-table" class="table-wrap zc-admin-mobile-table">Loading requests…</div></section>';
+  const cols=deposit?'id,user_id,amount,asset,network,tx_hash,status,created_at,admin_note':'id,user_id,amount,asset,network,destination_address,tx_hash,status,created_at,admin_note';
+  const {data,error}=await db.from(table).select(cols).order('created_at',{ascending:false});if(error)throw error;
+  const profilesResult=await db.from('profiles').select('id,full_name,email');const users=Object.fromEntries((profilesResult.data||[]).map(x=>[x.id,x]));
+  const rows=data||[];
+  const box=$('zc-admin-requests-table');
+  if(!box)return;
+  if(!rows.length){box.innerHTML='<div class="empty">No '+title.toLowerCase()+' found.</div>';return}
+  box.innerHTML='<table><thead><tr><th>Customer</th><th>Amount</th><th>Network</th><th>Reference / Destination</th><th>Status</th><th>Date</th><th>Action</th></tr></thead><tbody>'+rows.map(x=>{
+   const u=users[x.user_id]||{},ref=deposit?(x.tx_hash||'Not supplied'):(x.destination_address||'—');
+   const pending=['pending','under_review','approved'].includes(x.status);
+   const action=deposit?(pending?'<button class="btn primary" onclick="reviewDeposit(\''+x.id+'\',true)">Verify</button> <button class="btn danger" onclick="reviewDeposit(\''+x.id+'\',false)">Reject</button>':'—'):(pending?'<button class="btn primary" onclick="payWithdrawal(\''+x.id+'\')">Record payout</button>':'—');
+   return '<tr><td><b>'+safe(u.full_name||'Customer')+'</b><small style="display:block;color:var(--muted)">'+safe(u.email||x.user_id)+'</small></td><td>'+fmtUSD(x.amount)+'</td><td>'+safe(x.asset||'USDT')+' · '+safe(x.network||'—')+'</td><td style="max-width:220px;overflow-wrap:anywhere">'+safe(ref)+'</td><td><span class="zc-admin-status '+(x.status==='paid'||x.status==='approved'?'good':pending?'warn':'')+'">'+safe(x.status)+'</span></td><td>'+safe(x.created_at?new Date(x.created_at).toLocaleString():'—')+'</td><td>'+action+'</td></tr>';
+  }).join('')+'</tbody></table>';
+ }
+ async function networksPage(){
+  const root=$('app-content');root.innerHTML=head('Wallet Networks','Review the configured asset and blockchain networks available to the wallet interface.')+'<section class="card panel"><div class="notice warn">Network status here reflects the database configuration only. Do not enable customer funding until wallet-address generation, monitoring, confirmations and ledger crediting have all been tested end to end.</div><div class="table-wrap zc-admin-mobile-table" id="zc-admin-network-table">Loading networks…</div></section>';
+  const {data,error}=await db.from('crypto_asset_networks').select('id,asset_code,network_code,asset_name,network_name,is_enabled,contract_address,decimals').order('asset_code');if(error)throw error;
+  const box=$('zc-admin-network-table');if(box)box.innerHTML=(data||[]).length?'<table><thead><tr><th>Asset</th><th>Network</th><th>Contract</th><th>Decimals</th><th>Database status</th></tr></thead><tbody>'+(data||[]).map(x=>'<tr><td><b>'+safe(x.asset_code)+'</b><small style="display:block;color:var(--muted)">'+safe(x.asset_name)+'</small></td><td>'+safe(x.network_name||x.network_code)+'</td><td style="max-width:210px;overflow-wrap:anywhere">'+safe(x.contract_address||'Native asset')+'</td><td>'+safe(x.decimals)+'</td><td><span class="zc-admin-status '+(x.is_enabled?'good':'warn')+'">'+(x.is_enabled?'Enabled in database':'Disabled in database')+'</span></td></tr>').join('')+'</tbody></table>':'<div class="empty">No wallet networks are configured.</div>';
+ }
+ async function reportsPage(){
+  const root=$('app-content');root.innerHTML=head('Trading Reports','Review report records and whether each report is verified and published.')+'<section class="card panel"><div class="table-wrap zc-admin-mobile-table" id="zc-admin-reports-table">Loading reports…</div></section>';
+  const {data,error}=await db.from('trade_reports').select('id,title,period_start,period_end,gross_pnl,net_pnl,max_drawdown,trades_count,verified,published,created_at').order('period_end',{ascending:false});if(error)throw error;
+  const box=$('zc-admin-reports-table');if(box)box.innerHTML=(data||[]).length?'<table><thead><tr><th>Report</th><th>Period</th><th>Net P&L</th><th>Drawdown</th><th>Trades</th><th>Verified</th><th>Published</th></tr></thead><tbody>'+(data||[]).map(x=>'<tr><td><b>'+safe(x.title)+'</b></td><td>'+safe(x.period_start)+' – '+safe(x.period_end)+'</td><td>'+fmtUSD(x.net_pnl)+'</td><td>'+safe(x.max_drawdown)+'%</td><td>'+safe(x.trades_count)+'</td><td>'+(x.verified?'Yes':'No')+'</td><td><span class="zc-admin-status '+(x.published?'good':'warn')+'">'+(x.published?'Published':'Draft')+'</span></td></tr>').join('')+'</tbody></table>':'<div class="empty">No trading reports have been created yet.</div>';
+ }
+ async function auditPage(){
+  const root=$('app-content');root.innerHTML=head('Activity & Audit','A read-only record of administrator actions and important account operations.')+'<section class="card panel"><div class="table-wrap zc-admin-mobile-table" id="zc-admin-audit-table">Loading audit records…</div></section>';
+  const {data,error}=await db.from('audit_logs').select('id,actor_id,action,entity_type,entity_id,details,created_at').order('created_at',{ascending:false}).limit(100);if(error)throw error;
+  const box=$('zc-admin-audit-table');if(box)box.innerHTML=(data||[]).length?'<table><thead><tr><th>Time</th><th>Action</th><th>Entity</th><th>Details</th></tr></thead><tbody>'+(data||[]).map(x=>'<tr><td>'+safe(x.created_at?new Date(x.created_at).toLocaleString():'—')+'</td><td><b>'+safe(x.action)+'</b></td><td>'+safe(x.entity_type)+'<small style="display:block;color:var(--muted)">'+safe(x.entity_id)+'</small></td><td style="max-width:260px;overflow-wrap:anywhere">'+safe(JSON.stringify(x.details||{}))+'</td></tr>').join('')+'</tbody></table>':'<div class="empty">No audit activity has been recorded yet.</div>';
+ }
+ window.zcOpenAdminSection=async function(id){
+  if(!admin()){if(typeof toast==='function')toast('Administrator access required.',true);return}
+  ensureMenu();setActive(id);
+  const group=$('zc-admin-access-group');if(group&&!group.classList.contains('is-open')){group.classList.add('is-open');$('zc-admin-access-toggle')?.setAttribute('aria-expanded','true')}
+  if(typeof closeDrawer==='function')closeDrawer();
+  try{
+   if(id==='dashboard')return await dashboard();
+   if(id==='investment-plans')return await window.gfOpenPlans();
+   if(id==='deposit-settings')return limitsPage('deposit');
+   if(id==='withdrawal-settings')return limitsPage('withdrawal');
+   if(id==='users')return await usersPage();
+   if(id==='deposit-requests')return await requestsPage('deposit');
+   if(id==='withdrawal-requests')return await requestsPage('withdrawal');
+   if(id==='wallet-networks')return await networksPage();
+   if(id==='trading-reports')return await reportsPage();
+   if(id==='activity-audit')return await auditPage();
+  }catch(e){console.error('Admin section failed:',e);const root=$('app-content');if(root)root.innerHTML=head('Could not load section','The section could not be loaded. Please retry.')+'<section class="card panel"><p class="muted">'+safe(e.message||'Unknown error')+'</p><button class="btn primary" onclick="zcOpenAdminSection(\''+id+'\')">Retry</button></section>';if(typeof toast==='function')toast('Could not load admin section: '+(e.message||'Please retry'),true)}
+ };
+ const oldShow=window.showApp;
+ window.showApp=function(){if(typeof oldShow==='function')oldShow.apply(this,arguments);ensureMenu();syncShowApp()};
+ ensureMenu();syncShowApp();
+})();
+</script>
 </body></html>
