@@ -3137,4 +3137,60 @@ body[data-zc-theme] #app-content #wd-network-cards::-webkit-scrollbar-thumb{back
  #public-plan-cards .gf-plan-artwork{height:170px!important;min-height:170px!important;max-height:170px!important}
 }
 </style>
+
+<style id="zc-plan-carousel-and-wave-final-v2">
+/* Final override: keep all published plans in a clearly swipeable row. */
+#public #public-plan-cards,
+#public-plan-cards{
+ display:flex!important;
+ flex-direction:row!important;
+ flex-wrap:nowrap!important;
+ align-items:stretch!important;
+ gap:12px!important;
+ width:100%!important;
+ max-width:100%!important;
+ overflow-x:auto!important;
+ overflow-y:hidden!important;
+ scroll-snap-type:x mandatory!important;
+ -webkit-overflow-scrolling:touch!important;
+ overscroll-behavior-x:contain!important;
+}
+#public-plan-cards>.plan-card{
+ flex:0 0 62%!important;
+ flex-shrink:0!important;
+ width:62%!important;
+ min-width:62%!important;
+ max-width:none!important;
+ scroll-snap-align:start!important;
+}
+#public-plan-cards .gf-plan-artwork{
+ position:relative!important;
+ display:block!important;
+ width:100%!important;
+ height:166px!important;
+ min-height:166px!important;
+ max-height:166px!important;
+ overflow:hidden!important;
+ background:transparent!important;
+ -webkit-mask-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 600 180' preserveAspectRatio='none'%3E%3Cpath d='M0 0H600V150 C550 130 500 130 450 150 S350 170 300 150 S200 130 150 150 S50 170 0 150Z' fill='white'/%3E%3C/svg%3E")!important;
+ mask-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 600 180' preserveAspectRatio='none'%3E%3Cpath d='M0 0H600V150 C550 130 500 130 450 150 S350 170 300 150 S200 130 150 150 S50 170 0 150Z' fill='white'/%3E%3C/svg%3E")!important;
+ -webkit-mask-repeat:no-repeat!important;
+ mask-repeat:no-repeat!important;
+ -webkit-mask-size:100% 100%!important;
+ mask-size:100% 100%!important;
+}
+#public-plan-cards .gf-plan-artwork::after{display:none!important;content:none!important}
+#public-plan-cards .gf-plan-artwork img{
+ display:block!important;
+ width:100%!important;
+ height:100%!important;
+ object-fit:cover!important;
+ object-position:center 48%!important;
+}
+#zc-public-plan-dots{display:flex!important}
+@media(min-width:700px){
+ #public-plan-cards>.plan-card{flex-basis:34%!important;width:34%!important;min-width:34%!important}
+ #public-plan-cards .gf-plan-artwork{height:180px!important;min-height:180px!important;max-height:180px!important}
+}
+</style>
 </body></html>
