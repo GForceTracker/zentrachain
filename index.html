@@ -3549,4 +3549,107 @@ body[data-zc-theme] #app-content #wd-network-cards::-webkit-scrollbar-thumb{back
 })();
 </script>
 
+
+<style id="zc-plan-tall-artwork-spaced-single-selection-v5">
+/* Larger plan artwork and more breathing room between cards. */
+#public-plan-cards{
+ gap:19px!important;padding:7px 5px 20px!important;
+}
+#public-plan-cards>.gf-plan-compact-card{
+ flex-basis: min(82%, 430px)!important;width:min(82%,430px)!important;
+ padding:14px!important;gap:9px!important;
+}
+#public-plan-cards .gf-plan-artwork,
+#dash-cards .gf-plan-artwork{
+ display:block!important;position:relative!important;width:100%!important;
+ height:196px!important;min-height:196px!important;max-height:196px!important;
+ flex:0 0 196px!important;aspect-ratio:auto!important;border-radius:15px!important;
+ overflow:hidden!important;
+}
+#public-plan-cards .gf-plan-artwork img,
+#dash-cards .gf-plan-artwork img{
+ width:100%!important;height:100%!important;object-fit:cover!important;
+ border-radius:14px!important;
+}
+#dash-cards{gap:21px!important}
+#dash-cards>.gf-plan-compact-card{padding:14px!important;gap:9px!important}
+#dash-cards .gf-plan-artwork{height:205px!important;min-height:205px!important;max-height:205px!important;flex-basis:205px!important}
+#public-plan-cards>.gf-plan-compact-card.is-scroll-active:not(.is-selected),
+#dash-cards>.gf-plan-compact-card.is-scroll-active:not(.is-selected){
+ border-color:rgba(129,174,149,.24)!important;outline:0!important;
+ box-shadow:none!important;transform:none!important;
+}
+#public-plan-cards>.gf-plan-compact-card.is-scroll-active:not(.is-selected)::after,
+#dash-cards>.gf-plan-compact-card.is-scroll-active:not(.is-selected)::after{
+ opacity:0!important;animation:none!important;
+}
+#public-plan-cards>.gf-plan-compact-card.is-selected,
+#dash-cards>.gf-plan-compact-card.is-selected{
+ border:2px solid color-mix(in srgb,var(--green) 90%,white)!important;
+ outline:1px solid color-mix(in srgb,var(--green) 45%,transparent)!important;
+ outline-offset:1px!important;
+ box-shadow:0 0 0 1px color-mix(in srgb,var(--green) 24%,transparent),
+ 0 0 16px color-mix(in srgb,var(--green) 48%,transparent),
+ 0 0 32px color-mix(in srgb,var(--green) 22%,transparent),
+ 0 12px 30px rgba(0,0,0,.3)!important;
+ transform:translateY(-3px)!important;
+}
+#public-plan-cards>.gf-plan-compact-card.is-selected::after,
+#dash-cards>.gf-plan-compact-card.is-selected::after{
+ opacity:1!important;animation:zc-theme-edge-run 6.5s linear infinite!important;
+}
+@media(hover:hover) and (pointer:fine){
+ #public-plan-cards>.gf-plan-compact-card:hover:not(.is-selected),
+ #dash-cards>.gf-plan-compact-card:hover:not(.is-selected){
+  border-color:rgba(129,174,149,.24)!important;box-shadow:none!important;transform:none!important;
+ }
+ #public-plan-cards>.gf-plan-compact-card:hover:not(.is-selected)::after,
+ #dash-cards>.gf-plan-compact-card:hover:not(.is-selected)::after{
+  opacity:0!important;animation:none!important;
+ }
+}
+@media(max-width:700px){
+ #public-plan-cards{gap:16px!important}
+ #public-plan-cards>.gf-plan-compact-card{flex-basis:82%!important;width:82%!important}
+ #public-plan-cards .gf-plan-artwork{height:184px!important;min-height:184px!important;max-height:184px!important;flex-basis:184px!important}
+ #dash-cards{gap:18px!important}
+ #dash-cards .gf-plan-artwork{height:190px!important;min-height:190px!important;max-height:190px!important;flex-basis:190px!important}
+}
+</style>
+<script id="zc-plan-tap-one-active-v5">
+(function(){
+ if(window.__zcPlanTapOneActiveV5)return;window.__zcPlanTapOneActiveV5=true;
+ const rails=['public-plan-cards','dash-cards'];
+ function sync(){
+  rails.forEach(id=>{
+   const rail=document.getElementById(id);if(!rail)return;
+   const scope=id==='public-plan-cards'?'pub':'dash';
+   const chosen=document.getElementById(scope+'-select')?.value||'';
+   let matched=false;
+   rail.querySelectorAll(':scope > .gf-plan-compact-card[data-gf-plan-id]').forEach(card=>{
+    const active=!!chosen&&card.dataset.gfPlanId===chosen&&!matched;
+    card.classList.toggle('is-selected',active);
+    if(active)matched=true;
+   });
+  });
+ }
+ const oldChoose=window.gfChoose;
+ if(typeof oldChoose==='function')window.gfChoose=function(scope,id){
+  const result=oldChoose.apply(this,arguments);sync();return result;
+ };
+ const oldUpdate=window.planUpdate;
+ if(typeof oldUpdate==='function')window.planUpdate=function(scope){
+  const result=oldUpdate.apply(this,arguments);sync();return result;
+ };
+ document.addEventListener('click',function(e){
+  const card=e.target.closest?.('.gf-plan-compact-card[data-gf-plan-id]');
+  if(!card)return;
+  const rail=card.closest('#public-plan-cards,#dash-cards');if(!rail)return;
+  rail.querySelectorAll(':scope > .gf-plan-compact-card').forEach(c=>c.classList.remove('is-tap-focus'));
+  card.classList.add('is-tap-focus');
+ },true);
+ new MutationObserver(sync).observe(document.body,{childList:true,subtree:true});
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',sync,{once:true});else sync();
+})();
+</script>
 </body></html>
