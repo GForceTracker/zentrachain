@@ -2150,55 +2150,40 @@ html body .zc-motion-reveal{transition:opacity .62s ease,transform .62s cubic-be
 #app-content #zc-deposit-options .deposit-asset-option>.btn{padding:4px 8px!important;font-size:10px!important;line-height:1!important;min-height:26px!important}
 </style>
 
-<style id="zc-withdraw-network-card-height-v2">
-/* Mirror the current Deposit selector's exact icon and row sizing. */
-#app-content #wd-network-cards.deposit-asset-list{
-  display:flex!important;flex-direction:column!important;
-  max-height:198px!important;gap:6px!important;
-  overflow-y:auto!important;overflow-x:hidden!important;
-  -webkit-overflow-scrolling:touch!important;overscroll-behavior:contain!important;
-  padding:4px 7px 4px 0!important;
-  scrollbar-width:thin!important;scrollbar-color:#397bb8 #0b1d30!important;
-}
-#app-content #wd-network-cards .deposit-asset-option{
-  display:flex!important;flex:0 0 52px!important;
-  height:52px!important;min-height:52px!important;max-height:52px!important;
-  padding:4px 8px!important;gap:6px!important;box-sizing:border-box!important;
-  align-items:center!important;overflow:hidden!important;
-  border:1px solid #ffffff19!important;border-radius:15px!important;
-  background:linear-gradient(135deg,#102c20,#091a12)!important;
-}
-#app-content #wd-network-cards .deposit-asset-option.selected{
-  border-color:#36d895!important;background:linear-gradient(135deg,#16462f,#0b2117)!important;
-}
-#app-content #wd-network-cards .asset-logo-stack{
-  display:inline-flex!important;align-items:center!important;justify-content:center!important;
-  flex:0 0 29px!important;width:29px!important;height:29px!important;
-  gap:0!important;position:relative!important;
-}
-#app-content #wd-network-cards .asset-logo-stack>.asset-logo:not(.chain){
-  display:grid!important;place-items:center!important;
-  width:28px!important;height:28px!important;min-width:28px!important;min-height:28px!important;
-  flex:0 0 28px!important;border-radius:50%!important;overflow:hidden!important;
-}
-#app-content #wd-network-cards .asset-logo-stack>.asset-logo:not(.chain) img{
-  width:19px!important;height:19px!important;max-width:19px!important;max-height:19px!important;
-  object-fit:contain!important;
-}
-#app-content #wd-network-cards .network-meta{
-  flex:1!important;min-width:0!important;line-height:1!important;gap:2px!important;
-}
-#app-content #wd-network-cards .network-meta b{
-  display:block!important;font-size:12px!important;line-height:1!important;margin:0!important;
-}
-#app-content #wd-network-cards .network-meta small{
-  display:block!important;font-size:9px!important;line-height:1!important;margin:0!important;
-  color:#91aa9c!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important;
-}
-#app-content #wd-network-cards .deposit-asset-option>.btn{
-  flex:0 0 auto!important;padding:4px 8px!important;font-size:10px!important;
-  line-height:1!important;min-height:26px!important;white-space:nowrap!important;
-}
-</style>
+<script id="zc-withdraw-clone-deposit-selector-v3">
+(function(){
+  if(window.__zcWithdrawDepositCloneV3)return;
+  window.__zcWithdrawDepositCloneV3=true;
+
+  function cloneDepositSelectorStyles(){
+    const sourceStyles=Array.from(document.querySelectorAll('style'))
+      .filter(style=>style.id!=='zc-withdraw-deposit-clone-css' &&
+        style.textContent && style.textContent.includes('#zc-deposit-options'));
+    const css=sourceStyles.map(style=>style.textContent
+      .replace(/#app-content\\s+#zc-deposit-options/g,'#app-content #wd-network-cards')
+      .replace(/#zc-deposit-options/g,'#wd-network-cards')
+    ).join('\\n');
+
+    let target=document.getElementById('zc-withdraw-deposit-clone-css');
+    if(!target){
+      target=document.createElement('style');
+      target.id='zc-withdraw-deposit-clone-css';
+      document.head.appendChild(target);
+    }
+    target.textContent=css;
+  }
+
+  const originalRender=window.renderWithdrawalPage;
+  if(typeof originalRender==='function'){
+    window.renderWithdrawalPage=async function(){
+      const result=await originalRender.apply(this,arguments);
+      cloneDepositSelectorStyles();
+      return result;
+    };
+  }else{
+    cloneDepositSelectorStyles();
+  }
+})();
+</script>
 
 </body></html>
