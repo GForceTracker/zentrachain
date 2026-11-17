@@ -1490,8 +1490,8 @@ html body .zc-motion-reveal{transition:opacity .62s ease,transform .62s cubic-be
   const url=channel==='telegram'?cfg.telegram:cfg.whatsapp;
   if(url)window.open(url,'_blank','noopener,noreferrer');else if(typeof window.toast==='function')window.toast(channel==='telegram'?'Telegram support link has not been configured yet.':'WhatsApp support link has not been configured yet.');
  }));
- // The admin destination is deliberately not shown in the customer navigation.
- const adminNav=document.getElementById('admin-nav');if(adminNav)adminNav.remove();
+ // Keep the Admin destination available; showApp controls its visibility from the verified profile role.
+
 })();
 </script>
 
