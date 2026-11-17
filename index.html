@@ -1710,12 +1710,12 @@ html body .zc-motion-reveal{transition:opacity .62s ease,transform .62s cubic-be
    document.querySelectorAll('.side-nav button').forEach(b=>b.classList.toggle('active',b.dataset.page===p));
    if(typeof closeDrawer==='function')closeDrawer();
    if(p==='deposits'||p==='deposit'){
-    window.renderDepositPage().catch(err=>{console.error('Deposit page failed:',err);const c=document.getElementById('app-content');if(c)c.innerHTML='<section class="card panel"><h3>Deposit could not be opened</h3><p class="muted">'+safeText(err?.message||'A page error occurred. Please retry.')+'</p><button class="btn primary" onclick="navigate(\\'deposits\\')">Retry</button></section>'});
+    window.renderDepositPage().catch(err=>{console.error('Deposit page failed:',err);const c=document.getElementById('app-content');if(c)c.innerHTML='<section class="card panel"><h3>Deposit could not be opened</h3><p class="muted">'+safeText(err?.message||'A page error occurred. Please retry.')+'</p><button class="btn primary" onclick="navigate(\'deposits\')">Retry</button></section>'});
     return;
    }
    if(p==='withdrawals'||p==='withdraw'){renderWithdrawalPage();return}
    renderPage();
-  }catch(err){console.error('Navigation failed:',err);const c=document.getElementById('app-content');if(c)c.innerHTML='<section class="card panel"><h3>Unable to open this section</h3><p class="muted">'+safeText(err?.message||'A page error occurred. Please try again.')+'</p><button class="btn primary" onclick="navigate(\\'overview\\')">Back to overview</button></section>';if(typeof toast==='function')toast('Could not open this section. Please try again.',true)}
+  }catch(err){console.error('Navigation failed:',err);const c=document.getElementById('app-content');if(c)c.innerHTML='<section class="card panel"><h3>Unable to open this section</h3><p class="muted">'+safeText(err?.message||'A page error occurred. Please try again.')+'</p><button class="btn primary" onclick="navigate(\'overview\')">Back to overview</button></section>';if(typeof toast==='function')toast('Could not open this section. Please try again.',true)}
  };
  if(!window.__zcDepositBackHandler){
   window.__zcDepositBackHandler=true;
@@ -2361,7 +2361,7 @@ body[data-zc-theme] #app-content #wd-network-cards::-webkit-scrollbar-thumb{back
   if(!c||profile?.role!=='admin')return;
   c.innerHTML='<div class="card panel"><p class="muted">Loading your plan workspace…</p></div>';
   const rows=await gfAdminRows();
-  c.innerHTML='<div class="page-title"><div><div class="eyebrow">ADMIN WORKSPACE</div><h1>Investment plan manager</h1><p class="muted">Create plans, upload logos, edit every visible detail and control which plans are published.</p></div><button class="btn" onclick="navigate(\\'admin\\')">Back to Admin</button></div>'+gfAdminPanel(rows);
+  c.innerHTML='<div class="page-title"><div><div class="eyebrow">ADMIN WORKSPACE</div><h1>Investment plan manager</h1><p class="muted">Create plans, upload logos, edit every visible detail and control which plans are published.</p></div><button class="btn" onclick="navigate(\'admin\')">Back to Admin</button></div>'+gfAdminPanel(rows);
   const starter=rows.find(p=>p.name==='Plan 1');
   if(starter)await gfEdit(starter.id);else gfReset();
  };
@@ -2373,7 +2373,7 @@ body[data-zc-theme] #app-content #wd-network-cards::-webkit-scrollbar-thumb{back
    page='admin-plans';
    document.querySelectorAll('.side-nav button').forEach(b=>b.classList.toggle('active',b.dataset.page===p));
    closeDrawer();
-   window.gfRenderPlanAdminPage().catch(err=>{console.error('Plan manager failed:',err);const c=byId('app-content');if(c)c.innerHTML='<div class="card panel"><h3>Plan manager could not load</h3><p class="muted">'+escapeValue(err?.message||'Please retry.')+'</p><button class="btn primary" onclick="navigate(\\'admin-plans\\')">Retry</button></div>'});
+   window.gfRenderPlanAdminPage().catch(err=>{console.error('Plan manager failed:',err);const c=byId('app-content');if(c)c.innerHTML='<div class="card panel"><h3>Plan manager could not load</h3><p class="muted">'+escapeValue(err?.message||'Please retry.')+'</p><button class="btn primary" onclick="navigate(\'admin-plans\')">Retry</button></div>'});
    return;
   }
   return previousNavigate(p);
@@ -2384,7 +2384,7 @@ body[data-zc-theme] #app-content #wd-network-cards::-webkit-scrollbar-thumb{back
   previousShowApp();
   const admin=byId('admin-nav');
   if(admin&&!byId('admin-plans-nav')){
-   admin.insertAdjacentHTML('afterend','<button id="admin-plans-nav" data-page="admin-plans" class="hidden" onclick="navigate(\\'admin-plans\\')"><span>▦</span>Investment Plans</button>');
+   admin.insertAdjacentHTML('afterend','<button id="admin-plans-nav" data-page="admin-plans" class="hidden" onclick="navigate(\'admin-plans\')"><span>▦</span>Investment Plans</button>');
   }
   const managerNav=byId('admin-plans-nav');
   if(managerNav)managerNav.classList.toggle('hidden',profile?.role!=='admin');
@@ -2395,7 +2395,7 @@ body[data-zc-theme] #app-content #wd-network-cards::-webkit-scrollbar-thumb{back
   await previousRenderAdmin.apply(this,arguments);
   byId('gf-plan-admin')?.remove();
   const c=byId('app-content'),title=c?.querySelector('.page-title');
-  if(title&&!byId('gf-plan-entry-note'))title.insertAdjacentHTML('afterend','<section class="card panel" id="gf-plan-entry-note"><div class="gf-plan-admin-hero"><div><div class="eyebrow">PLAN CONTROL</div><h3 style="margin:5px 0">Create and manage website plans</h3><p class="muted" style="margin:0">Plan 1 and all future plans are edited in the dedicated workspace.</p></div><button class="btn primary" type="button" onclick="navigate(\\'admin-plans\\')">Open Investment Plans →</button></div></section>');
+  if(title&&!byId('gf-plan-entry-note'))title.insertAdjacentHTML('afterend','<section class="card panel" id="gf-plan-entry-note"><div class="gf-plan-admin-hero"><div><div class="eyebrow">PLAN CONTROL</div><h3 style="margin:5px 0">Create and manage website plans</h3><p class="muted" style="margin:0">Plan 1 and all future plans are edited in the dedicated workspace.</p></div><button class="btn primary" type="button" onclick="navigate(\'admin-plans\')">Open Investment Plans →</button></div></section>');
  };
 })();
 </script>
