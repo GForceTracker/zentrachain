@@ -3307,4 +3307,81 @@ body[data-zc-theme] #app-content #wd-network-cards::-webkit-scrollbar-thumb{back
  #public-plan-cards>.gf-plan-compact-card{transition:none!important}
 }
 </style>
+
+<style id="zc-plan-scroll-active-running-edge-v2">
+/* Thicker animated perimeter: the bright segment travels around the active card. */
+#public-plan-cards>.gf-plan-compact-card{
+ isolation:isolate!important;
+}
+#public-plan-cards>.gf-plan-compact-card::after{
+ content:""!important;
+ position:absolute!important;
+ inset:-1px!important;
+ z-index:8!important;
+ pointer-events:none!important;
+ border-radius:inherit!important;
+ padding:3px!important;
+ background:conic-gradient(from var(--zc-edge-angle,0deg),transparent 0deg,transparent 215deg,rgba(89,255,177,.18) 238deg,#63ffb5 266deg,#e1fff0 280deg,#63ffb5 294deg,rgba(89,255,177,.18) 316deg,transparent 340deg,transparent 360deg)!important;
+ -webkit-mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0)!important;
+ -webkit-mask-composite:xor!important;
+ mask-composite:exclude!important;
+ opacity:0!important;
+ transition:opacity .25s ease!important;
+}
+#public-plan-cards>.gf-plan-compact-card.is-scroll-active{
+ z-index:5!important;
+ border:2px solid rgba(99,255,181,.96)!important;
+ outline:1px solid rgba(99,255,181,.5)!important;
+ outline-offset:1px!important;
+ box-shadow:0 0 0 1px rgba(99,255,181,.25),0 0 15px rgba(69,255,171,.42),0 0 32px rgba(69,255,171,.2),0 12px 30px rgba(0,0,0,.3),inset 0 0 18px rgba(69,255,171,.08)!important;
+}
+#public-plan-cards>.gf-plan-compact-card.is-scroll-active::after{
+ opacity:1!important;
+ animation:zc-plan-edge-orbit 2.4s linear infinite!important;
+}
+@keyframes zc-plan-edge-orbit{
+ from{--zc-edge-angle:0deg;filter:drop-shadow(0 0 3px rgba(99,255,181,.9))}
+ to{--zc-edge-angle:360deg;filter:drop-shadow(0 0 5px rgba(99,255,181,1))}
+}
+@media(hover:hover) and (pointer:fine){
+ #public-plan-cards>.gf-plan-compact-card:hover::after{opacity:1!important}
+}
+@media(prefers-reduced-motion:reduce){
+ #public-plan-cards>.gf-plan-compact-card.is-scroll-active::after{animation:none!important}
+}
+</style>
+<script id="zc-plan-scroll-active-running-edge-v2">
+(function(){
+ function init(){
+  const rail=document.getElementById('public-plan-cards');
+  if(!rail||rail.dataset.zcScrollHighlightReady==='1')return;
+  rail.dataset.zcScrollHighlightReady='1';
+  let frame=0;
+  function update(){
+   frame=0;
+   const cards=Array.from(rail.querySelectorAll(':scope > .gf-plan-compact-card'));
+   if(!cards.length)return;
+   const railRect=rail.getBoundingClientRect();
+   const center=railRect.left+railRect.width/2;
+   let active=null,best=Infinity;
+   cards.forEach(card=>{
+    const rect=card.getBoundingClientRect();
+    const cardCenter=rect.left+rect.width/2;
+    const distance=Math.abs(cardCenter-center);
+    if(rect.right>railRect.left&&rect.left<railRect.right&&distance<best){best=distance;active=card}
+   });
+   cards.forEach(card=>card.classList.toggle('is-scroll-active',card===active));
+  }
+  function schedule(){if(!frame)frame=requestAnimationFrame(update)}
+  rail.addEventListener('scroll',schedule,{passive:true});
+  window.addEventListener('resize',schedule,{passive:true});
+  new MutationObserver(schedule).observe(rail,{childList:true});
+  schedule();
+  setTimeout(schedule,300);
+ }
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});
+ else init();
+})();
+</script>
+
 </body></html>
