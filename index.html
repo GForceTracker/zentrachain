@@ -3193,4 +3193,70 @@ body[data-zc-theme] #app-content #wd-network-cards::-webkit-scrollbar-thumb{back
  #public-plan-cards .gf-plan-artwork{height:180px!important;min-height:180px!important;max-height:180px!important}
 }
 </style>
+
+<style id="zc-plan-carousel-autoplay-v1">
+#public-plan-cards{scroll-behavior:smooth;scrollbar-width:none}
+#public-plan-cards::-webkit-scrollbar{display:none}
+#public-plan-cards>.gf-plan-compact-card{scroll-snap-align:start;scroll-snap-stop:always}
+#public-plan-cards>.gf-plan-compact-card{transition:transform .35s ease,border-color .35s ease,box-shadow .35s ease}
+#public-plan-cards>.gf-plan-compact-card:hover{transform:translateY(-3px)}
+@media(prefers-reduced-motion:reduce){#public-plan-cards{scroll-behavior:auto}}
+</style>
+<script id="zc-plan-carousel-autoplay-v1">
+(function(){
+ const reduced=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+ function init(){
+  const rail=document.getElementById('public-plan-cards');
+  const section=document.getElementById('plans');
+  if(!rail||!section||rail.dataset.zcAutoplayReady==='1')return;
+  rail.dataset.zcAutoplayReady='1';
+  let visible=false,paused=false,interactionTimer=null,autoTimer=null;
+  const cards=()=>Array.from(rail.querySelectorAll(':scope > .gf-plan-compact-card'));
+  function stop(){if(autoTimer){clearInterval(autoTimer);autoTimer=null}}
+  function pauseTemporarily(){
+   paused=true;stop();
+   if(interactionTimer)clearTimeout(interactionTimer);
+   interactionTimer=setTimeout(()=>{paused=false;start()},6500);
+  }
+  function step(){
+   const items=cards();
+   if(!visible||paused||document.hidden||items.length<2)return;
+   const current=items.reduce((best,card,index)=>{
+    const distance=Math.abs(card.offsetLeft-rail.scrollLeft);
+    return distance<best.distance?{index,distance}:best;
+   },{index:0,distance:Infinity}).index;
+   const next=(current+1)%items.length;
+   rail.scrollTo({left:next===0?0:items[next].offsetLeft,behavior:reduced?'auto':'smooth'});
+  }
+  function start(){
+   stop();
+   if(reduced||!visible||paused||document.hidden||cards().length<2)return;
+   autoTimer=setInterval(step,4200);
+  }
+  ['touchstart','pointerdown','wheel','keydown'].forEach(type=>rail.addEventListener(type,pauseTemporarily,{passive:type!=='keydown'}));
+  rail.addEventListener('mouseenter',()=>{paused=true;stop()});
+  rail.addEventListener('mouseleave',()=>{paused=false;start()});
+  rail.addEventListener('focusin',()=>{paused=true;stop()});
+  rail.addEventListener('focusout',()=>{paused=false;start()});
+  document.addEventListener('visibilitychange',()=>document.hidden?stop():start());
+  if('IntersectionObserver'in window){
+   const observer=new IntersectionObserver(entries=>{
+    visible=!!entries[0]?.isIntersecting;
+    if(visible)start();else stop();
+   },{threshold:.18});
+   observer.observe(section);
+  }else{visible=true;start()}
+  new MutationObserver(()=>{if(cards().length<2)stop();else start()}).observe(rail,{childList:true});
+ }
+ async function loadAllPlans(){
+  if(typeof window.gfLoadPlans!=='function')return;
+  try{await window.gfLoadPlans()}catch(error){console.error('Could not refresh all public plans:',error)}
+  const rail=document.getElementById('public-plan-cards');
+  if(rail&&window.lucide?.createIcons)window.lucide.createIcons({root:rail});
+  init();
+ }
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',loadAllPlans,{once:true});
+ else loadAllPlans();
+})();
+</script>
 </body></html>
