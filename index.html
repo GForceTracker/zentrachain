@@ -3529,4 +3529,24 @@ body[data-zc-theme] #app-content #wd-network-cards::-webkit-scrollbar-thumb{back
 })();
 </script>
 
+
+<script id="zc-plan-wave-line-both-views-v4">
+(function(){
+ function addLines(root){
+  if(!root)return;
+  root.querySelectorAll('.gf-plan-artwork').forEach(art=>{
+   if(art.querySelector('.zc-plan-flow-line'))return;
+   const svg=document.createElementNS('http://www.w3.org/2000/svg','svg');
+   svg.setAttribute('class','zc-plan-flow-line');svg.setAttribute('viewBox','0 0 600 180');svg.setAttribute('preserveAspectRatio','none');svg.setAttribute('aria-hidden','true');
+   const path=document.createElementNS('http://www.w3.org/2000/svg','path');
+   path.setAttribute('d','M600 150 C550 144 500 144 450 150 S350 156 300 150 S200 144 150 150 S50 156 0 150');
+   svg.appendChild(path);art.appendChild(svg);
+  });
+ }
+ function scan(){addLines(document.getElementById('public-plan-cards'));addLines(document.getElementById('dash-cards'))}
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',scan,{once:true});else scan();
+ new MutationObserver(scan).observe(document.body,{childList:true,subtree:true});
+})();
+</script>
+
 </body></html>
