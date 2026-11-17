@@ -2361,7 +2361,7 @@ body[data-zc-theme] #app-content #wd-network-cards::-webkit-scrollbar-thumb{back
   if(!c||profile?.role!=='admin')return;
   c.innerHTML='<div class="card panel"><p class="muted">Loading your plan workspace…</p></div>';
   const rows=await gfAdminRows();
-  c.innerHTML='<div class="zc-admin-page-head"><button type="button" class="zc-admin-back" aria-label="Back" onclick="zcOpenAdminSection(\\'dashboard\\')"><svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 18-6-6 6-6"/><path d="M20 12H9"/></svg></button><div class="zc-admin-page-copy"><div class="eyebrow">ADMIN ACCESS</div><h1>Investment Plans</h1><p class="muted">Create plans, upload logos, edit their details and control publication.</p></div></div>'+gfAdminPanel(rows);
+  c.innerHTML='<div class="zc-admin-page-head"><button type="button" class="zc-admin-back" aria-label="Back" onclick="zcOpenAdminSection(\'dashboard\')"><svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 18-6-6 6-6"/><path d="M20 12H9"/></svg></button><div class="zc-admin-page-copy"><div class="eyebrow">ADMIN ACCESS</div><h1>Investment Plans</h1><p class="muted">Create plans, upload logos, edit their details and control publication.</p></div></div>'+gfAdminPanel(rows);
   const starter=rows.find(p=>p.name==='Plan 1');
   if(starter)await gfEdit(starter.id);else gfReset();
  };
@@ -2476,7 +2476,7 @@ body[data-zc-theme] #app-content #wd-network-cards::-webkit-scrollbar-thumb{back
   document.querySelectorAll('[data-zc-admin-section]').forEach(b=>b.classList.toggle('active',b.dataset.zcAdminSection===id));
  }
  function head(title,sub){
-  const back=title==='Admin dashboard'?'navigate(\\'overview\\')':'zcOpenAdminSection(\\'dashboard\\')';
+  const back=title==='Admin dashboard'?'navigate(\'overview\')':'zcOpenAdminSection(\'dashboard\')';
   return '<div class="zc-admin-page-head"><button type="button" class="zc-admin-back" aria-label="Back" onclick="'+back+'"><svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 18-6-6 6-6"/><path d="M20 12H9"/></svg></button><div class="zc-admin-page-copy"><div class="eyebrow">ADMIN ACCESS</div><h1>'+safe(title)+'</h1><p class="muted">'+safe(sub)+'</p></div><span class="zc-admin-status good">Administrator</span></div>';
  }
  function sectionCard(id,icon,title,desc){
