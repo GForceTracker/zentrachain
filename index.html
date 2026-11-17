@@ -951,9 +951,9 @@ async function selectWalletNetwork(id){
 
 let zcMinimumDepositUsd=10,zcMinimumSettingLoaded=false,zcPriceMap={},zcQuoteProvider='Market feed',zcQuoteUpdatedAt=null;
 const zcThemeChoices=[{id:'emerald',name:'Emerald',dot:'#20c783'},{id:'red',name:'Black / Red',dot:'#f04444'},{id:'blue',name:'Ocean Blue',dot:'#4c9fff'},{id:'purple',name:'Royal Purple',dot:'#a66cff'},{id:'orange',name:'Sunset',dot:'#ff9a3c'},{id:'cyan',name:'Aqua',dot:'#2dd4bf'}];
-function zcApplyTheme(id){const t=zcThemeChoices.some(x=>x.id===id)?id:'emerald';document.body.setAttribute('data-zc-theme',t);try{localStorage.setItem('zentrachain-theme',t)}catch(e){}document.querySelectorAll('.zc-theme-choice').forEach(b=>b.classList.toggle('active',b.dataset.theme===t))}
-function zcInitThemeUI(){const nav=$('side-nav');if(nav&&!$('zc-theme-panel'))nav.insertAdjacentHTML('afterend','<section class="zc-theme-panel" id="zc-theme-panel"><div class="zc-theme-heading">THEME</div><div class="zc-theme-grid">'+zcThemeChoices.map(t=>'<button type="button" class="zc-theme-choice" data-theme="'+t.id+'" onclick="zcApplyTheme(this.dataset.theme)"><span class="zc-theme-dot" style="background:'+t.dot+'"></span>'+t.name+'</button>').join('')+'</div></section>');let t='emerald';try{t=localStorage.getItem('zentrachain-theme')||'emerald'}catch(e){}zcApplyTheme(t)}
-try{zcApplyTheme(localStorage.getItem('zentrachain-theme')||'emerald')}catch(e){zcApplyTheme('emerald')}
+function zcApplyTheme(id){const t=zcThemeChoices.some(x=>x.id===id)?id:'blue';document.body.setAttribute('data-zc-theme',t);try{localStorage.setItem('zentrachain-theme',t)}catch(e){}document.querySelectorAll('.zc-theme-choice').forEach(b=>b.classList.toggle('active',b.dataset.theme===t));if(typeof window.zcRefreshWithdrawalTheme==='function')window.zcRefreshWithdrawalTheme()}
+function zcInitThemeUI(){const nav=$('side-nav');if(nav&&!$('zc-theme-panel'))nav.insertAdjacentHTML('afterend','<section class="zc-theme-panel" id="zc-theme-panel"><div class="zc-theme-heading">THEME</div><div class="zc-theme-grid">'+zcThemeChoices.map(t=>'<button type="button" class="zc-theme-choice" data-theme="'+t.id+'" onclick="zcApplyTheme(this.dataset.theme)"><span class="zc-theme-dot" style="background:'+t.dot+'"></span>'+t.name+'</button>').join('')+'</div></section>');let t='blue';try{t=localStorage.getItem('zentrachain-theme')||'blue'}catch(e){}zcApplyTheme(t)}
+try{if(localStorage.getItem('zentrachain-theme-default-v2')!=='1'){localStorage.setItem('zentrachain-theme','blue');localStorage.setItem('zentrachain-theme-default-v2','1')}}catch(e){};try{zcApplyTheme(localStorage.getItem('zentrachain-theme')||'blue')}catch(e){zcApplyTheme('blue')}
 const zcAssetIds={BTC:'bitcoin',ETH:'ethereum',SOL:'solana',TRX:'tron',DOGE:'dogecoin',USDT:'tether'};
 async function zcLoadPriceMap(){const d=await fetchMarketData('prices');zcPriceMap=d.prices||{};zcQuoteProvider=d.provider||'Market feed';zcQuoteUpdatedAt=d.updated_at||new Date().toISOString();if(!Object.keys(zcPriceMap).length)throw Error('No live prices returned');return zcPriceMap}
 function zcPriceFor(a){if(a==='USDT')return 1;const p=Number(zcPriceMap[zcAssetIds[a]]?.usd);return Number.isFinite(p)&&p>0?p:0}
@@ -1839,7 +1839,7 @@ html body .zc-motion-reveal{transition:opacity .62s ease,transform .62s cubic-be
  window.renderWithdrawalPage=async function(){
   const c=$id('app-content');if(!c)return;
   const bal=balance(),available=bal-reserved();
-  c.innerHTML='<div class="page-title"><div><div class="eyebrow">PAYOUTS</div><h1>Withdraw funds</h1><p class="muted">Choose your payout network first, then enter the USD value to see its estimated crypto amount.</p></div></div><div class="stats"><div class="card stat"><small>Recorded balance</small><strong>'+money(bal)+'</strong></div><div class="card stat"><small>Available to request (USD value)</small><strong>'+money(available)+'</strong></div></div><div class="notice" style="margin-bottom:16px">Withdrawal requests are reviewed before payment. The amount reserved from your account is the USD value; the crypto quantity shown is an estimate based on the displayed market price.</div><section class="card panel"><h3>New withdrawal</h3><form id="zc-withdraw-form" class="form" style="max-width:680px" onsubmit="submitWithdrawal(event)"><div class="eyebrow" style="margin:8px 0">STEP 1 · SELECT NETWORK</div><div id="wd-network-cards" class="deposit-asset-list"><div class="empty">Loading supported payout networks…</div></div><select id="wd-network" style="display:none" aria-label="Selected payout network"></select><p class="muted" id="wd-selected-network" style="font-size:12px;margin:8px 0"></p><div class="eyebrow" style="margin-top:18px">STEP 2 · ENTER AMOUNT</div><div class="field"><label for="wd-amount">Amount (USD)</label><input id="wd-amount" type="number" min="0.01" step="0.01" max="'+Math.max(0,available)+'" required placeholder="0.00 USD"></div><div class="zc-quote-card" id="wd-quote"><div class="zc-quote-meta">Select a network and enter an amount to view the conversion.</div></div><div class="field"><label for="wd-address">Destination wallet address</label><input id="wd-address" required minlength="20" maxlength="150" autocomplete="off" placeholder="Your wallet address"></div><button id="wd-submit" class="btn primary" type="submit" '+(available<=0?'disabled':'')+'>Withdraw</button></form></section><div class="card panel" style="margin-top:16px"><h3>Withdrawal history</h3>'+requestsTable(withdrawals,'withdrawal')+'</div>';
+  c.innerHTML='<div class="page-title"><div><div class="eyebrow">PAYOUTS</div><h1>Withdraw funds</h1><p class="muted">Choose your payout network first, then enter the USD value to see its estimated crypto amount.</p></div></div><div class="stats"><div class="card stat"><small>Recorded balance</small><strong>'+money(bal)+'</strong></div><div class="card stat"><small>Available to request (USD value)</small><strong>'+money(available)+'</strong></div></div><div class="notice" style="margin-bottom:16px">Your withdrawal request is recorded automatically. The USD value is reserved from your account; the crypto quantity shown is an estimate based on the displayed market price. Crypto transfers are not sent automatically yet.</div><section class="card panel"><h3>New withdrawal</h3><form id="zc-withdraw-form" class="form" style="max-width:680px" onsubmit="submitWithdrawal(event)"><div class="eyebrow" style="margin:8px 0">STEP 1 · SELECT NETWORK</div><div id="wd-network-cards" class="deposit-asset-list"><div class="empty">Loading supported payout networks…</div></div><select id="wd-network" style="display:none" aria-label="Selected payout network"></select><p class="muted" id="wd-selected-network" style="font-size:12px;margin:8px 0"></p><div class="eyebrow" style="margin-top:18px">STEP 2 · ENTER AMOUNT</div><div class="field"><label for="wd-amount">Amount (USD)</label><input id="wd-amount" type="number" min="0.01" step="0.01" max="'+Math.max(0,available)+'" required placeholder="0.00 USD"></div><div class="zc-quote-card" id="wd-quote"><div class="zc-quote-meta">Select a network and enter an amount to view the conversion.</div></div><div class="field"><label for="wd-address">Destination wallet address</label><input id="wd-address" required minlength="20" maxlength="150" autocomplete="off" placeholder="Your wallet address"></div><button id="wd-submit" class="btn primary" type="submit" '+(available<=0?'disabled':'')+'>Withdraw</button></form></section><div class="card panel" style="margin-top:16px"><h3>Withdrawal history</h3>'+requestsTable(withdrawals,'withdrawal')+'</div>';
   const list=$id('wd-network-cards'),sel=$id('wd-network');
   try{
    const result=await db.from('crypto_asset_networks').select('id,asset_code,network_code,asset_name,network_name,is_enabled').eq('is_enabled',true).order('asset_code').limit(30);
@@ -2164,15 +2164,39 @@ html body .zc-motion-reveal{transition:opacity .62s ease,transform .62s cubic-be
       .replaceAll('#zc-deposit-options','#wd-network-cards')
     ).join(String.fromCharCode(10));
 
+    const themeCss=`
+body[data-zc-theme] #app-content #wd-network-cards .deposit-asset-option{
+  background:linear-gradient(135deg,var(--panel2),var(--panel))!important;
+  border-color:var(--line)!important;color:var(--text)!important;
+}
+body[data-zc-theme] #app-content #wd-network-cards .deposit-asset-option.selected{
+  background:var(--panel2)!important;border-color:var(--green)!important;
+  box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--green) 35%,transparent)!important;
+}
+body[data-zc-theme] #app-content #wd-network-cards .network-meta small{color:var(--muted)!important}
+body[data-zc-theme] #app-content #wd-network-cards .deposit-asset-option>.btn{
+  color:var(--mint)!important;background:var(--panel2)!important;border-color:var(--line)!important;
+}
+body[data-zc-theme] #app-content #wd-network-cards .deposit-asset-option.selected>.btn{
+  border-color:var(--green)!important;color:var(--mint)!important;
+}
+body[data-zc-theme] #app-content #wd-network-cards{
+  scrollbar-color:var(--green) var(--panel)!important;
+}
+body[data-zc-theme] #app-content #wd-network-cards::-webkit-scrollbar-track{background:var(--panel)!important}
+body[data-zc-theme] #app-content #wd-network-cards::-webkit-scrollbar-thumb{background:var(--green)!important}
+`;
+
     let target=document.getElementById('zc-withdraw-deposit-clone-css');
     if(!target){
       target=document.createElement('style');
       target.id='zc-withdraw-deposit-clone-css';
       document.body.appendChild(target);
     }
-    target.textContent=css;
+    target.textContent=css+themeCss;
   }
 
+  window.zcRefreshWithdrawalTheme=cloneDepositSelectorStyles;
   const originalRender=window.renderWithdrawalPage;
   if(typeof originalRender==='function'){
     window.renderWithdrawalPage=async function(){
