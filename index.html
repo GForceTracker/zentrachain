@@ -1851,7 +1851,7 @@ html body .zc-motion-reveal{transition:opacity .62s ease,transform .62s cubic-be
    if(!enabled.length){list.innerHTML='<div class="wallet-warning">No deposit networks are currently enabled. Please contact support.</div>';if(state)state.textContent='No active deposit networks';return}
    const preferred=enabled.find(n=>n.id==='usdt-trc20')||enabled[0];
    if(typeof zcSelectedNetworkId!=='undefined')zcSelectedNetworkId=preferred.id;
-   if(list)list.innerHTML=enabled.map((n,i)=>{let logo='';try{if(typeof networkLogo==='function')logo=networkLogo(n)}catch(e){}return '<div class="deposit-asset-option '+(n.id===(typeof zcSelectedNetworkId!==\'undefined\'?zcSelectedNetworkId:\'usdt-trc20\')?'selected':'')+'" data-network-row="'+escText(n.id)+'" role="button" tabindex="0" aria-label="Select '+escText(n.asset_code)+' '+escText(n.network_code)+'" style="cursor:pointer">'+logo+'<div class="network-meta"><b>'+escText(n.asset_code)+' · '+escText(n.network_code)+'</b><small>'+escText(n.asset_name||n.asset_code)+' on '+escText(n.network_name||n.network_code)+'</small></div><button class="btn" type="button" data-network="'+escText(n.id)+'">'+(n.id===(typeof zcSelectedNetworkId!==\'undefined\'?zcSelectedNetworkId:\'usdt-trc20\')?'Selected':'Select')+'</button></div>'}).join('');
+   if(list)list.innerHTML=enabled.map((n,i)=>{let logo='';try{if(typeof networkLogo==='function')logo=networkLogo(n)}catch(e){}return '<div class="deposit-asset-option '+(n.id===(typeof zcSelectedNetworkId!=='undefined'?zcSelectedNetworkId:'usdt-trc20')?'selected':'')+'" data-network-row="'+escText(n.id)+'" role="button" tabindex="0" aria-label="Select '+escText(n.asset_code)+' '+escText(n.network_code)+'" style="cursor:pointer">'+logo+'<div class="network-meta"><b>'+escText(n.asset_code)+' · '+escText(n.network_code)+'</b><small>'+escText(n.asset_name||n.asset_code)+' on '+escText(n.network_name||n.network_code)+'</small></div><button class="btn" type="button" data-network="'+escText(n.id)+'">'+(n.id===(typeof zcSelectedNetworkId!=='undefined'?zcSelectedNetworkId:'usdt-trc20')?'Selected':'Select')+'</button></div>'}).join('');
    if(select)select.value=preferred.id;
    if(typeof zcSelectedNetworkId!=='undefined')zcSelectedNetworkId=preferred.id;
    if(proceed)proceed.style.display='block';
@@ -3650,6 +3650,51 @@ body[data-zc-theme] #app-content #wd-network-cards::-webkit-scrollbar-thumb{back
  },true);
  new MutationObserver(sync).observe(document.body,{childList:true,subtree:true});
  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',sync,{once:true});else sync();
+})();
+</script>
+<style id="zc-member-plan-visitor-match-vertical-v1">
+/* Member plan cards reuse the visitor artwork treatment, stacked vertically. */
+#dash-cards{display:flex!important;flex-direction:column!important;align-items:stretch!important;width:100%!important;max-width:760px!important;margin:0 auto!important;gap:23px!important;padding:8px 2px 26px!important}
+#dash-cards>.gf-plan-compact-card{position:relative!important;display:flex!important;flex-direction:column!important;align-items:stretch!important;width:100%!important;max-width:100%!important;min-width:0!important;flex:0 0 auto!important;padding:0 0 16px!important;overflow:hidden!important;border-radius:22px!important;background:linear-gradient(180deg,#0b2118 0%,#07150f 100%)!important;border:1px solid rgba(151,255,202,.22)!important;box-shadow:0 18px 48px rgba(0,0,0,.30),inset 0 1px 0 rgba(255,255,255,.055)!important;transition:border-color .35s ease,box-shadow .45s ease,transform .35s ease!important;scroll-snap-align:none!important}
+#dash-cards .gf-plan-artwork{display:block!important;position:relative!important;isolation:isolate!important;width:100%!important;height:232px!important;min-height:232px!important;max-height:232px!important;flex:0 0 232px!important;margin:0!important;padding:0!important;aspect-ratio:auto!important;overflow:hidden!important;border:0!important;border-radius:0!important;background:#0b2118!important}
+#dash-cards .gf-plan-artwork img{display:block!important;position:absolute!important;inset:0!important;width:100%!important;height:100%!important;max-width:none!important;object-fit:cover!important;object-position:center 48%!important;border:0!important;border-radius:0!important;margin:0!important;padding:0!important}
+#dash-cards .gf-plan-artwork .zc-plan-carve-divider{display:block!important;position:absolute!important;left:0!important;right:0!important;bottom:-1px!important;width:100%!important;height:76px!important;max-width:none!important;z-index:15!important;overflow:visible!important;pointer-events:none!important;filter:drop-shadow(0 -2px 5px rgba(32,199,131,.24))!important}
+#dash-cards .zc-plan-carve-fill{fill:#0b2118!important;stroke:none!important}
+#dash-cards .zc-plan-carve-stroke{fill:none!important;stroke:#9be8c5!important;stroke-width:2.8!important;stroke-linecap:round!important;stroke-linejoin:round!important;filter:drop-shadow(0 0 3px #20c783) drop-shadow(0 0 7px rgba(32,199,131,.78))!important}
+#dash-cards .gf-plan-artwork .zc-plan-flow-line{display:none!important}
+#dash-cards .gf-plan-card-heading{padding:7px 19px 0!important;margin:0 0 7px!important;gap:12px!important}
+#dash-cards .gf-plan-card-title .eyebrow{font-size:16px!important;font-weight:850!important;line-height:1.25!important}
+#dash-cards .gf-plan-card-title p{font-size:12px!important;line-height:1.4!important}
+#dash-cards .gf-plan-description{display:none!important}
+#dash-cards .gf-plan-details{display:flex!important;flex-direction:column!important;gap:0!important;width:calc(100% - 38px)!important;margin:0 19px!important;padding:2px 0!important}
+#dash-cards .gf-plan-detail-line{display:flex!important;align-items:center!important;justify-content:flex-start!important;gap:11px!important;width:100%!important;padding:12px 1px!important;border-bottom:1px solid rgba(255,255,255,.10)!important;color:#b6cbbf!important;font-size:13px!important;line-height:1.45!important}
+#dash-cards .gf-plan-detail-line:last-child{border-bottom:0!important}
+#dash-cards .gf-plan-detail-line i{width:17px!important;height:17px!important;flex:0 0 17px!important;color:#75e5ad!important}
+#dash-cards .gf-plan-detail-line b{color:#f1fff7!important;font-weight:800!important}
+#dash-cards .gf-plan-duration{display:flex!important;align-items:center!important;justify-content:flex-start!important;margin:5px 19px 0!important;padding:10px 12px!important;width:calc(100% - 38px)!important;border:1px solid rgba(151,255,202,.13)!important;border-radius:12px!important;background:rgba(20,61,42,.42)!important;color:#b8d8c6!important;font-size:12px!important}
+#dash-cards .gf-plan-select-button{display:block!important;width:calc(100% - 38px)!important;min-height:46px!important;margin:14px 19px 0!important;padding:12px 16px!important;border-radius:13px!important;font-size:13px!important;font-weight:800!important;letter-spacing:.15px!important}
+#dash-cards>.gf-plan-compact-card.is-scroll-active,#dash-cards>.gf-plan-compact-card.is-selected:not(.is-tap-selected){border:1px solid rgba(151,255,202,.22)!important;outline:0!important;box-shadow:0 18px 48px rgba(0,0,0,.30),inset 0 1px 0 rgba(255,255,255,.055)!important;transform:none!important}
+#dash-cards>.gf-plan-compact-card.is-scroll-active::after,#dash-cards>.gf-plan-compact-card.is-selected:not(.is-tap-selected)::after{opacity:0!important;animation:none!important}
+#dash-cards>.gf-plan-compact-card.is-tap-selected{border:2px solid #62e3a5!important;outline:1px solid rgba(98,227,165,.38)!important;outline-offset:2px!important;box-shadow:0 0 0 1px rgba(32,199,131,.25),0 0 18px rgba(32,199,131,.34),0 0 38px rgba(32,199,131,.17),0 18px 48px rgba(0,0,0,.34)!important;transform:translateY(-2px)!important}
+#dash-cards>.gf-plan-compact-card.is-tap-selected::after{opacity:1!important;animation:zc-theme-edge-run 6.5s linear infinite!important}
+@media(max-width:700px){#dash-cards{gap:19px!important;padding:5px 1px 22px!important}#dash-cards .gf-plan-artwork{height:218px!important;min-height:218px!important;max-height:218px!important;flex-basis:218px!important}#dash-cards .gf-plan-artwork .zc-plan-carve-divider{height:72px!important}#dash-cards .gf-plan-card-heading{padding-left:16px!important;padding-right:16px!important}#dash-cards .gf-plan-details{width:calc(100% - 32px)!important;margin-left:16px!important;margin-right:16px!important}#dash-cards .gf-plan-duration,#dash-cards .gf-plan-select-button{width:calc(100% - 32px)!important;margin-left:16px!important;margin-right:16px!important}}
+@media(prefers-reduced-motion:reduce){#dash-cards>.gf-plan-compact-card.is-tap-selected::after{animation:none!important}}
+</style>
+<script id="zc-member-plan-carved-divider-v1">
+(function(){
+ if(window.__zcMemberPlanCarveV1)return;window.__zcMemberPlanCarveV1=true;
+ function addCarves(){
+  document.querySelectorAll('#dash-cards .gf-plan-artwork').forEach(function(art){
+   if(art.querySelector('.zc-plan-carve-divider'))return;
+   const svg=document.createElementNS('http://www.w3.org/2000/svg','svg');
+   svg.setAttribute('class','zc-plan-carve-divider');svg.setAttribute('viewBox','0 0 600 240');svg.setAttribute('preserveAspectRatio','none');svg.setAttribute('aria-hidden','true');
+   const fill=document.createElementNS('http://www.w3.org/2000/svg','path');fill.setAttribute('class','zc-plan-carve-fill');fill.setAttribute('d','M0 192 C120 222 220 220 300 198 C390 174 500 174 600 196 L600 240 L0 240 Z');
+   const line=document.createElementNS('http://www.w3.org/2000/svg','path');line.setAttribute('class','zc-plan-carve-stroke');line.setAttribute('d','M0 192 C120 222 220 220 300 198 C390 174 500 174 600 196');
+   svg.appendChild(fill);svg.appendChild(line);art.appendChild(svg);
+  });
+ }
+ function init(){addCarves();new MutationObserver(addCarves).observe(document.body,{childList:true,subtree:true})}
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();
 })();
 </script>
 </body></html>
