@@ -3701,7 +3701,184 @@ body[data-zc-theme] #app-content #wd-network-cards::-webkit-scrollbar-thumb{back
  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();
 })();
 </script>
-</body></html>
+<style id="zc-member-plan-theme-and-auto-scroll-v9">
+/* Member Plans: follow the selected app theme throughout each plan card. */
+body[data-zc-theme] #app-content #dash-cards>.gf-plan-compact-card{
+ background:linear-gradient(145deg,var(--panel2),var(--panel))!important;
+ border-color:var(--line)!important;
+ color:var(--text)!important;
+}
+body[data-zc-theme] #app-content #dash-cards .gf-plan-card-title .eyebrow,
+body[data-zc-theme] #app-content #dash-cards .gf-plan-detail-line i{
+ color:var(--mint)!important;
+}
+body[data-zc-theme] #app-content #dash-cards .gf-plan-card-title p,
+body[data-zc-theme] #app-content #dash-cards .gf-plan-description{
+ color:var(--muted)!important;
+}
+body[data-zc-theme] #app-content #dash-cards .gf-plan-detail-line{
+ color:var(--text)!important;
+ border-bottom-color:color-mix(in srgb,var(--line) 72%,transparent)!important;
+}
+body[data-zc-theme] #app-content #dash-cards .gf-plan-detail-line b{
+ color:var(--mint)!important;
+}
+body[data-zc-theme] #app-content #dash-cards .gf-plan-duration{
+ color:var(--mint)!important;
+ background:var(--panel2)!important;
+ border:1px solid var(--line)!important;
+ border-radius:9px!important;
+}
+body[data-zc-theme] #app-content #dash-cards .gf-plan-select-button{
+ background:linear-gradient(135deg,var(--green),var(--panel2))!important;
+ color:var(--text)!important;
+ border:1px solid var(--green)!important;
+ box-shadow:0 7px 18px color-mix(in srgb,var(--green) 20%,transparent)!important;
+}
+body[data-zc-theme] #app-content #dash-cards .gf-plan-select-button:hover,
+body[data-zc-theme] #app-content #dash-cards .gf-plan-select-button:focus-visible{
+ background:linear-gradient(135deg,var(--green),var(--panel2))!important;
+ color:var(--text)!important;
+ border-color:var(--mint)!important;
+ outline:2px solid color-mix(in srgb,var(--green) 28%,transparent)!important;
+ outline-offset:2px!important;
+}
+body[data-zc-theme] #app-content #dash-cards>.gf-plan-compact-card.zc-plan-auto-active-v9,
+body[data-zc-theme] #app-content #dash-cards>.gf-plan-compact-card.is-tap-selected{
+ border:2px solid var(--green)!important;
+ outline:1px solid color-mix(in srgb,var(--mint) 55%,transparent)!important;
+ outline-offset:2px!important;
+ box-shadow:0 0 0 1px color-mix(in srgb,var(--green) 28%,transparent),
+ 0 0 18px color-mix(in srgb,var(--green) 45%,transparent),
+ 0 0 38px color-mix(in srgb,var(--green) 18%,transparent),
+ 0 18px 48px rgba(0,0,0,.32)!important;
+}
+#app-content #dash-cards>.gf-plan-compact-card.zc-plan-auto-active-v9::after,
+#app-content #dash-cards>.gf-plan-compact-card.is-tap-selected::after{
+ opacity:1!important;
+ animation:zc-theme-edge-run 2.15s linear infinite!important;
+}
+@media(prefers-reduced-motion:reduce){
+ #app-content #dash-cards>.gf-plan-compact-card.zc-plan-auto-active-v9::after,
+ #app-content #dash-cards>.gf-plan-compact-card.is-tap-selected::after{animation:none!important}
+}
+</style>
+<script id="zc-member-plan-auto-scroll-v9">
+(function(){
+ if(window.__ZcMemberPlanAutoScrollV9)return;
+ window.__ZcMemberPlanAutoScrollV9=true;
+ const selector='#dash-cards';
+ const raf=window.requestAnimationFrame||function(fn){return window.setTimeout(fn,16)};
+ function scrollClip(rail){
+  const clip={left:0,top:0,right:window.innerWidth,bottom:window.innerHeight};
+  for(let node=rail.parentElement;node&&node!==document.body&&node!==document.documentElement;node=node.parentElement){
+   const css=window.getComputedStyle(node);
+   const rect=node.getBoundingClientRect();
+   const ox=css.overflowX,oy=css.overflowY;
+   if(ox==='hidden'||ox==='clip'||ox==='auto'||ox==='scroll'){
+    const left=rect.left+node.clientLeft;
+    clip.left=Math.max(clip.left,left);
+    clip.right=Math.min(clip.right,left+node.clientWidth);
+   }
+   if(oy==='hidden'||oy==='clip'||oy==='auto'||oy==='scroll'){
+    const top=rect.top+node.clientTop;
+    clip.top=Math.max(clip.top,top);
+    clip.bottom=Math.min(clip.bottom,top+node.clientHeight);
+   }
+  }
+  return clip;
+ }
+ function attach(rail){
+  if(!rail||rail.dataset.zcMemberPlanScrollReady==='1')return;
+  rail.dataset.zcMemberPlanScrollReady='1';
+  let frame=0,intersection=null,resize=null;
+  const observed=new WeakSet();
+  const scrollTargets=new Set([window,document,document.scrollingElement].filter(Boolean));
+  for(let node=rail.parentElement;node&&node!==document.body&&node!==document.documentElement;node=node.parentElement){
+   const css=window.getComputedStyle(node);
+   if(/auto|scroll|overlay/.test(css.overflowY+' '+css.overflowX))scrollTargets.add(node);
+  }
+  scrollTargets.forEach(target=>target.addEventListener('scroll',schedule,{passive:true}));
+  document.addEventListener('scroll',schedule,{passive:true,capture:true});
+  window.addEventListener('resize',schedule,{passive:true});
+  window.addEventListener('pageshow',schedule,{passive:true});
+  document.addEventListener('touchmove',schedule,{passive:true,capture:true});
+  function getCards(){
+   return Array.from(rail.children).filter(card=>card.classList&&card.classList.contains('gf-plan-compact-card'));
+  }
+  function update(){
+   frame=0;
+   const cards=getCards();
+   if(!cards.length)return;
+   const clip=scrollClip(rail);
+   const clipWidth=Math.max(0,clip.right-clip.left);
+   const clipHeight=Math.max(0,clip.bottom-clip.top);
+   const viewCenter=clip.top+clipHeight/2;
+   let active=null,bestRatio=.06,bestDistance=Infinity;
+   cards.forEach(card=>{
+    const rect=card.getBoundingClientRect();
+    const left=Math.max(rect.left,clip.left);
+    const right=Math.min(rect.right,clip.right);
+    const top=Math.max(rect.top,clip.top);
+    const bottom=Math.min(rect.bottom,clip.bottom);
+    const visibleWidth=Math.max(0,right-left);
+    const visibleHeight=Math.max(0,bottom-top);
+    const totalArea=Math.max(1,rect.width*rect.height);
+    const ratio=(visibleWidth*visibleHeight)/totalArea;
+    const visibleCenter=top+visibleHeight/2;
+    const distance=Math.abs(visibleCenter-viewCenter);
+    if(ratio>bestRatio+0.001||(Math.abs(ratio-bestRatio)<=0.001&&ratio>.06&&distance<bestDistance)){
+     bestRatio=ratio;
+     bestDistance=distance;
+     active=card;
+    }
+   });
+   cards.forEach(card=>{
+    const isActive=card===active;
+    card.classList.toggle('zc-plan-auto-active-v9',isActive);
+    if(!isActive)card.classList.remove('is-tap-selected');
+   });
+  }
+  function schedule(){
+   if(!frame)frame=raf(update);
+  }
+  function watchCards(){
+   const cards=getCards();
+   if(intersection)cards.forEach(card=>{
+    if(!observed.has(card)){observed.add(card);intersection.observe(card)}
+   });
+   if(resize)cards.forEach(card=>resize.observe(card));
+   schedule();
+  }
+  let scrollRoot=null;
+  for(let node=rail.parentElement;node&&node!==document.body&&node!==document.documentElement;node=node.parentElement){
+   const css=window.getComputedStyle(node);
+   if(/auto|scroll|overlay/.test(css.overflowY)){scrollRoot=node;break}
+  }
+  if('IntersectionObserver'in window){
+   intersection=new IntersectionObserver(schedule,{
+    root:scrollRoot,
+    threshold:[0,.06,.12,.2,.35,.5,.7,.85,1]
+   });
+  }
+  if('ResizeObserver'in window){
+   resize=new ResizeObserver(schedule);
+   resize.observe(rail);
+  }
+  watchCards();
+  new MutationObserver(watchCards).observe(rail,{childList:true,subtree:true});
+ }
+ function scan(){
+  document.querySelectorAll(selector).forEach(attach);
+ }
+ function init(){
+  scan();
+  new MutationObserver(scan).observe(document.body,{childList:true,subtree:true});
+ }
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});
+ else init();
+})();
+</script></body></html>
 
 <style id="zc-plan-tap-only-demarcation-v6">
 #public-plan-cards{gap:22px!important;padding:10px 7px 24px!important}
@@ -4389,93 +4566,5 @@ body[data-zc-theme] #app-content #wd-network-cards::-webkit-scrollbar-thumb{back
 </style>
 
 
-<style id="zc-plan-scroll-visibility-v8">
-/* The visible plan card gets the moving edge automatically as it enters view. */
-#public-plan-cards>.gf-plan-compact-card,
-#dash-cards>.gf-plan-compact-card{position:relative!important;isolation:isolate!important}
-#public-plan-cards>.gf-plan-compact-card.zc-scroll-edge-active,
-#dash-cards>.gf-plan-compact-card.zc-scroll-edge-active{
- z-index:5!important;
- border:2px solid color-mix(in srgb,var(--green) 88%,white)!important;
- outline:1px solid color-mix(in srgb,var(--green) 48%,transparent)!important;
- outline-offset:1px!important;
- box-shadow:0 0 0 1px color-mix(in srgb,var(--green) 24%,transparent),0 0 13px color-mix(in srgb,var(--green) 52%,transparent),0 0 30px color-mix(in srgb,var(--green) 24%,transparent),0 12px 30px rgba(0,0,0,.3),inset 0 0 18px color-mix(in srgb,var(--green) 9%,transparent)!important;
-}
-#public-plan-cards>.gf-plan-compact-card.zc-scroll-edge-active::after,
-#dash-cards>.gf-plan-compact-card.zc-scroll-edge-active::after{
- opacity:1!important;
- animation:zc-theme-edge-run 2.15s linear infinite!important;
-}
-@media(prefers-reduced-motion:reduce){
- #public-plan-cards>.gf-plan-compact-card.zc-scroll-edge-active::after,
- #dash-cards>.gf-plan-compact-card.zc-scroll-edge-active::after{animation:none!important}
-}
-</style>
-<script id="zc-plan-scroll-visibility-v8">
-(function(){
- if(window.__zcPlanScrollVisibilityV8)return;
- window.__zcPlanScrollVisibilityV8=true;
- const selector='#public-plan-cards, #dash-cards';
- const raf=window.requestAnimationFrame||function(fn){return window.setTimeout(fn,16)};
- function attach(rail){
-  if(!rail||rail.dataset.zcVisibilityEdgeReady==='1')return;
-  rail.dataset.zcVisibilityEdgeReady='1';
-  let frame=0,io=null;
-  const observed=new WeakSet();
-  function cards(){
-   return Array.from(rail.querySelectorAll(':scope > .gf-plan-compact-card'));
-  }
-  function watchCards(){
-   const list=cards();
-   if(io)list.forEach(card=>{if(!observed.has(card)){observed.add(card);io.observe(card)}});
-   schedule();
-  }
-  function update(){
-   frame=0;
-   const list=cards();
-   if(!list.length)return;
-   const view=rail.id==='public-plan-cards'?rail.getBoundingClientRect():{left:0,top:0,right:window.innerWidth,bottom:window.innerHeight};
-   const clip={
-    left:Math.max(0,view.left),top:Math.max(0,view.top),
-    right:Math.min(window.innerWidth,view.right),bottom:Math.min(window.innerHeight,view.bottom)
-   };
-   let active=null,best=-1;
-   list.forEach(card=>{
-    const r=card.getBoundingClientRect();
-    const w=Math.max(0,Math.min(r.right,clip.right)-Math.max(r.left,clip.left));
-    const h=Math.max(0,Math.min(r.bottom,clip.bottom)-Math.max(r.top,clip.top));
-    const total=Math.max(1,r.width*r.height);
-    const ratio=(w*h)/total;
-    if(ratio>best&&ratio>.12){best=ratio;active=card}
-   });
-   list.forEach(card=>{
-    const isActive=card===active;
-    card.classList.toggle('zc-scroll-edge-active',isActive);
-    if(!isActive)card.classList.remove('is-tap-selected');
-   });
-  }
-  function schedule(){if(!frame)frame=raf(update)}
-  if('IntersectionObserver'in window){
-   io=new IntersectionObserver(schedule,{
-    root:rail.id==='public-plan-cards'?rail:null,
-    threshold:[0,.12,.2,.3,.4,.5,.6,.7,.8,.9,1]
-   });
-  }
-  watchCards();
-  rail.addEventListener('scroll',schedule,{passive:true});
-  document.addEventListener('scroll',schedule,{passive:true,capture:true});
-  window.addEventListener('resize',schedule,{passive:true});
-  new MutationObserver(watchCards).observe(rail,{childList:true});
-  schedule();
- }
- function scan(){
-  document.querySelectorAll(selector).forEach(attach);
- }
- function init(){
-  scan();
-  new MutationObserver(scan).observe(document.body,{childList:true,subtree:true});
- }
- if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});
- else init();
-})();
-</script>
+
+
