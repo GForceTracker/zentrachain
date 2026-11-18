@@ -4191,3 +4191,149 @@ body[data-zc-theme] #app-content #wd-network-cards::-webkit-scrollbar-thumb{back
 })();
 </script>
 
+
+
+<style id="zc-plan-image-visible-edge-v11">
+/* Restore normal image rendering; draw the carved edge above it without image masks. */
+#public-plan-cards>.gf-plan-compact-card,
+#dash-cards>.gf-plan-compact-card{
+ padding:0 0 16px!important;
+ gap:0!important;
+ overflow:hidden!important;
+}
+#public-plan-cards .gf-plan-artwork,
+#dash-cards .gf-plan-artwork{
+ display:block!important;
+ position:relative!important;
+ isolation:isolate!important;
+ width:100%!important;
+ height:300px!important;
+ min-height:300px!important;
+ max-height:300px!important;
+ flex:0 0 300px!important;
+ aspect-ratio:auto!important;
+ margin:0!important;
+ padding:0!important;
+ border:0!important;
+ border-radius:20px 20px 0 0!important;
+ overflow:hidden!important;
+ background:var(--panel2)!important;
+ -webkit-mask-image:none!important;
+ mask-image:none!important;
+}
+#public-plan-cards .gf-plan-artwork img,
+#dash-cards .gf-plan-artwork img{
+ display:block!important;
+ visibility:visible!important;
+ opacity:1!important;
+ position:absolute!important;
+ inset:0!important;
+ width:100%!important;
+ height:100%!important;
+ max-width:none!important;
+ margin:0!important;
+ padding:0!important;
+ border:0!important;
+ border-radius:0!important;
+ object-fit:cover!important;
+ object-position:center 46%!important;
+ -webkit-mask-image:none!important;
+ mask-image:none!important;
+ -webkit-clip-path:none!important;
+ clip-path:none!important;
+}
+#public-plan-cards .gf-plan-artwork::after,
+#dash-cards .gf-plan-artwork::after{display:none!important;content:none!important}
+#public-plan-cards .gf-plan-artwork .zc-plan-flow-line,
+#dash-cards .gf-plan-artwork .zc-plan-flow-line,
+#public-plan-cards .gf-plan-artwork .zc-plan-flow-fill,
+#dash-cards .gf-plan-artwork .zc-plan-flow-fill,
+#public-plan-cards .gf-plan-artwork .zc-plan-carve-divider,
+#dash-cards .gf-plan-artwork .zc-plan-carve-divider,
+#public-plan-cards .gf-plan-artwork .zc-plan-edge-v10,
+#dash-cards .gf-plan-artwork .zc-plan-edge-v10{display:none!important}
+#public-plan-cards .gf-plan-artwork .zc-plan-edge-v11,
+#dash-cards .gf-plan-artwork .zc-plan-edge-v11{
+ display:block!important;
+ position:absolute!important;
+ inset:0!important;
+ width:100%!important;
+ height:100%!important;
+ max-width:none!important;
+ z-index:25!important;
+ overflow:hidden!important;
+ pointer-events:none!important;
+}
+#public-plan-cards .gf-plan-artwork .zc-plan-edge-v11 .zc-plan-edge-fill,
+#dash-cards .gf-plan-artwork .zc-plan-edge-v11 .zc-plan-edge-fill{
+ fill:var(--panel)!important;
+ stroke:none!important;
+}
+#public-plan-cards .gf-plan-artwork .zc-plan-edge-v11 .zc-plan-edge-stroke,
+#dash-cards .gf-plan-artwork .zc-plan-edge-v11 .zc-plan-edge-stroke{
+ fill:none!important;
+ stroke:var(--mint)!important;
+ stroke-width:2.5!important;
+ stroke-linecap:round!important;
+ stroke-linejoin:round!important;
+ filter:drop-shadow(0 0 2px var(--green))!important;
+}
+@media(max-width:700px){
+ #public-plan-cards .gf-plan-artwork,
+ #dash-cards .gf-plan-artwork{
+  height:300px!important;min-height:300px!important;max-height:300px!important;flex-basis:300px!important;
+ }
+}
+</style>
+<script id="zc-plan-image-visible-edge-v11">
+(function(){
+ if(window.__zcPlanImageVisibleEdgeV11)return;
+ window.__zcPlanImageVisibleEdgeV11=true;
+ const ns='http://www.w3.org/2000/svg';
+ const curve='M0 287 C90 296 150 296 220 287 C290 278 350 278 420 287 C490 296 550 296 600 287';
+ function apply(art){
+  if(!art)return;
+  art.querySelectorAll('img').forEach(function(img){
+   img.style.setProperty('display','block','important');
+   img.style.setProperty('visibility','visible','important');
+   img.style.setProperty('opacity','1','important');
+   img.style.setProperty('-webkit-mask-image','none','important');
+   img.style.setProperty('mask-image','none','important');
+   img.style.setProperty('-webkit-clip-path','none','important');
+   img.style.setProperty('clip-path','none','important');
+   img.style.setProperty('position','absolute','important');
+   img.style.setProperty('inset','0','important');
+   img.style.setProperty('width','100%','important');
+   img.style.setProperty('height','100%','important');
+   img.style.setProperty('object-fit','cover','important');
+  });
+  let svg=art.querySelector('.zc-plan-edge-v11');
+  if(!svg){
+   svg=document.createElementNS(ns,'svg');
+   svg.setAttribute('class','zc-plan-edge-v11');
+   svg.setAttribute('viewBox','0 0 600 300');
+   svg.setAttribute('preserveAspectRatio','none');
+   svg.setAttribute('aria-hidden','true');
+   const fill=document.createElementNS(ns,'path');
+   fill.setAttribute('class','zc-plan-edge-fill');
+   fill.setAttribute('d',curve+' L600 300 L0 300 Z');
+   const stroke=document.createElementNS(ns,'path');
+   stroke.setAttribute('class','zc-plan-edge-stroke');
+   stroke.setAttribute('d',curve);
+   svg.appendChild(fill);
+   svg.appendChild(stroke);
+   art.appendChild(svg);
+  }
+ }
+ function scan(){
+  document.querySelectorAll('#public-plan-cards .gf-plan-artwork,#dash-cards .gf-plan-artwork').forEach(apply);
+ }
+ function init(){
+  scan();
+  new MutationObserver(scan).observe(document.body,{childList:true,subtree:true});
+ }
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});
+ else init();
+})();
+</script>
+
