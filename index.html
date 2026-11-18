@@ -3438,9 +3438,9 @@ body[data-zc-theme] #app-content #wd-network-cards::-webkit-scrollbar-thumb{back
    rail.querySelectorAll('.gf-plan-artwork').forEach(art=>{
     if(art.querySelector('.zc-plan-flow-line'))return;
     const svg=document.createElementNS('http://www.w3.org/2000/svg','svg');
-    svg.setAttribute('class','zc-plan-flow-line');svg.setAttribute('viewBox','0 0 600 180');svg.setAttribute('preserveAspectRatio','none');svg.setAttribute('aria-hidden','true');
+    svg.setAttribute('class','zc-plan-flow-line');svg.setAttribute('viewBox','0 0 600 240');svg.setAttribute('preserveAspectRatio','none');svg.setAttribute('aria-hidden','true');
     const path=document.createElementNS('http://www.w3.org/2000/svg','path');
-    path.setAttribute('d','M600 150 C550 144 500 144 450 150 S350 156 300 150 S200 144 150 150 S50 156 0 150');
+    path.setAttribute('d','M600 221 C550 217 500 216 450 220 S350 226 300 221 S200 216 150 220 S50 226 0 221');
     svg.appendChild(path);art.appendChild(svg);
    });
   }
@@ -3537,9 +3537,9 @@ body[data-zc-theme] #app-content #wd-network-cards::-webkit-scrollbar-thumb{back
   root.querySelectorAll('.gf-plan-artwork').forEach(art=>{
    if(art.querySelector('.zc-plan-flow-line'))return;
    const svg=document.createElementNS('http://www.w3.org/2000/svg','svg');
-   svg.setAttribute('class','zc-plan-flow-line');svg.setAttribute('viewBox','0 0 600 180');svg.setAttribute('preserveAspectRatio','none');svg.setAttribute('aria-hidden','true');
+   svg.setAttribute('class','zc-plan-flow-line');svg.setAttribute('viewBox','0 0 600 240');svg.setAttribute('preserveAspectRatio','none');svg.setAttribute('aria-hidden','true');
    const path=document.createElementNS('http://www.w3.org/2000/svg','path');
-   path.setAttribute('d','M600 150 C550 144 500 144 450 150 S350 156 300 150 S200 144 150 150 S50 156 0 150');
+   path.setAttribute('d','M600 221 C550 217 500 216 450 220 S350 226 300 221 S200 216 150 220 S50 226 0 221');
    svg.appendChild(path);art.appendChild(svg);
   });
  }
@@ -3767,10 +3767,10 @@ body[data-zc-theme] #app-content #wd-network-cards::-webkit-scrollbar-thumb{back
    root.querySelectorAll('.gf-plan-artwork').forEach(art=>{
     if(art.querySelector('.zc-plan-flow-line'))return;
     const svg=document.createElementNS('http://www.w3.org/2000/svg','svg');
-    svg.setAttribute('class','zc-plan-flow-line');svg.setAttribute('viewBox','0 0 600 180');
+    svg.setAttribute('class','zc-plan-flow-line');svg.setAttribute('viewBox','0 0 600 240');
     svg.setAttribute('preserveAspectRatio','none');svg.setAttribute('aria-hidden','true');
     const path=document.createElementNS('http://www.w3.org/2000/svg','path');
-    path.setAttribute('d','M600 150 C550 144 500 144 450 150 S350 156 300 150 S200 144 150 150 S50 156 0 150');
+    path.setAttribute('d','M600 221 C550 217 500 216 450 220 S350 226 300 221 S200 216 150 220 S50 226 0 221');
     svg.appendChild(path);art.appendChild(svg);
    });
   });
@@ -3779,3 +3779,62 @@ body[data-zc-theme] #app-content #wd-network-cards::-webkit-scrollbar-thumb{back
  new MutationObserver(scan).observe(document.body,{childList:true,subtree:true});
 })();
 </script>
+\n
+<style id="zc-plan-true-bottom-contour-v7">
+/* The plan image ends on this curved edge; the old cross-image overlay is suppressed. */
+#public-plan-cards .gf-plan-artwork::after,
+#dash-cards .gf-plan-artwork::after{content:none!important;display:none!important}
+#public-plan-cards .gf-plan-artwork .zc-plan-flow-line,
+#dash-cards .gf-plan-artwork .zc-plan-flow-line{
+ display:block!important;position:absolute!important;inset:0!important;width:100%!important;height:100%!important;
+ z-index:20!important;pointer-events:none!important;overflow:hidden!important;opacity:1!important;
+ filter:drop-shadow(0 0 3px rgba(32,199,131,.42))!important;
+}
+#public-plan-cards .gf-plan-artwork .zc-plan-flow-line .zc-plan-flow-fill,
+#dash-cards .gf-plan-artwork .zc-plan-flow-line .zc-plan-flow-fill{
+ fill:#0b2118!important;stroke:none!important;
+}
+#public-plan-cards .gf-plan-artwork .zc-plan-flow-line .zc-plan-flow-stroke,
+#dash-cards .gf-plan-artwork .zc-plan-flow-line .zc-plan-flow-stroke{
+ fill:none!important;stroke:#9be8c5!important;stroke-width:2.4!important;
+ stroke-linecap:round!important;stroke-linejoin:round!important;
+ stroke-dasharray:none!important;stroke-dashoffset:0!important;animation:none!important;
+}
+#public-plan-cards .gf-plan-artwork .zc-plan-flow-line path:not(.zc-plan-flow-fill):not(.zc-plan-flow-stroke),
+#dash-cards .gf-plan-artwork .zc-plan-flow-line path:not(.zc-plan-flow-fill):not(.zc-plan-flow-stroke){
+ display:none!important;
+}
+</style>
+<script id="zc-plan-true-bottom-contour-v7">
+(function(){
+ if(window.__zcPlanTrueBottomContourV7)return;
+ window.__zcPlanTrueBottomContourV7=true;
+ const ns='http://www.w3.org/2000/svg';
+ const curve='M600 221 C550 217 500 216 450 220 S350 226 300 221 S200 216 150 220 S50 226 0 221';
+ function shape(svg){
+  if(!svg||svg.dataset.zcContourV7==='1')return;
+  svg.setAttribute('viewBox','0 0 600 240');
+  svg.setAttribute('preserveAspectRatio','none');
+  while(svg.firstChild)svg.removeChild(svg.firstChild);
+  const fill=document.createElementNS(ns,'path');
+  fill.setAttribute('class','zc-plan-flow-fill');
+  fill.setAttribute('d',curve+' L0 240 L600 240 Z');
+  const stroke=document.createElementNS(ns,'path');
+  stroke.setAttribute('class','zc-plan-flow-stroke');
+  stroke.setAttribute('d',curve);
+  svg.appendChild(fill);
+  svg.appendChild(stroke);
+  svg.dataset.zcContourV7='1';
+ }
+ function scan(){
+  document.querySelectorAll('#public-plan-cards .gf-plan-artwork .zc-plan-flow-line,#dash-cards .gf-plan-artwork .zc-plan-flow-line').forEach(shape);
+ }
+ function init(){
+  scan();
+  new MutationObserver(scan).observe(document.body,{childList:true,subtree:true});
+ }
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});
+ else init();
+})();
+</script>
+\n
