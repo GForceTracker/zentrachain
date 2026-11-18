@@ -4463,7 +4463,7 @@ body[data-zc-theme] #app-content #wd-network-cards::-webkit-scrollbar-thumb{back
   }
   watchCards();
   rail.addEventListener('scroll',schedule,{passive:true});
-  window.addEventListener('scroll',schedule,{passive:true,capture:true});
+  document.addEventListener('scroll',schedule,{passive:true,capture:true});
   window.addEventListener('resize',schedule,{passive:true});
   new MutationObserver(watchCards).observe(rail,{childList:true});
   schedule();
@@ -4474,14 +4474,6 @@ body[data-zc-theme] #app-content #wd-network-cards::-webkit-scrollbar-thumb{back
  function init(){
   scan();
   new MutationObserver(scan).observe(document.body,{childList:true,subtree:true});
-  document.addEventListener('scroll',scheduleAll,{passive:true,capture:true});
- }
- function scheduleAll(){
-  document.querySelectorAll(selector).forEach(rail=>{
-   if(rail.dataset.zcVisibilityEdgeReady==='1'){
-    rail.dispatchEvent(new Event('zc-plan-scroll-tick'));
-   }
-  });
  }
  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});
  else init();
