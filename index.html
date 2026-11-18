@@ -4074,7 +4074,18 @@ window.zcCommunityAfterAuth=async function(){if(window.zcCommunityPendingOpen){w
 schedule(FIRST_DELAY);
 })();
 </script>
-</body></html>
+</body>
+
+<style id="zc-visitor-plan-card-height-reduction-v1">
+/* Visitor page only: reduce each plan card's artwork height by exactly 1 inch (96 CSS px). */
+#public-plan-cards .gf-plan-artwork{
+ height:204px!important;
+ min-height:204px!important;
+ max-height:204px!important;
+ flex:0 0 204px!important;
+}
+</style>
+</html>
 
 <style id="zc-plan-tap-only-demarcation-v6">
 #public-plan-cards{gap:22px!important;padding:10px 7px 24px!important}
