@@ -780,9 +780,9 @@ html body .modal-head .brand{white-space:nowrap!important;min-width:0!important}
 <section class="zc-milestones wrap" aria-label="ZentraChain platform milestones">
   <div class="zc-milestones-head"><div><div class="eyebrow">Growing with our community</div><h2>Built for the next milestone.</h2></div><span class="zc-monthly-tag"><i></i> Monthly milestone goals</span></div>
   <div class="zc-milestones-grid">
-    <article class="zc-milestone-card"><span class="zc-milestone-icon">◎</span><strong>100K+</strong><b>Members</b><small>Community milestone</small></article>
-    <article class="zc-milestone-card"><span class="zc-milestone-icon">↗</span><strong>$2M+</strong><b>Investment volume</b><small>Growth milestone</small></article>
-    <article class="zc-milestone-card"><span class="zc-milestone-icon">⇧</span><strong>$10M+</strong><b>Withdrawals</b><small>Transaction milestone</small></article>
+    <article class="zc-milestone-card"><span class="zc-milestone-icon">◎</span><strong data-zc-count="100000" data-zc-prefix="" data-zc-suffix="+">100K+</strong><b>Members</b><small>Community milestone</small></article>
+    <article class="zc-milestone-card"><span class="zc-milestone-icon">↗</span><strong data-zc-count="2000000" data-zc-prefix="$" data-zc-suffix="+">$2M+</strong><b>Investment volume</b><small>Growth milestone</small></article>
+    <article class="zc-milestone-card"><span class="zc-milestone-icon">⇧</span><strong data-zc-count="10000000" data-zc-prefix="$" data-zc-suffix="+">$10M+</strong><b>Withdrawals</b><small>Transaction milestone</small></article>
   </div>
   <p class="zc-milestones-note">Milestone goals are reviewed monthly and are not live account or transaction totals.</p>
 </section>
@@ -3895,7 +3895,52 @@ body[data-zc-theme] #app-content #dash-cards>.gf-plan-compact-card.is-tap-select
  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});
  else init();
 })();
-</script></body></html>
+</script>
+<style id="zc-milestone-countup-v1">
+.zc-milestones.zc-milestones-ready .zc-milestone-card{opacity:0;transform:translateY(16px)}
+.zc-milestones.zc-milestones-ready.zc-milestones-animated .zc-milestone-card{opacity:1;transform:translateY(0);transition:opacity .65s ease,transform .65s cubic-bezier(.2,.75,.25,1),border-color .25s ease}
+.zc-milestones.zc-milestones-animated .zc-milestone-card strong{animation:zcMilestoneGlow .9s ease-out both}
+@keyframes zcMilestoneGlow{0%{text-shadow:0 0 0 transparent}45%{text-shadow:0 0 18px color-mix(in srgb,var(--mint) 70%,transparent)}100%{text-shadow:0 0 0 transparent}}
+@media(prefers-reduced-motion:reduce){.zc-milestones.zc-milestones-ready .zc-milestone-card,.zc-milestones.zc-milestones-ready.zc-milestones-animated .zc-milestone-card{opacity:1;transform:none;transition:none}.zc-milestones.zc-milestones-animated .zc-milestone-card strong{animation:none}}
+</style>
+<script id="zc-milestone-countup-init">
+(()=>{
+ const section=document.querySelector('.zc-milestones[aria-label="ZentraChain platform milestones"]');
+ if(!section||section.dataset.zcCountupInit)return;
+ section.dataset.zcCountupInit='1';
+ const counters=Array.from(section.querySelectorAll('[data-zc-count]'));
+ const compact=new Intl.NumberFormat('en-US',{notation:'compact',maximumFractionDigits:0});
+ const finalValue=el=>el.dataset.zcPrefix+compact.format(Number(el.dataset.zcCount))+el.dataset.zcSuffix;
+ const showFinal=()=>counters.forEach(el=>el.textContent=finalValue(el));
+ const reduced=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+ if(reduced||!('IntersectionObserver'in window)){showFinal();return;}
+ section.classList.add('zc-milestones-ready');
+ let started=false;
+ const run=()=>{
+  if(started)return;started=true;
+  section.classList.add('zc-milestones-animated');
+  const duration=1800;
+  const start=performance.now();
+  const tick=now=>{
+   const progress=Math.min(1,(now-start)/duration);
+   const eased=1-Math.pow(1-progress,4);
+   counters.forEach(el=>{
+    const value=Math.round(Number(el.dataset.zcCount)*eased);
+    el.textContent=el.dataset.zcPrefix+compact.format(value)+el.dataset.zcSuffix;
+   });
+   if(progress<1)requestAnimationFrame(tick);
+   else showFinal();
+  };
+  requestAnimationFrame(tick);
+  observer.disconnect();
+ };
+ const observer=new IntersectionObserver(entries=>{
+  if(entries.some(entry=>entry.isIntersecting))run();
+ },{threshold:.22});
+ observer.observe(section);
+})();
+</script>
+</body></html>
 
 <style id="zc-plan-tap-only-demarcation-v6">
 #public-plan-cards{gap:22px!important;padding:10px 7px 24px!important}
