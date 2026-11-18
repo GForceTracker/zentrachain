@@ -5060,87 +5060,25 @@ body[data-zc-theme] #public-plan-cards>.gf-plan-compact-card.is-scroll-active{
 
 
 <style id="zc-community-admin-nav-alignment-fix">
-/* Keep these two custom navigation rows identical to the standard Activity/Withdraw buttons. */
-#side-nav #zc-community-nav,
-#side-nav .zc-admin-group > .zc-admin-toggle{
-  box-sizing:border-box!important;
-  display:flex!important;
-  align-items:center!important;
-  width:100%!important;
-  min-width:0!important;
-  min-height:0!important;
-  padding:13px 14px!important;
-  gap:9px!important;
-  border:0!important;
-  border-radius:12px!important;
-  text-align:left!important;
-  font-family:Arial,sans-serif!important;
-  font-size:13.3333px!important;
-  font-weight:400!important;
-  font-style:normal!important;
-  line-height:normal!important;
-  letter-spacing:normal!important;
-  white-space:nowrap!important;
+/* Match Group Chat and Admin Access to the real Activity/Withdraw navigation row. */
+#side-nav #zc-community-nav,#side-nav .zc-admin-group > .zc-admin-toggle{
+box-sizing:border-box!important;display:flex!important;align-items:center!important;justify-content:flex-start!important;width:100%!important;min-width:0!important;min-height:0!important;height:auto!important;flex:initial!important;gap:12px!important;padding:13px 14px!important;border:1px solid transparent!important;border-radius:13px!important;text-align:left!important;font-family:inherit!important;font-size:13px!important;font-style:normal!important;font-weight:400!important;line-height:1.2!important;letter-spacing:normal!important;white-space:nowrap!important;color:var(--muted)!important;background:transparent!important
 }
-#side-nav #zc-community-nav .zc-community-nav-icon,
-#side-nav .zc-admin-toggle > span:first-child{
-  display:inline-flex!important;
-  align-items:center!important;
-  justify-content:center!important;
-  width:16px!important;
-  height:16px!important;
-  min-width:16px!important;
-  flex:0 0 16px!important;
-  margin:0!important;
-  font-size:16px!important;
-  line-height:1!important;
+#side-nav #zc-community-nav .zc-community-nav-icon,#side-nav .zc-admin-toggle > span:first-child{
+box-sizing:border-box!important;display:inline-flex!important;align-items:center!important;justify-content:center!important;width:25px!important;height:25px!important;min-width:25px!important;min-height:25px!important;flex:0 0 25px!important;margin:0!important;border-radius:8px!important;background:var(--panel2)!important;color:var(--mint)!important;font-size:17px!important;line-height:1!important
 }
-#side-nav #zc-community-nav .zc-community-nav-icon svg{
-  display:block!important;
-  width:16px!important;
-  height:16px!important;
+#side-nav #zc-community-nav .zc-community-nav-icon svg{display:block!important;width:17px!important;height:17px!important}
+#side-nav #zc-community-nav > span:nth-child(2),#side-nav .zc-admin-toggle > span:nth-child(2){
+display:inline!important;flex:1 1 auto!important;min-width:0!important;margin:0!important;padding:0!important;font-family:inherit!important;font-size:13px!important;font-style:normal!important;font-weight:400!important;line-height:1.2!important;letter-spacing:normal!important;white-space:nowrap!important;color:inherit!important;background:transparent!important
 }
-#side-nav #zc-community-nav > span:nth-child(2),
-#side-nav .zc-admin-toggle > span:nth-child(2){
-  display:inline!important;
-  flex:0 0 auto!important;
-  margin:0!important;
-  font:inherit!important;
-  line-height:normal!important;
-  white-space:nowrap!important;
-}
-#side-nav #zc-community-nav .zc-community-nav-pulse{
-  display:block!important;
-  right:12px!important;
-}
+#side-nav #zc-community-nav .zc-community-nav-pulse{position:absolute!important;right:12px!important;top:50%!important;display:block!important;margin:0!important;transform:translateY(-50%)!important}
 #side-nav .zc-admin-toggle .zc-admin-chevron{
-  display:inline-flex!important;
-  align-items:center!important;
-  justify-content:center!important;
-  width:16px!important;
-  height:16px!important;
-  flex:0 0 16px!important;
-  margin:0 0 0 auto!important;
-  padding:0!important;
-  font-size:12px!important;
-  line-height:1!important;
-  text-align:center!important;
-  transform-origin:center!important;
+box-sizing:border-box!important;display:inline-flex!important;align-items:center!important;justify-content:center!important;width:18px!important;height:18px!important;min-width:18px!important;flex:0 0 18px!important;margin:0 0 0 auto!important;padding:0!important;font-family:inherit!important;font-size:14px!important;font-weight:400!important;line-height:1!important;text-align:center!important;opacity:.8;transform-origin:center!important;transition:transform .18s ease!important
 }
-@media(max-width:780px){
-  #side-nav #zc-community-nav,
-  #side-nav .zc-admin-group > .zc-admin-toggle{
-    font-size:10px!important;
-    text-align:center!important;
-    justify-content:center!important;
-    padding:9px 7px!important;
-    gap:4px!important;
-  }
-  #side-nav #zc-community-nav .zc-community-nav-icon,
-  #side-nav .zc-admin-toggle > span:first-child{
-    width:16px!important;height:16px!important;flex-basis:16px!important;
-  }
-  #side-nav #zc-community-nav .zc-community-nav-pulse{right:5px!important}
-  #side-nav .zc-admin-toggle .zc-admin-chevron{margin-left:0!important}
+#side-nav .zc-admin-group.is-open .zc-admin-chevron{transform:rotate(180deg)!important}
+#side-nav #zc-community-nav.active,#side-nav #zc-community-nav:hover,#side-nav .zc-admin-group > .zc-admin-toggle:hover{color:var(--mint)!important}
+@media(max-width:900px){
+#side-nav #zc-community-nav,#side-nav .zc-admin-group > .zc-admin-toggle{display:flex!important;align-items:center!important;justify-content:flex-start!important;width:100%!important;min-width:0!important;flex:initial!important;padding:13px 14px!important;gap:12px!important;text-align:left!important;font-size:13px!important}
+#side-nav #zc-community-nav .zc-community-nav-pulse{right:12px!important}
 }
 </style>
