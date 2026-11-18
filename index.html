@@ -3513,7 +3513,11 @@ body[data-zc-theme] #app-content #wd-network-cards::-webkit-scrollbar-thumb{back
      const d=Math.abs((r.top+r.height/2)-center);
      if(d<best){best=d;active=card}
     });
-    cards.forEach(card=>card.classList.toggle('is-scroll-active',card===active));
+    cards.forEach(card=>{
+     const isActive=card===active;
+     card.classList.toggle('is-scroll-active',isActive);
+     if(!isActive)card.classList.remove('is-tap-selected');
+    });
    }
    function schedule(){if(!frame)frame=requestAnimationFrame(update)}
    if(rail.id==='public-plan-cards')rail.addEventListener('scroll',schedule,{passive:true});
@@ -4338,3 +4342,48 @@ body[data-zc-theme] #app-content #wd-network-cards::-webkit-scrollbar-thumb{back
 })();
 </script>
 
+
+
+<style id="zc-plan-auto-edge-scroll-v7">
+/* Match the visitor's moving perimeter on member plans and let scroll focus activate both. */
+#public-plan-cards>.gf-plan-compact-card,
+#dash-cards>.gf-plan-compact-card{
+ position:relative!important;
+ isolation:isolate!important;
+}
+#public-plan-cards>.gf-plan-compact-card::after,
+#dash-cards>.gf-plan-compact-card::after{
+ content:""!important;
+ position:absolute!important;
+ inset:-1px!important;
+ z-index:8!important;
+ pointer-events:none!important;
+ border-radius:inherit!important;
+ padding:3.5px!important;
+ background:conic-gradient(from var(--zc-edge-angle,0deg),transparent 0deg,transparent 225deg,color-mix(in srgb,var(--green) 25%,transparent) 244deg,var(--green) 264deg,var(--mint) 281deg,#fff 287deg,var(--mint) 294deg,var(--green) 307deg,color-mix(in srgb,var(--green) 25%,transparent) 326deg,transparent 345deg,transparent 360deg)!important;
+ -webkit-mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0)!important;
+ -webkit-mask-composite:xor!important;
+ mask-composite:exclude!important;
+ opacity:0!important;
+ transition:opacity .25s ease!important;
+}
+#public-plan-cards>.gf-plan-compact-card.is-scroll-active,
+#dash-cards>.gf-plan-compact-card.is-scroll-active{
+ z-index:5!important;
+ border:2px solid color-mix(in srgb,var(--green) 88%,white)!important;
+ outline:1px solid color-mix(in srgb,var(--green) 48%,transparent)!important;
+ outline-offset:1px!important;
+ box-shadow:0 0 0 1px color-mix(in srgb,var(--green) 24%,transparent),0 0 13px color-mix(in srgb,var(--green) 52%,transparent),0 0 30px color-mix(in srgb,var(--green) 24%,transparent),0 12px 30px rgba(0,0,0,.3),inset 0 0 18px color-mix(in srgb,var(--green) 9%,transparent)!important;
+}
+#public-plan-cards>.gf-plan-compact-card.is-scroll-active::after,
+#dash-cards>.gf-plan-compact-card.is-scroll-active::after{
+ opacity:1!important;
+ animation:zc-theme-edge-run 2.15s linear infinite!important;
+}
+@media(prefers-reduced-motion:reduce){
+ #public-plan-cards>.gf-plan-compact-card.is-scroll-active::after,
+ #dash-cards>.gf-plan-compact-card.is-scroll-active::after{
+  animation:none!important;
+ }
+}
+</style>
