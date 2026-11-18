@@ -4838,6 +4838,87 @@ body[data-zc-theme] #public-plan-cards>.gf-plan-compact-card.is-scroll-active{
   else init();
 })();
 </script>
+<script id="zc-visitor-plan-scroll-highlight-v10">
+(function(){
+  if(window.__zcVisitorPlanScrollHighlightV10)return;
+  window.__zcVisitorPlanScrollHighlightV10=true;
+  function init(){
+    var rail=document.getElementById('public-plan-cards');
+    if(!rail||rail.dataset.zcVisitorHighlightReady==='1')return;
+    rail.dataset.zcVisitorHighlightReady='1';
+    var frame=0,intersection=null,resize=null;
+    function cards(){return Array.from(rail.querySelectorAll(':scope > .gf-plan-compact-card'))}
+    function visibleArea(card){
+      var rect=card.getBoundingClientRect();
+      if(rect.width<=0||rect.height<=0)return {ratio:0,distance:Infinity};
+      var left=Math.max(0,rect.left),right=Math.min(window.innerWidth,rect.right);
+      var top=Math.max(0,rect.top),bottom=Math.min(window.innerHeight,rect.bottom);
+      var node=rail;
+      while(node&&node!==document.documentElement){
+        var style=window.getComputedStyle(node);
+        var clip=node.getBoundingClientRect();
+        if(node===rail||['auto','scroll','hidden','clip'].indexOf(style.overflowX)>=0){
+          left=Math.max(left,clip.left+node.clientLeft);
+          right=Math.min(right,clip.left+node.clientLeft+node.clientWidth);
+        }
+        if(node===rail||['auto','scroll','hidden','clip'].indexOf(style.overflowY)>=0){
+          top=Math.max(top,clip.top+node.clientTop);
+          bottom=Math.min(bottom,clip.top+node.clientTop+node.clientHeight);
+        }
+        node=node.parentElement;
+      }
+      var width=Math.max(0,right-left),height=Math.max(0,bottom-top);
+      var ratio=(width*height)/(rect.width*rect.height);
+      var railRect=rail.getBoundingClientRect();
+      var center=railRect.left+rail.clientWidth/2;
+      var distance=Math.abs((rect.left+rect.right)/2-center);
+      return {ratio:ratio,distance:distance};
+    }
+    function update(){
+      frame=0;
+      var list=cards(),active=null,bestRatio=0,bestDistance=Infinity;
+      list.forEach(function(card){
+        var measure=visibleArea(card);
+        if(measure.ratio>.06&&(
+          measure.ratio>bestRatio+.015||
+          (Math.abs(measure.ratio-bestRatio)<=.015&&measure.distance<bestDistance)
+        )){
+          active=card;bestRatio=measure.ratio;bestDistance=measure.distance;
+        }
+      });
+      list.forEach(function(card){card.classList.toggle('is-scroll-active',card===active)});
+    }
+    function schedule(){if(!frame)frame=window.requestAnimationFrame(update)}
+    rail.addEventListener('scroll',schedule,{passive:true});
+    rail.addEventListener('touchmove',schedule,{passive:true});
+    rail.addEventListener('wheel',schedule,{passive:true});
+    document.addEventListener('scroll',schedule,{capture:true,passive:true});
+    window.addEventListener('resize',schedule,{passive:true});
+    window.addEventListener('orientationchange',schedule,{passive:true});
+    if('IntersectionObserver'in window){
+      intersection=new IntersectionObserver(schedule,{root:rail,threshold:[0,.08,.2,.4,.6,.8,1]});
+    }
+    if('ResizeObserver'in window){
+      resize=new ResizeObserver(schedule);resize.observe(rail);
+    }
+    function watchCards(){
+      var list=cards();
+      if(intersection)intersection.disconnect();
+      if(resize){resize.disconnect();resize.observe(rail)}
+      list.forEach(function(card){
+        if(intersection)intersection.observe(card);
+        if(resize)resize.observe(card);
+      });
+      schedule();
+    }
+    new MutationObserver(watchCards).observe(rail,{childList:true,subtree:true});
+    watchCards();
+    window.addEventListener('load',schedule,{once:true});
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});
+  else init();
+})();
+</script>
 <script id="zc-public-chain-activity-v10">
 (function(){
   if(window.__zcPublicChainActivityV10)return;
