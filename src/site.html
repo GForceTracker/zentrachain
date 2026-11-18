@@ -4796,6 +4796,48 @@ body[data-zc-theme] #public-plan-cards>.gf-plan-compact-card.is-scroll-active{
   #public-plan-cards>.gf-plan-compact-card,#public-plan-cards .gf-plan-select-button{transition:none!important}
 }
 </style>
+<script id="zc-visitor-plan-scroll-highlight-v11">
+(function(){
+  if(window.__zcVisitorPlanScrollHighlightV11)return;
+  window.__zcVisitorPlanScrollHighlightV11=true;
+  function init(){
+    var rail=document.getElementById('public-plan-cards');
+    if(!rail||rail.dataset.zcVisitorHighlightReady==='v11')return;
+    rail.dataset.zcVisitorHighlightReady='v11';
+    var frame=0,resize=null;
+    function cards(){return Array.from(rail.children).filter(function(card){return card.classList.contains('gf-plan-compact-card')})}
+    function update(){
+      frame=0;
+      var list=cards(),rr=rail.getBoundingClientRect();
+      var center=rr.left+rail.clientLeft+rail.clientWidth/2;
+      var active=null,best=Infinity;
+      if(rr.width>0&&rr.bottom>0&&rr.top<window.innerHeight){
+        list.forEach(function(card){
+          var r=card.getBoundingClientRect();
+          var visibleW=Math.max(0,Math.min(r.right,rr.right)-Math.max(r.left,rr.left));
+          var visibleH=Math.max(0,Math.min(r.bottom,rr.bottom)-Math.max(r.top,rr.top));
+          if(r.width<=0||r.height<=0||visibleW<Math.min(24,r.width*.12)||visibleH<Math.min(24,r.height*.12))return;
+          var distance=Math.abs((r.left+r.right)/2-center);
+          if(distance<best){best=distance;active=card}
+        });
+      }
+      list.forEach(function(card){card.classList.toggle('is-scroll-active',card===active)});
+    }
+    function schedule(){if(!frame)frame=window.requestAnimationFrame(update)}
+    ['scroll','touchmove','wheel'].forEach(function(type){rail.addEventListener(type,schedule,{passive:true})});
+    document.addEventListener('scroll',schedule,{capture:true,passive:true});
+    window.addEventListener('resize',schedule,{passive:true});
+    window.addEventListener('orientationchange',schedule,{passive:true});
+    if('ResizeObserver'in window){resize=new ResizeObserver(schedule);resize.observe(rail)}
+    new MutationObserver(schedule).observe(rail,{childList:true,subtree:true});
+    if('IntersectionObserver'in window)new IntersectionObserver(schedule,{threshold:[0,.1,.25,.5,.75,1]}).observe(rail);
+    schedule();
+    window.addEventListener('load',schedule,{once:true});
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});
+  else init();
+})();
+</script>
 <script id="zc-visitor-plan-scroll-highlight-v10">
 (function(){
   if(window.__zcVisitorPlanScrollHighlightV10)return;
@@ -4900,7 +4942,7 @@ body[data-zc-theme] #public-plan-cards>.gf-plan-compact-card.is-scroll-active{
     var hash=String(row.tx_hash||'').trim();
     var network=String(row.network||'').toUpperCase();
     var base='',valid=null;
-    if(network==='TRC20'||network==='TRON'){
+    if(network==='TRC20'||network==='TRON'||network==='TRX'){
       base='https://tronscan.org/#/transaction/';valid=/^[a-f0-9]{64}$/i;
     }else if(network==='ERC20'||network==='ETHEREUM'){
       base='https://etherscan.io/tx/';valid=/^0x[a-f0-9]{64}$/i;
@@ -4908,9 +4950,9 @@ body[data-zc-theme] #public-plan-cards>.gf-plan-compact-card.is-scroll-active{
       base='https://bscscan.com/tx/';valid=/^0x[a-f0-9]{64}$/i;
     }else if(network==='BITCOIN'){
       base='https://mempool.space/tx/';valid=/^[a-f0-9]{64}$/i;
-    }else if(network==='DOGECOIN'){
+    }else if(network==='DOGECOIN'||network==='DOGE'){
       base='https://blockchair.com/dogecoin/transaction/';valid=/^[a-f0-9]{64}$/i;
-    }else if(network==='SOLANA'){
+    }else if(network==='SOLANA'||network==='SOL'){
       base='https://solscan.io/tx/';valid=/^[1-9A-HJ-NP-Za-km-z]{32,100}$/;
     }
     return base&&valid&&valid.test(hash)?base+encodeURIComponent(hash):'';
@@ -4953,7 +4995,7 @@ body[data-zc-theme] #public-plan-cards>.gf-plan-compact-card.is-scroll-active{
           '<div class="zc-activity-icon">'+iconMarkup(direction)+'</div>'+
           '<div class="zc-activity-main">'+
             '<div class="zc-activity-main-top"><strong>'+title+'</strong><span class="zc-activity-status">'+safe(r.status||'Recorded')+'</span></div>'+
-            '<p class="zc-activity-subline">Member · '+asset+' / '+network+' · '+walletTitle+': '+address+'</p>'+
+            '<p class="zc-activity-subline">Account activity · '+asset+' / '+network+' · '+walletTitle+': '+address+'</p>'+
             '<small class="zc-activity-hash">TX '+hash+'</small>'+
           '</div>'+
           '<div class="zc-activity-right">'+
