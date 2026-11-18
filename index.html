@@ -4796,81 +4796,42 @@ body[data-zc-theme] #public-plan-cards>.gf-plan-compact-card.is-scroll-active{
   #public-plan-cards>.gf-plan-compact-card,#public-plan-cards .gf-plan-select-button{transition:none!important}
 }
 </style>
-<script id="zc-visitor-plan-scroll-highlight-v10">
+<script id="zc-visitor-plan-scroll-highlight-v11">
 (function(){
-  if(window.__zcVisitorPlanScrollHighlightV10)return;
-  window.__zcVisitorPlanScrollHighlightV10=true;
+  if(window.__zcVisitorPlanScrollHighlightV11)return;
+  window.__zcVisitorPlanScrollHighlightV11=true;
   function init(){
     var rail=document.getElementById('public-plan-cards');
-    if(!rail||rail.dataset.zcVisitorHighlightReady==='1')return;
-    rail.dataset.zcVisitorHighlightReady='1';
-    var frame=0,intersection=null,resize=null;
-    function cards(){return Array.from(rail.querySelectorAll(':scope > .gf-plan-compact-card'))}
-    function visibleArea(card){
-      var rect=card.getBoundingClientRect();
-      if(rect.width<=0||rect.height<=0)return {ratio:0,distance:Infinity};
-      var left=Math.max(0,rect.left),right=Math.min(window.innerWidth,rect.right);
-      var top=Math.max(0,rect.top),bottom=Math.min(window.innerHeight,rect.bottom);
-      var node=rail;
-      while(node&&node!==document.documentElement){
-        var style=window.getComputedStyle(node);
-        var clip=node.getBoundingClientRect();
-        if(node===rail||['auto','scroll','hidden','clip'].indexOf(style.overflowX)>=0){
-          left=Math.max(left,clip.left+node.clientLeft);
-          right=Math.min(right,clip.left+node.clientLeft+node.clientWidth);
-        }
-        if(node===rail||['auto','scroll','hidden','clip'].indexOf(style.overflowY)>=0){
-          top=Math.max(top,clip.top+node.clientTop);
-          bottom=Math.min(bottom,clip.top+node.clientTop+node.clientHeight);
-        }
-        node=node.parentElement;
-      }
-      var width=Math.max(0,right-left),height=Math.max(0,bottom-top);
-      var ratio=(width*height)/(rect.width*rect.height);
-      var railRect=rail.getBoundingClientRect();
-      var center=railRect.left+rail.clientWidth/2;
-      var distance=Math.abs((rect.left+rect.right)/2-center);
-      return {ratio:ratio,distance:distance};
-    }
+    if(!rail||rail.dataset.zcVisitorHighlightReady==='v11')return;
+    rail.dataset.zcVisitorHighlightReady='v11';
+    var frame=0,resize=null;
+    function cards(){return Array.from(rail.children).filter(function(card){return card.classList.contains('gf-plan-compact-card')})}
     function update(){
       frame=0;
-      var list=cards(),active=null,bestRatio=0,bestDistance=Infinity;
-      list.forEach(function(card){
-        var measure=visibleArea(card);
-        if(measure.ratio>.06&&(
-          measure.ratio>bestRatio+.015||
-          (Math.abs(measure.ratio-bestRatio)<=.015&&measure.distance<bestDistance)
-        )){
-          active=card;bestRatio=measure.ratio;bestDistance=measure.distance;
-        }
-      });
+      var list=cards(),rr=rail.getBoundingClientRect();
+      var center=rr.left+rail.clientLeft+rail.clientWidth/2;
+      var active=null,best=Infinity;
+      if(rr.width>0&&rr.bottom>0&&rr.top<window.innerHeight){
+        list.forEach(function(card){
+          var r=card.getBoundingClientRect();
+          var visibleW=Math.max(0,Math.min(r.right,rr.right)-Math.max(r.left,rr.left));
+          var visibleH=Math.max(0,Math.min(r.bottom,rr.bottom)-Math.max(r.top,rr.top));
+          if(r.width<=0||r.height<=0||visibleW<Math.min(24,r.width*.12)||visibleH<Math.min(24,r.height*.12))return;
+          var distance=Math.abs((r.left+r.right)/2-center);
+          if(distance<best){best=distance;active=card}
+        });
+      }
       list.forEach(function(card){card.classList.toggle('is-scroll-active',card===active)});
     }
     function schedule(){if(!frame)frame=window.requestAnimationFrame(update)}
-    rail.addEventListener('scroll',schedule,{passive:true});
-    rail.addEventListener('touchmove',schedule,{passive:true});
-    rail.addEventListener('wheel',schedule,{passive:true});
+    ['scroll','touchmove','wheel'].forEach(function(type){rail.addEventListener(type,schedule,{passive:true})});
     document.addEventListener('scroll',schedule,{capture:true,passive:true});
     window.addEventListener('resize',schedule,{passive:true});
     window.addEventListener('orientationchange',schedule,{passive:true});
-    if('IntersectionObserver'in window){
-      intersection=new IntersectionObserver(schedule,{root:rail,threshold:[0,.08,.2,.4,.6,.8,1]});
-    }
-    if('ResizeObserver'in window){
-      resize=new ResizeObserver(schedule);resize.observe(rail);
-    }
-    function watchCards(){
-      var list=cards();
-      if(intersection)intersection.disconnect();
-      if(resize){resize.disconnect();resize.observe(rail)}
-      list.forEach(function(card){
-        if(intersection)intersection.observe(card);
-        if(resize)resize.observe(card);
-      });
-      schedule();
-    }
-    new MutationObserver(watchCards).observe(rail,{childList:true,subtree:true});
-    watchCards();
+    if('ResizeObserver'in window){resize=new ResizeObserver(schedule);resize.observe(rail)}
+    new MutationObserver(schedule).observe(rail,{childList:true,subtree:true});
+    if('IntersectionObserver'in window)new IntersectionObserver(schedule,{threshold:[0,.1,.25,.5,.75,1]}).observe(rail);
+    schedule();
     window.addEventListener('load',schedule,{once:true});
   }
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});
@@ -4900,7 +4861,7 @@ body[data-zc-theme] #public-plan-cards>.gf-plan-compact-card.is-scroll-active{
     var hash=String(row.tx_hash||'').trim();
     var network=String(row.network||'').toUpperCase();
     var base='',valid=null;
-    if(network==='TRC20'||network==='TRON'){
+    if(network==='TRC20'||network==='TRON'||network==='TRX'){
       base='https://tronscan.org/#/transaction/';valid=/^[a-f0-9]{64}$/i;
     }else if(network==='ERC20'||network==='ETHEREUM'){
       base='https://etherscan.io/tx/';valid=/^0x[a-f0-9]{64}$/i;
@@ -4908,9 +4869,9 @@ body[data-zc-theme] #public-plan-cards>.gf-plan-compact-card.is-scroll-active{
       base='https://bscscan.com/tx/';valid=/^0x[a-f0-9]{64}$/i;
     }else if(network==='BITCOIN'){
       base='https://mempool.space/tx/';valid=/^[a-f0-9]{64}$/i;
-    }else if(network==='DOGECOIN'){
+    }else if(network==='DOGECOIN'||network==='DOGE'){
       base='https://blockchair.com/dogecoin/transaction/';valid=/^[a-f0-9]{64}$/i;
-    }else if(network==='SOLANA'){
+    }else if(network==='SOLANA'||network==='SOL'){
       base='https://solscan.io/tx/';valid=/^[1-9A-HJ-NP-Za-km-z]{32,100}$/;
     }
     return base&&valid&&valid.test(hash)?base+encodeURIComponent(hash):'';
@@ -4953,7 +4914,7 @@ body[data-zc-theme] #public-plan-cards>.gf-plan-compact-card.is-scroll-active{
           '<div class="zc-activity-icon">'+iconMarkup(direction)+'</div>'+
           '<div class="zc-activity-main">'+
             '<div class="zc-activity-main-top"><strong>'+title+'</strong><span class="zc-activity-status">'+safe(r.status||'Recorded')+'</span></div>'+
-            '<p class="zc-activity-subline">Member · '+asset+' / '+network+' · '+walletTitle+': '+address+'</p>'+
+            '<p class="zc-activity-subline">Account activity · '+asset+' / '+network+' · '+walletTitle+': '+address+'</p>'+
             '<small class="zc-activity-hash">TX '+hash+'</small>'+
           '</div>'+
           '<div class="zc-activity-right">'+
