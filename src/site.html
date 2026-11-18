@@ -5110,12 +5110,31 @@ box-sizing:border-box!important;display:inline-flex!important;align-items:center
 }
 </style>
 
-<style id="zc-visitor-plan-card-height-115px-final-v1">
-/* Visitor page only: final vertical artwork height override. */
+<style id="zc-visitor-plan-card-height-120px-demarcation-fix-v1">
+/* Visitor page only: restore artwork height and keep its curved bottom edge clearly visible. */
 #public-plan-cards .gf-plan-artwork{
- height:115px!important;
- min-height:115px!important;
- max-height:115px!important;
- flex:0 0 115px!important;
+ height:120px!important;
+ min-height:120px!important;
+ max-height:120px!important;
+ flex:0 0 120px!important;
+}
+#public-plan-cards .gf-plan-artwork .zc-plan-edge-v11{
+ display:block!important;
+ position:absolute!important;
+ inset:0!important;
+ width:100%!important;
+ height:100%!important;
+ z-index:25!important;
+ overflow:visible!important;
+ pointer-events:none!important;
+}
+#public-plan-cards .gf-plan-artwork .zc-plan-edge-v11 .zc-plan-edge-stroke{
+ display:block!important;
+ fill:none!important;
+ stroke:var(--mint)!important;
+ stroke-width:5!important;
+ stroke-linecap:round!important;
+ stroke-linejoin:round!important;
+ filter:drop-shadow(0 0 3px var(--green)) drop-shadow(0 0 6px var(--green))!important;
 }
 </style>
