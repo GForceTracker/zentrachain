@@ -789,7 +789,51 @@ html body .modal-head .brand{white-space:nowrap!important;min-width:0!important}
 <section class="section" id="how"><div class="section-head"><div><div class="eyebrow">Platform overview</div><h2>One portal. Clear account records.</h2></div></div><div class="grid3"><div class="card feature"><div class="ico">◈</div><b>Account visibility</b><p>Review your recorded balance, ledger entries, deposit requests and withdrawal history in one place.</p></div><div class="card feature"><div class="ico">↗</div><b>Market information</b><p>Follow live public market prices and interactive charts. Market data is kept distinct from verified account performance.</p></div><div class="card feature"><div class="ico">✓</div><b>Reviewed transactions</b><p>Deposit evidence and withdrawal requests have explicit statuses. Credits are only recorded after manual verification.</p></div></div></section>
 <section class="section reveal" id="markets"><div class="section-head"><div><div class="eyebrow">Live market watch</div><h2>Bitcoin price action</h2><p class="muted">Live BTC/USDT market data from Binance. Public market information only; this is not ZentraChain account performance or executed trades.</p></div><span class="pill live-pill"><i></i> LIVE BTC / USDT</span></div><div class="card panel market-glass"><div class="chart-frame live-chart" id="zc-public-btc-chart"><div class="chart-loading">Connecting to Binance market data…</div></div><div class="tradingview-widget-copyright">BTC/USDT · Binance public market feed · Refreshes automatically</div></div></section>
 <section class="section zc-account-access" id="account-access"><div class="section-head"><div><div class="eyebrow">Account access</div><h2>Get started in a few steps</h2><p class="muted">A clear path from registration to reviewing your account activity.</p></div></div><div class="zc-access-grid"><article class="zc-access-card"><span class="zc-access-number">01</span><div><h3>Create your account</h3><p>Register with your email and complete the verification steps shown on screen.</p></div></article><article class="zc-access-card"><span class="zc-access-number">02</span><div><h3>Review deposit instructions</h3><p>Check the deposit network and destination details carefully before sending any funds.</p></div></article><article class="zc-access-card"><span class="zc-access-number">03</span><div><h3>Track verified activity</h3><p>Follow deposit reviews, recorded ledger entries and withdrawal request statuses.</p></div></article></div></section>
-<section class="section" id="plans"><div class="section-head"><div><div class="eyebrow">Plan information</div><h2>Explore plan configurations</h2><p class="muted">Review each plan’s duration and deposit limits before selecting it.</p></div></div><div id="public-plan-cards" class="plan-grid">Loading plans…</div><div class="calc-shell" style="margin-top:22px"><div class="eyebrow">Plan calculator</div><h2>Estimate a scenario</h2><p class="muted">Choose a plan and enter an amount or use the slider.</p><div class="field"><label>Plan</label><select id="pub-select" onchange="planUpdate('pub')"></select></div><div class="field"><label>Amount (USDT)</label><input class="calc-amount" id="pub-amount" type="number" step=".01" value="50" oninput="planSync('pub','input')" onblur="planSync('pub','blur')"></div><div class="calc-control"><label for="pub-range">Amount slider</label><input id="pub-range" class="calc-range" type="range" oninput="planSync('pub','range')"></div><div class="calc-control"><div class="calc-days-heading"><label for="pub-days">Duration</label><b><span id="pub-days-value">1</span> days</b></div><input id="pub-days" class="calc-range" type="range" min="1" max="365" step="1" value="1" oninput="planSync('pub','days')"><div class="calc-days-limits"><span>1 day</span><span>365 days</span></div></div><div class="plan-meta"><span id="pub-limits">Select a plan</span><b id="pub-rate">Fixed rate: —</b></div><div class="calc-result"><span>Change</span><b id="pub-profit">—</b></div><div class="calc-result"><span>Total</span><b class="calc-total" id="pub-total">—</b></div><p class="risk">Calculator figures are based on the plan settings entered here. They are not proof of executed trades or a completed payout.</p></div></section><section class="section" id="faq"><div class="eyebrow">Help centre</div><h2>Frequently asked questions</h2><details class="faq"><summary>Are market prices the same as my account performance?</summary><p>No. Market prices are third-party reference data. Your account balance is calculated only from ledger entries recorded for your account.</p></details><details class="faq"><summary>How are deposits confirmed?</summary><p>Submit a deposit request with the network and transaction hash. An administrator must independently verify the transaction before a ledger credit is recorded. A submitted request is not a confirmed deposit.</p></details><details class="faq"><summary>How do withdrawals work?</summary><p>Submit the amount, network and destination address. Requests are reviewed. A withdrawal is marked paid only after the transfer has been made and its transaction hash recorded.</p></details><details class="faq"><summary>Does the platform guarantee returns?</summary><p>No. Cryptocurrency trading is high risk. There are no guaranteed profits, and historical results do not predict future results.</p></details><details class="faq"><summary>Is exchange trading automated?</summary><p>No exchange API is currently connected to this portal. The market chart is informational and does not execute trades.</p></details><details class="faq"><summary>How do I contact support?</summary><p>Use the support contact supplied through your verified company communication channel. Do not trust unsolicited wallet addresses or messages claiming to be support.</p></details></section>
+<section class="section" id="plans"><div class="section-head"><div><div class="eyebrow">Plan information</div><h2>Explore plan configurations</h2><p class="muted">Review each plan’s duration and deposit limits before selecting it.</p></div></div><div id="public-plan-cards" class="plan-grid">Loading plans…</div><div class="calc-shell" style="margin-top:22px"><div class="eyebrow">Plan calculator</div><h2>Estimate a scenario</h2><p class="muted">Choose a plan and enter an amount or use the slider.</p><div class="field"><label>Plan</label><select id="pub-select" onchange="planUpdate('pub')"></select></div><div class="field"><label>Amount (USDT)</label><input class="calc-amount" id="pub-amount" type="number" step=".01" value="50" oninput="planSync('pub','input')" onblur="planSync('pub','blur')"></div><div class="calc-control"><label for="pub-range">Amount slider</label><input id="pub-range" class="calc-range" type="range" oninput="planSync('pub','range')"></div><div class="calc-control"><div class="calc-days-heading"><label for="pub-days">Duration</label><b><span id="pub-days-value">1</span> days</b></div><input id="pub-days" class="calc-range" type="range" min="1" max="365" step="1" value="1" oninput="planSync('pub','days')"><div class="calc-days-limits"><span>1 day</span><span>365 days</span></div></div><div class="plan-meta"><span id="pub-limits">Select a plan</span><b id="pub-rate">Fixed rate: —</b></div><div class="calc-result"><span>Change</span><b id="pub-profit">—</b></div><div class="calc-result"><span>Total</span><b class="calc-total" id="pub-total">—</b></div><p class="risk">Calculator figures are based on the plan settings entered here. They are not proof of executed trades or a completed payout.</p></div></section>
+<section class="section zc-public-activity" id="zc-public-activity">
+  <div class="section-head zc-activity-heading">
+    <div>
+      <div class="eyebrow">Blockchain activity</div>
+      <h2>Recent deposits &amp; withdrawals</h2>
+      <p class="muted">A live view of recorded transactions across enabled ZentraChain networks.</p>
+    </div>
+    <div class="zc-activity-heading-actions">
+      <span class="zc-activity-counter" id="zc-activity-count" aria-live="polite">Checking activity…</span>
+      <button type="button" class="btn ghost zc-activity-refresh" id="zc-activity-refresh"><i data-lucide="refresh-cw" aria-hidden="true"></i> Refresh</button>
+    </div>
+  </div>
+  <div class="zc-activity-network-strip" id="zc-activity-networks" aria-label="Enabled networks">
+    <span class="zc-activity-network-label">Enabled networks</span>
+    <span class="muted">Loading supported networks…</span>
+  </div>
+  <div class="zc-activity-panel">
+    <div class="zc-activity-toolbar">
+      <div class="zc-activity-filters" id="zc-activity-filters" role="group" aria-label="Filter transactions">
+        <button type="button" class="active" data-activity-filter="all" aria-pressed="true">All</button>
+        <button type="button" data-activity-filter="deposit" aria-pressed="false">Deposits</button>
+        <button type="button" data-activity-filter="withdrawal" aria-pressed="false">Withdrawals</button>
+      </div>
+      <span class="zc-activity-live-note"><span class="zc-activity-live-dot"></span> Auto-refreshes every minute</span>
+    </div>
+    <div class="zc-activity-list" id="zc-activity-list" aria-live="polite">
+      <div class="zc-activity-empty">Loading on-chain activity…</div>
+    </div>
+    <div class="zc-activity-loadmore-wrap">
+      <button type="button" class="btn ghost" id="zc-activity-load-more" hidden>Load more activity</button>
+    </div>
+  </div>
+  <p class="risk zc-activity-privacy-note">Only confirmed or credited on-chain deposits and withdrawals marked paid with a recorded transaction hash appear here. Customer names and full wallet addresses are not published.</p>
+  <div class="zc-chain-preview" id="zc-chain-preview" hidden>
+    <button type="button" class="zc-chain-preview-backdrop" data-chain-preview-close aria-label="Close transaction details"></button>
+    <section class="zc-chain-preview-card" role="dialog" aria-modal="true" aria-labelledby="zc-chain-preview-title">
+      <button type="button" class="zc-chain-preview-close" data-chain-preview-close aria-label="Close">×</button>
+      <div class="eyebrow">Transaction details</div>
+      <h3 id="zc-chain-preview-title">Blockchain transaction</h3>
+      <div id="zc-chain-preview-content"></div>
+      <div id="zc-chain-preview-link" class="zc-chain-preview-link"></div>
+    </section>
+  </div>
+</section><section class="section" id="faq"><div class="eyebrow">Help centre</div><h2>Frequently asked questions</h2><details class="faq"><summary>Are market prices the same as my account performance?</summary><p>No. Market prices are third-party reference data. Your account balance is calculated only from ledger entries recorded for your account.</p></details><details class="faq"><summary>How are deposits confirmed?</summary><p>Submit a deposit request with the network and transaction hash. An administrator must independently verify the transaction before a ledger credit is recorded. A submitted request is not a confirmed deposit.</p></details><details class="faq"><summary>How do withdrawals work?</summary><p>Submit the amount, network and destination address. Requests are reviewed. A withdrawal is marked paid only after the transfer has been made and its transaction hash recorded.</p></details><details class="faq"><summary>Does the platform guarantee returns?</summary><p>No. Cryptocurrency trading is high risk. There are no guaranteed profits, and historical results do not predict future results.</p></details><details class="faq"><summary>Is exchange trading automated?</summary><p>No exchange API is currently connected to this portal. The market chart is informational and does not execute trades.</p></details><details class="faq"><summary>How do I contact support?</summary><p>Use the support contact supplied through your verified company communication channel. Do not trust unsolicited wallet addresses or messages claiming to be support.</p></details></section>
 <section class="section zc-service-note" id="risk"><div class="zc-service-note-inner"><span class="zc-note-mark">i</span><div><b>Clear information. Verified account records.</b><p>Digital asset values can fluctuate. Market information is provided for general reference and may be delayed or unavailable. Account balances and transaction records are subject to verification.</p></div></div></section>
 <footer class="wrap zc-footer">
   <div class="zc-footer-main">
@@ -4568,3 +4612,450 @@ body[data-zc-theme] #app-content #dash-cards>.gf-plan-compact-card.is-tap-select
 
 
 
+
+
+<style id="zc-visitor-theme-scroll-and-activity-v10">
+/* Visitor plan highlight follows the currently visible card and the selected site theme. */
+#public-plan-cards>.gf-plan-compact-card{scroll-snap-align:start}
+body[data-zc-theme] #public-plan-cards>.gf-plan-compact-card{
+  background:linear-gradient(155deg,var(--panel2),var(--panel))!important;
+  border-color:var(--line)!important;color:var(--text)!important;
+}
+body[data-zc-theme] #public-plan-cards .gf-plan-card-title .eyebrow,
+body[data-zc-theme] #public-plan-cards .gf-plan-detail-line i,
+body[data-zc-theme] #public-plan-cards .gf-plan-duration{color:var(--mint)!important}
+body[data-zc-theme] #public-plan-cards .gf-plan-description,
+body[data-zc-theme] #public-plan-cards .gf-plan-detail-line{color:var(--text)!important}
+body[data-zc-theme] #public-plan-cards .gf-plan-detail-line b{color:var(--mint)!important}
+body[data-zc-theme] #public-plan-cards .gf-plan-duration{
+  background:var(--panel2)!important;border:1px solid var(--line)!important;border-radius:8px!important;
+}
+body[data-zc-theme] #public-plan-cards .gf-plan-select-button{
+  width:calc(100% - 24px)!important;margin:10px 12px 12px!important;
+  border:1px solid var(--green)!important;
+  background:linear-gradient(135deg,var(--green),var(--panel2))!important;
+  color:var(--text)!important;font-weight:800!important;
+  box-shadow:0 7px 20px color-mix(in srgb,var(--green) 20%,transparent)!important;
+}
+body[data-zc-theme="emerald"] #public-plan-cards .gf-plan-select-button{color:#032116!important}
+body[data-zc-theme] #public-plan-cards .gf-plan-select-button:hover{
+  filter:brightness(1.09)!important;transform:translateY(-1px)!important;
+}
+body[data-zc-theme] #public-plan-cards .gf-plan-select-button:focus-visible{
+  outline:2px solid var(--mint)!important;outline-offset:3px!important;
+}
+body[data-zc-theme] #public-plan-cards>.gf-plan-compact-card.is-selected .gf-plan-select-button{
+  border-color:var(--mint)!important;background:linear-gradient(135deg,var(--green),var(--panel))!important;
+  color:var(--text)!important;
+}
+body[data-zc-theme="emerald"] #public-plan-cards>.gf-plan-compact-card.is-selected .gf-plan-select-button{color:#032116!important}
+body[data-zc-theme] #public-plan-cards>.gf-plan-compact-card.is-scroll-active{
+  border:2px solid var(--green)!important;
+  outline:1px solid color-mix(in srgb,var(--mint) 62%,transparent)!important;
+  box-shadow:0 0 0 1px color-mix(in srgb,var(--green) 25%,transparent),
+    0 0 14px color-mix(in srgb,var(--green) 50%,transparent),
+    0 0 28px color-mix(in srgb,var(--green) 22%,transparent)!important;
+}
+
+/* Public transaction feed. Every color is driven by the selected Zentra theme. */
+#zc-public-activity{scroll-margin-top:24px}
+#zc-public-activity .zc-activity-heading{
+  display:flex;align-items:flex-end;justify-content:space-between;gap:18px;flex-wrap:wrap;
+}
+#zc-public-activity .zc-activity-heading-actions{
+  display:flex;align-items:center;gap:10px;flex-wrap:wrap;
+}
+#zc-public-activity .zc-activity-counter{font-size:12px;color:var(--muted);font-weight:700}
+#zc-public-activity .zc-activity-refresh{display:inline-flex;align-items:center;gap:7px}
+#zc-public-activity .zc-activity-refresh svg{width:15px;height:15px}
+#zc-public-activity .zc-activity-network-strip{
+  display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:0 0 14px;
+}
+#zc-public-activity .zc-activity-network-label{
+  color:var(--muted);font-size:11px;font-weight:800;letter-spacing:.07em;text-transform:uppercase;margin-right:3px;
+}
+#zc-public-activity .zc-activity-network-chip{
+  display:inline-flex;align-items:center;padding:6px 9px;border-radius:999px;
+  border:1px solid var(--line);background:var(--panel);color:var(--mint);
+  font-size:11px;font-weight:750;white-space:nowrap;
+}
+#zc-public-activity .zc-activity-panel{
+  border:1px solid var(--line);border-radius:19px;overflow:hidden;
+  background:linear-gradient(145deg,var(--panel2),var(--panel));
+  box-shadow:0 16px 42px rgba(0,0,0,.19);
+}
+#zc-public-activity .zc-activity-toolbar{
+  display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;
+  padding:13px 15px;border-bottom:1px solid var(--line);
+}
+#zc-public-activity .zc-activity-filters{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+#zc-public-activity .zc-activity-filters button{
+  appearance:none;border:1px solid var(--line);background:transparent;color:var(--muted);
+  border-radius:999px;padding:8px 12px;font-size:12px;font-weight:750;cursor:pointer;
+}
+#zc-public-activity .zc-activity-filters button.active{
+  border-color:var(--green);background:color-mix(in srgb,var(--green) 16%,var(--panel));
+  color:var(--mint);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--green) 12%,transparent);
+}
+#zc-public-activity .zc-activity-live-note{
+  display:inline-flex;align-items:center;gap:7px;color:var(--muted);font-size:11px;
+}
+#zc-public-activity .zc-activity-live-dot{
+  width:7px;height:7px;border-radius:50%;background:var(--green);
+  box-shadow:0 0 0 4px color-mix(in srgb,var(--green) 13%,transparent);
+}
+#zc-public-activity .zc-activity-list{max-height:590px;overflow:auto;overscroll-behavior:contain}
+#zc-public-activity .zc-activity-item{
+  display:grid;grid-template-columns:42px minmax(0,1fr) auto;align-items:center;gap:13px;
+  padding:14px 16px;border-bottom:1px solid color-mix(in srgb,var(--line) 72%,transparent);
+}
+#zc-public-activity .zc-activity-item:last-child{border-bottom:0}
+#zc-public-activity .zc-activity-icon{
+  width:40px;height:40px;border-radius:13px;display:flex;align-items:center;justify-content:center;
+  background:color-mix(in srgb,var(--green) 13%,var(--panel));color:var(--mint);
+  border:1px solid color-mix(in srgb,var(--green) 28%,var(--line));
+}
+#zc-public-activity .zc-activity-icon svg{width:19px;height:19px;stroke:currentColor;stroke-width:1.9}
+#zc-public-activity .zc-activity-main{min-width:0}
+#zc-public-activity .zc-activity-main-top{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+#zc-public-activity .zc-activity-main-top strong{font-size:13px;color:var(--text)}
+#zc-public-activity .zc-activity-status{
+  display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:999px;
+  padding:3px 7px;color:var(--mint);background:var(--panel);font-size:10px;font-weight:750;
+}
+#zc-public-activity .zc-activity-subline{
+  margin:5px 0 0;color:var(--muted);font-size:11px;line-height:1.55;overflow-wrap:anywhere;
+}
+#zc-public-activity .zc-activity-hash{
+  display:block;margin-top:3px;color:var(--muted);font-size:10px;letter-spacing:.01em;overflow-wrap:anywhere;
+}
+#zc-public-activity .zc-activity-right{
+  display:flex;flex-direction:column;align-items:flex-end;gap:5px;text-align:right;
+}
+#zc-public-activity .zc-activity-amount{font-size:13px;font-weight:850;color:var(--text);white-space:nowrap}
+#zc-public-activity .zc-activity-amount.deposit{color:var(--mint)}
+#zc-public-activity .zc-activity-time{font-size:10px;color:var(--muted);white-space:nowrap}
+#zc-public-activity .zc-activity-details{
+  appearance:none;background:transparent;border:0;color:var(--mint);font-size:11px;
+  font-weight:800;cursor:pointer;padding:3px 0;text-decoration:underline;text-underline-offset:3px;
+}
+#zc-public-activity .zc-activity-empty{
+  padding:30px 18px;text-align:center;color:var(--muted);font-size:13px;line-height:1.7;
+}
+#zc-public-activity .zc-activity-loadmore-wrap{display:flex;justify-content:center;padding:14px}
+#zc-public-activity .zc-activity-loadmore-wrap [hidden]{display:none!important}
+#zc-public-activity .zc-activity-privacy-note{margin-top:12px;font-size:11px;line-height:1.6}
+#zc-public-activity .zc-chain-preview[hidden]{display:none!important}
+#zc-public-activity .zc-chain-preview{
+  position:fixed;inset:0;z-index:20000;display:flex;align-items:center;justify-content:center;padding:18px;
+}
+#zc-public-activity .zc-chain-preview-backdrop{
+  position:absolute;inset:0;border:0;background:rgba(0,0,0,.72);backdrop-filter:blur(5px);
+}
+#zc-public-activity .zc-chain-preview-card{
+  position:relative;z-index:1;width:min(100%,480px);max-height:85vh;overflow:auto;
+  padding:23px;border-radius:20px;border:1px solid var(--line);
+  background:linear-gradient(145deg,var(--panel2),var(--panel));color:var(--text);
+  box-shadow:0 24px 90px rgba(0,0,0,.52);
+}
+#zc-public-activity .zc-chain-preview-card h3{margin:7px 34px 16px 0;font-size:20px}
+#zc-public-activity .zc-chain-preview-close{
+  position:absolute;right:12px;top:10px;width:34px;height:34px;border-radius:10px;
+  border:1px solid var(--line);background:var(--panel);color:var(--text);font-size:23px;cursor:pointer;
+}
+#zc-public-activity .zc-chain-preview-row{
+  display:flex;justify-content:space-between;gap:14px;padding:10px 0;border-bottom:1px solid var(--line);
+  font-size:12px;line-height:1.55;
+}
+#zc-public-activity .zc-chain-preview-row span{color:var(--muted)}
+#zc-public-activity .zc-chain-preview-row strong{
+  max-width:65%;text-align:right;overflow-wrap:anywhere;color:var(--text);font-weight:750;
+}
+#zc-public-activity .zc-chain-preview-link{margin-top:18px}
+#zc-public-activity .zc-chain-preview-link a{
+  display:flex;align-items:center;justify-content:center;gap:8px;padding:12px 14px;
+  border-radius:11px;border:1px solid var(--green);
+  background:linear-gradient(135deg,var(--green),var(--panel2));color:var(--text);
+  font-size:13px;font-weight:850;text-decoration:none;
+}
+#zc-public-activity .zc-chain-preview-link p{margin:0;color:var(--muted);font-size:12px;line-height:1.6}
+@media(max-width:600px){
+  #zc-public-activity .zc-activity-heading{align-items:flex-start}
+  #zc-public-activity .zc-activity-heading-actions{width:100%;justify-content:space-between}
+  #zc-public-activity .zc-activity-item{grid-template-columns:36px minmax(0,1fr);gap:10px;padding:12px}
+  #zc-public-activity .zc-activity-icon{width:34px;height:34px;border-radius:11px}
+  #zc-public-activity .zc-activity-right{
+    grid-column:2;flex-direction:row;align-items:center;justify-content:space-between;
+    flex-wrap:wrap;text-align:left;gap:8px;margin-top:-2px;
+  }
+  #zc-public-activity .zc-activity-toolbar{align-items:flex-start}
+  #zc-public-activity .zc-activity-live-note{width:100%}
+  #zc-public-activity .zc-chain-preview-card{padding:19px}
+}
+@media(prefers-reduced-motion:reduce){
+  #public-plan-cards>.gf-plan-compact-card,#public-plan-cards .gf-plan-select-button{transition:none!important}
+}
+</style>
+<script id="zc-visitor-plan-scroll-highlight-v10">
+(function(){
+  if(window.__zcVisitorPlanScrollHighlightV10)return;
+  window.__zcVisitorPlanScrollHighlightV10=true;
+  function init(){
+    var rail=document.getElementById('public-plan-cards');
+    if(!rail||rail.dataset.zcVisitorHighlightReady==='1')return;
+    rail.dataset.zcVisitorHighlightReady='1';
+    var frame=0,intersection=null,resize=null;
+    function cards(){return Array.from(rail.querySelectorAll(':scope > .gf-plan-compact-card'))}
+    function visibleArea(card){
+      var rect=card.getBoundingClientRect();
+      if(rect.width<=0||rect.height<=0)return {ratio:0,distance:Infinity};
+      var left=Math.max(0,rect.left),right=Math.min(window.innerWidth,rect.right);
+      var top=Math.max(0,rect.top),bottom=Math.min(window.innerHeight,rect.bottom);
+      var node=rail;
+      while(node&&node!==document.documentElement){
+        var style=window.getComputedStyle(node);
+        var clip=node.getBoundingClientRect();
+        if(node===rail||['auto','scroll','hidden','clip'].indexOf(style.overflowX)>=0){
+          left=Math.max(left,clip.left+node.clientLeft);
+          right=Math.min(right,clip.left+node.clientLeft+node.clientWidth);
+        }
+        if(node===rail||['auto','scroll','hidden','clip'].indexOf(style.overflowY)>=0){
+          top=Math.max(top,clip.top+node.clientTop);
+          bottom=Math.min(bottom,clip.top+node.clientTop+node.clientHeight);
+        }
+        node=node.parentElement;
+      }
+      var width=Math.max(0,right-left),height=Math.max(0,bottom-top);
+      var ratio=(width*height)/(rect.width*rect.height);
+      var railRect=rail.getBoundingClientRect();
+      var center=railRect.left+rail.clientWidth/2;
+      var distance=Math.abs((rect.left+rect.right)/2-center);
+      return {ratio:ratio,distance:distance};
+    }
+    function update(){
+      frame=0;
+      var list=cards(),active=null,bestRatio=0,bestDistance=Infinity;
+      list.forEach(function(card){
+        var measure=visibleArea(card);
+        if(measure.ratio>.06&&(
+          measure.ratio>bestRatio+.015||
+          (Math.abs(measure.ratio-bestRatio)<=.015&&measure.distance<bestDistance)
+        )){
+          active=card;bestRatio=measure.ratio;bestDistance=measure.distance;
+        }
+      });
+      list.forEach(function(card){card.classList.toggle('is-scroll-active',card===active)});
+    }
+    function schedule(){if(!frame)frame=window.requestAnimationFrame(update)}
+    rail.addEventListener('scroll',schedule,{passive:true});
+    rail.addEventListener('touchmove',schedule,{passive:true});
+    rail.addEventListener('wheel',schedule,{passive:true});
+    document.addEventListener('scroll',schedule,{capture:true,passive:true});
+    window.addEventListener('resize',schedule,{passive:true});
+    window.addEventListener('orientationchange',schedule,{passive:true});
+    if('IntersectionObserver'in window){
+      intersection=new IntersectionObserver(schedule,{root:rail,threshold:[0,.08,.2,.4,.6,.8,1]});
+    }
+    if('ResizeObserver'in window){
+      resize=new ResizeObserver(schedule);resize.observe(rail);
+    }
+    function watchCards(){
+      var list=cards();
+      if(intersection)intersection.disconnect();
+      if(resize){resize.disconnect();resize.observe(rail)}
+      list.forEach(function(card){
+        if(intersection)intersection.observe(card);
+        if(resize)resize.observe(card);
+      });
+      schedule();
+    }
+    new MutationObserver(watchCards).observe(rail,{childList:true,subtree:true});
+    watchCards();
+    window.addEventListener('load',schedule,{once:true});
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});
+  else init();
+})();
+</script>
+<script id="zc-public-chain-activity-v10">
+(function(){
+  if(window.__zcPublicChainActivityV10)return;
+  window.__zcPublicChainActivityV10=true;
+  var rows=[],filter='all',visibleCount=15,isLoading=false;
+  var $=function(id){return document.getElementById(id)};
+  var list=$('zc-activity-list'),count=$('zc-activity-count'),refreshButton=$('zc-activity-refresh');
+  var filters=$('zc-activity-filters'),loadMore=$('zc-activity-load-more');
+  var networks=$('zc-activity-networks'),preview=$('zc-chain-preview');
+  var formatter=new Intl.NumberFormat('en-US',{maximumFractionDigits:8});
+  function safe(value){
+    return String(value==null?'':value).replace(/[&<>"']/g,function(ch){
+      return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch];
+    });
+  }
+  function shortenHash(value){
+    var hash=String(value||'');
+    return hash.length>22?hash.slice(0,10)+'…'+hash.slice(-8):hash;
+  }
+  function explorerFor(row){
+    var hash=String(row.tx_hash||'').trim();
+    var network=String(row.network||'').toUpperCase();
+    var base='',valid=null;
+    if(network==='TRC20'||network==='TRON'){
+      base='https://tronscan.org/#/transaction/';valid=/^[a-f0-9]{64}$/i;
+    }else if(network==='ERC20'||network==='ETHEREUM'){
+      base='https://etherscan.io/tx/';valid=/^0x[a-f0-9]{64}$/i;
+    }else if(network==='BEP20'){
+      base='https://bscscan.com/tx/';valid=/^0x[a-f0-9]{64}$/i;
+    }else if(network==='BITCOIN'){
+      base='https://mempool.space/tx/';valid=/^[a-f0-9]{64}$/i;
+    }else if(network==='DOGECOIN'){
+      base='https://blockchair.com/dogecoin/transaction/';valid=/^[a-f0-9]{64}$/i;
+    }else if(network==='SOLANA'){
+      base='https://solscan.io/tx/';valid=/^[1-9A-HJ-NP-Za-km-z]{32,100}$/;
+    }
+    return base&&valid&&valid.test(hash)?base+encodeURIComponent(hash):'';
+  }
+  function dateLabel(value){
+    if(!value)return 'Date unavailable';
+    var parsed=new Date(value);
+    return Number.isNaN(parsed.getTime())?'Date unavailable':parsed.toLocaleString();
+  }
+  function amountLabel(value,asset){
+    var n=Number(value);
+    return (Number.isFinite(n)?formatter.format(n):'—')+' '+String(asset||'');
+  }
+  function iconMarkup(direction){
+    if(direction==='withdrawal')return '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 3v13m0 0 5-5m-5 5-5-5M5 20h14" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+    return '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 21V8m0 0 5 5m-5-5-5 5M5 4h14" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+  }
+  function filteredRows(){
+    return rows.map(function(row,index){return {row:row,index:index}})
+      .filter(function(item){return filter==='all'||String(item.row.direction).toLowerCase()===filter});
+  }
+  function render(){
+    if(!list)return;
+    var filtered=filteredRows(),visible=filtered.slice(0,visibleCount);
+    if(count)count.textContent=rows.length+' / 300 records';
+    if(!visible.length){
+      list.innerHTML='<div class="zc-activity-empty">'+(rows.length
+        ?'There are no '+(filter==='deposit'?'deposit':filter==='withdrawal'?'withdrawal':'matching')+' records in this view.'
+        :'No verified activity is available yet. Confirmed deposits and paid withdrawals with a recorded transaction hash will appear here automatically.')+'</div>';
+    }else{
+      list.innerHTML=visible.map(function(item){
+        var r=item.row,direction=String(r.direction||'').toLowerCase();
+        var isDeposit=direction==='deposit',asset=safe(r.asset||'Asset'),network=safe(r.network||'Network');
+        var address=safe(r.wallet_preview||'Address not available');
+        var hash=safe(shortenHash(r.tx_hash));
+        var title=isDeposit?'Deposit received':'Withdrawal paid';
+        var prefix=isDeposit?'+':'−';
+        var walletTitle=isDeposit?'Deposit address':'Destination address';
+        return '<article class="zc-activity-item">'+
+          '<div class="zc-activity-icon">'+iconMarkup(direction)+'</div>'+
+          '<div class="zc-activity-main">'+
+            '<div class="zc-activity-main-top"><strong>'+title+'</strong><span class="zc-activity-status">'+safe(r.status||'Recorded')+'</span></div>'+
+            '<p class="zc-activity-subline">Member · '+asset+' / '+network+' · '+walletTitle+': '+address+'</p>'+
+            '<small class="zc-activity-hash">TX '+hash+'</small>'+
+          '</div>'+
+          '<div class="zc-activity-right">'+
+            '<strong class="zc-activity-amount '+(isDeposit?'deposit':'')+'">'+prefix+amountLabel(r.amount,r.asset)+'</strong>'+
+            '<time class="zc-activity-time">'+safe(dateLabel(r.occurred_at))+'</time>'+
+            '<button type="button" class="zc-activity-details" data-activity-detail="'+item.index+'">View details</button>'+
+          '</div>'+
+        '</article>';
+      }).join('');
+    }
+    if(loadMore){
+      loadMore.hidden=filtered.length<=visibleCount;
+      loadMore.textContent='Load more ('+Math.min(15,filtered.length-visibleCount)+' next)';
+    }
+    try{if(window.lucide&&window.lucide.createIcons)window.lucide.createIcons({root:list})}catch(e){}
+  }
+  function renderNetworks(items){
+    if(!networks)return;
+    var chips=(items||[]).map(function(item){
+      return '<span class="zc-activity-network-chip">'+safe(item.asset_code)+' · '+safe(item.network_code)+'</span>';
+    }).join('');
+    networks.innerHTML='<span class="zc-activity-network-label">Enabled networks</span>'+
+      (chips||'<span class="muted">Network list unavailable</span>');
+  }
+  function openDetails(index){
+    var row=rows[Number(index)];
+    if(!row||!preview)return;
+    var url=explorerFor(row),isDeposit=String(row.direction).toLowerCase()==='deposit';
+    var fields=[
+      ['Type',isDeposit?'Deposit':'Withdrawal'],
+      ['Asset',row.asset||'—'],
+      ['Network',row.network||'—'],
+      ['Amount',amountLabel(row.amount,row.asset)],
+      ['Status',row.status||'Recorded'],
+      ['Wallet address',row.wallet_preview||'Hidden'],
+      ['Transaction hash',row.tx_hash||'—'],
+      ['Recorded at',dateLabel(row.occurred_at)]
+    ];
+    $('zc-chain-preview-title').textContent=isDeposit?'Deposit transaction':'Withdrawal transaction';
+    $('zc-chain-preview-content').innerHTML=fields.map(function(field){
+      return '<div class="zc-chain-preview-row"><span>'+safe(field[0])+'</span><strong>'+safe(field[1])+'</strong></div>';
+    }).join('');
+    $('zc-chain-preview-link').innerHTML=url
+      ?'<a href="'+safe(url)+'" target="_blank" rel="noopener noreferrer"><span>View on blockchain explorer</span><span aria-hidden="true">↗</span></a>'
+      :'<p>An explorer link is not available for this network or transaction-hash format.</p>';
+    preview.hidden=false;
+    document.body.style.overflow='hidden';
+  }
+  function closeDetails(){
+    if(preview)preview.hidden=true;
+    document.body.style.overflow='';
+  }
+  async function refresh(){
+    if(isLoading||!list)return;
+    isLoading=true;
+    if(refreshButton){refreshButton.disabled=true;refreshButton.textContent='Refreshing…'}
+    try{
+      if(typeof db==='undefined'||!db||typeof db.rpc!=='function')throw new Error('Activity service is unavailable.');
+      var result=await db.rpc('get_public_chain_activity',{p_limit:300});
+      if(result.error)throw result.error;
+      rows=Array.isArray(result.data)?result.data:[];
+      visibleCount=15;
+      render();
+      try{
+        var networkResult=await db.from('crypto_asset_networks')
+          .select('asset_code,network_code')
+          .eq('is_enabled',true)
+          .order('asset_code',{ascending:true});
+        if(!networkResult.error)renderNetworks(networkResult.data||[]);
+      }catch(e){}
+    }catch(error){
+      console.error('Public chain activity could not load:',error);
+      if(list)list.innerHTML='<div class="zc-activity-empty">Activity is temporarily unavailable. Please use Refresh to try again.</div>';
+      if(count)count.textContent='Activity unavailable';
+    }finally{
+      isLoading=false;
+      if(refreshButton){refreshButton.disabled=false;refreshButton.innerHTML='<i data-lucide="refresh-cw" aria-hidden="true"></i> Refresh';try{if(window.lucide&&window.lucide.createIcons)window.lucide.createIcons({root:refreshButton})}catch(e){}}
+    }
+  }
+  if(filters)filters.addEventListener('click',function(event){
+    var button=event.target.closest('[data-activity-filter]');
+    if(!button)return;
+    filter=button.dataset.activityFilter||'all';
+    filters.querySelectorAll('[data-activity-filter]').forEach(function(item){
+      var active=item===button;
+      item.classList.toggle('active',active);
+      item.setAttribute('aria-pressed',String(active));
+    });
+    visibleCount=15;render();
+  });
+  if(list)list.addEventListener('click',function(event){
+    var button=event.target.closest('[data-activity-detail]');
+    if(button)openDetails(button.dataset.activityDetail);
+  });
+  if(loadMore)loadMore.addEventListener('click',function(){visibleCount=Math.min(300,visibleCount+15);render()});
+  if(refreshButton)refreshButton.addEventListener('click',refresh);
+  if(preview)preview.addEventListener('click',function(event){
+    if(event.target===preview||event.target.hasAttribute('data-chain-preview-close'))closeDetails();
+  });
+  document.addEventListener('keydown',function(event){if(event.key==='Escape'&&preview&&!preview.hidden)closeDetails()});
+  refresh();
+  window.setInterval(function(){if(!document.hidden)refresh()},60000);
+  document.addEventListener('visibilitychange',function(){if(!document.hidden)refresh()});
+})();
+</script>
