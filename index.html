@@ -793,20 +793,17 @@ html body .modal-head .brand{white-space:nowrap!important;min-width:0!important}
 <section class="section zc-public-activity" id="zc-public-activity">
   <div class="section-head zc-activity-heading">
     <div>
-      <div class="eyebrow">Blockchain activity</div>
-      <h2>Recent deposits &amp; withdrawals</h2>
-      <p class="muted">A live view of recorded transactions across enabled ZentraChain networks.</p>
+      <div class="eyebrow">Block Activity</div>
+      <h2>Deposits &amp; Withdrawals</h2>
+      
     </div>
     <div class="zc-activity-heading-actions">
       <span class="zc-activity-counter" id="zc-activity-count" aria-live="polite">Checking activity…</span>
       <button type="button" class="btn ghost zc-activity-refresh" id="zc-activity-refresh"><i data-lucide="refresh-cw" aria-hidden="true"></i> Refresh</button>
     </div>
   </div>
-  <div class="zc-activity-network-strip" id="zc-activity-networks" aria-label="Enabled networks">
-    <span class="zc-activity-network-label">Enabled networks</span>
-    <span class="muted">Loading supported networks…</span>
-  </div>
   <div class="zc-activity-panel">
+    <div class="zc-activity-demo-note"><span>DEMO PREVIEW</span> Sample user activity only — these two example entries are not real payments or blockchain transactions.</div>
     <div class="zc-activity-toolbar">
       <div class="zc-activity-filters" id="zc-activity-filters" role="group" aria-label="Filter transactions">
         <button type="button" class="active" data-activity-filter="all" aria-pressed="true">All</button>
@@ -822,7 +819,6 @@ html body .modal-head .brand{white-space:nowrap!important;min-width:0!important}
       <button type="button" class="btn ghost" id="zc-activity-load-more" hidden>Load more activity</button>
     </div>
   </div>
-  <p class="risk zc-activity-privacy-note">Only confirmed or credited on-chain deposits and withdrawals marked paid with a recorded transaction hash appear here. Customer names and full wallet addresses are not published.</p>
   <div class="zc-chain-preview" id="zc-chain-preview" hidden>
     <button type="button" class="zc-chain-preview-backdrop" data-chain-preview-close aria-label="Close transaction details"></button>
     <section class="zc-chain-preview-card" role="dialog" aria-modal="true" aria-labelledby="zc-chain-preview-title">
@@ -4665,20 +4661,20 @@ body[data-zc-theme] #public-plan-cards>.gf-plan-compact-card.is-scroll-active{
 #zc-public-activity .zc-activity-heading-actions{
   display:flex;align-items:center;gap:10px;flex-wrap:wrap;
 }
+#zc-public-activity .zc-activity-demo-note{
+  display:flex;align-items:center;gap:9px;flex-wrap:wrap;padding:11px 15px;
+  border-bottom:1px solid var(--line);background:color-mix(in srgb,var(--green) 7%,var(--panel));
+  color:var(--muted);font-size:11px;line-height:1.5;
+}
+#zc-public-activity .zc-activity-demo-note span,
+#zc-public-activity .zc-activity-demo-pill{
+  display:inline-flex;align-items:center;justify-content:center;border:1px solid var(--green);
+  border-radius:999px;padding:3px 8px;color:var(--mint);font-size:9px;font-weight:900;
+  letter-spacing:.08em;white-space:nowrap;
+}
 #zc-public-activity .zc-activity-counter{font-size:12px;color:var(--muted);font-weight:700}
 #zc-public-activity .zc-activity-refresh{display:inline-flex;align-items:center;gap:7px}
 #zc-public-activity .zc-activity-refresh svg{width:15px;height:15px}
-#zc-public-activity .zc-activity-network-strip{
-  display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:0 0 14px;
-}
-#zc-public-activity .zc-activity-network-label{
-  color:var(--muted);font-size:11px;font-weight:800;letter-spacing:.07em;text-transform:uppercase;margin-right:3px;
-}
-#zc-public-activity .zc-activity-network-chip{
-  display:inline-flex;align-items:center;padding:6px 9px;border-radius:999px;
-  border:1px solid var(--line);background:var(--panel);color:var(--mint);
-  font-size:11px;font-weight:750;white-space:nowrap;
-}
 #zc-public-activity .zc-activity-panel{
   border:1px solid var(--line);border-radius:19px;overflow:hidden;
   background:linear-gradient(145deg,var(--panel2),var(--panel));
@@ -4927,8 +4923,12 @@ body[data-zc-theme] #public-plan-cards>.gf-plan-compact-card.is-scroll-active{
   var $=function(id){return document.getElementById(id)};
   var list=$('zc-activity-list'),count=$('zc-activity-count'),refreshButton=$('zc-activity-refresh');
   var filters=$('zc-activity-filters'),loadMore=$('zc-activity-load-more');
-  var networks=$('zc-activity-networks'),preview=$('zc-chain-preview');
+  var preview=$('zc-chain-preview');
   var formatter=new Intl.NumberFormat('en-US',{maximumFractionDigits:8});
+  var demoRows=[
+    {direction:'deposit',asset:'USDT',network:'TRC20',amount:1250,wallet_preview:'Demo wallet only',tx_hash:'DEMO-DEP-001',status:'Demo only',occurred_at:null,is_demo:true,display_name:'Demo User'},
+    {direction:'withdrawal',asset:'USDT',network:'TRC20',amount:475,wallet_preview:'Demo destination only',tx_hash:'DEMO-WD-001',status:'Demo only',occurred_at:null,is_demo:true,display_name:'Demo User'}
+  ];
   function safe(value){
     return String(value==null?'':value).replace(/[&<>"']/g,function(ch){
       return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch];
@@ -4939,6 +4939,7 @@ body[data-zc-theme] #public-plan-cards>.gf-plan-compact-card.is-scroll-active{
     return hash.length>22?hash.slice(0,10)+'…'+hash.slice(-8):hash;
   }
   function explorerFor(row){
+    if(row&&row.is_demo)return '';
     var hash=String(row.tx_hash||'').trim();
     var network=String(row.network||'').toUpperCase();
     var base='',valid=null;
@@ -4958,6 +4959,7 @@ body[data-zc-theme] #public-plan-cards>.gf-plan-compact-card.is-scroll-active{
     return base&&valid&&valid.test(hash)?base+encodeURIComponent(hash):'';
   }
   function dateLabel(value){
+    if(value==='DEMO_PREVIEW')return 'Demo preview';
     if(!value)return 'Date unavailable';
     var parsed=new Date(value);
     return Number.isNaN(parsed.getTime())?'Date unavailable':parsed.toLocaleString();
@@ -4977,7 +4979,9 @@ body[data-zc-theme] #public-plan-cards>.gf-plan-compact-card.is-scroll-active{
   function render(){
     if(!list)return;
     var filtered=filteredRows(),visible=filtered.slice(0,visibleCount);
-    if(count)count.textContent=rows.length+' / 300 records';
+    var demoCount=rows.filter(function(row){return !!row.is_demo}).length;
+    var verifiedCount=rows.length-demoCount;
+    if(count)count.textContent=verifiedCount+' verified · '+demoCount+' demo';
     if(!visible.length){
       list.innerHTML='<div class="zc-activity-empty">'+(rows.length
         ?'There are no '+(filter==='deposit'?'deposit':filter==='withdrawal'?'withdrawal':'matching')+' records in this view.'
@@ -4985,22 +4989,25 @@ body[data-zc-theme] #public-plan-cards>.gf-plan-compact-card.is-scroll-active{
     }else{
       list.innerHTML=visible.map(function(item){
         var r=item.row,direction=String(r.direction||'').toLowerCase();
-        var isDeposit=direction==='deposit',asset=safe(r.asset||'Asset'),network=safe(r.network||'Network');
+        var isDeposit=direction==='deposit',asset=safe(r.asset||'Asset');
         var address=safe(r.wallet_preview||'Address not available');
         var hash=safe(shortenHash(r.tx_hash));
+        var member=safe(r.display_name||'Member');
+        var status=safe(r.is_demo?'Demo preview':(r.status||'Recorded'));
+        var dateText=safe(r.is_demo?'DEMO_PREVIEW':dateLabel(r.occurred_at));
         var title=isDeposit?'Deposit received':'Withdrawal paid';
         var prefix=isDeposit?'+':'−';
-        var walletTitle=isDeposit?'Deposit address':'Destination address';
+        var walletTitle=isDeposit?'Deposit wallet':'Destination wallet';
         return '<article class="zc-activity-item">'+
           '<div class="zc-activity-icon">'+iconMarkup(direction)+'</div>'+
           '<div class="zc-activity-main">'+
-            '<div class="zc-activity-main-top"><strong>'+title+'</strong><span class="zc-activity-status">'+safe(r.status||'Recorded')+'</span></div>'+
-            '<p class="zc-activity-subline">Account activity · '+asset+' / '+network+' · '+walletTitle+': '+address+'</p>'+
-            '<small class="zc-activity-hash">TX '+hash+'</small>'+
+            '<div class="zc-activity-main-top"><strong>'+member+' · '+title+'</strong><span class="zc-activity-status">'+status+'</span>'+(r.is_demo?'<span class="zc-activity-demo-pill">DEMO</span>':'')+'</div>'+
+            '<p class="zc-activity-subline">'+asset+' · '+walletTitle+': '+address+'</p>'+
+            '<small class="zc-activity-hash">'+(r.is_demo?'Sample reference: ':'TX ')+hash+'</small>'+
           '</div>'+
           '<div class="zc-activity-right">'+
             '<strong class="zc-activity-amount '+(isDeposit?'deposit':'')+'">'+prefix+amountLabel(r.amount,r.asset)+'</strong>'+
-            '<time class="zc-activity-time">'+safe(dateLabel(r.occurred_at))+'</time>'+
+            '<time class="zc-activity-time">'+dateText+'</time>'+
             '<button type="button" class="zc-activity-details" data-activity-detail="'+item.index+'">View details</button>'+
           '</div>'+
         '</article>';
@@ -5012,35 +5019,29 @@ body[data-zc-theme] #public-plan-cards>.gf-plan-compact-card.is-scroll-active{
     }
     try{if(window.lucide&&window.lucide.createIcons)window.lucide.createIcons({root:list})}catch(e){}
   }
-  function renderNetworks(items){
-    if(!networks)return;
-    var chips=(items||[]).map(function(item){
-      return '<span class="zc-activity-network-chip">'+safe(item.asset_code)+' · '+safe(item.network_code)+'</span>';
-    }).join('');
-    networks.innerHTML='<span class="zc-activity-network-label">Enabled networks</span>'+
-      (chips||'<span class="muted">Network list unavailable</span>');
-  }
   function openDetails(index){
     var row=rows[Number(index)];
     if(!row||!preview)return;
     var url=explorerFor(row),isDeposit=String(row.direction).toLowerCase()==='deposit';
     var fields=[
       ['Type',isDeposit?'Deposit':'Withdrawal'],
+      ['Member',row.display_name||'Member'],
       ['Asset',row.asset||'—'],
-      ['Network',row.network||'—'],
       ['Amount',amountLabel(row.amount,row.asset)],
-      ['Status',row.status||'Recorded'],
-      ['Wallet address',row.wallet_preview||'Hidden'],
-      ['Transaction hash',row.tx_hash||'—'],
-      ['Recorded at',dateLabel(row.occurred_at)]
+      ['Status',row.is_demo?'Demo preview':(row.status||'Recorded')],
+      ['Wallet',row.wallet_preview||'Hidden'],
+      ['Transaction reference',row.tx_hash||'—'],
+      ['Recorded at',row.is_demo?'Demo preview':dateLabel(row.occurred_at)]
     ];
-    $('zc-chain-preview-title').textContent=isDeposit?'Deposit transaction':'Withdrawal transaction';
+    $('zc-chain-preview-title').textContent=row.is_demo?'Demo transaction preview':(isDeposit?'Deposit transaction':'Withdrawal transaction');
     $('zc-chain-preview-content').innerHTML=fields.map(function(field){
       return '<div class="zc-chain-preview-row"><span>'+safe(field[0])+'</span><strong>'+safe(field[1])+'</strong></div>';
     }).join('');
-    $('zc-chain-preview-link').innerHTML=url
-      ?'<a href="'+safe(url)+'" target="_blank" rel="noopener noreferrer"><span>View on blockchain explorer</span><span aria-hidden="true">↗</span></a>'
-      :'<p>An explorer link is not available for this network or transaction-hash format.</p>';
+    $('zc-chain-preview-link').innerHTML=row.is_demo
+      ?'<p>This is sample display data only. No payment was sent and no blockchain transaction exists for this demo reference.</p>'
+      :url
+        ?'<a href="'+safe(url)+'" target="_blank" rel="noopener noreferrer"><span>View on blockchain explorer</span><span aria-hidden="true">↗</span></a>'
+        :'<p>An explorer link is not available for this transaction-hash format.</p>';
     preview.hidden=false;
     document.body.style.overflow='hidden';
   }
@@ -5056,20 +5057,15 @@ body[data-zc-theme] #public-plan-cards>.gf-plan-compact-card.is-scroll-active{
       if(typeof db==='undefined'||!db||typeof db.rpc!=='function')throw new Error('Activity service is unavailable.');
       var result=await db.rpc('get_public_chain_activity',{p_limit:300});
       if(result.error)throw result.error;
-      rows=Array.isArray(result.data)?result.data:[];
+      var verifiedRows=Array.isArray(result.data)?result.data.slice(0,298):[];
+      rows=demoRows.concat(verifiedRows);
       visibleCount=15;
       render();
-      try{
-        var networkResult=await db.from('crypto_asset_networks')
-          .select('asset_code,network_code')
-          .eq('is_enabled',true)
-          .order('asset_code',{ascending:true});
-        if(!networkResult.error)renderNetworks(networkResult.data||[]);
-      }catch(e){}
     }catch(error){
       console.error('Public chain activity could not load:',error);
-      if(list)list.innerHTML='<div class="zc-activity-empty">Activity is temporarily unavailable. Please use Refresh to try again.</div>';
-      if(count)count.textContent='Activity unavailable';
+      rows=demoRows.slice();
+      render();
+      if(count)count.textContent='0 verified · 2 demo';
     }finally{
       isLoading=false;
       if(refreshButton){refreshButton.disabled=false;refreshButton.innerHTML='<i data-lucide="refresh-cw" aria-hidden="true"></i> Refresh';try{if(window.lucide&&window.lucide.createIcons)window.lucide.createIcons({root:refreshButton})}catch(e){}}
@@ -5096,6 +5092,8 @@ body[data-zc-theme] #public-plan-cards>.gf-plan-compact-card.is-scroll-active{
     if(event.target===preview||event.target.hasAttribute('data-chain-preview-close'))closeDetails();
   });
   document.addEventListener('keydown',function(event){if(event.key==='Escape'&&preview&&!preview.hidden)closeDetails()});
+  rows=demoRows.slice();
+  render();
   refresh();
   window.setInterval(function(){if(!document.hidden)refresh()},60000);
   document.addEventListener('visibilitychange',function(){if(!document.hidden)refresh()});
