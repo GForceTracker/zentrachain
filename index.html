@@ -3915,28 +3915,41 @@ body[data-zc-theme] #app-content #dash-cards>.gf-plan-compact-card.is-tap-select
  const reduced=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
  if(reduced||!('IntersectionObserver'in window)){showFinal();return;}
  section.classList.add('zc-milestones-ready');
- let started=false;
+ let active=false;
+ let frameId=0;
+ const reset=()=>{
+  active=false;
+  if(frameId)cancelAnimationFrame(frameId);
+  frameId=0;
+  section.classList.remove('zc-milestones-animated');
+  counters.forEach(el=>el.textContent=el.dataset.zcPrefix+'0'+el.dataset.zcSuffix);
+ };
  const run=()=>{
-  if(started)return;started=true;
+  if(active)return;
+  active=true;
+  counters.forEach(el=>el.textContent=el.dataset.zcPrefix+'0'+el.dataset.zcSuffix);
   section.classList.add('zc-milestones-animated');
-  const duration=1800;
+  const duration=4200;
   const start=performance.now();
   const tick=now=>{
+   if(!active)return;
    const progress=Math.min(1,(now-start)/duration);
-   const eased=1-Math.pow(1-progress,4);
+   const eased=1-Math.pow(1-progress,3);
    counters.forEach(el=>{
     const value=Math.round(Number(el.dataset.zcCount)*eased);
     el.textContent=el.dataset.zcPrefix+compact.format(value)+el.dataset.zcSuffix;
    });
-   if(progress<1)requestAnimationFrame(tick);
-   else showFinal();
+   if(progress<1)frameId=requestAnimationFrame(tick);
+   else{frameId=0;showFinal();}
   };
-  requestAnimationFrame(tick);
-  observer.disconnect();
+  frameId=requestAnimationFrame(tick);
  };
  const observer=new IntersectionObserver(entries=>{
-  if(entries.some(entry=>entry.isIntersecting))run();
- },{threshold:.22});
+  entries.forEach(entry=>{
+   if(entry.isIntersecting)run();
+   else reset();
+  });
+ },{threshold:.12});
  observer.observe(section);
 })();
 </script>
