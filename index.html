@@ -4387,3 +4387,103 @@ body[data-zc-theme] #app-content #wd-network-cards::-webkit-scrollbar-thumb{back
  }
 }
 </style>
+
+
+<style id="zc-plan-scroll-visibility-v8">
+/* The visible plan card gets the moving edge automatically as it enters view. */
+#public-plan-cards>.gf-plan-compact-card,
+#dash-cards>.gf-plan-compact-card{position:relative!important;isolation:isolate!important}
+#public-plan-cards>.gf-plan-compact-card.zc-scroll-edge-active,
+#dash-cards>.gf-plan-compact-card.zc-scroll-edge-active{
+ z-index:5!important;
+ border:2px solid color-mix(in srgb,var(--green) 88%,white)!important;
+ outline:1px solid color-mix(in srgb,var(--green) 48%,transparent)!important;
+ outline-offset:1px!important;
+ box-shadow:0 0 0 1px color-mix(in srgb,var(--green) 24%,transparent),0 0 13px color-mix(in srgb,var(--green) 52%,transparent),0 0 30px color-mix(in srgb,var(--green) 24%,transparent),0 12px 30px rgba(0,0,0,.3),inset 0 0 18px color-mix(in srgb,var(--green) 9%,transparent)!important;
+}
+#public-plan-cards>.gf-plan-compact-card.zc-scroll-edge-active::after,
+#dash-cards>.gf-plan-compact-card.zc-scroll-edge-active::after{
+ opacity:1!important;
+ animation:zc-theme-edge-run 2.15s linear infinite!important;
+}
+@media(prefers-reduced-motion:reduce){
+ #public-plan-cards>.gf-plan-compact-card.zc-scroll-edge-active::after,
+ #dash-cards>.gf-plan-compact-card.zc-scroll-edge-active::after{animation:none!important}
+}
+</style>
+<script id="zc-plan-scroll-visibility-v8">
+(function(){
+ if(window.__zcPlanScrollVisibilityV8)return;
+ window.__zcPlanScrollVisibilityV8=true;
+ const selector='#public-plan-cards, #dash-cards';
+ const raf=window.requestAnimationFrame||function(fn){return window.setTimeout(fn,16)};
+ function attach(rail){
+  if(!rail||rail.dataset.zcVisibilityEdgeReady==='1')return;
+  rail.dataset.zcVisibilityEdgeReady='1';
+  let frame=0,io=null;
+  const observed=new WeakSet();
+  function cards(){
+   return Array.from(rail.querySelectorAll(':scope > .gf-plan-compact-card'));
+  }
+  function watchCards(){
+   const list=cards();
+   if(io)list.forEach(card=>{if(!observed.has(card)){observed.add(card);io.observe(card)}});
+   schedule();
+  }
+  function update(){
+   frame=0;
+   const list=cards();
+   if(!list.length)return;
+   const view=rail.id==='public-plan-cards'?rail.getBoundingClientRect():{left:0,top:0,right:window.innerWidth,bottom:window.innerHeight};
+   const clip={
+    left:Math.max(0,view.left),top:Math.max(0,view.top),
+    right:Math.min(window.innerWidth,view.right),bottom:Math.min(window.innerHeight,view.bottom)
+   };
+   let active=null,best=-1;
+   list.forEach(card=>{
+    const r=card.getBoundingClientRect();
+    const w=Math.max(0,Math.min(r.right,clip.right)-Math.max(r.left,clip.left));
+    const h=Math.max(0,Math.min(r.bottom,clip.bottom)-Math.max(r.top,clip.top));
+    const total=Math.max(1,r.width*r.height);
+    const ratio=(w*h)/total;
+    if(ratio>best&&ratio>.12){best=ratio;active=card}
+   });
+   list.forEach(card=>{
+    const isActive=card===active;
+    card.classList.toggle('zc-scroll-edge-active',isActive);
+    if(!isActive)card.classList.remove('is-tap-selected');
+   });
+  }
+  function schedule(){if(!frame)frame=raf(update)}
+  if('IntersectionObserver'in window){
+   io=new IntersectionObserver(schedule,{
+    root:rail.id==='public-plan-cards'?rail:null,
+    threshold:[0,.12,.2,.3,.4,.5,.6,.7,.8,.9,1]
+   });
+  }
+  watchCards();
+  rail.addEventListener('scroll',schedule,{passive:true});
+  window.addEventListener('scroll',schedule,{passive:true,capture:true});
+  window.addEventListener('resize',schedule,{passive:true});
+  new MutationObserver(watchCards).observe(rail,{childList:true});
+  schedule();
+ }
+ function scan(){
+  document.querySelectorAll(selector).forEach(attach);
+ }
+ function init(){
+  scan();
+  new MutationObserver(scan).observe(document.body,{childList:true,subtree:true});
+  document.addEventListener('scroll',scheduleAll,{passive:true,capture:true});
+ }
+ function scheduleAll(){
+  document.querySelectorAll(selector).forEach(rail=>{
+   if(rail.dataset.zcVisibilityEdgeReady==='1'){
+    rail.dispatchEvent(new Event('zc-plan-scroll-tick'));
+   }
+  });
+ }
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});
+ else init();
+})();
+</script>
