@@ -4217,7 +4217,7 @@ body[data-zc-theme] #app-content #wd-network-cards::-webkit-scrollbar-thumb{back
  border:0!important;
  border-radius:20px 20px 0 0!important;
  overflow:hidden!important;
- background:var(--panel2)!important;
+ background:transparent!important;
  -webkit-mask-image:none!important;
  mask-image:none!important;
 }
@@ -4239,8 +4239,8 @@ body[data-zc-theme] #app-content #wd-network-cards::-webkit-scrollbar-thumb{back
  object-position:center 46%!important;
  -webkit-mask-image:none!important;
  mask-image:none!important;
- -webkit-clip-path:none!important;
- clip-path:none!important;
+ -webkit-clip-path:polygon(0% 0%, 100% 0%, 100.000% 95.667%, 97.882% 96.354%, 95.694% 96.917%, 93.438% 97.354%, 91.111% 97.667%, 88.715% 97.854%, 86.250% 97.917%, 83.715% 97.854%, 81.111% 97.667%, 78.438% 97.354%, 75.694% 96.917%, 72.882% 96.354%, 70.000% 95.667%, 67.116% 94.979%, 64.290% 94.417%, 61.510% 93.979%, 58.765% 93.667%, 56.044% 93.479%, 53.333% 93.417%, 50.623% 93.479%, 47.901% 93.667%, 45.156% 93.979%, 42.377% 94.417%, 39.551% 94.979%, 36.667% 95.667%, 33.781% 96.354%, 30.941% 96.917%, 28.125% 97.354%, 25.309% 97.667%, 22.469% 97.854%, 19.583% 97.917%, 16.628% 97.854%, 13.580% 97.667%, 10.417% 97.354%, 7.114% 96.917%, 3.650% 96.354%, 0.000% 95.667%)!important;
+ clip-path:polygon(0% 0%, 100% 0%, 100.000% 95.667%, 97.882% 96.354%, 95.694% 96.917%, 93.438% 97.354%, 91.111% 97.667%, 88.715% 97.854%, 86.250% 97.917%, 83.715% 97.854%, 81.111% 97.667%, 78.438% 97.354%, 75.694% 96.917%, 72.882% 96.354%, 70.000% 95.667%, 67.116% 94.979%, 64.290% 94.417%, 61.510% 93.979%, 58.765% 93.667%, 56.044% 93.479%, 53.333% 93.417%, 50.623% 93.479%, 47.901% 93.667%, 45.156% 93.979%, 42.377% 94.417%, 39.551% 94.979%, 36.667% 95.667%, 33.781% 96.354%, 30.941% 96.917%, 28.125% 97.354%, 25.309% 97.667%, 22.469% 97.854%, 19.583% 97.917%, 16.628% 97.854%, 13.580% 97.667%, 10.417% 97.354%, 7.114% 96.917%, 3.650% 96.354%, 0.000% 95.667%)!important;
 }
 #public-plan-cards .gf-plan-artwork::after,
 #dash-cards .gf-plan-artwork::after{display:none!important;content:none!important}
@@ -4250,6 +4250,8 @@ body[data-zc-theme] #app-content #wd-network-cards::-webkit-scrollbar-thumb{back
 #dash-cards .gf-plan-artwork .zc-plan-flow-fill,
 #public-plan-cards .gf-plan-artwork .zc-plan-carve-divider,
 #dash-cards .gf-plan-artwork .zc-plan-carve-divider,
+#public-plan-cards .gf-plan-artwork .zc-plan-edge-v9,
+#dash-cards .gf-plan-artwork .zc-plan-edge-v9,
 #public-plan-cards .gf-plan-artwork .zc-plan-edge-v10,
 #dash-cards .gf-plan-artwork .zc-plan-edge-v10{display:none!important}
 #public-plan-cards .gf-plan-artwork .zc-plan-edge-v11,
@@ -4266,7 +4268,8 @@ body[data-zc-theme] #app-content #wd-network-cards::-webkit-scrollbar-thumb{back
 }
 #public-plan-cards .gf-plan-artwork .zc-plan-edge-v11 .zc-plan-edge-fill,
 #dash-cards .gf-plan-artwork .zc-plan-edge-v11 .zc-plan-edge-fill{
- fill:var(--panel)!important;
+ display:none!important;
+ fill:none!important;
  stroke:none!important;
 }
 #public-plan-cards .gf-plan-artwork .zc-plan-edge-v11 .zc-plan-edge-stroke,
@@ -4299,8 +4302,6 @@ body[data-zc-theme] #app-content #wd-network-cards::-webkit-scrollbar-thumb{back
    img.style.setProperty('opacity','1','important');
    img.style.setProperty('-webkit-mask-image','none','important');
    img.style.setProperty('mask-image','none','important');
-   img.style.setProperty('-webkit-clip-path','none','important');
-   img.style.setProperty('clip-path','none','important');
    img.style.setProperty('position','absolute','important');
    img.style.setProperty('inset','0','important');
    img.style.setProperty('width','100%','important');
