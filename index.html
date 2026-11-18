@@ -787,9 +787,9 @@ html body .modal-head .brand{white-space:nowrap!important;min-width:0!important}
   <p class="zc-milestones-note">Milestone goals are reviewed monthly and are not live account or transaction totals.</p>
 </section>
 <section class="section zc-public-activity" id="zc-public-activity">
-  <div class="section-head zc-activity-heading"><div><h2>Block Activity</h2></div><span class="zc-activity-node" role="img" aria-label="Active network node"></span></div>
+  <div class="section-head zc-activity-heading"><div><h2>Block Activity</h2></div></div>
   <div class="zc-activity-panel">
-    <div class="zc-activity-demo-note"><span>DEMO PREVIEW</span> All names, addresses, amounts and transaction references below are fictional examples only.</div>
+    <div class="zc-activity-demo-note"><span>DEMO PREVIEW</span> All names, addresses, amounts and transaction references below are fictional examples only.<i class="zc-activity-node" role="img" aria-label="Active network node"></i></div>
     <div class="zc-activity-live-note"><span class="zc-activity-live-dot"></span> Demo feed refreshes every 5 seconds</div>
     <div class="zc-activity-list" id="zc-activity-list" aria-live="polite"><div class="zc-activity-empty">Loading demo activity…</div></div>
   </div>
@@ -4634,8 +4634,7 @@ body[data-zc-theme] #public-plan-cards>.gf-plan-compact-card.is-scroll-active{
 #zc-public-activity{scroll-margin-top:24px}
 #zc-public-activity .zc-activity-heading{display:flex;align-items:flex-end;justify-content:flex-start}
 #zc-public-activity .zc-activity-heading h2{margin:0}
-#zc-public-activity .zc-activity-heading{align-items:center;justify-content:space-between}
-#zc-public-activity .zc-activity-node{display:inline-block;width:10px;height:10px;flex:0 0 10px;border-radius:50%;background:var(--green);box-shadow:0 0 0 0 color-mix(in srgb,var(--green) 55%,transparent);animation:zc-node-pulse 1.6s ease-in-out infinite}
+#zc-public-activity .zc-activity-node{display:inline-block;width:10px;height:10px;flex:0 0 10px;margin-left:auto;border-radius:50%;background:var(--green);box-shadow:0 0 0 0 color-mix(in srgb,var(--green) 55%,transparent);animation:zc-node-pulse 1.6s ease-in-out infinite}
 @keyframes zc-node-pulse{0%,100%{opacity:1;transform:scale(1);box-shadow:0 0 0 0 color-mix(in srgb,var(--green) 48%,transparent)}50%{opacity:.5;transform:scale(.82);box-shadow:0 0 0 7px color-mix(in srgb,var(--green) 0%,transparent)}}
 @media(prefers-reduced-motion:reduce){#zc-public-activity .zc-activity-node{animation:none;opacity:1}}
 
