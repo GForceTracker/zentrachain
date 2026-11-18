@@ -5057,3 +5057,90 @@ body[data-zc-theme] #public-plan-cards>.gf-plan-compact-card.is-scroll-active{
   document.addEventListener('visibilitychange',function(){if(!document.hidden)refreshDemoFeed()});
 })();
 </script>
+
+
+<style id="zc-community-admin-nav-alignment-fix">
+/* Keep these two custom navigation rows identical to the standard Activity/Withdraw buttons. */
+#side-nav #zc-community-nav,
+#side-nav .zc-admin-group > .zc-admin-toggle{
+  box-sizing:border-box!important;
+  display:flex!important;
+  align-items:center!important;
+  width:100%!important;
+  min-width:0!important;
+  min-height:0!important;
+  padding:13px 14px!important;
+  gap:9px!important;
+  border:0!important;
+  border-radius:12px!important;
+  text-align:left!important;
+  font-family:Arial,sans-serif!important;
+  font-size:13.3333px!important;
+  font-weight:400!important;
+  font-style:normal!important;
+  line-height:normal!important;
+  letter-spacing:normal!important;
+  white-space:nowrap!important;
+}
+#side-nav #zc-community-nav .zc-community-nav-icon,
+#side-nav .zc-admin-toggle > span:first-child{
+  display:inline-flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  width:16px!important;
+  height:16px!important;
+  min-width:16px!important;
+  flex:0 0 16px!important;
+  margin:0!important;
+  font-size:16px!important;
+  line-height:1!important;
+}
+#side-nav #zc-community-nav .zc-community-nav-icon svg{
+  display:block!important;
+  width:16px!important;
+  height:16px!important;
+}
+#side-nav #zc-community-nav > span:nth-child(2),
+#side-nav .zc-admin-toggle > span:nth-child(2){
+  display:inline!important;
+  flex:0 0 auto!important;
+  margin:0!important;
+  font:inherit!important;
+  line-height:normal!important;
+  white-space:nowrap!important;
+}
+#side-nav #zc-community-nav .zc-community-nav-pulse{
+  display:block!important;
+  right:12px!important;
+}
+#side-nav .zc-admin-toggle .zc-admin-chevron{
+  display:inline-flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  width:16px!important;
+  height:16px!important;
+  flex:0 0 16px!important;
+  margin:0 0 0 auto!important;
+  padding:0!important;
+  font-size:12px!important;
+  line-height:1!important;
+  text-align:center!important;
+  transform-origin:center!important;
+}
+@media(max-width:780px){
+  #side-nav #zc-community-nav,
+  #side-nav .zc-admin-group > .zc-admin-toggle{
+    font-size:10px!important;
+    text-align:center!important;
+    justify-content:center!important;
+    padding:9px 7px!important;
+    gap:4px!important;
+  }
+  #side-nav #zc-community-nav .zc-community-nav-icon,
+  #side-nav .zc-admin-toggle > span:first-child{
+    width:16px!important;height:16px!important;flex-basis:16px!important;
+  }
+  #side-nav #zc-community-nav .zc-community-nav-pulse{right:5px!important}
+  #side-nav .zc-admin-toggle .zc-admin-chevron{margin-left:0!important}
+}
+</style>
