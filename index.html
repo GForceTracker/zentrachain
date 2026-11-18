@@ -4337,3 +4337,69 @@ body[data-zc-theme] #app-content #wd-network-cards::-webkit-scrollbar-thumb{back
 })();
 </script>
 
+
+
+<style id="zc-plan-single-curve-no-gap-v12">
+/* One lower contour only: remove the old upper divider and any fill beneath the image edge. */
+#public-plan-cards .gf-plan-artwork .zc-plan-edge-v9,
+#dash-cards .gf-plan-artwork .zc-plan-edge-v9,
+#public-plan-cards .gf-plan-artwork .zc-plan-edge-v10,
+#dash-cards .gf-plan-artwork .zc-plan-edge-v10,
+#public-plan-cards .gf-plan-artwork .zc-plan-edge-v11 .zc-plan-edge-fill,
+#dash-cards .gf-plan-artwork .zc-plan-edge-v11 .zc-plan-edge-fill {
+  display:none!important;
+}
+#public-plan-cards .gf-plan-artwork,
+#dash-cards .gf-plan-artwork {
+  background:transparent!important;
+}
+#public-plan-cards .gf-plan-artwork .zc-plan-edge-v11,
+#dash-cards .gf-plan-artwork .zc-plan-edge-v11 {
+  z-index:25!important;
+}
+#public-plan-cards .gf-plan-artwork .zc-plan-edge-v11 .zc-plan-edge-stroke,
+#dash-cards .gf-plan-artwork .zc-plan-edge-v11 .zc-plan-edge-stroke {
+  display:block!important;
+  fill:none!important;
+  stroke:var(--mint)!important;
+  stroke-width:2.5!important;
+  stroke-linecap:round!important;
+  stroke-linejoin:round!important;
+}
+</style>
+<script id="zc-plan-single-curve-no-gap-v12">
+(function(){
+ if(window.__zcPlanSingleCurveNoGapV12)return;
+ window.__zcPlanSingleCurveNoGapV12=true;
+ const clip="polygon(0% 0%, 100% 0%, 100.000% 95.667%, 98.418% 96.194%, 96.797% 96.651%, 95.137% 97.038%, 93.438% 97.354%, 91.699% 97.600%, 89.922% 97.776%, 88.105% 97.882%, 86.250% 97.917%, 84.355% 97.882%, 82.422% 97.776%, 80.449% 97.600%, 78.438% 97.354%, 76.387% 97.038%, 74.297% 96.651%, 72.168% 96.194%, 70.000% 95.667%, 67.831% 95.139%, 65.697% 94.682%, 63.591% 94.296%, 61.510% 93.979%, 59.449% 93.733%, 57.402% 93.557%, 55.365% 93.452%, 53.333% 93.417%, 51.301% 93.452%, 49.264% 93.557%, 47.218% 93.733%, 45.156% 93.979%, 43.075% 94.296%, 40.970% 94.682%, 38.835% 95.139%, 36.667% 95.667%, 34.497% 96.194%, 32.357% 96.651%, 30.236% 97.038%, 28.125% 97.354%, 26.014% 97.600%, 23.893% 97.776%, 21.753% 97.882%, 19.583% 97.917%, 17.375% 97.882%, 15.117% 97.776%, 12.801% 97.600%, 10.417% 97.354%, 7.954% 97.038%, 5.404% 96.651%, 2.756% 96.194%, 0.000% 95.667%)";
+ function apply(art){
+  if(!art)return;
+  art.style.setProperty('background','transparent','important');
+  art.querySelectorAll('.zc-plan-edge-v9,.zc-plan-edge-v10').forEach(function(old){old.remove()});
+  art.querySelectorAll('.zc-plan-edge-v11 .zc-plan-edge-fill').forEach(function(fill){fill.remove()});
+  art.querySelectorAll('img').forEach(function(img){
+   img.style.setProperty('display','block','important');
+   img.style.setProperty('visibility','visible','important');
+   img.style.setProperty('opacity','1','important');
+   img.style.setProperty('position','absolute','important');
+   img.style.setProperty('inset','0','important');
+   img.style.setProperty('width','100%','important');
+   img.style.setProperty('height','100%','important');
+   img.style.setProperty('object-fit','cover','important');
+   img.style.setProperty('-webkit-mask-image','none','important');
+   img.style.setProperty('mask-image','none','important');
+   img.style.setProperty('-webkit-clip-path',clip,'important');
+   img.style.setProperty('clip-path',clip,'important');
+  });
+ }
+ function scan(){
+  document.querySelectorAll('#public-plan-cards .gf-plan-artwork,#dash-cards .gf-plan-artwork').forEach(apply);
+ }
+ function init(){
+  scan();
+  new MutationObserver(scan).observe(document.body,{childList:true,subtree:true});
+ }
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});
+ else init();
+})();
+</script>
