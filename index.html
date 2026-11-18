@@ -4074,6 +4074,65 @@ window.zcCommunityAfterAuth=async function(){if(window.zcCommunityPendingOpen){w
 schedule(FIRST_DELAY);
 })();
 </script>
+
+<style id="zc-dashboard-public-page-isolation-v1">
+/* Keep the visitor document completely out of the signed-in dashboard layout. */
+#public.hidden{display:none!important;visibility:hidden!important;pointer-events:none!important}
+#application.hidden{display:none!important}
+#application:not(.hidden){display:block!important;visibility:visible!important}
+</style>
+<script id="zc-dashboard-public-page-isolation-v1">
+(function(){
+ const publicRoot=document.getElementById('public');
+ const appRoot=document.getElementById('application');
+ if(!publicRoot||!appRoot)return;
+ const originalShowApp=window.showApp;
+ if(typeof originalShowApp==='function'){
+  window.showApp=function(){
+   const result=originalShowApp.apply(this,arguments);
+   publicRoot.classList.add('hidden');
+   publicRoot.style.setProperty('display','none','important');
+   appRoot.style.removeProperty('display');
+   appRoot.classList.remove('hidden');
+   return result;
+  };
+ }
+ const originalShowPublic=window.showPublic;
+ if(typeof originalShowPublic==='function'){
+  window.showPublic=function(){
+   const result=originalShowPublic.apply(this,arguments);
+   appRoot.classList.add('hidden');
+   appRoot.style.setProperty('display','none','important');
+   publicRoot.style.removeProperty('display');
+   publicRoot.classList.remove('hidden');
+   return result;
+  };
+ }
+ const originalGoLanding=window.zcGoLanding;
+ if(typeof originalGoLanding==='function'){
+  window.zcGoLanding=function(){
+   const result=originalGoLanding.apply(this,arguments);
+   appRoot.classList.add('hidden');
+   appRoot.style.setProperty('display','none','important');
+   publicRoot.style.removeProperty('display');
+   publicRoot.classList.remove('hidden');
+   return result;
+  };
+ }
+ const originalGoDashboard=window.zcGoDashboard;
+ if(typeof originalGoDashboard==='function'){
+  window.zcGoDashboard=function(){
+   const result=originalGoDashboard.apply(this,arguments);
+   publicRoot.classList.add('hidden');
+   publicRoot.style.setProperty('display','none','important');
+   appRoot.style.removeProperty('display');
+   appRoot.classList.remove('hidden');
+   return result;
+  };
+ }
+})();
+</script>
+
 </body>
 
 <style id="zc-visitor-plan-card-height-reduction-v1">
