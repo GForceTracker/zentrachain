@@ -1031,7 +1031,7 @@ db.auth.onAuthStateChange((event)=>{if(event==='SIGNED_OUT'){if(alertChannel){db
 (async()=>{loadAssetChart('zc-public-market-chart',$('zc-public-market-chart-select')?.value||'BTCUSDT');setInterval(()=>{loadAssetChart('zc-public-market-chart',$('zc-public-market-chart-select')?.value||'BTCUSDT');if(page==='markets')loadTradingView('tv-app-chart')},30000);loadPrices();setInterval(()=>{loadPrices()},30000);const {data:{session}}=await db.auth.getSession();if(session)await loadSession()})();
 
 let gfPlans=[];
-async function gfLoadPlans(){const {data,error}=await db.from('gforce_investment_plans').select('*').eq('is_active',true).order('sort_order');gfPlans=error?[]:(data||[]);const cards=$('public-plan-cards');if(cards)cards.innerHTML=gfPlans.length?gfPlans.slice(0,1).map(p=>gfCard(p,'pub')).join(''):'<div class="empty card">No active plans are published yet.</div>';if(cards&&window.lucide&&window.lucide.createIcons)window.lucide.createIcons({root:cards});gfFill('pub');}
+async function gfLoadPlans(){const {data,error}=await db.from('gforce_investment_plans').select('*').eq('is_active',true).order('sort_order');gfPlans=error?[]:(data||[]);const cards=$('public-plan-cards');if(cards)cards.innerHTML=gfPlans.length?gfPlans.map(p=>gfCard(p,'pub')).join(''):'<div class="empty card">No active plans are published yet.</div>';if(cards&&window.lucide&&window.lucide.createIcons)window.lucide.createIcons({root:cards});gfFill('pub');}
 function gfCard(p,s){return '<article class="plan-card"><div class="eyebrow">'+esc(p.name)+'</div><div class="plan-rate">'+fmt(p.percentage)+'%</div><div class="muted">Plan rate</div><p class="muted">'+esc(p.description||'Plan details configured by the administrator.')+'</p><div class="gf-plan-details"><div class="gf-plan-detail-line"><i data-lucide="arrow-down-to-line" aria-hidden="true"></i><span>Min deposit: <b>'+money(p.min_amount)+'</b></span></div><div class="gf-plan-detail-line"><i data-lucide="arrow-up-from-line" aria-hidden="true"></i><span>Max deposit: <b>'+money(p.max_amount)+'</b></span></div><div class="gf-plan-detail-line"><i data-lucide="percent" aria-hidden="true"></i><span>Plan percentage: <b>'+fmt(p.percentage)+'%</b></span></div></div><div class="plan-meta"><span>Duration</span><b>'+p.duration_value+' '+esc(p.duration_unit)+'</b></div><button class="btn" style="width:100%;margin-top:14px" onclick="gfChoose(&quot;'+s+'&quot;,&quot;'+p.id+'&quot;)">Calculate</button></article>'; }
 function gfFill(s){const e=$(s+'-select');if(!e)return;e.innerHTML='<option value="">Select plan</option>'+gfPlans.map(p=>'<option value="'+p.id+'">'+esc(p.name)+' · '+p.duration_value+' '+esc(p.duration_unit)+' · Min '+money(p.min_amount)+' · Max '+money(p.max_amount)+'</option>').join('');if(gfPlans.length)e.value=gfPlans[0].id;planUpdate(s);}
 function gfChoose(s,id){
@@ -6056,42 +6056,37 @@ box-sizing:border-box!important;display:inline-flex!important;align-items:center
 })();
 </script>
 
-<script id="zc-visitor-plan-label-guard-v15">
+<script id="zc-visitor-plan-label-guard-v16">
 (function(){
- if(window.__zcVisitorPlanLabelGuardV15)return;
- window.__zcVisitorPlanLabelGuardV15=true;
- var railObserver=null;
- function repair(){
-  var rail=document.getElementById('public-plan-cards');
-  if(!rail)return false;
-  rail.querySelectorAll(':scope > .gf-plan-compact-card').forEach(function(card){
-   card.classList.remove('is-selected','is-scroll-active','zc-plan-selected','is-tap-selected','is-tap-focus');
-   var button=card.querySelector('.gf-plan-select-button');
-   if(button){
-    button.textContent='Choose plan';
-    button.classList.remove('zc-plan-selected-button');
-    button.removeAttribute('aria-pressed');
-   }
-   card.removeAttribute('onclick');
-   card.removeAttribute('onkeydown');
-  });
-  if(!railObserver){
-   railObserver=new MutationObserver(function(){repair();});
-   railObserver.observe(rail,{childList:true,subtree:true,characterData:true});
+ function attach(rail){
+  if(!rail||rail.dataset.zcVisitorPlanLabelGuardV16==='1')return;
+  rail.dataset.zcVisitorPlanLabelGuardV16='1';
+  function normalize(){
+   rail.querySelectorAll(':scope > .gf-plan-compact-card').forEach(function(card){
+    card.classList.remove('is-selected','is-scroll-active','zc-plan-selected','is-tap-selected','is-tap-focus');
+    var button=card.querySelector('.gf-plan-select-button');
+    if(button){
+     if(button.textContent.trim()!=='Choose plan')button.textContent='Choose plan';
+     button.classList.remove('zc-plan-selected-button');
+     button.removeAttribute('aria-pressed');
+    }
+   });
   }
-  return true;
- }
- function start(){
-  repair();
-  new MutationObserver(function(){repair();}).observe(document.documentElement,{childList:true,subtree:true});
-  document.addEventListener('click',function(event){
-   var card=event.target&&event.target.closest&&event.target.closest('#public-plan-cards>.gf-plan-compact-card');
-   if(!card)return;
+  normalize();
+  new MutationObserver(function(){normalize()}).observe(rail,{childList:true,subtree:true});
+  rail.addEventListener('click',function(event){
+   var card=event.target&&event.target.closest&&event.target.closest('.gf-plan-compact-card');
+   if(!card||!rail.contains(card))return;
    var button=card.querySelector('.gf-plan-select-button');
-   if(button)button.textContent='Choose plan';
+   if(button&&button.textContent.trim()!=='Choose plan')button.textContent='Choose plan';
   },true);
  }
- if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});
- else start();
+ function scan(){
+  var rail=document.getElementById('public-plan-cards');
+  if(rail)attach(rail);
+ }
+ scan();
+ new MutationObserver(scan).observe(document.documentElement,{childList:true,subtree:true});
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',scan,{once:true});
 })();
 </script>
