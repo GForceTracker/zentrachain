@@ -20,59 +20,40 @@ const MARKER = 'zc-visitor-plan-flow-v2';
 const EARLY = '<script id="' + MARKER + '-early">window.__zcVisitorPlanSwipeSelectionV2=true;window.__zcVisitorPlanFlowV2Controller=true;window.__zcVisitorPlanScrollHighlightV11=true;window.__zcVisitorPlanScrollHighlightV10=true;</script>';
 
 const STYLE = `<style id="${MARKER}-css">
-/* Highlighted card: border + glow + lift. */
-html body #public-plan-cards>.gf-plan-compact-card.zc-scroll-pressed.zc-scroll-pressed{
-  position:relative!important;z-index:6!important;
-  border:2px solid color-mix(in srgb,var(--green,#20c783) 92%,white)!important;
-  outline:1px solid color-mix(in srgb,var(--green,#20c783) 55%,transparent)!important;outline-offset:2px!important;
-  box-shadow:0 0 0 1px color-mix(in srgb,var(--green,#20c783) 30%,transparent),0 0 16px color-mix(in srgb,var(--green,#20c783) 58%,transparent),0 0 34px color-mix(in srgb,var(--green,#20c783) 30%,transparent),0 14px 32px rgba(0,0,0,.34),inset 0 0 20px color-mix(in srgb,var(--green,#20c783) 10%,transparent)!important;
-  transform:translateY(-3px)!important;
+#public-plan-cards>.gf-plan-compact-card{position:relative!important;isolation:isolate!important}
+html body #public-plan-cards>.gf-plan-compact-card.zc-plan-active-v3{
+ z-index:12!important;border:2px solid #73efb9!important;
+ outline:1px solid rgba(155,255,208,.72)!important;outline-offset:2px!important;
+ box-shadow:0 0 0 2px rgba(72,235,158,.18),0 0 18px rgba(32,199,131,.68),0 0 38px rgba(32,199,131,.38),0 14px 34px rgba(0,0,0,.36),inset 0 0 18px rgba(32,199,131,.12)!important;
+ transform:translateY(-3px)!important;
 }
-/* Running edge animation, together with the rest of the highlight. */
-html body #public-plan-cards>.gf-plan-compact-card.zc-scroll-pressed.zc-scroll-pressed::after{
-  opacity:1!important;animation:zc-theme-edge-run 2.6s linear infinite!important;
+#public-plan-cards>.gf-plan-compact-card.zc-plan-active-v3::after{
+ content:""!important;display:block!important;position:absolute!important;inset:0!important;
+ z-index:30!important;pointer-events:none!important;border-radius:inherit!important;padding:3px!important;
+ background:conic-gradient(from 0deg,transparent 0deg,transparent 225deg,rgba(70,255,174,.25) 245deg,#62ffb5 270deg,#eafff4 286deg,#62ffb5 302deg,rgba(70,255,174,.2) 325deg,transparent 350deg,transparent 360deg)!important;
+ -webkit-mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0)!important;
+ -webkit-mask-composite:xor!important;mask-composite:exclude!important;
+ opacity:1!important;animation:zcPlanActiveEdgeSpinV3 2.1s linear infinite!important;
 }
-@media(prefers-reduced-motion:reduce){
-  html body #public-plan-cards>.gf-plan-compact-card.zc-scroll-pressed.zc-scroll-pressed::after{animation:none!important}
+@keyframes zcPlanActiveEdgeSpinV3{to{transform:rotate(1turn)}}
+#public-plan-cards>.gf-plan-compact-card.zc-plan-active-v3 .gf-plan-select-button{
+ background:linear-gradient(115deg,#71efb8 0%,#b7ffe1 28%,#35d79a 52%,#a0f8ce 76%,#71efb8 100%)!important;
+ background-size:240% 240%!important;border:1px solid #b7ffe1!important;color:#032116!important;
+ box-shadow:0 0 0 2px rgba(155,255,208,.32),0 0 14px rgba(32,199,131,.76),0 0 30px rgba(32,199,131,.42)!important;
+ animation:zcPlanActiveButtonGlowV3 2.3s ease-in-out infinite!important;
 }
-
-/* Resting button: same look for every plan, nothing looks "selected". */
-body[data-zc-theme] #public-plan-cards>.gf-plan-compact-card:not(.zc-scroll-pressed) .gf-plan-select-button.gf-plan-select-button{
-  background:linear-gradient(135deg,var(--green,#20c783),var(--panel2,#0b2118))!important;
-  border-color:var(--green,#20c783)!important;
-  color:var(--text,#ecfff4)!important;
-  box-shadow:0 7px 20px color-mix(in srgb,var(--green,#20c783) 20%,transparent)!important;
-  transform:none!important;
-  filter:none!important;
-  transition:none!important;
+@keyframes zcPlanActiveButtonGlowV3{
+ 0%,100%{background-position:0% 50%;box-shadow:0 0 0 2px rgba(155,255,208,.25),0 0 12px rgba(32,199,131,.65),0 0 24px rgba(32,199,131,.3)!important}
+ 50%{background-position:100% 50%;box-shadow:0 0 0 3px rgba(190,255,226,.5),0 0 20px rgba(32,199,131,.95),0 0 38px rgba(32,199,131,.55)!important}
 }
-body[data-zc-theme="emerald"] #public-plan-cards>.gf-plan-compact-card:not(.zc-scroll-pressed) .gf-plan-select-button.gf-plan-select-button{
-  color:#032116!important;
-}
-
-/* Glowing, pressed-looking button on the highlighted plan. No transition so it
-   lights up the instant the card is highlighted. */
-html body #public-plan-cards>.gf-plan-compact-card.zc-scroll-pressed .gf-plan-select-button.gf-plan-select-button,
-body[data-zc-theme] #public-plan-cards>.gf-plan-compact-card.zc-scroll-pressed .gf-plan-select-button.gf-plan-select-button{
-  background:linear-gradient(135deg,color-mix(in srgb,var(--mint,#7cf0b8) 70%,var(--green,#20c783)),var(--green,#20c783))!important;
-  border-color:var(--mint,#9be8c5)!important;
-  color:#032116!important;
-  box-shadow:0 0 0 2px color-mix(in srgb,var(--mint,#9be8c5) 40%,transparent),0 0 14px color-mix(in srgb,var(--green,#20c783) 80%,transparent),0 0 32px color-mix(in srgb,var(--green,#20c783) 48%,transparent),inset 0 2px 6px rgba(0,0,0,.28)!important;
-  transform:translateY(1px)!important;
-  filter:brightness(1.08)!important;
-  transition:none!important;
-  background-image:linear-gradient(115deg,#71efb8 0%,#b7ffe1 28%,#35d79a 52%,#a0f8ce 76%,#71efb8 100%)!important;
-  background-size:240% 240%!important;
-  animation:zcVisitorPlanButtonGlow 2.6s ease-in-out infinite!important;
-}
-@keyframes zcVisitorPlanButtonGlow{
-  0%,100%{background-position:0% 50%;box-shadow:0 0 0 2px rgba(155,255,208,.28),0 0 12px rgba(32,199,131,.60),0 0 25px rgba(32,199,131,.30),inset 0 2px 6px rgba(0,0,0,.20)}
-  50%{background-position:100% 50%;box-shadow:0 0 0 2px rgba(190,255,226,.48),0 0 18px rgba(32,199,131,.88),0 0 36px rgba(32,199,131,.46),inset 0 2px 6px rgba(0,0,0,.16)}
+#public-plan-cards>.gf-plan-compact-card:not(.zc-plan-active-v3) .gf-plan-select-button{
+ animation:none!important;filter:none!important;transform:none!important;
 }
 @media(prefers-reduced-motion:reduce){
-  html body #public-plan-cards>.gf-plan-compact-card.zc-scroll-pressed .gf-plan-select-button.gf-plan-select-button{animation:none!important}
+ #public-plan-cards>.gf-plan-compact-card.zc-plan-active-v3::after,
+ #public-plan-cards>.gf-plan-compact-card.zc-plan-active-v3 .gf-plan-select-button{animation:none!important}
 }
-</style>`;
+</style>`
 
 const SCRIPT = `<script id="${MARKER}-js">
 (function(){
@@ -105,7 +86,8 @@ const SCRIPT = `<script id="${MARKER}-js">
    list.forEach(function(c){
     var on=!!pressedId&&c.getAttribute('data-gf-plan-id')===pressedId;
     LEGACY.forEach(function(cls){if(c.classList.contains(cls))c.classList.remove(cls)});
-    c.classList.toggle('zc-scroll-pressed',on);
+    c.classList.remove('zc-scroll-pressed');
+    c.classList.toggle('zc-plan-active-v3',on);
     var button=c.querySelector(BUTTON);
     if(button){
      if(button.textContent.trim()!=='Choose plan')button.textContent='Choose plan';
@@ -152,13 +134,13 @@ const SCRIPT = `<script id="${MARKER}-js">
   if(!r)return;
   var cards=cardsOf(r),box=r.getBoundingClientRect(),active=null,best=Infinity;
   if(box.width<=0||box.bottom<=0||box.top>=window.innerHeight||!cards.length)return;
-  var cx=box.left+r.clientLeft+r.clientWidth/2;
+  var snapStart=box.left+r.clientLeft;
   cards.forEach(function(c){
    var b=c.getBoundingClientRect();
    if(b.width<=0||b.height<=0)return;
    var visibleW=Math.max(0,Math.min(b.right,box.right)-Math.max(b.left,box.left));
    if(visibleW<Math.min(20,b.width*.10))return;
-   var d=Math.abs((b.left+b.right)/2-cx);
+   var d=Math.abs(b.left-snapStart);
    if(d<best){best=d;active=c}
   });
   if(active)press(active);
@@ -170,7 +152,8 @@ const SCRIPT = `<script id="${MARKER}-js">
   var r=rail();
   if(r&&r!==boundRail){
    boundRail=r;
-   ['scroll','scrollend','touchend','pointerup','wheel'].forEach(function(type){r.addEventListener(type,schedule,{passive:true})});
+   ['scroll','scrollend','touchend','pointerup','wheel','touchmove'].forEach(function(type){r.addEventListener(type,schedule,{passive:true})});
+   document.addEventListener('scroll',schedule,{capture:true,passive:true});
    if('ResizeObserver'in window){resizeObserver=new ResizeObserver(schedule);resizeObserver.observe(r)}
    // Re-check when the data reloads or a plan card is replaced.
    new MutationObserver(function(){
