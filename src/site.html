@@ -6055,3 +6055,43 @@ box-sizing:border-box!important;display:inline-flex!important;align-items:center
  else init();
 })();
 </script>
+
+<script id="zc-visitor-plan-label-guard-v15">
+(function(){
+ if(window.__zcVisitorPlanLabelGuardV15)return;
+ window.__zcVisitorPlanLabelGuardV15=true;
+ var railObserver=null;
+ function repair(){
+  var rail=document.getElementById('public-plan-cards');
+  if(!rail)return false;
+  rail.querySelectorAll(':scope > .gf-plan-compact-card').forEach(function(card){
+   card.classList.remove('is-selected','is-scroll-active','zc-plan-selected','is-tap-selected','is-tap-focus');
+   var button=card.querySelector('.gf-plan-select-button');
+   if(button){
+    button.textContent='Choose plan';
+    button.classList.remove('zc-plan-selected-button');
+    button.removeAttribute('aria-pressed');
+   }
+   card.removeAttribute('onclick');
+   card.removeAttribute('onkeydown');
+  });
+  if(!railObserver){
+   railObserver=new MutationObserver(function(){repair();});
+   railObserver.observe(rail,{childList:true,subtree:true,characterData:true});
+  }
+  return true;
+ }
+ function start(){
+  repair();
+  new MutationObserver(function(){repair();}).observe(document.documentElement,{childList:true,subtree:true});
+  document.addEventListener('click',function(event){
+   var card=event.target&&event.target.closest&&event.target.closest('#public-plan-cards>.gf-plan-compact-card');
+   if(!card)return;
+   var button=card.querySelector('.gf-plan-select-button');
+   if(button)button.textContent='Choose plan';
+  },true);
+ }
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});
+ else start();
+})();
+</script>
