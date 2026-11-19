@@ -2445,7 +2445,7 @@ body[data-zc-theme] #app-content #wd-network-cards::-webkit-scrollbar-thumb{back
   if(empty)empty.classList.toggle('hidden',!!url);
  }
  function escapeValue(value){return typeof esc==='function'?esc(value):String(value??'')}
- function cleanPlanCopy(value,fallback){const cleaned=String(value??'').replace(/illustrative\\s+starter\\s+scenario\\s+for\\s+smaller\\s+allocations/ig,'').replace(/^[\\s—–:;,.]+|[\\s—–:;,.]+$/g,'').trim();return cleaned||fallback}
+ function cleanPlanCopy(value,fallback){const cleaned=String(value??'').replace(/illustrative\s+starter\s+scenario\s+for\s+smaller\s+allocations/ig,'').replace(/^[\s—–:;,.]+|[\s—–:;,.]+$/g,'').trim();return cleaned||fallback}
  function cardLogo(p){
   const url=logoUrl(p.logo_url);
   return url?'<img class="gf-plan-public-logo" src="'+escapeValue(url)+'" alt="'+escapeValue(p.name)+' logo" loading="lazy">':'<div class="gf-plan-public-logo-empty" aria-hidden="true">'+escapeValue((p.name||'P').trim().slice(0,1).toUpperCase())+'</div>';
