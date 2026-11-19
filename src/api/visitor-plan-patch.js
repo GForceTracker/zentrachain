@@ -61,6 +61,16 @@ body[data-zc-theme] #public-plan-cards>.gf-plan-compact-card.zc-scroll-pressed .
   transform:translateY(1px)!important;
   filter:brightness(1.08)!important;
   transition:none!important;
+  background-image:linear-gradient(115deg,#71efb8 0%,#b7ffe1 28%,#35d79a 52%,#a0f8ce 76%,#71efb8 100%)!important;
+  background-size:240% 240%!important;
+  animation:zcVisitorPlanButtonGlow 2.6s ease-in-out infinite!important;
+}
+@keyframes zcVisitorPlanButtonGlow{
+  0%,100%{background-position:0% 50%;box-shadow:0 0 0 2px rgba(155,255,208,.28),0 0 12px rgba(32,199,131,.60),0 0 25px rgba(32,199,131,.30),inset 0 2px 6px rgba(0,0,0,.20)!important}
+  50%{background-position:100% 50%;box-shadow:0 0 0 2px rgba(190,255,226,.48),0 0 18px rgba(32,199,131,.88),0 0 36px rgba(32,199,131,.46),inset 0 2px 6px rgba(0,0,0,.16)!important}
+}
+@media(prefers-reduced-motion:reduce){
+  html body #public-plan-cards>.gf-plan-compact-card.zc-scroll-pressed .gf-plan-select-button.gf-plan-select-button{animation:none!important}
 }
 </style>`;
 
