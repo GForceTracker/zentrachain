@@ -5277,3 +5277,108 @@ box-sizing:border-box!important;display:inline-flex!important;align-items:center
 }
 @media(max-width:700px){.calc-shell{height:120px!important;min-height:120px!important;max-height:120px!important}}
 </style>
+
+
+<style id="zc-calculator-no-scroll-v4">
+/* Keep the calculator at 120px without an inner scrollbar; arrange its controls in compact rows. */
+.calc-shell:has(select[id$="-select"]){
+  box-sizing:border-box!important;
+  height:120px!important;min-height:120px!important;max-height:120px!important;
+  overflow-x:visible!important;overflow-y:visible!important;
+  display:grid!important;
+  grid-template-columns:minmax(0,1fr) minmax(0,1fr)!important;
+  grid-template-rows:26px 13px 15px 15px 13px 16px!important;
+  column-gap:8px!important;row-gap:1px!important;
+  padding:6px 10px!important;
+  align-content:start!important;
+}
+.calc-shell:has(select[id$="-select"])>.eyebrow,
+.calc-shell:has(select[id$="-select"])>h2,
+.calc-shell:has(select[id$="-select"])>p.muted{display:none!important}
+.calc-shell:has(select[id$="-select"])>.field:has(select[id$="-select"]){
+  grid-column:1!important;grid-row:1!important;margin:0!important;gap:2px!important;min-width:0!important;
+}
+.calc-shell:has(select[id$="-select"])>.field:has(input[id$="-amount"]){
+  grid-column:2!important;grid-row:1!important;margin:0!important;gap:2px!important;min-width:0!important;
+}
+.calc-shell:has(select[id$="-select"]) .field label{
+  font-size:8px!important;line-height:8px!important;margin:0!important;white-space:nowrap!important;
+}
+.calc-shell:has(select[id$="-select"]) .field select,
+.calc-shell:has(select[id$="-select"]) .field input{
+  box-sizing:border-box!important;width:100%!important;height:16px!important;min-height:16px!important;
+  padding:1px 6px!important;border-radius:6px!important;font-size:10px!important;line-height:13px!important;
+}
+.calc-shell:has(select[id$="-select"]) .field .calc-amount{
+  font-size:11px!important;font-weight:750!important;padding:1px 6px!important;
+}
+.calc-shell:has(select[id$="-select"])>.calc-control:has(input[id$="-range"]){
+  grid-column:1/-1!important;grid-row:2!important;
+  display:grid!important;grid-template-columns:96px minmax(0,1fr)!important;
+  align-items:center!important;gap:6px!important;margin:0!important;min-width:0!important;
+}
+.calc-shell:has(select[id$="-select"])>.calc-control:has(input[id$="-days"]){
+  grid-column:1/-1!important;grid-row:3!important;
+  display:grid!important;grid-template-columns:96px minmax(0,1fr)!important;
+  align-items:center!important;gap:6px!important;margin:0!important;min-width:0!important;
+}
+.calc-shell:has(select[id$="-select"]) .calc-control>label{
+  font-size:8px!important;line-height:10px!important;margin:0!important;white-space:nowrap!important;
+}
+.calc-shell:has(select[id$="-select"]) .calc-days-heading{
+  grid-column:1!important;grid-row:1!important;display:flex!important;
+  justify-content:flex-start!important;align-items:center!important;gap:5px!important;min-width:0!important;
+}
+.calc-shell:has(select[id$="-select"]) .calc-days-heading label{
+  font-size:8px!important;line-height:10px!important;margin:0!important;white-space:nowrap!important;
+}
+.calc-shell:has(select[id$="-select"]) .calc-days-heading b{
+  font-size:9px!important;line-height:10px!important;white-space:nowrap!important;
+}
+.calc-shell:has(select[id$="-select"]) .calc-control input[type="range"]{
+  grid-column:2!important;grid-row:1!important;width:100%!important;height:9px!important;
+  min-height:9px!important;margin:0!important;padding:0!important;
+}
+.calc-shell:has(select[id$="-select"]) .calc-days-limits{display:none!important}
+.calc-shell:has(select[id$="-select"])>[id$="-limits"]{
+  grid-column:1/-1!important;grid-row:5!important;display:flex!important;
+  flex-direction:row!important;align-items:center!important;justify-content:space-between!important;
+  gap:8px!important;min-width:0!important;overflow:hidden!important;
+}
+.calc-shell:has(select[id$="-select"]) .gf-calc-detail-line{
+  display:flex!important;align-items:center!important;gap:3px!important;
+  width:50%!important;min-width:0!important;padding:0!important;margin:0!important;
+  border:0!important;font-size:8px!important;line-height:11px!important;white-space:nowrap!important;
+}
+.calc-shell:has(select[id$="-select"]) .gf-calc-detail-line i{
+  width:10px!important;height:10px!important;flex:0 0 10px!important;
+}
+.calc-shell:has(select[id$="-select"]) .gf-calc-detail-line span{
+  display:block!important;min-width:0!important;overflow:hidden!important;text-overflow:ellipsis!important;white-space:nowrap!important;
+}
+.calc-shell:has(select[id$="-select"])>.calc-result:has(b[id$="-profit"]){
+  grid-column:1!important;grid-row:4!important;
+}
+.calc-shell:has(select[id$="-select"])>.calc-result:has(b[id$="-total"]){
+  grid-column:2!important;grid-row:4!important;
+}
+.calc-shell:has(select[id$="-select"])>.calc-result{
+  display:flex!important;align-items:center!important;justify-content:space-between!important;
+  gap:5px!important;min-width:0!important;margin:0!important;padding:0!important;
+  border:0!important;font-size:9px!important;line-height:14px!important;white-space:nowrap!important;
+}
+.calc-shell:has(select[id$="-select"])>.calc-result span{font-size:9px!important}
+.calc-shell:has(select[id$="-select"])>.calc-result b{
+  font-size:10px!important;line-height:13px!important;white-space:nowrap!important;
+}
+.calc-shell:has(select[id$="-select"])>.calc-result b.calc-total{font-size:11px!important}
+.calc-shell:has(select[id$="-select"])>p.risk{
+  grid-column:1/-1!important;grid-row:6!important;display:block!important;
+  min-width:0!important;margin:0!important;padding:0!important;
+  font-size:7.5px!important;line-height:8px!important;white-space:normal!important;
+  overflow:hidden!important;
+}
+@media(max-width:700px){
+  .calc-shell:has(select[id$="-select"]){height:120px!important;min-height:120px!important;max-height:120px!important;padding:6px 8px!important;column-gap:6px!important}
+}
+</style>
