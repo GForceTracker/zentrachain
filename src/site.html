@@ -4209,78 +4209,8 @@ schedule(FIRST_DELAY);
 }
 </style>
 <script id="zc-visitor-plan-swipe-selection-v2">
-(function(){
- if(window.__zcVisitorPlanSwipeSelectionV2)return;
- window.__zcVisitorPlanSwipeSelectionV2=true;
- function init(){
-  const rail=document.getElementById('public-plan-cards');
-  if(!rail||rail.dataset.zcSwipeSelectionV2==='1')return;
-  rail.dataset.zcSwipeSelectionV2='1';
-  let settleTimer=null,lastChosen='';
-  const cards=()=>Array.from(rail.querySelectorAll(':scope > .gf-plan-compact-card'));
-  function applyChoice(card){
-   if(!card)return;
-   const id=card.getAttribute('data-gf-plan-id');
-   if(!id)return;
-   cards().forEach(item=>{
-    const active=item===card;
-    item.classList.toggle('zc-plan-selected',active);
-    const button=item.querySelector('.gf-plan-select-button');
-    if(button){
-     button.classList.toggle('zc-plan-selected-button',active);
-     button.textContent=active?'Selected':'Choose plan';
-     button.setAttribute('aria-pressed',active?'true':'false');
-    }
-   });
-   if(id!==lastChosen&&typeof window.gfChoose==='function'){
-    lastChosen=id;
-    window.gfChoose('pub',id);
-   }
-  }
-  function chooseNearest(){
-   const items=cards();
-   if(!items.length)return;
-   const railRect=rail.getBoundingClientRect();
-   const styles=getComputedStyle(rail);
-   const inset=parseFloat(styles.scrollPaddingLeft)||parseFloat(styles.paddingLeft)||0;
-   let chosen=items[0],best=Infinity;
-   items.forEach(card=>{
-    const left=rail.scrollLeft+card.getBoundingClientRect().left-railRect.left;
-    const distance=Math.abs(left-inset);
-    if(distance<best){best=distance;chosen=card}
-   });
-   applyChoice(chosen);
-  }
-  function schedule(){
-   if(settleTimer)clearTimeout(settleTimer);
-   settleTimer=setTimeout(chooseNearest,140);
-  }
-  function bindButtons(){
-   cards().forEach(card=>{
-    const button=card.querySelector('.gf-plan-select-button');
-    if(button&&!button.dataset.zcSwipeBound){
-     button.dataset.zcSwipeBound='1';
-     button.addEventListener('click',()=>applyChoice(card));
-    }
-   });
-  }
-  rail.addEventListener('scroll',schedule,{passive:true});
-  rail.addEventListener('scrollend',chooseNearest,{passive:true});
-  rail.addEventListener('touchend',schedule,{passive:true});
-  rail.addEventListener('pointerup',schedule,{passive:true});
-  rail.addEventListener('wheel',schedule,{passive:true});
-  rail.addEventListener('click',event=>{
-   const card=event.target.closest('.gf-plan-compact-card');
-   if(card&&!event.target.closest('.gf-plan-select-button'))applyChoice(card);
-  });
-  const observer=new MutationObserver(()=>{bindButtons();schedule()});
-  observer.observe(rail,{childList:true,subtree:true});
-  bindButtons();
-  chooseNearest();
- }
- if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});
- else init();
-})();
+/* Retired: visitor plan cards are intentionally independent of the calculator.
+   Card highlighting is handled by zc-visitor-plan-independent-selection-v13. */
 </script>
 
 </html>
@@ -5972,3 +5902,125 @@ box-sizing:border-box!important;display:inline-flex!important;align-items:center
   .calc-shell,.calc-shell::after{animation:none!important}
 }
 </style>
+
+
+<style id="zc-visitor-plan-independent-selection-v13">
+/* The visitor card highlight has one source of truth. Calculator-driven and
+   scroll-driven legacy classes must never style or select visitor cards. */
+#public-plan-cards>.gf-plan-compact-card.is-selected,
+#public-plan-cards>.gf-plan-compact-card.is-scroll-active,
+#public-plan-cards>.gf-plan-compact-card.zc-plan-selected,
+#public-plan-cards>.gf-plan-compact-card.is-tap-selected,
+#public-plan-cards>.gf-plan-compact-card.is-tap-focus{
+ border:1px solid var(--line)!important;
+ outline:0!important;outline-offset:0!important;
+ box-shadow:0 12px 28px rgba(0,0,0,.20)!important;
+ transform:none!important;z-index:1!important;
+}
+#public-plan-cards>.gf-plan-compact-card.is-selected::after,
+#public-plan-cards>.gf-plan-compact-card.is-scroll-active::after,
+#public-plan-cards>.gf-plan-compact-card.zc-plan-selected::after,
+#public-plan-cards>.gf-plan-compact-card.is-tap-selected::after,
+#public-plan-cards>.gf-plan-compact-card.is-tap-focus::after{
+ opacity:0!important;animation:none!important;
+}
+#public-plan-cards>.gf-plan-compact-card .gf-plan-select-button.zc-plan-selected-button{
+ background:var(--green)!important;border-color:var(--line)!important;color:var(--text)!important;
+}
+#public-plan-cards>.gf-plan-compact-card.is-card-highlighted{
+ position:relative!important;z-index:7!important;
+ border:2px solid color-mix(in srgb,var(--green) 92%,white)!important;
+ outline:1px solid color-mix(in srgb,var(--mint) 58%,transparent)!important;
+ outline-offset:2px!important;
+ box-shadow:0 0 0 1px color-mix(in srgb,var(--green) 30%,transparent),
+  0 0 17px color-mix(in srgb,var(--green) 58%,transparent),
+  0 0 36px color-mix(in srgb,var(--green) 28%,transparent),
+  0 14px 34px rgba(0,0,0,.34),
+  inset 0 0 18px color-mix(in srgb,var(--green) 10%,transparent)!important;
+ transform:translateY(-3px)!important;
+}
+#public-plan-cards>.gf-plan-compact-card.is-card-highlighted::after{
+ opacity:1!important;animation:zc-theme-edge-run 2.15s linear infinite!important;
+}
+#public-plan-cards>.gf-plan-compact-card.is-card-highlighted .gf-plan-select-button{
+ background:linear-gradient(135deg,var(--green),var(--mint))!important;
+ color:#032116!important;border:1px solid var(--mint)!important;
+ box-shadow:0 0 13px color-mix(in srgb,var(--green) 42%,transparent)!important;
+}
+@media(prefers-reduced-motion:reduce){
+ #public-plan-cards>.gf-plan-compact-card.is-card-highlighted::after{animation:none!important}
+}
+</style>
+<script id="zc-visitor-plan-independent-selection-v13">
+(function(){
+ if(window.__zcVisitorPlanIndependentSelectionV13)return;
+ window.__zcVisitorPlanIndependentSelectionV13=true;
+ function init(){
+  var rail=document.getElementById('public-plan-cards');
+  if(!rail||rail.dataset.zcIndependentSelectionV13==='1')return;
+  rail.dataset.zcIndependentSelectionV13='1';
+  var activeCard=null;
+  function cards(){
+   return Array.prototype.filter.call(rail.children,function(node){
+    return node.classList&&node.classList.contains('gf-plan-compact-card');
+   });
+  }
+  function clearLegacyCardHandlers(){
+   cards().forEach(function(card){
+    card.removeAttribute('onclick');
+    card.removeAttribute('onkeydown');
+    var button=card.querySelector('.gf-plan-select-button');
+    if(button)button.removeAttribute('onclick');
+   });
+  }
+  function highlight(card){
+   if(!card||!rail.contains(card))return;
+   activeCard=card;
+   cards().forEach(function(item){
+    var active=item===activeCard;
+    item.classList.remove('is-selected','is-scroll-active','zc-plan-selected','is-tap-selected','is-tap-focus');
+    item.classList.toggle('is-card-highlighted',active);
+    var button=item.querySelector('.gf-plan-select-button');
+    if(button){
+     button.classList.remove('zc-plan-selected-button');
+     button.classList.toggle('is-card-highlighted-button',active);
+     button.textContent=active?'Selected':'Choose plan';
+     button.setAttribute('aria-pressed',active?'true':'false');
+    }
+   });
+  }
+  rail.addEventListener('click',function(event){
+   var card=event.target.closest&&event.target.closest('.gf-plan-compact-card');
+   if(!card||!rail.contains(card))return;
+   event.preventDefault();
+   event.stopPropagation();
+   if(event.stopImmediatePropagation)event.stopImmediatePropagation();
+   highlight(card);
+  },true);
+  rail.addEventListener('keydown',function(event){
+   if(event.key!=='Enter'&&event.key!==' ')return;
+   var card=event.target.closest&&event.target.closest('.gf-plan-compact-card');
+   if(!card||!rail.contains(card))return;
+   event.preventDefault();
+   event.stopPropagation();
+   highlight(card);
+  },true);
+  clearLegacyCardHandlers();
+  new MutationObserver(function(){
+   clearLegacyCardHandlers();
+   cards().forEach(function(card){
+    card.classList.remove('is-selected','is-scroll-active','zc-plan-selected','is-tap-selected','is-tap-focus');
+    if(card!==activeCard)card.classList.remove('is-card-highlighted');
+    var button=card.querySelector('.gf-plan-select-button');
+    if(button&&card!==activeCard){
+     button.classList.remove('is-card-highlighted-button','zc-plan-selected-button');
+     button.textContent='Choose plan';
+     button.setAttribute('aria-pressed','false');
+    }
+   });
+  }).observe(rail,{childList:true,subtree:true});
+ }
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});
+ else init();
+})();
+</script>
