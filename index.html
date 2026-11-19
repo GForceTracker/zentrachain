@@ -6063,29 +6063,45 @@ box-sizing:border-box!important;display:inline-flex!important;align-items:center
 
 
 <style id="zc-visitor-plan-selection-glow-v4">
-/* The selected public plan alone gets the traveling perimeter and illuminated CTA. */
+/* Selected public plan: all border, runner and button colors follow the active site theme. */
 #public-plan-cards>.gf-plan-compact-card.zc-plan-selected{
  position:relative!important;z-index:12!important;
- border:2px solid rgba(130,255,193,.98)!important;
- outline:1px solid rgba(156,255,210,.62)!important;outline-offset:2px!important;
- box-shadow:0 0 0 1px rgba(60,230,151,.30),0 0 16px rgba(48,226,147,.62),
-  0 0 36px rgba(48,226,147,.34),0 14px 36px rgba(0,0,0,.34),
-  inset 0 0 20px rgba(65,235,158,.12)!important;
+ border:2px solid var(--green)!important;
+ outline:1px solid color-mix(in srgb,var(--mint) 70%,transparent)!important;outline-offset:2px!important;
+ box-shadow:0 0 0 1px color-mix(in srgb,var(--green) 34%,transparent),
+  0 0 16px color-mix(in srgb,var(--green) 62%,transparent),
+  0 0 36px color-mix(in srgb,var(--green) 34%,transparent),
+  0 14px 36px rgba(0,0,0,.34),
+  inset 0 0 20px color-mix(in srgb,var(--green) 14%,transparent)!important;
  transform:translateY(-3px)!important;
 }
+/* The traveling perimeter uses the same green/mint variables as the Dashboard theme. */
 #public-plan-cards>.gf-plan-compact-card.zc-plan-selected::after{
+ background:conic-gradient(
+  from var(--zc-edge-angle,0deg),
+  transparent 0deg,transparent 215deg,
+  color-mix(in srgb,var(--green) 24%,transparent) 238deg,
+  var(--green) 266deg,var(--mint) 281deg,
+  var(--text) 287deg,var(--mint) 294deg,
+  var(--green) 307deg,color-mix(in srgb,var(--green) 24%,transparent) 326deg,
+  transparent 340deg,transparent 360deg
+ )!important;
  opacity:1!important;
  animation:zc-theme-edge-run 2.15s linear infinite!important;
 }
 #public-plan-cards>.gf-plan-compact-card:not(.zc-plan-selected)::after{
  opacity:0!important;animation:none!important;
 }
+/* Match the Dashboard plan button exactly: theme green into theme panel, with a soft animated glow. */
 #public-plan-cards>.gf-plan-compact-card.zc-plan-selected .gf-plan-select-button{
- background:linear-gradient(115deg,#71efb8 0%,#b7ffe1 28%,#35d79a 52%,#a0f8ce 76%,#71efb8 100%)!important;
- background-size:240% 240%!important;
- border:1px solid #b7ffe1!important;color:#032116!important;
- box-shadow:0 0 0 2px rgba(155,255,208,.36),0 0 14px rgba(32,199,131,.76),
-  0 0 30px rgba(32,199,131,.42),inset 0 2px 6px rgba(0,0,0,.18)!important;
+ background:linear-gradient(135deg,var(--green),var(--panel2))!important;
+ background-size:220% 220%!important;
+ border:1px solid var(--green)!important;
+ color:var(--text)!important;
+ box-shadow:0 0 0 2px color-mix(in srgb,var(--green) 34%,transparent),
+  0 0 14px color-mix(in srgb,var(--green) 76%,transparent),
+  0 0 30px color-mix(in srgb,var(--green) 42%,transparent),
+  inset 0 2px 6px rgba(0,0,0,.18)!important;
  animation:zcVisitorPlanButtonGlowV4 2.2s ease-in-out infinite!important;
  transform:translateY(1px)!important;
 }
@@ -6093,8 +6109,18 @@ box-sizing:border-box!important;display:inline-flex!important;align-items:center
  animation:none!important;transform:none!important;
 }
 @keyframes zcVisitorPlanButtonGlowV4{
- 0%,100%{background-position:0% 50%;box-shadow:0 0 0 2px rgba(155,255,208,.28),0 0 12px rgba(32,199,131,.58),0 0 24px rgba(32,199,131,.27)}
- 50%{background-position:100% 50%;box-shadow:0 0 0 2px rgba(190,255,226,.50),0 0 19px rgba(32,199,131,.94),0 0 38px rgba(32,199,131,.48)}
+ 0%,100%{
+  background-position:0% 50%;
+  box-shadow:0 0 0 2px color-mix(in srgb,var(--green) 30%,transparent),
+   0 0 12px color-mix(in srgb,var(--green) 60%,transparent),
+   0 0 24px color-mix(in srgb,var(--green) 28%,transparent);
+ }
+ 50%{
+  background-position:100% 50%;
+  box-shadow:0 0 0 2px color-mix(in srgb,var(--mint) 52%,transparent),
+   0 0 19px color-mix(in srgb,var(--green) 94%,transparent),
+   0 0 38px color-mix(in srgb,var(--green) 48%,transparent);
+ }
 }
 @media(prefers-reduced-motion:reduce){
  #public-plan-cards>.gf-plan-compact-card.zc-plan-selected::after,
