@@ -4265,13 +4265,13 @@ schedule(FIRST_DELAY);
   new MutationObserver(()=>{
    cards().forEach(card=>{
     const button=card.querySelector('.gf-plan-select-button');
-    if(button){button.textContent='Choose plan';button.removeAttribute('aria-pressed')}
+    if(button){if(button.textContent.trim()!=='Choose plan')button.textContent='Choose plan';button.removeAttribute('aria-pressed')}
    });
    schedule();
   }).observe(rail,{childList:true,subtree:true,characterData:true});
   cards().forEach(card=>{
    const button=card.querySelector('.gf-plan-select-button');
-   if(button){button.textContent='Choose plan';button.removeAttribute('aria-pressed')}
+   if(button){if(button.textContent.trim()!=='Choose plan')button.textContent='Choose plan';button.removeAttribute('aria-pressed')}
   });
   chooseNearest();
  }
