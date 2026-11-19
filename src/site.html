@@ -3512,6 +3512,7 @@ body[data-zc-theme] #app-content #wd-network-cards::-webkit-scrollbar-thumb{back
 <script id="zc-plan-scroll-active-running-edge-v2">
 (function(){
  function init(){
+  if(window.__zcVisitorPlanFlowV2Controller)return;
   const rail=document.getElementById('public-plan-cards');
   if(!rail||rail.dataset.zcScrollHighlightReady==='1')return;
   rail.dataset.zcScrollHighlightReady='1';
@@ -3657,7 +3658,7 @@ body[data-zc-theme] #app-content #wd-network-cards::-webkit-scrollbar-thumb{back
  const selector='#public-plan-cards, #dash-cards';
  function init(){
   function attach(rail){
-   if(!rail||rail.dataset.zcFocusAllReady==='1')return;
+   if(!rail||(rail.id==='public-plan-cards'&&window.__zcVisitorPlanFlowV2Controller)||rail.dataset.zcFocusAllReady==='1')return;
    rail.dataset.zcFocusAllReady='1';
    let frame=0;
    function update(){
