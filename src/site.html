@@ -1894,7 +1894,7 @@ html body .zc-motion-reveal{transition:opacity .62s ease,transform .62s cubic-be
  };
  if(!window.__zcDepositBackHandler){
   window.__zcDepositBackHandler=true;
-  window.addEventListener('popstate',function(e){const p=e.state?.zcPage;if(p){if(p==='deposits'||p==='deposit')window.renderDepositPage();else if(p==='withdrawals'||p==='withdraw')renderWithdrawalPage();else renderPage()}});
+  window.addEventListener('popstate',function(e){const p=e.state?.zcPage;if(p){if(p==='calculator')window.renderCalculatorPage();else if(p==='deposits'||p==='deposit')window.renderDepositPage();else if(p==='withdrawals'||p==='withdraw')renderWithdrawalPage();else renderPage()}});
  }
  const css=document.createElement('style');css.id='zc-deposit-original-layout-restored';css.textContent=`
  #app-content .zc-deposit-original-card{display:block!important;width:100%!important;max-width:100%!important;box-sizing:border-box!important;padding:16px!important;border:1px solid var(--line)!important;border-radius:17px!important;background:var(--panel)!important;overflow:hidden!important}
@@ -1977,6 +1977,7 @@ html body .zc-motion-reveal{transition:opacity .62s ease,transform .62s cubic-be
    page=p;
    document.querySelectorAll('.side-nav button').forEach(b=>b.classList.toggle('active',b.dataset.page===p));
    if(typeof closeDrawer==='function')closeDrawer();
+   if(p==='calculator'){if(typeof window.renderCalculatorPage!=='function')throw new Error('Calculator page renderer is unavailable.');window.renderCalculatorPage();return}
    if(p==='deposits'||p==='deposit'){window.renderDepositPage().catch(e=>console.error('Deposit renderer failed:',e));return}
    if(p==='withdrawals'||p==='withdraw'){renderWithdrawalPage();return}
    renderPage();
