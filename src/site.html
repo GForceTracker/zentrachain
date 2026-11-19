@@ -1049,7 +1049,7 @@ function gfChoose(s,id){
     button.classList.remove('zc-plan-selected-button');
     button.classList.toggle('is-card-highlighted-button',active);
     button.textContent='Choose plan';
-    button.setAttribute('aria-pressed',active?'true':'false');
+    button.removeAttribute('aria-pressed');
    }
   });
   return;
@@ -2973,8 +2973,8 @@ body[data-zc-theme] #app-content #wd-network-cards::-webkit-scrollbar-thumb{back
  if(window.__zcPlanProfileMobileV3)return;window.__zcPlanProfileMobileV3=true;
  const $=id=>document.getElementById(id);
  function syncSelected(){const selected=$('dash-select')?.value||'';document.querySelectorAll('#dash-cards>.gf-plan-compact-card[data-gf-plan-id]').forEach(card=>card.classList.toggle('is-selected',!!selected&&card.dataset.gfPlanId===selected));document.querySelectorAll('#public-plan-cards>.gf-plan-compact-card[data-gf-plan-id]').forEach(card=>card.classList.remove('is-selected'))}
- const oldChoose=window.gfChoose;if(typeof oldChoose==='function')window.gfChoose=function(s,id){const result=oldChoose.apply(this,arguments);syncSelected();return result};
- const oldPlanUpdate=window.planUpdate;if(typeof oldPlanUpdate==='function')window.planUpdate=function(s){const result=oldPlanUpdate.apply(this,arguments);syncSelected();return result};
+ const oldChoose=window.gfChoose;if(typeof oldChoose==='function')window.gfChoose=function(s,id){const result=oldChoose.apply(this,arguments);if(s==='dash')syncSelected();return result};
+ const oldPlanUpdate=window.planUpdate;if(typeof oldPlanUpdate==='function')window.planUpdate=function(s){const result=oldPlanUpdate.apply(this,arguments);if(s==='dash')syncSelected();return result};
  if(typeof window.gfLoadPlans==='function'){const oldLoad=window.gfLoadPlans;window.gfLoadPlans=async function(){const result=await oldLoad.apply(this,arguments);const cards=$('public-plan-cards');if(cards&&Array.isArray(window.gfPlans)){cards.innerHTML=window.gfPlans.map(p=>window.gfCard(p,'pub')).join('');if(window.lucide&&window.lucide.createIcons)window.lucide.createIcons({root:cards})}syncSelected();return result}}
  window.zcCloseUserMenu=function(){const panel=$('zc-user-menu-panel'),wrap=$('zc-user-menu'),trigger=$('zc-user-menu-trigger');if(panel)panel.classList.add('hidden');if(wrap)wrap.classList.remove('is-open');if(trigger)trigger.setAttribute('aria-expanded','false')};
  window.zcToggleUserMenu=function(){const panel=$('zc-user-menu-panel'),wrap=$('zc-user-menu'),trigger=$('zc-user-menu-trigger');if(!panel||!wrap)return;const opening=panel.classList.contains('hidden');panel.classList.toggle('hidden',!opening);wrap.classList.toggle('is-open',opening);if(trigger)trigger.setAttribute('aria-expanded',String(opening))};
