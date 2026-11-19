@@ -3365,6 +3365,7 @@ body[data-zc-theme] #app-content #wd-network-cards::-webkit-scrollbar-thumb{back
 (function(){
  const reduced=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
  function init(){
+  if(window.__zcVisitorPlanFlowV2Controller)return;
   const rail=document.getElementById('public-plan-cards');
   const section=document.getElementById('plans');
   if(!rail||!section||rail.dataset.zcAutoplayReady==='1')return;
