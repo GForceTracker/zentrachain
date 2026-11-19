@@ -66,8 +66,8 @@ body[data-zc-theme] #public-plan-cards>.gf-plan-compact-card.zc-scroll-pressed .
   animation:zcVisitorPlanButtonGlow 2.6s ease-in-out infinite!important;
 }
 @keyframes zcVisitorPlanButtonGlow{
-  0%,100%{background-position:0% 50%;box-shadow:0 0 0 2px rgba(155,255,208,.28),0 0 12px rgba(32,199,131,.60),0 0 25px rgba(32,199,131,.30),inset 0 2px 6px rgba(0,0,0,.20)!important}
-  50%{background-position:100% 50%;box-shadow:0 0 0 2px rgba(190,255,226,.48),0 0 18px rgba(32,199,131,.88),0 0 36px rgba(32,199,131,.46),inset 0 2px 6px rgba(0,0,0,.16)!important}
+  0%,100%{background-position:0% 50%;box-shadow:0 0 0 2px rgba(155,255,208,.28),0 0 12px rgba(32,199,131,.60),0 0 25px rgba(32,199,131,.30),inset 0 2px 6px rgba(0,0,0,.20)}
+  50%{background-position:100% 50%;box-shadow:0 0 0 2px rgba(190,255,226,.48),0 0 18px rgba(32,199,131,.88),0 0 36px rgba(32,199,131,.46),inset 0 2px 6px rgba(0,0,0,.16)}
 }
 @media(prefers-reduced-motion:reduce){
   html body #public-plan-cards>.gf-plan-compact-card.zc-scroll-pressed .gf-plan-select-button.gf-plan-select-button{animation:none!important}
