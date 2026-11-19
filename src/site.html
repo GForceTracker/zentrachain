@@ -1101,7 +1101,7 @@ function gfReset(){['gf-id','gf-name','gf-rate','gf-description'].forEach(x=>$(x
 async function gfDelete(id){if(profile?.role!=='admin'||!confirm('Delete this plan configuration?'))return;const {error}=await db.from('gforce_investment_plans').delete().eq('id',id);if(error)return toast(error.message,true);toast('Plan deleted.');await gfRefreshAdmin();}
 async function gfRefreshAdmin(){const rows=await gfAdminRows(),el=$('gf-plan-admin');if(el)el.outerHTML=gfAdminPanel(rows);await gfLoadPlans();}
 const baseAdmin=renderAdmin;renderAdmin=async function(){const rows=await gfAdminRows();await baseAdmin();$('app-content').insertAdjacentHTML('beforeend',gfAdminPanel(rows));};
-const basePage=renderPage;renderPage=function(){if(page==='plans'){const c=$('app-content');c.innerHTML='<div class="card panel"><p class="muted">Loading current plans…</p></div>';gfLoadPlans().then(()=>{c.innerHTML='<div class="page-title"><div><div class="eyebrow">Plan information</div><h1>Plan scenarios</h1></div></div><div id="dash-cards" class="plan-grid"></div><div class="calc-shell" style="margin-top:22px"><h2>Plan calculator</h2><div class="field"><label>Investment Plan</label><select id="dash-select" onchange="planUpdate(\'dash\')"></select></div><div class="field"><label>Amount (USDT)</label><input id="dash-amount" class="calc-amount" type="number" step=".01" value="50" oninput="planSync(\'dash\',\'input\')" onblur="planSync(\'dash\',\'blur\')"></div><div class="calc-control"><label for="dash-range">Amount slider</label><input id="dash-range" class="calc-range" type="range" oninput="planSync(\'dash\',\'range\')"></div><div class="calc-control"><div class="calc-days-heading"><label for="dash-days">Duration</label><b><span id="dash-days-value">1</span> days</b></div><input id="dash-days" class="calc-range" type="range" min="1" max="365" step="1" value="1" oninput="planSync(\'dash\',\'days\')"><div class="calc-days-limits"><span>1 day</span><span>365 days</span></div></div><div id="dash-limits"></div><div class="calc-result"><span>Profit</span><b id="dash-profit">—</b></div><div class="calc-result"><span>Total</span><b class="calc-total" id="dash-total">—</b></div><p class="risk">Hypothetical only. Actual outcomes may be negative.</p></div>';$('dash-cards').innerHTML=gfPlans.length?gfPlans.map(p=>gfCard(p,'dash')).join(''):'<div class="empty card">No active plans.</div>';if(window.lucide&&window.lucide.createIcons)window.lucide.createIcons({root:$('dash-cards')});gfFill('dash');}).catch(err=>{console.error('Plan page load failed:',err);const c=$('app-content');if(c)c.innerHTML='<div class="card panel"><h3>Plans are temporarily unavailable</h3><p class="muted">Please try again in a moment.</p><button class="btn primary" onclick="navigate(\'plans\')">Retry</button></div>';toast('Could not load plans: '+(err?.message||'Please try again.'),true)});return;}basePage();};
+const basePage=renderPage;renderPage=function(){if(page==='plans'){const c=$('app-content');c.innerHTML='<div class="card panel"><p class="muted">Loading current plans…</p></div>';gfLoadPlans().then(()=>{c.innerHTML='<div class="page-title"><div><div class="eyebrow">Plan information</div><h1>Plan scenarios</h1></div></div><div id="dash-cards" class="plan-grid"></div><div class="calc-shell" style="margin-top:22px"><h2>Plan calculator</h2><div class="field"><label>Investment Plan</label><select id="dash-select" onchange="planUpdate(\'dash\')"></select></div><div class="field"><label>Amount (USDT)</label><input id="dash-amount" class="calc-amount" type="number" step=".01" value="50" oninput="planSync(\'dash\',\'input\')" onblur="planSync(\'dash\',\'blur\')"></div><div class="calc-control"><label for="dash-range">Amount slider</label><input id="dash-range" class="calc-range" type="range" oninput="planSync(\'dash\',\'range\')"></div><div class="calc-control"><div class="calc-days-heading"><label for="dash-days">Duration</label><b><span id="dash-days-value">1</span> days</b></div><input id="dash-days" class="calc-range" type="range" min="1" max="365" step="1" value="1" oninput="planSync(\'dash\',\'days\')"><div class="calc-days-limits"><span>1 day</span><span>365 days</span></div></div><div id="dash-limits"></div><div class="calc-result"><span>Profit</span><b id="dash-profit">—</b></div><div class="calc-result"><span>Total</span><b class="calc-total" id="dash-total">—</b></div><p class="risk">Hypothetical only. Actual outcomes may be negative.</p></div>';$('dash-cards').innerHTML=gfPlans.length?gfPlans.map(p=>gfCard(p,'dash')).join(''):'<div class="empty card">No active plans.</div>';if(window.lucide&&window.lucide.createIcons)window.lucide.createIcons({root:$('dash-cards')});if(window.lucide&&window.lucide.createIcons)window.lucide.createIcons({root:$('dash-cards')});gfFill('dash');}).catch(err=>{console.error('Plan page load failed:',err);const c=$('app-content');if(c)c.innerHTML='<div class="card panel"><h3>Plans are temporarily unavailable</h3><p class="muted">Please try again in a moment.</p><button class="btn primary" onclick="navigate(\'plans\')">Retry</button></div>';toast('Could not load plans: '+(err?.message||'Please try again.'),true)});return;}basePage();};
 const baseShowApp=showApp;showApp=function(){baseShowApp();if(!$('plans-nav'))$('side-nav').insertAdjacentHTML('beforeend','<button id="plans-nav" data-page="plans" onclick="navigate(\'plans\')"><span>◈</span>Plans</button>');};
 gfLoadPlans();
 
@@ -5983,6 +5983,7 @@ box-sizing:border-box!important;display:inline-flex!important;align-items:center
 </style>
 <script id="zc-visitor-plan-independent-selection-v14">
 (function(){
+ if(window.__zcVisitorPlanSwipeSelectionV2)return;
  if(window.__zcVisitorPlanIndependentSelectionV14)return;
  window.__zcVisitorPlanIndependentSelectionV14=true;
  function init(){
@@ -6090,3 +6091,21 @@ box-sizing:border-box!important;display:inline-flex!important;align-items:center
  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',scan,{once:true});
 })();
 </script>
+
+
+<style id="zc-dashboard-plan-lucide-circles-v1">
+/* Circular Lucide badges on the dashboard plan detail rows. */
+#dash-cards .gf-plan-detail-line>i,
+#dash-cards .gf-plan-detail-line>svg{
+ display:inline-flex!important;align-items:center!important;justify-content:center!important;
+ box-sizing:border-box!important;width:34px!important;height:34px!important;flex:0 0 34px!important;
+ padding:8px!important;border:1px solid rgba(115,238,180,.34)!important;border-radius:50%!important;
+ color:#83f0bd!important;
+ background:radial-gradient(circle at 30% 22%,rgba(103,255,190,.20),rgba(20,105,76,.24) 68%,rgba(5,36,27,.42))!important;
+ box-shadow:0 0 0 3px rgba(45,205,139,.055),0 0 12px rgba(48,220,150,.12),inset 0 1px 0 rgba(255,255,255,.12)!important;
+ stroke:currentColor!important;stroke-width:2!important;
+ vertical-align:middle!important;
+}
+#dash-cards .gf-plan-detail-line>svg{display:block!important;overflow:visible!important}
+#dash-cards .gf-plan-detail-line>span{min-width:0!important}
+</style>
