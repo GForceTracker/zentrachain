@@ -864,6 +864,27 @@ html body .modal-head .brand{white-space:nowrap!important;min-width:0!important}
   }
 }
 </style>
+<style id="zc-visitor-plan-scroll-cta-glow-v1">
+#public-plan-cards>.gf-plan-compact-card.zc-plan-selected{
+ border-color:rgba(104,255,190,.92)!important;
+ box-shadow:0 0 0 1px rgba(104,255,190,.34),0 12px 34px rgba(25,214,139,.16)!important;
+}
+#public-plan-cards>.gf-plan-compact-card .gf-plan-select-button.zc-plan-cta-glow{
+ background:linear-gradient(135deg,#31d995,#159b68)!important;
+ color:#052719!important;
+ border-color:rgba(135,255,205,.95)!important;
+ box-shadow:0 0 0 1px rgba(104,255,190,.42),0 0 13px rgba(49,217,149,.55),0 0 27px rgba(49,217,149,.32)!important;
+ animation:zcPlanCtaGlow 1.35s ease-in-out infinite alternate!important;
+ transform:translateY(-1px)!important;
+}
+@keyframes zcPlanCtaGlow{
+ from{box-shadow:0 0 0 1px rgba(104,255,190,.35),0 0 9px rgba(49,217,149,.35),0 0 18px rgba(49,217,149,.20);filter:brightness(1)}
+ to{box-shadow:0 0 0 2px rgba(135,255,205,.55),0 0 17px rgba(49,217,149,.72),0 0 34px rgba(49,217,149,.42);filter:brightness(1.12)}
+}
+@media(prefers-reduced-motion:reduce){
+ #public-plan-cards>.gf-plan-compact-card .gf-plan-select-button.zc-plan-cta-glow{animation:none!important}
+}
+</style>
 </head><body><div class="zc-particle-field" aria-hidden="true"></div>
 <div id="public">
 <header class="wrap topbar"><div class="brand"><div class="logo zc-brand-mark"><svg viewBox="0 0 40 40" width="27" height="27" aria-hidden="true" focusable="false"><defs><linearGradient id="zcLogoGrad" x1="4" y1="4" x2="36" y2="36" gradientUnits="userSpaceOnUse"><stop stop-color="#e0fff0"/><stop offset=".48" stop-color="#56e6ad"/><stop offset="1" stop-color="#16a978"/></linearGradient></defs><path d="M20 2.8 35.2 11.4v17.2L20 37.2 4.8 28.6V11.4L20 2.8Z" fill="none" stroke="url(#zcLogoGrad)" stroke-width="2.2"/><path d="M12 13.1h16L15.4 26.9H28" fill="none" stroke="url(#zcLogoGrad)" stroke-width="4.1" stroke-linecap="round" stroke-linejoin="round"/><circle cx="28.1" cy="13.1" r="2.1" fill="#e0fff0"/><circle cx="12" cy="26.9" r="2.1" fill="#56e6ad"/></svg></div>ZENTRACHAIN </div><nav class="nav"><a href="#how">How it works</a><a href="#markets">Markets</a><a href="#faq">FAQs</a><a href="#risk">Risk</a></nav><div id="public-account-actions" style="display:flex;gap:9px"><button class="btn ghost" id="public-login-button" onclick="showAuth('login')">Log in</button><button class="btn primary" id="public-signup-button" onclick="showAuth('signup')">Create account</button><button class="btn primary hidden" id="public-dashboard-button" onclick="zcGoDashboard()">Dashboard</button></div></header>
@@ -4208,34 +4229,40 @@ schedule(FIRST_DELAY);
   }
 }
 </style>
-<script id="zc-visitor-plan-swipe-selection-v2">
+<script id="zc-visitor-plan-swipe-selection-v3">
 (function(){
- if(window.__zcVisitorPlanSwipeSelectionV2)return;
- window.__zcVisitorPlanSwipeSelectionV2=true;
+ if(window.__zcVisitorPlanSwipeSelectionV3)return;
+ window.__zcVisitorPlanSwipeSelectionV3=true;
  function init(){
   const rail=document.getElementById('public-plan-cards');
-  if(!rail||rail.dataset.zcSwipeSelectionV2==='1')return;
-  rail.dataset.zcSwipeSelectionV2='1';
-  let settleTimer=null,lastChosen='';
+  if(!rail||rail.dataset.zcSwipeSelectionV3==='1')return;
+  rail.dataset.zcSwipeSelectionV3='1';
+  let settleTimer=null;
   const cards=()=>Array.from(rail.querySelectorAll(':scope > .gf-plan-compact-card'));
-  function applyChoice(card){
+  function sanitizeCards(){
+   cards().forEach(card=>{
+    card.removeAttribute('onclick');
+    card.removeAttribute('onkeydown');
+    card.removeAttribute('role');
+    card.removeAttribute('tabindex');
+   });
+  }
+  function applyHighlight(card){
    if(!card)return;
-   const id=card.getAttribute('data-gf-plan-id');
-   if(!id)return;
    cards().forEach(item=>{
     const active=item===card;
     item.classList.toggle('zc-plan-selected',active);
+    item.classList.remove('is-selected');
     const button=item.querySelector('.gf-plan-select-button');
     if(button){
      button.classList.toggle('zc-plan-selected-button',active);
-     button.textContent=active?'Selected':'Choose plan';
-     button.setAttribute('aria-pressed',active?'true':'false');
+     button.classList.toggle('zc-plan-cta-glow',active);
+     button.textContent='Choose plan';
+     button.removeAttribute('aria-pressed');
+     if(active)button.setAttribute('data-scroll-highlighted','true');
+     else button.removeAttribute('data-scroll-highlighted');
     }
    });
-   if(id!==lastChosen&&typeof window.gfChoose==='function'){
-    lastChosen=id;
-    window.gfChoose('pub',id);
-   }
   }
   function chooseNearest(){
    const items=cards();
@@ -4249,30 +4276,42 @@ schedule(FIRST_DELAY);
     const distance=Math.abs(left-inset);
     if(distance<best){best=distance;chosen=card}
    });
-   applyChoice(chosen);
+   applyHighlight(chosen);
   }
   function schedule(){
    if(settleTimer)clearTimeout(settleTimer);
-   settleTimer=setTimeout(chooseNearest,140);
+   settleTimer=setTimeout(chooseNearest,110);
   }
   function bindButtons(){
+   sanitizeCards();
    cards().forEach(card=>{
     const button=card.querySelector('.gf-plan-select-button');
-    if(button&&!button.dataset.zcSwipeBound){
-     button.dataset.zcSwipeBound='1';
-     button.addEventListener('click',()=>applyChoice(card));
-    }
+    if(button)button.textContent='Choose plan';
    });
   }
+  rail.addEventListener('click',function(event){
+   const button=event.target.closest?.('.gf-plan-select-button');
+   if(button&&rail.contains(button)){
+    event.preventDefault();
+    event.stopPropagation();
+    event.stopImmediatePropagation();
+    const signedIn=typeof currentUser!=='undefined'&&!!currentUser;
+    if(signedIn){
+     if(typeof window.zcGoDashboard==='function')window.zcGoDashboard();
+     else if(typeof window.showAuth==='function')window.showAuth('login');
+    }else if(typeof window.showAuth==='function'){
+     window.showAuth('signup');
+    }
+    return;
+   }
+   const card=event.target.closest?.('.gf-plan-compact-card[data-gf-plan-id]');
+   if(card&&rail.contains(card))applyHighlight(card);
+  },true);
   rail.addEventListener('scroll',schedule,{passive:true});
   rail.addEventListener('scrollend',chooseNearest,{passive:true});
   rail.addEventListener('touchend',schedule,{passive:true});
   rail.addEventListener('pointerup',schedule,{passive:true});
   rail.addEventListener('wheel',schedule,{passive:true});
-  rail.addEventListener('click',event=>{
-   const card=event.target.closest('.gf-plan-compact-card');
-   if(card&&!event.target.closest('.gf-plan-select-button'))applyChoice(card);
-  });
   const observer=new MutationObserver(()=>{bindButtons();schedule()});
   observer.observe(rail,{childList:true,subtree:true});
   bindButtons();
