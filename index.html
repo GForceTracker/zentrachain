@@ -3310,7 +3310,6 @@ body[data-zc-theme] #app-content #wd-network-cards::-webkit-scrollbar-thumb{back
   const section=document.getElementById('plans');
   if(!rail||!section||rail.dataset.zcAutoplayReady==='1')return;
   rail.dataset.zcAutoplayReady='1';
-  if(window.getComputedStyle(rail).display==='grid')return;
   let visible=false,paused=false,interactionTimer=null,autoTimer=null;
   const cards=()=>Array.from(rail.querySelectorAll(':scope > .gf-plan-compact-card'));
   function stop(){if(autoTimer){clearInterval(autoTimer);autoTimer=null}}
@@ -4935,43 +4934,46 @@ body[data-zc-theme] #public-plan-cards>.gf-plan-compact-card.is-scroll-active{
   #public-plan-cards>.gf-plan-compact-card,#public-plan-cards .gf-plan-select-button{transition:none!important}
 }
 </style>
-<script id="zc-visitor-plan-scroll-highlight-v12">
+<script id="zc-visitor-plan-scroll-highlight-v11">
 (function(){
- if(window.__zcVisitorPlanScrollHighlightV12)return;
- window.__zcVisitorPlanScrollHighlightV12=true;
- function init(){
-  const rail=document.getElementById('public-plan-cards');
-  if(!rail||rail.dataset.zcVisitorHighlightReady==='v12')return;
-  rail.dataset.zcVisitorHighlightReady='v12';
-  let frame=0;
-  const cards=()=>Array.from(rail.children).filter(card=>card.classList.contains('gf-plan-compact-card'));
-  function update(){
-   frame=0;
-   const list=cards(),railRect=rail.getBoundingClientRect(),center=window.innerHeight/2;
-   let active=null,best=Infinity;
-   if(railRect.width>0&&railRect.bottom>0&&railRect.top<window.innerHeight){
-    list.forEach(card=>{
-     const r=card.getBoundingClientRect();
-     const visibleW=Math.max(0,Math.min(r.right,railRect.right)-Math.max(r.left,railRect.left));
-     const visibleH=Math.max(0,Math.min(r.bottom,window.innerHeight)-Math.max(r.top,0));
-     if(r.width<=0||r.height<=0||visibleW<Math.min(24,r.width*.12)||visibleH<Math.min(24,r.height*.12))return;
-     const distance=Math.abs((r.top+r.bottom)/2-center);
-     if(distance<best){best=distance;active=card}
-    });
-   }
-   list.forEach(card=>card.classList.toggle('is-scroll-active',card===active));
+  if(window.__zcVisitorPlanScrollHighlightV11)return;
+  window.__zcVisitorPlanScrollHighlightV11=true;
+  function init(){
+    var rail=document.getElementById('public-plan-cards');
+    if(!rail||rail.dataset.zcVisitorHighlightReady==='v11')return;
+    rail.dataset.zcVisitorHighlightReady='v11';
+    var frame=0,resize=null;
+    function cards(){return Array.from(rail.children).filter(function(card){return card.classList.contains('gf-plan-compact-card')})}
+    function update(){
+      frame=0;
+      var list=cards(),rr=rail.getBoundingClientRect();
+      var center=rr.left+rail.clientLeft+rail.clientWidth/2;
+      var active=null,best=Infinity;
+      if(rr.width>0&&rr.bottom>0&&rr.top<window.innerHeight){
+        list.forEach(function(card){
+          var r=card.getBoundingClientRect();
+          var visibleW=Math.max(0,Math.min(r.right,rr.right)-Math.max(r.left,rr.left));
+          var visibleH=Math.max(0,Math.min(r.bottom,rr.bottom)-Math.max(r.top,rr.top));
+          if(r.width<=0||r.height<=0||visibleW<Math.min(24,r.width*.12)||visibleH<Math.min(24,r.height*.12))return;
+          var distance=Math.abs((r.left+r.right)/2-center);
+          if(distance<best){best=distance;active=card}
+        });
+      }
+      list.forEach(function(card){card.classList.toggle('is-scroll-active',card===active)});
+    }
+    function schedule(){if(!frame)frame=window.requestAnimationFrame(update)}
+    ['scroll','touchmove','wheel'].forEach(function(type){rail.addEventListener(type,schedule,{passive:true})});
+    document.addEventListener('scroll',schedule,{capture:true,passive:true});
+    window.addEventListener('resize',schedule,{passive:true});
+    window.addEventListener('orientationchange',schedule,{passive:true});
+    if('ResizeObserver'in window){resize=new ResizeObserver(schedule);resize.observe(rail)}
+    new MutationObserver(schedule).observe(rail,{childList:true,subtree:true});
+    if('IntersectionObserver'in window)new IntersectionObserver(schedule,{threshold:[0,.1,.25,.5,.75,1]}).observe(rail);
+    schedule();
+    window.addEventListener('load',schedule,{once:true});
   }
-  function schedule(){if(!frame)frame=window.requestAnimationFrame(update)}
-  window.addEventListener('scroll',schedule,{passive:true});
-  window.addEventListener('resize',schedule,{passive:true});
-  window.addEventListener('orientationchange',schedule,{passive:true});
-  new MutationObserver(schedule).observe(rail,{childList:true,subtree:true});
-  if('ResizeObserver'in window)new ResizeObserver(schedule).observe(rail);
-  schedule();
-  window.addEventListener('load',schedule,{once:true});
- }
- if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});
- else init();
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});
+  else init();
 })();
 </script>
 <script id="zc-visitor-plan-scroll-highlight-v10">
@@ -5192,51 +5194,5 @@ box-sizing:border-box!important;display:inline-flex!important;align-items:center
  stroke-linecap:round!important;
  stroke-linejoin:round!important;
  filter:drop-shadow(0 0 3px var(--green)) drop-shadow(0 0 6px var(--green))!important;
-}
-</style>
-
-<style id="zc-visitor-plans-all-visible-grid-v1">
-/* Show every active visitor plan in the page flow; do not require a horizontal swipe. */
-#public #public-plan-cards{
- display:grid!important;
- grid-template-columns:repeat(3,minmax(0,1fr))!important;
- grid-auto-flow:row!important;
- align-items:stretch!important;
- justify-content:stretch!important;
- gap:18px!important;
- width:100%!important;
- max-width:100%!important;
- min-width:0!important;
- overflow:visible!important;
- overflow-x:visible!important;
- overflow-y:visible!important;
- padding:6px 2px 18px!important;
- scroll-snap-type:none!important;
- overscroll-behavior:initial!important;
-}
-#public #public-plan-cards>.gf-plan-compact-card{
- display:flex!important;
- flex:initial!important;
- flex-direction:column!important;
- align-self:stretch!important;
- width:100%!important;
- min-width:0!important;
- max-width:none!important;
- margin:0!important;
- scroll-snap-align:none!important;
-}
-#public #public-plan-cards .gf-plan-artwork{
- width:100%!important;
- height:120px!important;
- min-height:120px!important;
- max-height:120px!important;
- flex:0 0 120px!important;
-}
-#public #zc-public-plan-dots{display:none!important}
-@media(max-width:980px){
- #public #public-plan-cards{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:14px!important}
-}
-@media(max-width:620px){
- #public #public-plan-cards{grid-template-columns:minmax(0,1fr)!important;gap:14px!important}
 }
 </style>
