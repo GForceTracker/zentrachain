@@ -896,7 +896,7 @@ html body .modal-head .brand{white-space:nowrap!important;min-width:0!important}
 
 
 <section class="section zc-account-access" id="account-access"><div class="section-head"><div><div class="eyebrow">Account access</div><h2>Get started in a few steps</h2><p class="muted">A clear path from registration to reviewing your account activity.</p></div></div><div class="zc-access-grid"><article class="zc-access-card"><span class="zc-access-number">01</span><div><h3>Create your account</h3><p>Register with your email and complete the verification steps shown on screen.</p></div></article><article class="zc-access-card"><span class="zc-access-number">02</span><div><h3>Review deposit instructions</h3><p>Check the deposit network and destination details carefully before sending any funds.</p></div></article><article class="zc-access-card"><span class="zc-access-number">03</span><div><h3>Track verified activity</h3><p>Follow deposit reviews, recorded ledger entries and withdrawal request statuses.</p></div></article></div></section>
-<section class="section" id="plans"><div class="section-head"><div><div class="eyebrow">Plan information</div><h2>Explore plan configurations</h2><p class="muted">Review each plan’s duration and deposit limits before selecting it.</p></div></div><div id="public-plan-cards" class="plan-grid">Loading plans…</div><div class="calc-shell" style="margin-top:22px"><div class="eyebrow">Plan calculator</div><h2>Estimate a scenario</h2><p class="muted">Choose a plan and enter an amount or use the slider.</p><div class="field"><label>Investment Plan</label><select id="pub-select" onchange="planUpdate('pub')"></select></div><div class="field"><label>Amount (USDT)</label><input class="calc-amount" id="pub-amount" type="number" step=".01" value="50" oninput="planSync('pub','input')" onblur="planSync('pub','blur')"></div><div class="calc-control"><label for="pub-range">Amount slider</label><input id="pub-range" class="calc-range" type="range" oninput="planSync('pub','range')"></div><div class="calc-control"><div class="calc-days-heading"><label for="pub-days">Duration</label><b><span id="pub-days-value">1</span> days</b></div><input id="pub-days" class="calc-range" type="range" min="1" max="365" step="1" value="1" oninput="planSync('pub','days')"><div class="calc-days-limits"><span>1 day</span><span>365 days</span></div></div><div id="pub-limits">Select a plan</div><div class="calc-result"><span>Profit</span><b id="pub-profit">—</b></div><div class="calc-result"><span>Total</span><b class="calc-total" id="pub-total">—</b></div><p class="risk">Calculator figures are based on the plan settings entered here. They are not proof of executed trades or a completed payout.</p></div></section>
+<section class="section" id="plans"><div class="section-head"><div><div class="eyebrow">Plan information</div><h2>Explore plan configurations</h2><p class="muted">Review each plan’s duration and deposit limits before selecting it.</p></div></div><div id="public-plan-cards" class="plan-grid">Loading plans…</div><div class="calc-shell" style="margin-top:22px"><div class="eyebrow">Plan calculator</div><h2>Plan calculator</h2><p class="muted">Choose a plan and enter an amount or use the slider.</p><div class="field"><label>Investment Plan</label><select id="pub-select" onchange="planUpdate('pub')"></select></div><div class="field"><label>Amount (USDT)</label><input class="calc-amount" id="pub-amount" type="number" step=".01" value="50" oninput="planSync('pub','input')" onblur="planSync('pub','blur')"></div><div class="calc-control"><label for="pub-range">Amount slider</label><input id="pub-range" class="calc-range" type="range" oninput="planSync('pub','range')"></div><div class="calc-control"><div class="calc-days-heading"><label for="pub-days">Duration</label><b><span id="pub-days-value">1</span> days</b></div><input id="pub-days" class="calc-range" type="range" min="1" max="365" step="1" value="1" oninput="planSync('pub','days')"><div class="calc-days-limits"><span>1 day</span><span>365 days</span></div></div><div id="pub-limits">Select a plan</div><div class="calc-result"><span>Profit</span><b id="pub-profit">—</b></div><div class="calc-result"><span>Total</span><b class="calc-total" id="pub-total">—</b></div><p class="risk">Calculator figures are based on the plan settings entered here. They are not proof of executed trades or a completed payout.</p></div></section>
 
   </main><section class="section" id="faq"><div class="eyebrow">Help centre</div><h2>Frequently asked questions</h2><details class="faq"><summary>Are market prices the same as my account performance?</summary><p>No. Market prices are third-party reference data. Your account balance is calculated only from ledger entries recorded for your account.</p></details><details class="faq"><summary>How are deposits confirmed?</summary><p>Submit a deposit request with the network and transaction hash. An administrator must independently verify the transaction before a ledger credit is recorded. A submitted request is not a confirmed deposit.</p></details><details class="faq"><summary>How do withdrawals work?</summary><p>Submit the amount, network and destination address. Requests are reviewed. A withdrawal is marked paid only after the transfer has been made and its transaction hash recorded.</p></details><details class="faq"><summary>Does the platform guarantee returns?</summary><p>No. Cryptocurrency trading is high risk. There are no guaranteed profits, and historical results do not predict future results.</p></details><details class="faq"><summary>Is exchange trading automated?</summary><p>No exchange API is currently connected to this portal. The market chart is informational and does not execute trades.</p></details><details class="faq"><summary>How do I contact support?</summary><p>Use the support contact supplied through your verified company communication channel. Do not trust unsolicited wallet addresses or messages claiming to be support.</p></details></section>
 <section class="section zc-service-note" id="risk"><div class="zc-service-note-inner"><span class="zc-note-mark">i</span><div><b>Clear information. Verified account records.</b><p>Digital asset values can fluctuate. Market information is provided for general reference and may be delayed or unavailable. Account balances and transaction records are subject to verification.</p></div></div></section>
@@ -1767,8 +1767,8 @@ html body .zc-motion-reveal{transition:opacity .62s ease,transform .62s cubic-be
   root.innerHTML='<div class="eyebrow">HELP CENTRE</div><h2>Frequently asked questions</h2>'+
    '<details class="faq" open><summary>What are the current deposit limits?</summary><p>'+limText+' Limits are set by the administrator and may change. The latest values shown on the deposit screen apply when you submit a request.</p></details>'+
    '<details class="faq"><summary>Which investment plans are currently available?</summary><p>Only plans currently marked active by the administrator are displayed. Their configured ranges and durations are listed below.</p>'+planText+'</details>'+
-   '<details class="faq"><summary>How do I choose a plan?</summary><p>Review each active plan’s amount range, duration and description, then use the plan calculator to explore an illustrative scenario. The calculator does not create an investment or execute a trade.</p></details>'+
-   '<details class="faq"><summary>Are projected returns guaranteed?</summary><p>No. Any displayed percentage or calculator result is illustrative only, not a promise or forecast. Digital-asset trading involves risk, including possible loss of capital.</p></details>'+
+   '<details class="faq"><summary>How do I choose a plan?</summary><p>Review each active plan’s amount range, duration and description, then use the plan calculator to review the selected plan’s figures. The calculator does not create an investment or execute a trade.</p></details>'+
+   '<details class="faq"><summary>Are projected returns guaranteed?</summary><p>No. Any displayed percentage or calculator result is an estimate, not a promise or forecast. Digital-asset trading involves risk, including possible loss of capital.</p></details>'+
    '<details class="faq"><summary>How are deposits confirmed?</summary><p>Use only a personal deposit address generated inside your signed-in account for the selected asset and network. A submitted transaction or screenshot is not proof of credit. Funds are credited only after the relevant on-chain transaction has been independently detected, confirmed and reconciled.</p></details>'+
    '<details class="faq"><summary>How do withdrawals work?</summary><p>Submit a withdrawal request with the amount, supported network and destination address. Requests are reviewed, and a withdrawal should be marked paid only after the transfer is completed and its transaction reference is recorded.</p></details>'+
    '<details class="faq"><summary>Do market prices represent my account balance?</summary><p>No. Market prices are reference data and may be delayed. Your account balance is based on the ledger records associated with your account.</p></details>'+
@@ -2469,7 +2469,7 @@ body[data-zc-theme] #app-content #wd-network-cards::-webkit-scrollbar-thumb{back
   }else{
    art='<div class="gf-plan-artwork zc-plan-photo" role="img" aria-label="'+planName+' plan artwork"></div>';
   }
-  return '<article class="plan-card gf-plan-compact-card" data-gf-plan-id="'+id+'" role="button" tabindex="0" aria-label="Select '+planName+'" onclick="gfChoose(&quot;'+s+'&quot;,&quot;'+id+'&quot;)" onkeydown="if(event.keyCode===13||event.keyCode===32){event.preventDefault();gfChoose(&quot;'+s+'&quot;,&quot;'+id+'&quot;)}">'+art+'<div class="gf-plan-card-heading"><div class="gf-plan-card-title"><div class="eyebrow">'+planName+'</div>'+(p.tagline?'<p class="muted">'+escapeValue(p.tagline)+'</p>':'')+badge+'</div></div><p class="muted gf-plan-description">'+escapeValue(p.description||'Illustrative sample plan.')+'</p><div class="gf-plan-details"><div class="gf-plan-detail-line"><i data-lucide="arrow-down-to-line" aria-hidden="true"></i><span>Min deposit: <b>'+money(p.min_amount)+'</b></span></div><div class="gf-plan-detail-line"><i data-lucide="arrow-up-from-line" aria-hidden="true"></i><span>Max deposit: <b>'+money(p.max_amount)+'</b></span></div><div class="gf-plan-detail-line"><i data-lucide="percent" aria-hidden="true"></i><span>Plan percentage: <b>'+fmt(p.percentage)+'%</b></span></div></div><div class="muted gf-plan-duration" style="margin:5px 11px 0">'+duration+'</div><button type="button" class="btn gf-plan-select-button" onclick="event.stopPropagation();gfChoose(&quot;'+s+'&quot;,&quot;'+id+'&quot;)">Choose plan</button></article>';
+  return '<article class="plan-card gf-plan-compact-card" data-gf-plan-id="'+id+'" role="button" tabindex="0" aria-label="Select '+planName+'" onclick="gfChoose(&quot;'+s+'&quot;,&quot;'+id+'&quot;)" onkeydown="if(event.keyCode===13||event.keyCode===32){event.preventDefault();gfChoose(&quot;'+s+'&quot;,&quot;'+id+'&quot;)}">'+art+'<div class="gf-plan-card-heading"><div class="gf-plan-card-title"><div class="eyebrow">'+planName+'</div>'+(p.tagline?'<p class="muted">'+escapeValue(p.tagline)+'</p>':'')+badge+'</div></div><p class="muted gf-plan-description">'+escapeValue(p.description||'Plan details are shown below.')+'</p><div class="gf-plan-details"><div class="gf-plan-detail-line"><i data-lucide="arrow-down-to-line" aria-hidden="true"></i><span>Min deposit: <b>'+money(p.min_amount)+'</b></span></div><div class="gf-plan-detail-line"><i data-lucide="arrow-up-from-line" aria-hidden="true"></i><span>Max deposit: <b>'+money(p.max_amount)+'</b></span></div><div class="gf-plan-detail-line"><i data-lucide="percent" aria-hidden="true"></i><span>Plan percentage: <b>'+fmt(p.percentage)+'%</b></span></div></div><div class="muted gf-plan-duration" style="margin:5px 11px 0">'+duration+'</div><button type="button" class="btn gf-plan-select-button" onclick="event.stopPropagation();gfChoose(&quot;'+s+'&quot;,&quot;'+id+'&quot;)">Choose plan</button></article>';
  };
  window.gfLogoPublicUrl=logoUrl;
  window.gfAdminPanel=function(rows){
@@ -4156,6 +4156,109 @@ schedule(FIRST_DELAY);
  flex:0 0 150px!important;
 }
 </style>
+
+<style id="zc-visitor-plan-swipe-selection-v2">
+/* Snap each visitor plan cleanly and keep amount fields above iOS zoom threshold. */
+#public-plan-cards{
+  scroll-snap-type:x mandatory!important;
+  scroll-padding-inline:7px!important;
+  touch-action:pan-x pan-y!important;
+  -webkit-overflow-scrolling:touch!important;
+}
+#public-plan-cards>.gf-plan-compact-card{
+  scroll-snap-align:start!important;
+  scroll-snap-stop:always!important;
+}
+#public-plan-cards>.gf-plan-compact-card.zc-plan-selected{
+  border-color:rgba(104,255,190,.92)!important;
+  box-shadow:0 0 0 1px rgba(104,255,190,.34),0 12px 34px rgba(25,214,139,.16)!important;
+}
+#public-plan-cards>.gf-plan-compact-card .gf-plan-select-button.zc-plan-selected-button{
+  background:linear-gradient(135deg,#31d995,#159b68)!important;
+  color:#052719!important;
+  border-color:rgba(135,255,205,.9)!important;
+}
+@media(max-width:700px){
+  .calc-shell input.calc-amount,
+  .calc-shell input[id$="-amount"]{
+    box-sizing:border-box!important;
+    font-size:16px!important;
+    line-height:20px!important;
+    height:26px!important;
+    min-height:26px!important;
+    padding:3px 7px!important;
+    -webkit-text-size-adjust:100%!important;
+  }
+}
+</style>
+<script id="zc-visitor-plan-swipe-selection-v2">
+(function(){
+ if(window.__zcVisitorPlanSwipeSelectionV2)return;
+ window.__zcVisitorPlanSwipeSelectionV2=true;
+ function init(){
+  const rail=document.getElementById('public-plan-cards');
+  if(!rail||rail.dataset.zcSwipeSelectionV2==='1')return;
+  rail.dataset.zcSwipeSelectionV2='1';
+  let settleTimer=null,lastChosen='';
+  const cards=()=>Array.from(rail.querySelectorAll(':scope > .gf-plan-compact-card'));
+  function chooseNearest(){
+   const items=cards();
+   if(!items.length)return;
+   const railRect=rail.getBoundingClientRect();
+   const inset=parseFloat(getComputedStyle(rail).scrollPaddingLeft)||parseFloat(getComputedStyle(rail).paddingLeft)||0;
+   let chosen=items[0],best=Infinity;
+   items.forEach(card=>{
+    const left=rail.scrollLeft+card.getBoundingClientRect().left-railRect.left;
+    const distance=Math.abs(left-inset);
+    if(distance<best){best=distance;chosen=card}
+   });
+   const id=chosen.getAttribute('data-gf-plan-id');
+   if(!id)return;
+   items.forEach(card=>{
+    const active=card===chosen;
+    card.classList.toggle('zc-plan-selected',active);
+    const button=card.querySelector('.gf-plan-select-button');
+    if(button){
+     button.classList.toggle('zc-plan-selected-button',active);
+     button.textContent=active?'Selected':'Choose plan';
+     button.setAttribute('aria-pressed',active?'true':'false');
+    }
+   });
+   if(id!==lastChosen&&typeof window.gfChoose==='function'){
+    lastChosen=id;
+    window.gfChoose('pub',id);
+   }
+  }
+  function schedule(){
+   if(settleTimer)clearTimeout(settleTimer);
+   settleTimer=setTimeout(chooseNearest,160);
+  }
+  rail.addEventListener('scroll',schedule,{passive:true});
+  rail.addEventListener('scrollend',chooseNearest,{passive:true});
+  rail.addEventListener('touchend',schedule,{passive:true});
+  rail.addEventListener('pointerup',schedule,{passive:true});
+  rail.addEventListener('wheel',schedule,{passive:true});
+  rail.addEventListener('click',event=>{
+   const button=event.target.closest('.gf-plan-select-button');
+   const card=event.target.closest('.gf-plan-compact-card');
+   if(button&&card){
+    const id=card.getAttribute('data-gf-plan-id');
+    if(id){lastChosen=id;setTimeout(chooseNearest,0)}
+   }
+  });
+  new MutationObserver(()=>{
+   const selected=cards().find(card=>card.classList.contains('zc-plan-selected'));
+   if(!selected)chooseNearest();
+  }).observe(rail,{childList:true});
+  chooseNearest();
+ }
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});
+ else init();
+ const observer=new MutationObserver(init);
+ observer.observe(document.documentElement,{childList:true,subtree:true});
+})();
+</script>
+
 </html>
 
 <style id="zc-plan-tap-only-demarcation-v6">
