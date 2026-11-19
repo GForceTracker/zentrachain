@@ -5836,3 +5836,16 @@ box-sizing:border-box!important;display:inline-flex!important;align-items:center
   .calc-shell,.calc-shell::after{animation:none!important}
 }
 </style>
+
+
+<style id="zc-calculator-market-shimmer-v13">
+/* Give every calculator card the same soft diagonal glass shimmer used by the live market card. */
+.calc-shell::before{
+  content:""!important;
+  position:absolute!important;inset:-1px!important;
+  z-index:0!important;pointer-events:none!important;
+  background:linear-gradient(115deg,transparent 15%,rgba(172,255,214,.09) 42%,transparent 66%)!important;
+  transform:translateX(-120%)!important;
+  animation:zcShimmer 8s ease-in-out infinite!important;
+}
+</style>
