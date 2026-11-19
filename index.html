@@ -4247,7 +4247,7 @@ schedule(FIRST_DELAY);
    item.classList.remove('is-selected','is-scroll-active','is-tap-focus','is-tap-selected','zc-plan-selected-button','zc-scroll-pressed');
    var button=item.querySelector(BUTTON_SELECTOR);
    if(button){
-    button.textContent='Choose plan';
+    if(button.textContent.trim()!=='Choose plan')button.textContent='Choose plan';
     button.classList.toggle('zc-plan-selected-button',chosen);
     button.removeAttribute('aria-pressed');
    }
