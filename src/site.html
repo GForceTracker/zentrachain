@@ -5751,3 +5751,17 @@ box-sizing:border-box!important;display:inline-flex!important;align-items:center
   .calc-shell:has(select[id$="-select"])>.calc-result b.calc-total{font-size:14px!important}
 }
 </style>
+
+
+<style id="zc-calculator-layout-v11">
+/* Increase all visitor and signed-in calculator cards vertically while preserving their layout and width. */
+.calc-shell:has(select[id$="-select"]){
+  height:410px!important;min-height:410px!important;max-height:410px!important;
+  grid-template-rows:25px 48px 48px 44px 48px 34px 34px minmax(0,1fr)!important;
+}
+@media(max-width:700px){
+  .calc-shell:has(select[id$="-select"]){
+    height:410px!important;min-height:410px!important;max-height:410px!important;
+  }
+}
+</style>
