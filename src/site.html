@@ -387,6 +387,18 @@ body[data-zc-theme] .deposit-asset-option.selected{background:var(--panel2);bord
  #zc-deposit-options .deposit-asset-option .btn{min-height:29px!important;padding:5px 8px!important;font-size:9px!important}
 }
 </style><style id="zc-amount-input-ios-and-conversion-v3">
+/* Prevent iOS Safari from zooming into calculator amount fields on focus.
+   Keep the compact idle size; expand the focused control within its existing row. */
+.calc-shell input.calc-amount:focus,
+.calc-shell input[id$="-amount"]:focus{
+  font-size:16px!important;
+  line-height:20px!important;
+  height:24px!important;
+  min-height:24px!important;
+  padding:2px 6px!important;
+  -webkit-text-size-adjust:100%!important;
+  touch-action:manipulation;
+}
 /* Keep iOS Safari from zooming when the amount field receives focus */
 #zc-deposit-amount{
  box-sizing:border-box!important;width:100%!important;
