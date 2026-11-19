@@ -1034,7 +1034,29 @@ let gfPlans=[];
 async function gfLoadPlans(){const {data,error}=await db.from('gforce_investment_plans').select('*').eq('is_active',true).order('sort_order');gfPlans=error?[]:(data||[]);const cards=$('public-plan-cards');if(cards)cards.innerHTML=gfPlans.length?gfPlans.slice(0,1).map(p=>gfCard(p,'pub')).join(''):'<div class="empty card">No active plans are published yet.</div>';if(cards&&window.lucide&&window.lucide.createIcons)window.lucide.createIcons({root:cards});gfFill('pub');}
 function gfCard(p,s){return '<article class="plan-card"><div class="eyebrow">'+esc(p.name)+'</div><div class="plan-rate">'+fmt(p.percentage)+'%</div><div class="muted">Plan rate</div><p class="muted">'+esc(p.description||'Plan details configured by the administrator.')+'</p><div class="gf-plan-details"><div class="gf-plan-detail-line"><i data-lucide="arrow-down-to-line" aria-hidden="true"></i><span>Min deposit: <b>'+money(p.min_amount)+'</b></span></div><div class="gf-plan-detail-line"><i data-lucide="arrow-up-from-line" aria-hidden="true"></i><span>Max deposit: <b>'+money(p.max_amount)+'</b></span></div><div class="gf-plan-detail-line"><i data-lucide="percent" aria-hidden="true"></i><span>Plan percentage: <b>'+fmt(p.percentage)+'%</b></span></div></div><div class="plan-meta"><span>Duration</span><b>'+p.duration_value+' '+esc(p.duration_unit)+'</b></div><button class="btn" style="width:100%;margin-top:14px" onclick="gfChoose(&quot;'+s+'&quot;,&quot;'+p.id+'&quot;)">Calculate</button></article>'; }
 function gfFill(s){const e=$(s+'-select');if(!e)return;e.innerHTML='<option value="">Select plan</option>'+gfPlans.map(p=>'<option value="'+p.id+'">'+esc(p.name)+' · '+p.duration_value+' '+esc(p.duration_unit)+' · Min '+money(p.min_amount)+' · Max '+money(p.max_amount)+'</option>').join('');if(gfPlans.length)e.value=gfPlans[0].id;planUpdate(s);}
-function gfChoose(s,id){$(s+'-select').value=id;planUpdate(s);}
+function gfChoose(s,id){
+ if(s==='pub'){
+  const rail=$('public-plan-cards');
+  if(!rail)return;
+  const target=Array.from(rail.children).find(card=>card.classList.contains('gf-plan-compact-card')&&String(card.getAttribute('data-gf-plan-id'))===String(id));
+  if(!target)return;
+  Array.from(rail.children).filter(card=>card.classList.contains('gf-plan-compact-card')).forEach(card=>{
+   const active=card===target;
+   card.classList.remove('is-selected','is-scroll-active','zc-plan-selected','is-tap-selected','is-tap-focus');
+   card.classList.toggle('is-card-highlighted',active);
+   const button=card.querySelector('.gf-plan-select-button');
+   if(button){
+    button.classList.remove('zc-plan-selected-button');
+    button.classList.toggle('is-card-highlighted-button',active);
+    button.textContent=active?'Selected':'Choose plan';
+    button.setAttribute('aria-pressed',active?'true':'false');
+   }
+  });
+  return;
+ }
+ const select=$(s+'-select');
+ if(select){select.value=id;planUpdate(s);}
+}
 function planUpdate(s){
  const p=gfPlans.find(x=>x.id===$(s+'-select')?.value),a=$(s+'-amount'),r=$(s+'-range'),days=$(s+'-days');
  if(!p){['limits','profit','total'].forEach(k=>{if($(s+'-'+k))$(s+'-'+k).textContent='—';});return;}
