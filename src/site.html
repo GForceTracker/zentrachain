@@ -2513,7 +2513,9 @@ body[data-zc-theme] #app-content #wd-network-cards::-webkit-scrollbar-thumb{back
   }else{
    art='<div class="gf-plan-artwork zc-plan-photo" role="img" aria-label="'+planName+' plan artwork"></div>';
   }
-  return '<article class="plan-card gf-plan-compact-card" data-gf-plan-id="'+id+'" role="button" tabindex="0" aria-label="Select '+planName+'" onclick="gfChoose(&quot;'+s+'&quot;,&quot;'+id+'&quot;)" onkeydown="if(event.keyCode===13||event.keyCode===32){event.preventDefault();gfChoose(&quot;'+s+'&quot;,&quot;'+id+'&quot;)}">'+art+'<div class="gf-plan-card-heading"><div class="gf-plan-card-title"><div class="eyebrow">'+planName+'</div>'+(tagline?'<p class="muted">'+escapeValue(tagline)+'</p>':'')+badge+'</div></div>'+(description?'<p class="muted gf-plan-description">'+escapeValue(description)+'</p>':'')+'<div class="gf-plan-details"><div class="gf-plan-detail-line"><i data-lucide="arrow-down-to-line" aria-hidden="true"></i><span>Min deposit: <b>'+money(p.min_amount)+'</b></span></div><div class="gf-plan-detail-line"><i data-lucide="arrow-up-from-line" aria-hidden="true"></i><span>Max deposit: <b>'+money(p.max_amount)+'</b></span></div><div class="gf-plan-detail-line"><i data-lucide="percent" aria-hidden="true"></i><span>Plan percentage: <b>'+fmt(p.percentage)+'%</b></span></div></div><div class="muted gf-plan-duration" style="margin:5px 11px 0">'+duration+'</div><button type="button" class="btn gf-plan-select-button" onclick="event.stopPropagation();gfChoose(&quot;'+s+'&quot;,&quot;'+id+'&quot;)">Choose plan</button></article>';
+  const cardInteraction=s==='pub'?' role="group"':' role="button" tabindex="0" aria-label="Select '+planName+'" onclick="gfChoose(&quot;'+s+'&quot;,&quot;'+id+'&quot;)" onkeydown="if(event.keyCode===13||event.keyCode===32){event.preventDefault();gfChoose(&quot;'+s+'&quot;,&quot;'+id+'&quot;)}"';
+  const buttonInteraction=s==='pub'?'':' onclick="event.stopPropagation();gfChoose(&quot;'+s+'&quot;,&quot;'+id+'&quot;)"';
+  return '<article class="plan-card gf-plan-compact-card" data-gf-plan-id="'+id+'"'+cardInteraction+'>'+art+'<div class="gf-plan-card-heading"><div class="gf-plan-card-title"><div class="eyebrow">'+planName+'</div>'+(tagline?'<p class="muted">'+escapeValue(tagline)+'</p>':'')+badge+'</div></div>'+(description?'<p class="muted gf-plan-description">'+escapeValue(description)+'</p>':'')+'<div class="gf-plan-details"><div class="gf-plan-detail-line"><i data-lucide="arrow-down-to-line" aria-hidden="true"></i><span>Min deposit: <b>'+money(p.min_amount)+'</b></span></div><div class="gf-plan-detail-line"><i data-lucide="arrow-up-from-line" aria-hidden="true"></i><span>Max deposit: <b>'+money(p.max_amount)+'</b></span></div><div class="gf-plan-detail-line"><i data-lucide="percent" aria-hidden="true"></i><span>Plan percentage: <b>'+fmt(p.percentage)+'%</b></span></div></div><div class="muted gf-plan-duration" style="margin:5px 11px 0">'+duration+'</div><button type="button" class="btn gf-plan-select-button"'+buttonInteraction+'>Choose plan</button></article>';
  };
  window.gfLogoPublicUrl=logoUrl;
  window.gfAdminPanel=function(rows){
@@ -2970,7 +2972,7 @@ body[data-zc-theme] #app-content #wd-network-cards::-webkit-scrollbar-thumb{back
 (function(){
  if(window.__zcPlanProfileMobileV3)return;window.__zcPlanProfileMobileV3=true;
  const $=id=>document.getElementById(id);
- function syncSelected(){const ids=['pub','dash'];const selected=new Set(ids.map(s=>$(s+'-select')?.value).filter(Boolean));document.querySelectorAll('.gf-plan-compact-card[data-gf-plan-id]').forEach(card=>card.classList.toggle('is-selected',selected.has(card.dataset.gfPlanId)))}
+ function syncSelected(){const selected=$('dash-select')?.value||'';document.querySelectorAll('#dash-cards>.gf-plan-compact-card[data-gf-plan-id]').forEach(card=>card.classList.toggle('is-selected',!!selected&&card.dataset.gfPlanId===selected));document.querySelectorAll('#public-plan-cards>.gf-plan-compact-card[data-gf-plan-id]').forEach(card=>card.classList.remove('is-selected'))}
  const oldChoose=window.gfChoose;if(typeof oldChoose==='function')window.gfChoose=function(s,id){const result=oldChoose.apply(this,arguments);syncSelected();return result};
  const oldPlanUpdate=window.planUpdate;if(typeof oldPlanUpdate==='function')window.planUpdate=function(s){const result=oldPlanUpdate.apply(this,arguments);syncSelected();return result};
  if(typeof window.gfLoadPlans==='function'){const oldLoad=window.gfLoadPlans;window.gfLoadPlans=async function(){const result=await oldLoad.apply(this,arguments);const cards=$('public-plan-cards');if(cards&&Array.isArray(window.gfPlans)){cards.innerHTML=window.gfPlans.map(p=>window.gfCard(p,'pub')).join('');if(window.lucide&&window.lucide.createIcons)window.lucide.createIcons({root:cards})}syncSelected();return result}}
@@ -3780,7 +3782,7 @@ body[data-zc-theme] #app-content #wd-network-cards::-webkit-scrollbar-thumb{back
 <script id="zc-plan-tap-one-active-v5">
 (function(){
  if(window.__zcPlanTapOneActiveV5)return;window.__zcPlanTapOneActiveV5=true;
- const rails=['public-plan-cards','dash-cards'];
+ const rails=['dash-cards'];
  function sync(){
   rails.forEach(id=>{
    const rail=document.getElementById(id);if(!rail)return;
@@ -3805,7 +3807,7 @@ body[data-zc-theme] #app-content #wd-network-cards::-webkit-scrollbar-thumb{back
  document.addEventListener('click',function(e){
   const card=e.target.closest?.('.gf-plan-compact-card[data-gf-plan-id]');
   if(!card)return;
-  const rail=card.closest('#public-plan-cards,#dash-cards');if(!rail)return;
+  const rail=card.closest('#dash-cards');if(!rail)return;
   rail.querySelectorAll(':scope > .gf-plan-compact-card').forEach(c=>c.classList.remove('is-tap-focus'));
   card.classList.add('is-tap-focus');
  },true);
@@ -4292,7 +4294,7 @@ schedule(FIRST_DELAY);
  const selector='#public-plan-cards,#dash-cards';
  function clearScrollState(root){root.querySelectorAll('.gf-plan-compact-card.is-scroll-active').forEach(card=>card.classList.remove('is-scroll-active'))}
  function selectCard(card){
-  const rail=card&&card.closest(selector);if(!rail)return;
+  const rail=card&&card.closest(selector);if(!rail||rail.id!=='dash-cards')return;
   rail.querySelectorAll(':scope > .gf-plan-compact-card').forEach(item=>item.classList.toggle('is-tap-selected',item===card));
  }
  document.addEventListener('click',function(event){
@@ -5979,14 +5981,14 @@ box-sizing:border-box!important;display:inline-flex!important;align-items:center
  #public-plan-cards>.gf-plan-compact-card.is-card-highlighted::after{animation:none!important}
 }
 </style>
-<script id="zc-visitor-plan-independent-selection-v13">
+<script id="zc-visitor-plan-independent-selection-v14">
 (function(){
- if(window.__zcVisitorPlanIndependentSelectionV13)return;
- window.__zcVisitorPlanIndependentSelectionV13=true;
+ if(window.__zcVisitorPlanIndependentSelectionV14)return;
+ window.__zcVisitorPlanIndependentSelectionV14=true;
  function init(){
   var rail=document.getElementById('public-plan-cards');
-  if(!rail||rail.dataset.zcIndependentSelectionV13==='1')return;
-  rail.dataset.zcIndependentSelectionV13='1';
+  if(!rail||rail.dataset.zcIndependentSelectionV14==='1')return;
+  rail.dataset.zcIndependentSelectionV14='1';
   var activeCard=null;
   function cards(){
    return Array.prototype.filter.call(rail.children,function(node){
@@ -6013,37 +6015,38 @@ box-sizing:border-box!important;display:inline-flex!important;align-items:center
      button.classList.remove('zc-plan-selected-button');
      button.classList.toggle('is-card-highlighted-button',active);
      button.textContent='Choose plan';
-     button.setAttribute('aria-pressed',active?'true':'false');
+     button.removeAttribute('aria-pressed');
     }
    });
   }
-  rail.addEventListener('click',function(event){
-   var card=event.target.closest&&event.target.closest('.gf-plan-compact-card');
+  function handleVisitorCardEvent(event){
+   var target=event.target;
+   var card=target&&target.closest&&target.closest('#public-plan-cards>.gf-plan-compact-card');
    if(!card||!rail.contains(card))return;
    event.preventDefault();
    event.stopPropagation();
    if(event.stopImmediatePropagation)event.stopImmediatePropagation();
    highlight(card);
-  },true);
-  rail.addEventListener('keydown',function(event){
+  }
+  // Capture before card/button inline handlers or any bubbling selection code.
+  document.addEventListener('click',handleVisitorCardEvent,true);
+  document.addEventListener('keydown',function(event){
    if(event.key!=='Enter'&&event.key!==' ')return;
-   var card=event.target.closest&&event.target.closest('.gf-plan-compact-card');
-   if(!card||!rail.contains(card))return;
-   event.preventDefault();
-   event.stopPropagation();
-   highlight(card);
+   handleVisitorCardEvent(event);
   },true);
   clearLegacyCardHandlers();
   new MutationObserver(function(){
    clearLegacyCardHandlers();
+   if(activeCard&&!rail.contains(activeCard))activeCard=null;
    cards().forEach(function(card){
     card.classList.remove('is-selected','is-scroll-active','zc-plan-selected','is-tap-selected','is-tap-focus');
-    if(card!==activeCard)card.classList.remove('is-card-highlighted');
+    card.classList.toggle('is-card-highlighted',card===activeCard);
     var button=card.querySelector('.gf-plan-select-button');
-    if(button&&card!==activeCard){
-     button.classList.remove('is-card-highlighted-button','zc-plan-selected-button');
-     button.textContent='Choose plan';
-     button.setAttribute('aria-pressed','false');
+    if(button){
+     button.classList.remove('zc-plan-selected-button');
+     button.classList.toggle('is-card-highlighted-button',card===activeCard);
+     if(button.textContent.trim()!=='Choose plan')button.textContent='Choose plan';
+     button.removeAttribute('aria-pressed');
     }
    });
   }).observe(rail,{childList:true,subtree:true});
