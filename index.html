@@ -5382,3 +5382,66 @@ box-sizing:border-box!important;display:inline-flex!important;align-items:center
   .calc-shell:has(select[id$="-select"]){height:120px!important;min-height:120px!important;max-height:120px!important;padding:6px 8px!important;column-gap:6px!important}
 }
 </style>
+
+
+<style id="zc-calculator-no-scroll-v5">
+/* Increase calculator height to 180px and use the extra space for more comfortable controls. */
+.calc-shell:has(select[id$="-select"]){
+  height:180px!important;min-height:180px!important;max-height:180px!important;
+  overflow-x:visible!important;overflow-y:visible!important;
+  grid-template-rows:31px 24px 25px 25px 23px 20px!important;
+  row-gap:2px!important;
+  padding:8px 10px!important;
+}
+.calc-shell:has(select[id$="-select"]) .field label{
+  font-size:9px!important;line-height:10px!important;
+}
+.calc-shell:has(select[id$="-select"]) .field select,
+.calc-shell:has(select[id$="-select"]) .field input{
+  height:20px!important;min-height:20px!important;
+  font-size:11px!important;line-height:16px!important;padding:2px 7px!important;
+}
+.calc-shell:has(select[id$="-select"]) .field .calc-amount{
+  font-size:12px!important;padding:2px 7px!important;
+}
+.calc-shell:has(select[id$="-select"])>.calc-control:has(input[id$="-range"]){
+  gap:8px!important;
+}
+.calc-shell:has(select[id$="-select"]) .calc-control>label,
+.calc-shell:has(select[id$="-select"]) .calc-days-heading label{
+  font-size:9px!important;line-height:12px!important;
+}
+.calc-shell:has(select[id$="-select"]) .calc-days-heading b{
+  font-size:10px!important;line-height:12px!important;
+}
+.calc-shell:has(select[id$="-select"]) .calc-control input[type="range"]{
+  height:11px!important;min-height:11px!important;
+}
+.calc-shell:has(select[id$="-select"]) .gf-calc-detail-line{
+  font-size:9px!important;line-height:13px!important;gap:4px!important;
+}
+.calc-shell:has(select[id$="-select"]) .gf-calc-detail-line i{
+  width:12px!important;height:12px!important;flex-basis:12px!important;
+}
+.calc-shell:has(select[id$="-select"])>.calc-result{
+  font-size:10px!important;line-height:16px!important;
+}
+.calc-shell:has(select[id$="-select"])>.calc-result span{
+  font-size:10px!important;
+}
+.calc-shell:has(select[id$="-select"])>.calc-result b{
+  font-size:11px!important;line-height:15px!important;
+}
+.calc-shell:has(select[id$="-select"])>.calc-result b.calc-total{
+  font-size:12px!important;
+}
+.calc-shell:has(select[id$="-select"])>p.risk{
+  font-size:8px!important;line-height:10px!important;
+}
+@media(max-width:700px){
+  .calc-shell:has(select[id$="-select"]){
+    height:180px!important;min-height:180px!important;max-height:180px!important;
+    padding:8px!important;
+  }
+}
+</style>
