@@ -1,6 +1,15 @@
 const fs = require('node:fs');
 const path = require('node:path');
 
+// Visitor plan rail behaviour (see visitor-plan-patch.js). If the patch file is
+// ever missing, the page still serves unchanged instead of failing.
+let applyVisitorPlanPatch = html => html;
+try {
+  applyVisitorPlanPatch = require('./visitor-plan-patch').applyVisitorPlanPatch;
+} catch (error) {
+  console.error('ZentraChain visitor plan patch could not be loaded:', error);
+}
+
 function loadSiteHtml() {
   const candidates = [
     path.join(__dirname, '..', 'site.html'),
@@ -19,7 +28,7 @@ function loadSiteHtml() {
 
 module.exports = (req, res) => {
   try {
-    const html = loadSiteHtml();
+    const html = applyVisitorPlanPatch(loadSiteHtml());
     res.setHeader('Content-Type', 'text/html; charset=utf-8');
     res.setHeader('Cache-Control', 'public, s-maxage=60, stale-while-revalidate=300');
     res.setHeader('X-Content-Type-Options', 'nosniff');
