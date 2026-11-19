@@ -17,7 +17,7 @@ const MARKER = 'zc-visitor-plan-flow-v2';
 // Runs at the top of <head>, before the older swipe-selection script. That
 // script checks this flag and skips itself, which stops it from relabelling
 // the button "Selected" and from driving the calculator while scrolling.
-const EARLY = '<script id="' + MARKER + '-early">window.__zcVisitorPlanSwipeSelectionV2=true;</script>';
+const EARLY = '<script id="' + MARKER + '-early">window.__zcVisitorPlanSwipeSelectionV2=true;window.__zcVisitorPlanFlowV2Controller=true;window.__zcVisitorPlanScrollHighlightV11=true;window.__zcVisitorPlanScrollHighlightV10=true;</script>';
 
 const STYLE = `<style id="${MARKER}-css">
 /* Highlighted card: border + glow + lift. */
@@ -80,7 +80,8 @@ const SCRIPT = `<script id="${MARKER}-js">
  window.__zcVisitorPlanFlowV2=true;
  var RAIL_ID='public-plan-cards',BUTTON='.gf-plan-select-button',CARD='.gf-plan-compact-card';
  var LEGACY=['is-scroll-active','is-selected','is-tap-selected','is-tap-focus','zc-plan-selected','zc-plan-auto-active-v9'];
- var pressedId='',lastTap=0,frame=0,settle=0,busy=false,boundRail=null;
+ var pressedId='',frame=0,busy=false,boundRail=null,resizeObserver=null;
+ var raf=window.requestAnimationFrame?window.requestAnimationFrame.bind(window):function(fn){return window.setTimeout(fn,16)};
 
  // 1. The visitor plan rail must never drive the calculator.
  var previousChoose=window.gfChoose;
@@ -99,10 +100,17 @@ const SCRIPT = `<script id="${MARKER}-js">
   if(!r||busy)return;
   busy=true;
   try{
-   cardsOf(r).forEach(function(c){
+   var list=cardsOf(r);
+   if(pressedId&&!list.some(function(c){return c.getAttribute('data-gf-plan-id')===pressedId}))pressedId='';
+   list.forEach(function(c){
     var on=!!pressedId&&c.getAttribute('data-gf-plan-id')===pressedId;
     LEGACY.forEach(function(cls){if(c.classList.contains(cls))c.classList.remove(cls)});
-    if(c.classList.contains('zc-scroll-pressed')!==on)c.classList.toggle('zc-scroll-pressed',on);
+    c.classList.toggle('zc-scroll-pressed',on);
+    var button=c.querySelector(BUTTON);
+    if(button){
+     if(button.textContent.trim()!=='Choose plan')button.textContent='Choose plan';
+     button.removeAttribute('aria-pressed');
+    }
    });
   }finally{busy=false}
  }
@@ -122,63 +130,54 @@ const SCRIPT = `<script id="${MARKER}-js">
  }
  document.addEventListener('click',function(event){
   var card=planCard(event.target);
-  if(card){lastTap=Date.now();press(card)}
+  if(card)press(card);
   if(!planButton(event.target))return;
   event.preventDefault();
   event.stopPropagation();
   event.stopImmediatePropagation();
   if(typeof window.showAuth==='function')window.showAuth('signup');
  },true);
- // Keep the card's own Enter/Space handler from swallowing the button's keys;
- // Enter/Space on the card itself highlights it.
+ // Keyboard activation highlights the same plan as a pointer tap.
  document.addEventListener('keydown',function(event){
   if(event.key!=='Enter'&&event.key!==' ')return;
-  if(planButton(event.target)){event.stopPropagation();return}
   var card=planCard(event.target);
-  if(card&&event.target===card){lastTap=Date.now();press(card)}
+  if(card)press(card);
+  if(planButton(event.target))event.stopPropagation();
  },true);
 
  // 4. Scrolling a card into focus highlights it the same way.
  function update(){
   frame=0;
   var r=rail();
-  if(!r||Date.now()-lastTap<700)return;
+  if(!r)return;
   var cards=cardsOf(r),box=r.getBoundingClientRect(),active=null,best=Infinity;
-  if(box.width<=0||box.bottom<=0||box.top>=window.innerHeight)return;
-  var horizontal=r.scrollWidth>r.clientWidth+4;
-  var cx=box.left+r.clientLeft+r.clientWidth/2,cy=window.innerHeight/2;
+  if(box.width<=0||box.bottom<=0||box.top>=window.innerHeight||!cards.length)return;
+  var cx=box.left+r.clientLeft+r.clientWidth/2;
   cards.forEach(function(c){
    var b=c.getBoundingClientRect();
    if(b.width<=0||b.height<=0)return;
-   var d;
-   if(horizontal){
-    var vw=Math.max(0,Math.min(b.right,box.right)-Math.max(b.left,box.left));
-    if(vw<Math.min(24,b.width*.12))return;
-    d=Math.abs((b.left+b.right)/2-cx);
-   }else{
-    if(b.bottom<=0||b.top>=window.innerHeight)return;
-    d=Math.abs((b.top+b.bottom)/2-cy);
-   }
+   var visibleW=Math.max(0,Math.min(b.right,box.right)-Math.max(b.left,box.left));
+   if(visibleW<Math.min(20,b.width*.10))return;
+   var d=Math.abs((b.left+b.right)/2-cx);
    if(d<best){best=d;active=c}
   });
   if(active)press(active);
  }
  function schedule(){
-  if(settle)clearTimeout(settle);
-  settle=setTimeout(function(){if(!frame)frame=window.requestAnimationFrame(update)},90);
+  if(!frame)frame=raf(update);
  }
  function bind(){
   var r=rail();
   if(r&&r!==boundRail){
    boundRail=r;
-   ['scroll','touchend','pointerup','wheel'].forEach(function(type){r.addEventListener(type,schedule,{passive:true})});
-   // Re-apply after cards re-render and strip highlight classes other scripts add.
+   ['scroll','scrollend','touchend','pointerup','wheel'].forEach(function(type){r.addEventListener(type,schedule,{passive:true})});
+   if('ResizeObserver'in window){resizeObserver=new ResizeObserver(schedule);resizeObserver.observe(r)}
+   // Re-check when the data reloads or a plan card is replaced.
    new MutationObserver(function(){
     if(busy)return;
-    var first=!pressedId;
     paint();
-    if(first)schedule();
-   }).observe(r,{childList:true,subtree:true,attributes:true,attributeFilter:['class']});
+    schedule();
+   }).observe(r,{childList:true,subtree:true});
   }
   paint();
   schedule();
@@ -186,6 +185,7 @@ const SCRIPT = `<script id="${MARKER}-js">
  window.addEventListener('scroll',schedule,{passive:true});
  window.addEventListener('resize',schedule,{passive:true});
  window.addEventListener('orientationchange',schedule,{passive:true});
+ window.addEventListener('pageshow',schedule,{passive:true});
  window.addEventListener('load',bind);
  new MutationObserver(function(){if(rail()&&rail()!==boundRail)bind()}).observe(document.body,{childList:true,subtree:true});
  bind();
