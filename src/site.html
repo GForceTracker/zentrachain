@@ -5196,3 +5196,68 @@ box-sizing:border-box!important;display:inline-flex!important;align-items:center
  filter:drop-shadow(0 0 3px var(--green)) drop-shadow(0 0 6px var(--green))!important;
 }
 </style>
+
+
+<style id="zc-visitor-plan-demarcation-v12">
+/* Visitor plan artwork only: keep the curved image boundary visible at the 120px artwork height. */
+#public-plan-cards .gf-plan-artwork{position:relative!important;isolation:isolate!important;overflow:hidden!important}
+#public-plan-cards .gf-plan-artwork .zc-plan-edge-v12{
+ display:block!important;visibility:visible!important;opacity:1!important;
+ position:absolute!important;inset:0!important;width:100%!important;height:100%!important;
+ max-width:none!important;z-index:50!important;overflow:visible!important;pointer-events:none!important
+}
+#public-plan-cards .gf-plan-artwork .zc-plan-edge-v12 .zc-plan-edge-stroke{
+ display:block!important;visibility:visible!important;opacity:1!important;
+ fill:none!important;stroke:var(--mint,#55e6ad)!important;stroke-width:5!important;
+ stroke-linecap:round!important;stroke-linejoin:round!important;
+ filter:drop-shadow(0 0 3px var(--green,#27d98a)) drop-shadow(0 0 6px var(--green,#27d98a))!important
+}
+</style>
+<script id="zc-visitor-plan-demarcation-v12">
+(function(){
+ if(window.__zcVisitorPlanDemarcationV12)return;
+ window.__zcVisitorPlanDemarcationV12=true;
+ const ns='http://www.w3.org/2000/svg';
+ const curve='M0 287 C90 296 150 296 220 287 C290 278 350 278 420 287 C490 296 550 296 600 287';
+ function apply(art){
+  if(!art)return;
+  let svg=art.querySelector('.zc-plan-edge-v12');
+  if(!svg){
+   svg=document.createElementNS(ns,'svg');
+   svg.setAttribute('class','zc-plan-edge-v12');
+   svg.setAttribute('viewBox','0 0 600 300');
+   svg.setAttribute('preserveAspectRatio','none');
+   svg.setAttribute('aria-hidden','true');
+   const path=document.createElementNS(ns,'path');
+   path.setAttribute('class','zc-plan-edge-stroke');
+   path.setAttribute('d',curve);
+   svg.appendChild(path);
+   art.appendChild(svg);
+  }else{
+   let path=svg.querySelector('.zc-plan-edge-stroke');
+   if(!path){path=document.createElementNS(ns,'path');path.setAttribute('class','zc-plan-edge-stroke');svg.appendChild(path)}
+   path.setAttribute('d',curve);
+  }
+  svg.style.setProperty('display','block','important');
+  svg.style.setProperty('visibility','visible','important');
+  svg.style.setProperty('opacity','1','important');
+  svg.style.setProperty('z-index','50','important');
+  const stroke=svg.querySelector('.zc-plan-edge-stroke');
+  if(stroke){
+   stroke.style.setProperty('display','block','important');
+   stroke.style.setProperty('fill','none','important');
+   stroke.style.setProperty('stroke','var(--mint, #55e6ad)','important');
+   stroke.style.setProperty('stroke-width','5','important');
+   stroke.style.setProperty('stroke-linecap','round','important');
+   stroke.style.setProperty('stroke-linejoin','round','important');
+   stroke.style.setProperty('filter','drop-shadow(0 0 3px var(--green, #27d98a)) drop-shadow(0 0 6px var(--green, #27d98a))','important');
+  }
+ }
+ function scan(){document.querySelectorAll('#public-plan-cards .gf-plan-artwork').forEach(apply)}
+ function init(){
+  scan();
+  if(document.body&&window.MutationObserver)new MutationObserver(scan).observe(document.body,{childList:true,subtree:true});
+ }
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();
+})();
+</script>
