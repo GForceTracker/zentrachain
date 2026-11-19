@@ -5790,16 +5790,17 @@ box-sizing:border-box!important;display:inline-flex!important;align-items:center
 }
 .calc-shell::after{
   content:""!important;
-  position:absolute!important;inset:-45% -35%!important;
+  position:absolute!important;inset:-28% -42%!important;
   z-index:0!important;pointer-events:none!important;
-  opacity:.48!important;
+  opacity:.78!important;
   background:
-    radial-gradient(ellipse 48% 22% at 18% 48%,rgba(100,255,194,.20),transparent 72%),
-    radial-gradient(ellipse 45% 20% at 78% 54%,rgba(40,210,163,.17),transparent 72%),
-    repeating-linear-gradient(112deg,transparent 0 34px,rgba(174,255,219,.035) 35px 37px,transparent 38px 72px)!important;
-  filter:blur(13px)!important;
-  transform:translate3d(-7%,5%,0) rotate(-7deg)!important;
-  animation:zcCalcWaveFlow 12s ease-in-out infinite alternate,zcCalcShimmer 8s linear infinite!important;
+    radial-gradient(ellipse 58% 30% at 50% 50%,transparent 37%,rgba(190,255,226,.17) 47%,rgba(111,255,198,.10) 55%,transparent 70%),
+    radial-gradient(ellipse 42% 25% at 48% 46%,rgba(129,255,205,.20),transparent 72%),
+    radial-gradient(ellipse 38% 23% at 78% 60%,rgba(48,220,166,.13),transparent 74%),
+    linear-gradient(180deg,transparent 28%,rgba(206,255,234,.035) 49%,transparent 70%)!important;
+  filter:blur(9px)!important;
+  transform:translate3d(-24%,2%,0) rotate(-9deg) scale(1.08)!important;
+  animation:zcCalcWaveFlow 14s cubic-bezier(.45,0,.55,1) infinite alternate!important;
 }
 .calc-shell:has(select[id$="-select"]){
   height:480px!important;min-height:480px!important;max-height:480px!important;
@@ -5820,13 +5821,9 @@ box-sizing:border-box!important;display:inline-flex!important;align-items:center
   }
 }
 @keyframes zcCalcWaveFlow{
-  0%{transform:translate3d(-8%,4%,0) rotate(-8deg) scale(1)}
-  50%{transform:translate3d(3%,-2%,0) rotate(-3deg) scale(1.06)}
-  100%{transform:translate3d(9%,5%,0) rotate(5deg) scale(1.02)}
-}
-@keyframes zcCalcShimmer{
-  0%{background-position:0% 50%}
-  100%{background-position:200% 50%}
+  0%{transform:translate3d(-24%,2%,0) rotate(-9deg) scale(1.08)}
+  50%{transform:translate3d(0%,-3%,0) rotate(0deg) scale(1.13)}
+  100%{transform:translate3d(24%,2%,0) rotate(9deg) scale(1.08)}
 }
 @keyframes zcCalcAmbientGlow{
   0%,100%{box-shadow:0 24px 70px rgba(0,0,0,.38),inset 0 1px 0 rgba(255,255,255,.19),inset 0 -1px 0 rgba(104,255,185,.10),0 0 20px rgba(32,199,131,.07)}
