@@ -1,5 +1,10 @@
 <!doctype html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#061b14"><title>ZentraChain | Digital Asset Platform</title><meta name="description" content="ZentraChain digital asset account portal, market information and transaction management."><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="https://unpkg.com/lucide@0.468.0/dist/umd/lucide.min.js"></script><style>
+<html lang="en"><head><script id="zc-visitor-plan-flow-controller-early">
+window.__zcVisitorPlanFlowV2Controller=true;
+window.__zcVisitorPlanSwipeSelectionV2=true;
+window.__zcVisitorPlanScrollHighlightV11=true;
+window.__zcVisitorPlanScrollHighlightV10=true;
+</script><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#061b14"><title>ZentraChain | Digital Asset Platform</title><meta name="description" content="ZentraChain digital asset account portal, market information and transaction management."><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="https://unpkg.com/lucide@0.468.0/dist/umd/lucide.min.js"></script><style>
 :root{--bg:#06150f;--panel:#0b2118;--panel2:#102b20;--line:#1d4432;--green:#20c783;--mint:#9be8c5;--text:#effaf4;--muted:#91aa9c;--red:#ff7474;--amber:#e7c16d;--shadow:0 18px 50px #0005}*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at 70% -20%,#164b34 0,transparent 38%),var(--bg);color:var(--text);font:14px Inter,ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Arial}button,input,select,textarea{font:inherit}button{cursor:pointer}.hidden{display:none!important}.muted{color:var(--muted)}.green{color:var(--green)}.red{color:var(--red)}.wrap{max-width:1440px;margin:auto;padding:0 24px}.topbar{height:76px;border-bottom:1px solid #ffffff12;display:flex;align-items:center;justify-content:space-between;gap:20px}.brand{display:flex;align-items:center;gap:11px;font-weight:850;font-size:19px;letter-spacing:-.5px}.logo{width:36px;height:36px;border-radius:12px;background:linear-gradient(145deg,#31d995,#08784b);display:grid;place-items:center;color:#032014;font-weight:950}.nav{display:flex;gap:24px;align-items:center}.nav a{color:#b3c9bd;text-decoration:none}.nav a:hover{color:#fff}.btn{border:1px solid var(--line);background:#10291e;color:var(--text);padding:11px 16px;border-radius:12px;font-weight:700}.btn.primary{background:linear-gradient(135deg,#32d99a,#0b9e65);border:0;color:#032116}.btn.ghost{background:transparent}.btn.danger{background:#4a2020;border-color:#783737}.btn:disabled{opacity:.5;cursor:not-allowed}.hero{padding:76px 0 54px;display:grid;grid-template-columns:1.1fr .9fr;gap:42px;align-items:center}.eyebrow{color:var(--mint);text-transform:uppercase;letter-spacing:2.4px;font-size:11px;font-weight:800}.hero h1{font-size:clamp(40px,6vw,72px);line-height:1.02;letter-spacing:-3px;margin:18px 0}.hero p{font-size:17px;line-height:1.75;color:#a9c1b4;max-width:620px}.hero-card,.card{background:linear-gradient(145deg,#102c20,#091b13);border:1px solid var(--line);border-radius:22px;box-shadow:var(--shadow)}.hero-card{padding:24px;background:linear-gradient(135deg,rgba(25,91,61,.48),rgba(7,27,19,.72));border:1px solid rgba(150,255,204,.24);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);box-shadow:0 24px 70px rgba(0,0,0,.38),inset 0 1px 0 rgba(255,255,255,.10)}.mini-chart{height:150px;width:100%}.metric-row{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:26px 0}.metric{padding:18px;border:1px solid rgba(160,255,205,.17);border-radius:16px;background:rgba(10,42,28,.48);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);box-shadow:inset 0 1px 0 rgba(255,255,255,.07)}.metric strong{font-size:22px;display:block;margin-bottom:6px}.section{padding:46px 0}.section-head{display:flex;justify-content:space-between;align-items:end;gap:20px;margin-bottom:22px}.section h2{font-size:30px;letter-spacing:-1px;margin:8px 0}.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}.feature{padding:22px;background:linear-gradient(145deg,rgba(19,67,46,.60),rgba(7,26,18,.70));border:1px solid rgba(151,255,202,.17);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px)}.feature .ico{width:42px;height:42px;border-radius:13px;background:#174832;color:#77e8b4;display:grid;place-items:center;font-size:19px;margin-bottom:16px}.feature p{color:var(--muted);line-height:1.7}.ticker{display:flex;gap:30px;overflow:hidden;white-space:nowrap;border-block:1px solid #ffffff12;padding:14px 0;color:#b8cec2}.tick{display:flex;gap:9px;align-items:center}.tick b{color:#fff}.price-up{color:#4bdfa0}.price-down{color:#ff8181}.faq{border-bottom:1px solid var(--line);padding:18px 0}.faq summary{cursor:pointer;font-weight:750}.faq p{color:var(--muted);line-height:1.7}.footer{border-top:1px solid #ffffff12;padding:32px 0 50px;color:var(--muted);line-height:1.7}.app{display:grid;grid-template-columns:240px 1fr;min-height:100vh}.side{border-right:1px solid #ffffff12;padding:22px 16px;background:#071a12}.side .brand{padding:0 12px 26px}.side-nav{display:grid;gap:7px}.side-nav button{border:0;text-align:left;padding:13px 14px;border-radius:12px;color:#a9c2b5;background:transparent}.side-nav button.active,.side-nav button:hover{background:#123a28;color:#fff}.side-foot{position:sticky;top:calc(100vh - 90px);margin-top:35px;padding:12px;color:var(--muted);font-size:12px}.main{min-width:0}.appbar{height:72px;border-bottom:1px solid #ffffff12;display:flex;align-items:center;justify-content:space-between;padding:0 28px}.content{padding:28px;max-width:1320px;margin:auto}.page-title{display:flex;justify-content:space-between;align-items:center;gap:16px;margin-bottom:24px}.page-title h1{font-size:27px;margin:0;letter-spacing:-.8px}.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:18px}.stat{padding:20px}.stat small{color:var(--muted)}.stat strong{font-size:26px;display:block;margin:10px 0 5px}.panel{padding:22px;margin-bottom:18px}.panel h3{margin:0 0 18px;font-size:16px}.two{display:grid;grid-template-columns:1.4fr 1fr;gap:16px}.table-wrap{overflow:auto}table{width:100%;border-collapse:collapse;min-width:620px}th,td{text-align:left;padding:13px 12px;border-bottom:1px solid #ffffff12;white-space:nowrap}th{font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--muted)}td{color:#d9e9df}.pill{font-size:11px;padding:5px 9px;border-radius:99px;background:#1a3a2b;color:#9de8bf}.pill.pending{background:#44371d;color:#f3d68a}.pill.rejected{background:#482222;color:#ff9b9b}.form{display:grid;gap:13px}.field{display:grid;gap:7px}.field label{font-size:12px;color:#a8c1b3}.field input,.field select,.field textarea{width:100%;padding:13px 14px;border-radius:11px;border:1px solid #28513c;background:#06180f;color:#fff;outline:none}.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--green)}.notice{padding:13px 15px;border-radius:12px;background:#142c20;border:1px solid #31553e;color:#b8d5c3;line-height:1.6}.notice.warn{background:#332a17;border-color:#66522b;color:#f2d99a}.notice.error{background:#3a1c1c;border-color:#6c3030;color:#ffc1c1}.modal-bg{position:fixed;inset:0;background:#000a;display:grid;place-items:center;padding:18px;z-index:20}.modal{width:min(100%,460px);padding:25px;background:#0b2118;border:1px solid #315b42;border-radius:20px;box-shadow:0 30px 90px #000b}.modal-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px}.x{background:none;border:0;color:#fff;font-size:24px}.toast{position:fixed;right:20px;bottom:20px;z-index:50;padding:14px 18px;border-radius:12px;background:#17452f;border:1px solid #3e9a69;box-shadow:var(--shadow);max-width:360px}.empty{padding:26px;text-align:center;color:var(--muted)}.chart-frame{height:420px;border-radius:14px;overflow:hidden;background:#06170f}.mobile-menu{display:none}.risk{font-size:11px;color:#829b8c}.admin-tag{font-size:10px;color:#b6f3d3;border:1px solid #2d7752;border-radius:7px;padding:4px 7px}
 @media(max-width:900px){.hero{grid-template-columns:1fr;padding-top:50px}.grid3{grid-template-columns:1fr 1fr}.app{grid-template-columns:1fr}.side{position:fixed;z-index:10;bottom:0;left:0;right:0;border-right:0;border-top:1px solid #ffffff22;padding:7px 8px;background:#06180ff2;backdrop-filter:blur(16px)}.side .brand,.side-foot{display:none}.side-nav{display:flex;justify-content:space-around;gap:2px}.side-nav button{font-size:10px;text-align:center;padding:9px 7px;flex:1}.side-nav button span{display:block;font-size:17px;margin-bottom:3px}.content{padding:20px 16px 100px}.appbar{padding:0 16px}.stats{grid-template-columns:1fr 1fr}.two{grid-template-columns:1fr}.topbar .nav{display:none}.mobile-menu{display:inline-flex}}
 @media(max-width:560px){.wrap{padding:0 16px}.hero h1{letter-spacing:-2px}.grid3{grid-template-columns:1fr}.metric-row{grid-template-columns:1fr}.stats{gap:9px}.stat{padding:15px}.stat strong{font-size:21px}.page-title{align-items:flex-start;flex-direction:column}.section{padding:32px 0}.chart-frame{height:330px}}
@@ -3757,7 +3762,7 @@ body[data-zc-theme] #app-content #wd-network-cards::-webkit-scrollbar-thumb{back
  const rails=['public-plan-cards','dash-cards'];
  function sync(){
   rails.forEach(id=>{
-   const rail=document.getElementById(id);if(!rail)return;
+   const rail=document.getElementById(id);if(!rail||(id==='public-plan-cards'&&window.__zcVisitorPlanFlowV2Controller))return;
    const scope=id==='public-plan-cards'?'pub':'dash';
    const chosen=document.getElementById(scope+'-select')?.value||'';
    let matched=false;
@@ -3779,7 +3784,7 @@ body[data-zc-theme] #app-content #wd-network-cards::-webkit-scrollbar-thumb{back
  document.addEventListener('click',function(e){
   const card=e.target.closest?.('.gf-plan-compact-card[data-gf-plan-id]');
   if(!card)return;
-  const rail=card.closest('#public-plan-cards,#dash-cards');if(!rail)return;
+  const rail=card.closest('#public-plan-cards,#dash-cards');if(!rail||(rail.id==='public-plan-cards'&&window.__zcVisitorPlanFlowV2Controller))return;
   rail.querySelectorAll(':scope > .gf-plan-compact-card').forEach(c=>c.classList.remove('is-tap-focus'));
   card.classList.add('is-tap-focus');
  },true);
@@ -4209,75 +4214,141 @@ schedule(FIRST_DELAY);
   }
 }
 </style>
-<script id="zc-visitor-plan-swipe-selection-v3">
+<script id="zc-visitor-plan-selection-and-glow-v4">
 (function(){
- if(window.__zcVisitorPlanSwipeSelectionV3)return;
- window.__zcVisitorPlanSwipeSelectionV3=true;
- function init(){
-  const rail=document.getElementById('public-plan-cards');
-  if(!rail||rail.dataset.zcSwipeSelectionV3==='1')return;
-  rail.dataset.zcSwipeSelectionV3='1';
-  let settleTimer=null;
-  const cards=()=>Array.from(rail.querySelectorAll(':scope > .gf-plan-compact-card'));
-  function highlight(card){
-   if(!card)return;
-   cards().forEach(item=>{
-    const active=item===card;
-    item.classList.toggle('zc-plan-selected',active);
-    item.classList.remove('is-selected','is-scroll-active','zc-plan-selected-button');
-    const button=item.querySelector('.gf-plan-select-button');
-    if(button){
-     button.textContent='Choose plan';
-     button.removeAttribute('aria-pressed');
-     button.classList.remove('zc-plan-selected-button');
-    }
-   });
-  }
-  function chooseNearest(){
-   const items=cards();
-   if(!items.length)return;
-   const railRect=rail.getBoundingClientRect();
-   const styles=getComputedStyle(rail);
-   const inset=parseFloat(styles.scrollPaddingLeft)||parseFloat(styles.paddingLeft)||0;
-   let chosen=items[0],best=Infinity;
-   items.forEach(card=>{
-    const left=rail.scrollLeft+card.getBoundingClientRect().left-railRect.left;
-    const distance=Math.abs(left-inset);
-    if(distance<best){best=distance;chosen=card}
-   });
-   highlight(chosen);
-  }
-  function schedule(){
-   if(settleTimer)clearTimeout(settleTimer);
-   settleTimer=setTimeout(chooseNearest,140);
-  }
-  rail.addEventListener('click',event=>{
-   const card=event.target&&event.target.closest&&event.target.closest('.gf-plan-compact-card');
-   if(!card||!rail.contains(card))return;
-   highlight(card);
-   event.preventDefault();
-   event.stopImmediatePropagation();
-  },true);
-  rail.addEventListener('scroll',schedule,{passive:true});
-  rail.addEventListener('scrollend',chooseNearest,{passive:true});
-  rail.addEventListener('touchend',schedule,{passive:true});
-  rail.addEventListener('pointerup',schedule,{passive:true});
-  rail.addEventListener('wheel',schedule,{passive:true});
-  new MutationObserver(()=>{
-   cards().forEach(card=>{
-    const button=card.querySelector('.gf-plan-select-button');
-    if(button){if(button.textContent.trim()!=='Choose plan')button.textContent='Choose plan';button.removeAttribute('aria-pressed')}
-   });
-   schedule();
-  }).observe(rail,{childList:true,subtree:true,characterData:true});
-  cards().forEach(card=>{
-   const button=card.querySelector('.gf-plan-select-button');
-   if(button){if(button.textContent.trim()!=='Choose plan')button.textContent='Choose plan';button.removeAttribute('aria-pressed')}
+ if(window.__zcVisitorPlanSelectionGlowV4)return;
+ window.__zcVisitorPlanSelectionGlowV4=true;
+
+ var RAIL_ID='public-plan-cards';
+ var CARD_SELECTOR='#'+RAIL_ID+'>.gf-plan-compact-card';
+ var BUTTON_SELECTOR='.gf-plan-select-button';
+ var boundRail=null,rafId=0,resizeObserver=null;
+ var raf=window.requestAnimationFrame?window.requestAnimationFrame.bind(window):function(fn){return window.setTimeout(fn,16)};
+ var activeId='';
+
+ function rail(){return document.getElementById(RAIL_ID)}
+ function cards(r){return r?Array.prototype.filter.call(r.children,function(node){return node.classList&&node.classList.contains('gf-plan-compact-card')}):[]}
+
+ function paint(card){
+  var r=rail();
+  if(!r)return;
+  var list=cards(r);
+  if(card&&r.contains(card))activeId=card.getAttribute('data-gf-plan-id')||'';
+  else if(card===null)activeId='';
+  var active=null;
+  if(activeId)active=list.find(function(item){return item.getAttribute('data-gf-plan-id')===activeId})||null;
+  if(!active&&list.length)active=list[0];
+  if(active)activeId=active.getAttribute('data-gf-plan-id')||'';
+
+  list.forEach(function(item){
+   var chosen=item===active;
+   item.classList.toggle('zc-plan-selected',chosen);
+   item.classList.remove('is-selected','is-scroll-active','is-tap-focus','is-tap-selected','zc-plan-selected-button','zc-scroll-pressed');
+   var button=item.querySelector(BUTTON_SELECTOR);
+   if(button){
+    button.textContent='Choose plan';
+    button.classList.toggle('zc-plan-selected-button',chosen);
+    button.removeAttribute('aria-pressed');
+   }
   });
-  chooseNearest();
  }
- if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});
- else init();
+
+ function chooseVisible(){
+  rafId=0;
+  var r=rail();
+  if(!r)return;
+  var list=cards(r);
+  if(!list.length)return;
+  var box=r.getBoundingClientRect();
+  var innerLeft=box.left+r.clientLeft;
+  var innerRight=innerLeft+r.clientWidth;
+  var innerCenter=innerLeft+r.clientWidth/2;
+  var best=null,bestRatio=-1,bestDistance=Infinity;
+
+  list.forEach(function(card){
+   var rect=card.getBoundingClientRect();
+   if(rect.width<=0||rect.height<=0)return;
+   var visibleWidth=Math.max(0,Math.min(rect.right,innerRight)-Math.max(rect.left,innerLeft));
+   var visibleHeight=Math.max(0,Math.min(rect.bottom,window.innerHeight)-Math.max(rect.top,0));
+   if(visibleWidth<Math.min(18,rect.width*.06)||visibleHeight<Math.min(18,rect.height*.08))return;
+   var ratio=visibleWidth/rect.width;
+   var distance=Math.abs((rect.left+rect.right)/2-innerCenter);
+   if(ratio>bestRatio+.015||(Math.abs(ratio-bestRatio)<=.015&&distance<bestDistance)){
+    best=card;bestRatio=ratio;bestDistance=distance;
+   }
+  });
+
+  if(best)paint(best);
+  else paint(null);
+ }
+
+ function schedule(){
+  if(!rafId)rafId=raf(chooseVisible);
+ }
+
+ function activateFromEvent(event){
+  var target=event.target;
+  if(!target||!target.closest)return;
+  var card=target.closest(CARD_SELECTOR);
+  if(!card)return;
+  var button=target.closest(CARD_SELECTOR+' '+BUTTON_SELECTOR);
+  paint(card);
+
+  // Keep visitor plan interactions independent from the profit calculator.
+  event.preventDefault();
+  event.stopPropagation();
+  if(event.stopImmediatePropagation)event.stopImmediatePropagation();
+
+  // The primary CTA continues to open account creation after highlighting.
+  if(button&&typeof window.showAuth==='function')window.showAuth('signup');
+ }
+
+ function activateFromKeyboard(event){
+  if(event.key!=='Enter'&&event.key!==' ')return;
+  var target=event.target;
+  if(!target||!target.closest)return;
+  var card=target.closest(CARD_SELECTOR);
+  if(!card)return;
+  event.preventDefault();
+  event.stopPropagation();
+  if(event.stopImmediatePropagation)event.stopImmediatePropagation();
+  paint(card);
+  if(target.closest(CARD_SELECTOR+' '+BUTTON_SELECTOR)&&typeof window.showAuth==='function')window.showAuth('signup');
+ }
+
+ function bind(){
+  var r=rail();
+  if(!r||r===boundRail)return;
+  boundRail=r;
+  ['scroll','scrollend','touchend','pointerup','wheel'].forEach(function(type){
+   r.addEventListener(type,schedule,{passive:true});
+  });
+  if('ResizeObserver'in window){
+   resizeObserver=new ResizeObserver(schedule);
+   resizeObserver.observe(r);
+  }
+  new MutationObserver(function(){
+   var list=cards(r);
+   if(activeId&&!list.some(function(item){return item.getAttribute('data-gf-plan-id')===activeId})){
+    activeId='';
+   }
+   paint(activeId?list.find(function(item){return item.getAttribute('data-gf-plan-id')===activeId})||null:null);
+   schedule();
+  }).observe(r,{childList:true,subtree:true});
+  paint(activeId?cards(r).find(function(item){return item.getAttribute('data-gf-plan-id')===activeId})||cards(r)[0]:cards(r)[0]);
+  schedule();
+ }
+
+ document.addEventListener('click',activateFromEvent,true);
+ document.addEventListener('keydown',activateFromKeyboard,true);
+ window.addEventListener('resize',schedule,{passive:true});
+ window.addEventListener('orientationchange',schedule,{passive:true});
+ window.addEventListener('pageshow',schedule,{passive:true});
+ window.addEventListener('load',bind,{once:true});
+ new MutationObserver(function(){if(rail()&&rail()!==boundRail)bind()}).observe(document.documentElement,{childList:true,subtree:true});
+
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',bind,{once:true});
+ else bind();
 })();
 </script>
 
