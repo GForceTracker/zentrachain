@@ -884,7 +884,7 @@ html body .modal-head .brand{white-space:nowrap!important;min-width:0!important}
 
 
 <section class="section zc-account-access" id="account-access"><div class="section-head"><div><div class="eyebrow">Account access</div><h2>Get started in a few steps</h2><p class="muted">A clear path from registration to reviewing your account activity.</p></div></div><div class="zc-access-grid"><article class="zc-access-card"><span class="zc-access-number">01</span><div><h3>Create your account</h3><p>Register with your email and complete the verification steps shown on screen.</p></div></article><article class="zc-access-card"><span class="zc-access-number">02</span><div><h3>Review deposit instructions</h3><p>Check the deposit network and destination details carefully before sending any funds.</p></div></article><article class="zc-access-card"><span class="zc-access-number">03</span><div><h3>Track verified activity</h3><p>Follow deposit reviews, recorded ledger entries and withdrawal request statuses.</p></div></article></div></section>
-<section class="section" id="plans"><div class="section-head"><div><div class="eyebrow">Plan information</div><h2>Explore plan configurations</h2><p class="muted">Review each plan’s duration and deposit limits before selecting it.</p></div></div><div id="public-plan-cards" class="plan-grid">Loading plans…</div><div class="calc-shell" style="margin-top:22px"><div class="eyebrow">Plan calculator</div><h2>Estimate a scenario</h2><p class="muted">Choose a plan and enter an amount or use the slider.</p><div class="field"><label>Plan</label><select id="pub-select" onchange="planUpdate('pub')"></select></div><div class="field"><label>Amount (USDT)</label><input class="calc-amount" id="pub-amount" type="number" step=".01" value="50" oninput="planSync('pub','input')" onblur="planSync('pub','blur')"></div><div class="calc-control"><label for="pub-range">Amount slider</label><input id="pub-range" class="calc-range" type="range" oninput="planSync('pub','range')"></div><div class="calc-control"><div class="calc-days-heading"><label for="pub-days">Duration</label><b><span id="pub-days-value">1</span> days</b></div><input id="pub-days" class="calc-range" type="range" min="1" max="365" step="1" value="1" oninput="planSync('pub','days')"><div class="calc-days-limits"><span>1 day</span><span>365 days</span></div></div><div id="pub-limits">Select a plan</div><div class="calc-result"><span>Change</span><b id="pub-profit">—</b></div><div class="calc-result"><span>Total</span><b class="calc-total" id="pub-total">—</b></div><p class="risk">Calculator figures are based on the plan settings entered here. They are not proof of executed trades or a completed payout.</p></div></section>
+<section class="section" id="plans"><div class="section-head"><div><div class="eyebrow">Plan information</div><h2>Explore plan configurations</h2><p class="muted">Review each plan’s duration and deposit limits before selecting it.</p></div></div><div id="public-plan-cards" class="plan-grid">Loading plans…</div><div class="calc-shell" style="margin-top:22px"><div class="eyebrow">Plan calculator</div><h2>Estimate a scenario</h2><p class="muted">Choose a plan and enter an amount or use the slider.</p><div class="field"><label>Plan</label><select id="pub-select" onchange="planUpdate('pub')"></select></div><div class="field"><label>Amount (USDT)</label><input class="calc-amount" id="pub-amount" type="number" step=".01" value="50" oninput="planSync('pub','input')" onblur="planSync('pub','blur')"></div><div class="calc-control"><label for="pub-range">Amount slider</label><input id="pub-range" class="calc-range" type="range" oninput="planSync('pub','range')"></div><div class="calc-control"><div class="calc-days-heading"><label for="pub-days">Duration</label><b><span id="pub-days-value">1</span> days</b></div><input id="pub-days" class="calc-range" type="range" min="1" max="365" step="1" value="1" oninput="planSync('pub','days')"><div class="calc-days-limits"><span>1 day</span><span>365 days</span></div></div><div id="pub-limits">Select a plan</div><div class="calc-result"><span>Profit</span><b id="pub-profit">—</b></div><div class="calc-result"><span>Total</span><b class="calc-total" id="pub-total">—</b></div><p class="risk">Calculator figures are based on the plan settings entered here. They are not proof of executed trades or a completed payout.</p></div></section>
 
   </main><section class="section" id="faq"><div class="eyebrow">Help centre</div><h2>Frequently asked questions</h2><details class="faq"><summary>Are market prices the same as my account performance?</summary><p>No. Market prices are third-party reference data. Your account balance is calculated only from ledger entries recorded for your account.</p></details><details class="faq"><summary>How are deposits confirmed?</summary><p>Submit a deposit request with the network and transaction hash. An administrator must independently verify the transaction before a ledger credit is recorded. A submitted request is not a confirmed deposit.</p></details><details class="faq"><summary>How do withdrawals work?</summary><p>Submit the amount, network and destination address. Requests are reviewed. A withdrawal is marked paid only after the transfer has been made and its transaction hash recorded.</p></details><details class="faq"><summary>Does the platform guarantee returns?</summary><p>No. Cryptocurrency trading is high risk. There are no guaranteed profits, and historical results do not predict future results.</p></details><details class="faq"><summary>Is exchange trading automated?</summary><p>No exchange API is currently connected to this portal. The market chart is informational and does not execute trades.</p></details><details class="faq"><summary>How do I contact support?</summary><p>Use the support contact supplied through your verified company communication channel. Do not trust unsolicited wallet addresses or messages claiming to be support.</p></details></section>
 <section class="section zc-service-note" id="risk"><div class="zc-service-note-inner"><span class="zc-note-mark">i</span><div><b>Clear information. Verified account records.</b><p>Digital asset values can fluctuate. Market information is provided for general reference and may be delayed or unavailable. Account balances and transaction records are subject to verification.</p></div></div></section>
@@ -1015,7 +1015,7 @@ function planUpdate(s){
  else a.value=Math.min(Number(p.max_amount),Math.max(Number(p.min_amount),Number(a.value)));
  r.min=p.min_amount;r.max=p.max_amount;r.step=Math.max(.01,(Number(p.max_amount)-Number(p.min_amount))/1000);r.value=a.value;
  if(days){const base=Math.max(1,Number(p.duration_value||1)*(String(p.duration_unit).toLowerCase().startsWith('hour')?1/24:1));days.value=Math.min(365,Math.max(1,Math.round(base)));const out=$(s+'-days-value');if(out)out.textContent=days.value;}
- $(s+'-limits').innerHTML='<div class="gf-calc-detail-line"><i data-lucide="arrow-down-to-line" aria-hidden="true"></i><span>Min deposit: <b>'+money(p.min_amount)+'</b></span></div><div class="gf-calc-detail-line"><i data-lucide="arrow-up-from-line" aria-hidden="true"></i><span>Max deposit: <b>'+money(p.max_amount)+'</b></span></div>';if(window.lucide&&window.lucide.createIcons)window.lucide.createIcons({root:$(s+'-limits')});
+ $(s+'-limits').innerHTML='';
  planCalc(s);
 }
 function planSync(s,from){
@@ -1051,7 +1051,7 @@ function gfReset(){['gf-id','gf-name','gf-rate','gf-description'].forEach(x=>$(x
 async function gfDelete(id){if(profile?.role!=='admin'||!confirm('Delete this plan configuration?'))return;const {error}=await db.from('gforce_investment_plans').delete().eq('id',id);if(error)return toast(error.message,true);toast('Plan deleted.');await gfRefreshAdmin();}
 async function gfRefreshAdmin(){const rows=await gfAdminRows(),el=$('gf-plan-admin');if(el)el.outerHTML=gfAdminPanel(rows);await gfLoadPlans();}
 const baseAdmin=renderAdmin;renderAdmin=async function(){const rows=await gfAdminRows();await baseAdmin();$('app-content').insertAdjacentHTML('beforeend',gfAdminPanel(rows));};
-const basePage=renderPage;renderPage=function(){if(page==='plans'){const c=$('app-content');c.innerHTML='<div class="card panel"><p class="muted">Loading current plans…</p></div>';gfLoadPlans().then(()=>{c.innerHTML='<div class="page-title"><div><div class="eyebrow">Plan information</div><h1>Plan scenarios</h1></div></div><div id="dash-cards" class="plan-grid"></div><div class="calc-shell" style="margin-top:22px"><h2>Plan calculator</h2><div class="field"><label>Plan</label><select id="dash-select" onchange="planUpdate(\'dash\')"></select></div><div class="field"><label>Amount (USDT)</label><input id="dash-amount" class="calc-amount" type="number" step=".01" value="50" oninput="planSync(\'dash\',\'input\')" onblur="planSync(\'dash\',\'blur\')"></div><div class="calc-control"><label for="dash-range">Amount slider</label><input id="dash-range" class="calc-range" type="range" oninput="planSync(\'dash\',\'range\')"></div><div class="calc-control"><div class="calc-days-heading"><label for="dash-days">Duration</label><b><span id="dash-days-value">1</span> days</b></div><input id="dash-days" class="calc-range" type="range" min="1" max="365" step="1" value="1" oninput="planSync(\'dash\',\'days\')"><div class="calc-days-limits"><span>1 day</span><span>365 days</span></div></div><div id="dash-limits"></div><div class="calc-result"><span>Illustrative change</span><b id="dash-profit">—</b></div><div class="calc-result"><span>Illustrative total</span><b class="calc-total" id="dash-total">—</b></div><p class="risk">Hypothetical only. Actual outcomes may be negative.</p></div>';$('dash-cards').innerHTML=gfPlans.length?gfPlans.map(p=>gfCard(p,'dash')).join(''):'<div class="empty card">No active plans.</div>';gfFill('dash');}).catch(err=>{console.error('Plan page load failed:',err);const c=$('app-content');if(c)c.innerHTML='<div class="card panel"><h3>Plans are temporarily unavailable</h3><p class="muted">Please try again in a moment.</p><button class="btn primary" onclick="navigate(\'plans\')">Retry</button></div>';toast('Could not load plans: '+(err?.message||'Please try again.'),true)});return;}basePage();};
+const basePage=renderPage;renderPage=function(){if(page==='plans'){const c=$('app-content');c.innerHTML='<div class="card panel"><p class="muted">Loading current plans…</p></div>';gfLoadPlans().then(()=>{c.innerHTML='<div class="page-title"><div><div class="eyebrow">Plan information</div><h1>Plan scenarios</h1></div></div><div id="dash-cards" class="plan-grid"></div><div class="calc-shell" style="margin-top:22px"><h2>Plan calculator</h2><div class="field"><label>Plan</label><select id="dash-select" onchange="planUpdate(\'dash\')"></select></div><div class="field"><label>Amount (USDT)</label><input id="dash-amount" class="calc-amount" type="number" step=".01" value="50" oninput="planSync(\'dash\',\'input\')" onblur="planSync(\'dash\',\'blur\')"></div><div class="calc-control"><label for="dash-range">Amount slider</label><input id="dash-range" class="calc-range" type="range" oninput="planSync(\'dash\',\'range\')"></div><div class="calc-control"><div class="calc-days-heading"><label for="dash-days">Duration</label><b><span id="dash-days-value">1</span> days</b></div><input id="dash-days" class="calc-range" type="range" min="1" max="365" step="1" value="1" oninput="planSync(\'dash\',\'days\')"><div class="calc-days-limits"><span>1 day</span><span>365 days</span></div></div><div id="dash-limits"></div><div class="calc-result"><span>Illustrative profit</span><b id="dash-profit">—</b></div><div class="calc-result"><span>Illustrative total</span><b class="calc-total" id="dash-total">—</b></div><p class="risk">Hypothetical only. Actual outcomes may be negative.</p></div>';$('dash-cards').innerHTML=gfPlans.length?gfPlans.map(p=>gfCard(p,'dash')).join(''):'<div class="empty card">No active plans.</div>';gfFill('dash');}).catch(err=>{console.error('Plan page load failed:',err);const c=$('app-content');if(c)c.innerHTML='<div class="card panel"><h3>Plans are temporarily unavailable</h3><p class="muted">Please try again in a moment.</p><button class="btn primary" onclick="navigate(\'plans\')">Retry</button></div>';toast('Could not load plans: '+(err?.message||'Please try again.'),true)});return;}basePage();};
 const baseShowApp=showApp;showApp=function(){baseShowApp();if(!$('plans-nav'))$('side-nav').insertAdjacentHTML('beforeend','<button id="plans-nav" data-page="plans" onclick="navigate(\'plans\')"><span>◈</span>Plans</button>');};
 gfLoadPlans();
 
@@ -5575,6 +5575,108 @@ box-sizing:border-box!important;display:inline-flex!important;align-items:center
   .calc-shell:has(select[id$="-select"]){
     height:260px!important;min-height:260px!important;max-height:260px!important;
     overflow:hidden!important;
+  }
+}
+</style>
+
+
+<style id="zc-calculator-layout-v8">
+/* Taller calculator cards, larger readable text, stacked plan and amount fields, and no min/max arrow rows. */
+.calc-shell:has(select[id$="-select"]){
+  box-sizing:border-box!important;
+  height:300px!important;min-height:300px!important;max-height:300px!important;
+  overflow:hidden!important;
+  display:grid!important;
+  grid-template-columns:minmax(0,1fr) minmax(0,1fr)!important;
+  grid-template-rows:43px 43px 38px 42px 36px minmax(0,1fr)!important;
+  column-gap:12px!important;row-gap:5px!important;
+  padding:14px 16px!important;
+  align-content:stretch!important;
+}
+.calc-shell:has(select[id$="-select"])>.eyebrow,
+.calc-shell:has(select[id$="-select"])>h2,
+.calc-shell:has(select[id$="-select"])>p.muted{display:none!important}
+.calc-shell:has(select[id$="-select"])>.field:has(select[id$="-select"]){
+  grid-column:1/-1!important;grid-row:1!important;margin:0!important;gap:4px!important;min-width:0!important;
+}
+.calc-shell:has(select[id$="-select"])>.field:has(input[id$="-amount"]){
+  grid-column:1/-1!important;grid-row:2!important;margin:0!important;gap:4px!important;min-width:0!important;
+}
+.calc-shell:has(select[id$="-select"]) .field label{
+  display:block!important;font-size:12px!important;line-height:15px!important;margin:0!important;
+  white-space:normal!important;
+}
+.calc-shell:has(select[id$="-select"]) .field select,
+.calc-shell:has(select[id$="-select"]) .field input{
+  box-sizing:border-box!important;width:100%!important;height:27px!important;min-height:27px!important;
+  padding:3px 9px!important;border-radius:8px!important;font-size:13px!important;line-height:18px!important;
+}
+.calc-shell:has(select[id$="-select"]) .field .calc-amount{
+  font-size:14px!important;font-weight:750!important;padding:3px 9px!important;
+}
+.calc-shell:has(select[id$="-select"])>.calc-control:has(input[id$="-range"]){
+  grid-column:1/-1!important;grid-row:3!important;
+  display:grid!important;grid-template-columns:112px minmax(0,1fr)!important;
+  align-items:center!important;gap:10px!important;margin:0!important;min-width:0!important;
+}
+.calc-shell:has(select[id$="-select"])>.calc-control:has(input[id$="-days"]){
+  grid-column:1/-1!important;grid-row:4!important;
+  display:grid!important;grid-template-columns:112px minmax(0,1fr)!important;
+  align-items:center!important;gap:10px!important;margin:0!important;min-width:0!important;
+}
+.calc-shell:has(select[id$="-select"]) .calc-control>label{
+  font-size:11px!important;line-height:15px!important;margin:0!important;white-space:normal!important;
+}
+.calc-shell:has(select[id$="-select"]) .calc-days-heading{
+  grid-column:1!important;grid-row:1!important;display:flex!important;
+  justify-content:flex-start!important;align-items:center!important;gap:6px!important;min-width:0!important;
+}
+.calc-shell:has(select[id$="-select"]) .calc-days-heading label{
+  font-size:11px!important;line-height:15px!important;margin:0!important;white-space:nowrap!important;
+}
+.calc-shell:has(select[id$="-select"]) .calc-days-heading b{
+  font-size:12px!important;line-height:15px!important;white-space:nowrap!important;
+}
+.calc-shell:has(select[id$="-select"]) .calc-control input[type="range"]{
+  grid-column:2!important;grid-row:1!important;width:100%!important;height:16px!important;
+  min-height:16px!important;margin:0!important;padding:0!important;
+}
+.calc-shell:has(select[id$="-select"]) .calc-days-limits{
+  display:flex!important;grid-column:2!important;grid-row:2!important;
+  justify-content:space-between!important;font-size:10px!important;line-height:13px!important;
+  margin:0!important;white-space:nowrap!important;
+}
+.calc-shell:has(select[id$="-select"])>[id$="-limits"]{display:none!important}
+.calc-shell:has(select[id$="-select"])>.calc-result:has(b[id$="-profit"]){
+  grid-column:1!important;grid-row:5!important;
+}
+.calc-shell:has(select[id$="-select"])>.calc-result:has(b[id$="-total"]){
+  grid-column:2!important;grid-row:5!important;
+}
+.calc-shell:has(select[id$="-select"])>.calc-result{
+  display:flex!important;align-items:center!important;justify-content:space-between!important;
+  gap:7px!important;min-width:0!important;margin:0!important;padding:0!important;
+  border:0!important;font-size:12px!important;line-height:17px!important;white-space:normal!important;
+}
+.calc-shell:has(select[id$="-select"])>.calc-result span{font-size:12px!important}
+.calc-shell:has(select[id$="-select"])>.calc-result b{
+  font-size:13px!important;line-height:17px!important;white-space:normal!important;text-align:right!important;
+}
+.calc-shell:has(select[id$="-select"])>.calc-result b.calc-total{font-size:14px!important}
+.calc-shell:has(select[id$="-select"])>p.risk{
+  grid-column:1/-1!important;grid-row:6!important;display:block!important;
+  align-self:center!important;min-width:0!important;width:100%!important;
+  margin:0!important;padding:0!important;font-size:10px!important;line-height:14px!important;
+  white-space:normal!important;overflow-wrap:anywhere!important;overflow:visible!important;
+}
+@media(max-width:700px){
+  .calc-shell:has(select[id$="-select"]){
+    height:300px!important;min-height:300px!important;max-height:300px!important;
+    padding:12px!important;column-gap:8px!important;
+  }
+  .calc-shell:has(select[id$="-select"])>.calc-control:has(input[id$="-range"]),
+  .calc-shell:has(select[id$="-select"])>.calc-control:has(input[id$="-days"]){
+    grid-template-columns:92px minmax(0,1fr)!important;
   }
 }
 </style>
