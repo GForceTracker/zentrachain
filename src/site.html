@@ -5563,3 +5563,18 @@ box-sizing:border-box!important;display:inline-flex!important;align-items:center
   }
 }
 </style>
+
+
+<style id="zc-calculator-contained-v7">
+/* Increase every calculator card to 260px while keeping all contents clipped within its border. */
+.calc-shell:has(select[id$="-select"]){
+  height:260px!important;min-height:260px!important;max-height:260px!important;
+  overflow:hidden!important;
+}
+@media(max-width:700px){
+  .calc-shell:has(select[id$="-select"]){
+    height:260px!important;min-height:260px!important;max-height:260px!important;
+    overflow:hidden!important;
+  }
+}
+</style>
