@@ -5667,7 +5667,7 @@ schedule(FIRST_DELAY);
   if(!(amount>0)){showErr('Enter the amount you want to invest.');return}
   if(amount<plan.min_amount||amount>plan.max_amount){showErr('Amount must be between '+money(plan.min_amount)+' and '+money(plan.max_amount)+'.');return}
   var avail=typeof availableUnlocked==='function'?availableUnlocked():0;
-  var avail=bal-res-lck;
+
   if(amount>avail){showErr('Not enough balance. You need '+money(amount-avail)+' more.');return}
   el.disabled=true;var old=el.textContent;el.textContent='Processing…';
   try{
