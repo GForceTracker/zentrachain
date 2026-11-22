@@ -1129,14 +1129,8 @@ function legacyLockedTotal(){
 }
 function pendingPlanProfit(){return accruedProfitTotal()}
 function uninvestedDepositTotal(){
- const entryById=new Map((ledger||[]).map(x=>[x.id,x]));
- const locked=(investments||[]).reduce((sum,u)=>{
-  if(!u||u.status!=='active')return sum;
-  const entry=entryById.get(u.ledger_entry_id);
-  if(!entry||entry.entry_type!=='deposit'||Number(entry.amount||0)<=0)return sum;
-  return sum+Math.max(0,Number(u.amount||0));
- },0);
- return Math.max(0,depositTotal()-locked);
+ const invested=(investments||[]).filter(u=>u&&u.status==='active').reduce((sum,u)=>sum+Math.max(0,Number(u.amount||0)),0);
+ return Math.max(0,depositTotal()-invested);
 }
 function availableUnlocked(){return Math.max(0,balance()-reserved()-legacyLockedTotal())}
 function toggleDrawer(){const drawer=$('app-drawer'),scrim=$('drawer-scrim');if(!drawer||!scrim)return;if(typeof zcInitThemeUI==='function')zcInitThemeUI();const opening=!drawer.classList.contains('open');drawer.classList.toggle('open',opening);scrim.classList.toggle('show',opening);document.body.classList.toggle('zc-drawer-open',opening);}function closeDrawer(){const drawer=$('app-drawer'),scrim=$('drawer-scrim');if(drawer)drawer.classList.remove('open');if(scrim)scrim.classList.remove('show');document.body.classList.remove('zc-drawer-open')}function navigate(p){if(!p)return;if(p==='admin'&&profile?.role!=='admin'){toast('Administrator access required.',true);closeDrawer();return}const c=$('app-content');try{page=p;document.querySelectorAll('.side-nav button').forEach(b=>b.classList.toggle('active',b.dataset.page===p));closeDrawer();if(p==='calculator'){renderCalculatorPage();return}if(c)c.innerHTML='<div class="card panel" style="min-height:90px;display:flex;align-items:center"><span class="muted">Opening '+esc(p==='deposits'?'deposit':p==='withdrawals'?'withdrawal':p)+'…</span></div>';if(p==='deposits'){renderDepositPage();return}if(p==='withdrawals'){renderWithdrawalPage();return}if(p==='investments'){renderInvestmentsPage();return}renderPage();if(p==='overview'&&typeof loadReferralList==='function')loadReferralList()}catch(err){console.error('Navigation failed:',err);if(c)c.innerHTML='<section class="card panel"><h3>Unable to open this section</h3><p class="muted">'+esc(err?.message||'A page error occurred. Please try again.')+'</p><button class="btn primary" onclick="navigate(\'overview\')">Back to overview</button></section>';toast('Could not open this section: '+(err?.message||'Please try again.'),true)}}
