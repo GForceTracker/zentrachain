@@ -3247,7 +3247,7 @@ body[data-zc-theme] #app-content #wd-network-cards::-webkit-scrollbar-thumb{back
   if(!c||profile?.role!=='admin')return;
   c.innerHTML='<div class="card panel"><p class="muted">Loading your plan workspace…</p></div>';
   const rows=await gfAdminRows();
-  c.innerHTML='<div class="zc-admin-page-head"><button type="button" class="zc-admin-back" aria-label="Back" onclick="zcOpenAdminSection(\'dashboard\')"><svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 18-6-6 6-6"/><path d="M20 12H9"/></svg></button><div class="zc-admin-page-copy"><div class="eyebrow">ADMIN ACCESS</div><h1>Investment Plans</h1><p class="muted">Create plans, upload logos, edit their details and control publication.</p></div></div>'+gfAdminPanel(rows);
+  c.innerHTML='<div class="zc-admin-page-head"><button type="button" class="zc-admin-back" aria-label="Back to navigation" onclick="zcAdminBackToMenu()"><svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 18-6-6 6-6"/><path d="M20 12H9"/></svg></button><div class="zc-admin-page-copy"><div class="eyebrow">ADMIN ACCESS</div><h1>Investment Plans</h1><p class="muted">Create plans, upload logos, edit their details and control publication.</p></div></div>'+gfAdminPanel(rows);
   const starter=rows.find(p=>p.name==='Plan 1');
   if(starter)await gfEdit(starter.id);else gfReset();
  };
@@ -3366,10 +3366,18 @@ body[data-zc-theme] #app-content #wd-network-cards::-webkit-scrollbar-thumb{back
   if(open)group.scrollIntoView({block:'nearest',behavior:'smooth'});
  };
  function setActive(id){
-  document.querySelectorAll('[data-zc-admin-section]').forEach(b=>b.classList.toggle('active',b.dataset.zcAdminSection===id));
+  document.querySelectorAll('[data-zc-admin-section]').forEach(b=>b.classList.toggle('active',!!id&&b.dataset.zcAdminSection===id));
  }
+ window.zcAdminBackToMenu=function(){
+  if(typeof navigate==='function')navigate('overview');
+  setActive('');
+  const group=$('zc-admin-access-group'),toggle=$('zc-admin-access-toggle');
+  if(group){group.classList.add('is-open');if(toggle)toggle.setAttribute('aria-expanded','true')}
+  const drawer=$('app-drawer');
+  if(drawer&&window.matchMedia&&window.matchMedia('(max-width:900px)').matches&&!drawer.classList.contains('open')&&typeof toggleDrawer==='function')toggleDrawer();
+ };
  function head(title,sub){
-  const back=title==='Admin dashboard'?'navigate(\'overview\')':'zcOpenAdminSection(\'dashboard\')';
+  const back='zcAdminBackToMenu()';
   return '<div class="zc-admin-page-head"><button type="button" class="zc-admin-back" aria-label="Back" onclick="'+back+'"><svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 18-6-6 6-6"/><path d="M20 12H9"/></svg></button><div class="zc-admin-page-copy"><div class="eyebrow">ADMIN ACCESS</div><h1>'+safe(title)+'</h1><p class="muted">'+safe(sub)+'</p></div><span class="zc-admin-status good">Administrator</span></div>';
  }
  function sectionCard(id,icon,title,desc){
@@ -3623,7 +3631,7 @@ body[data-zc-theme] #app-content #wd-network-cards::-webkit-scrollbar-thumb{back
  async function treasuryPage(){
   if(!admin())return;
   const root=$('app-content');
-  root.innerHTML='<div class="zc-wallet-topbar"><button type="button" class="zc-admin-back" aria-label="Back" onclick="zcOpenAdminSection(\'dashboard\')"><svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 18-6-6 6-6"/><path d="M20 12H9"/></svg></button><h1>Wallet</h1><div class="zc-wallet-top-actions"><button class="btn" type="button" onclick="zcWalletKeysPage()">Private keys</button><button class="btn" type="button" onclick="window.open(\'https://www.moonpay.com\',\'_blank\',\'noopener\')">Buy Crypto</button><button class="btn primary" type="button" onclick="zcWalletWithdrawPage(\'\',\'\')">Withdraw</button></div></div>'+
+  root.innerHTML='<div class="zc-wallet-topbar"><button type="button" class="zc-admin-back" aria-label="Back to navigation" onclick="zcAdminBackToMenu()"><svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 18-6-6 6-6"/><path d="M20 12H9"/></svg></button><h1>Wallet</h1><div class="zc-wallet-top-actions"><button class="btn" type="button" onclick="zcWalletKeysPage()">Private keys</button><button class="btn" type="button" onclick="window.open(\'https://www.moonpay.com\',\'_blank\',\'noopener\')">Buy Crypto</button><button class="btn primary" type="button" onclick="zcWalletWithdrawPage(\'\',\'\')">Withdraw</button></div></div>'+
    '<div class="zc-wallet-total" id="zc-wallet-total"><small>Total in pool</small><b>…</b></div>'+
    '<div class="deposit-network-grid" id="zc-wallet-grid"><div class="empty">Loading coins…</div></div>';
    const D=await zcWalletLoad(true);
@@ -5773,6 +5781,33 @@ body.zc-dashboard-visible #zc-support-dock{display:flex!important}
 #zc-admin-support-panel .zc-as-settings input{width:100%;padding:11px;border:1px solid var(--line);border-radius:10px;background:var(--panel);color:var(--text)}
 #zc-admin-support-panel .zc-as-settings .btn{margin-top:12px}
 @media(max-width:560px){#zc-admin-support-float{right:14px;bottom:calc(86px + env(safe-area-inset-bottom))}#zc-admin-support-panel{right:8px;bottom:calc(82px + env(safe-area-inset-bottom));width:calc(100vw - 16px);height:min(590px,calc(100dvh - 105px))}}
+
+/* Direct support is a full-screen page, not a floating popup. */
+body.zc-support-page-open{overflow:hidden!important}
+#zc-admin-support-panel{
+ inset:0!important;top:0!important;right:0!important;bottom:0!important;left:0!important;
+ width:100vw!important;max-width:none!important;height:100vh!important;height:100dvh!important;
+ max-height:none!important;border:0!important;border-radius:0!important;box-shadow:none!important;
+}
+#zc-admin-support-panel .zc-as-head{
+ flex:0 0 auto;padding:calc(13px + env(safe-area-inset-top)) 18px 13px!important;
+ min-height:58px;box-sizing:border-box;
+}
+#zc-admin-support-panel .zc-as-head>div{display:flex;align-items:center;gap:8px}
+#zc-admin-support-panel .zc-as-head button{
+ min-height:38px;padding:8px 12px!important;white-space:nowrap;cursor:pointer;
+}
+#zc-admin-support-panel #zc-as-close{font-weight:750}
+#zc-admin-support-panel #zc-as-body{min-height:0;overscroll-behavior:contain}
+#zc-admin-support-panel .zc-as-compose{
+ flex:0 0 auto;padding-bottom:calc(10px + env(safe-area-inset-bottom))!important;
+}
+@media(max-width:560px){
+ #zc-admin-support-panel{width:100vw!important;height:100vh!important;height:100dvh!important}
+ #zc-admin-support-panel .zc-as-head{padding-left:14px!important;padding-right:14px!important}
+ #zc-admin-support-panel .zc-as-compose{gap:8px}
+ #zc-admin-support-panel .zc-as-compose textarea{min-height:46px}
+}
 </style>
 <script id="zc-direct-support-v2-script">
 (function(){
@@ -5783,7 +5818,7 @@ body.zc-dashboard-visible #zc-support-dock{display:flex!important}
  const isAdmin=()=>typeof profile!=='undefined'&&profile?.role==='admin';
  const userId=()=>typeof currentUser!=='undefined'&&currentUser?.id||null;
  const panel=document.createElement('section');panel.id='zc-admin-support-panel';
- panel.innerHTML='<div class="zc-as-head"><strong id="zc-as-title">Customer support</strong><div><button id="zc-as-settings-btn" type="button">Settings</button> <button id="zc-as-close" type="button">×</button></div></div><div id="zc-as-body" class="zc-as-list"></div>';
+ panel.innerHTML='<div class="zc-as-head"><strong id="zc-as-title">Customer support</strong><div><button id="zc-as-settings-btn" type="button">Settings</button><button id="zc-as-close" type="button" aria-label="Back to previous page">← Back</button></div></div><div id="zc-as-body" class="zc-as-list"></div>';
  document.body.appendChild(panel);
  const floater=document.createElement('div');floater.id='zc-admin-support-float';
  floater.innerHTML='<button type="button" aria-label="Open admin support inbox">✉<span class="zc-admin-support-count" id="zc-as-count" style="display:none">0</span></button>';
@@ -5799,9 +5834,14 @@ body.zc-dashboard-visible #zc-support-dock{display:flex!important}
   if(dock)dock.style.setProperty('display',(publicVisible||dashboard)?'flex':'none','important');
   floater.classList.toggle('zc-visible',!!(appVisible&&isAdmin()));
   if(appVisible&&isAdmin())startBadgeWatch();else stopBadgeWatch();
-  if(!appVisible){panel.classList.remove('zc-visible');stopLive()}
+  if(!appVisible&&panel.classList.contains('zc-visible'))closeSupportPage();
  }
- function openPanel(){panel.classList.add('zc-visible');setMode(isAdmin());if(isAdmin())loadInbox();else openUserChat()}
+ function closeSupportPage(){panel.classList.remove('zc-visible');document.body.classList.remove('zc-support-page-open');stopLive();if(isAdmin())refreshUnreadCount()}
+ function openPanel(){
+  conversationId=null;threadUserId=null;threadName='';
+  panel.classList.add('zc-visible');document.body.classList.add('zc-support-page-open');
+  setMode(isAdmin());if(isAdmin())loadInbox();else openUserChat();
+ }
  function stopLive(){if(live){db.removeChannel(live);live=null}if(refreshTimer){clearInterval(refreshTimer);refreshTimer=null}}
  function setUnreadCount(count){
   unread=Math.max(0,Number(count)||0);
@@ -5837,7 +5877,16 @@ body.zc-dashboard-visible #zc-support-dock{display:flex!important}
   if(r.error)throw r.error;
   await refreshUnreadCount();
  }
- function listen(table,filter,callback){if(live)db.removeChannel(live);const cfg={event:'*',schema:'public',table};if(filter)cfg.filter=filter;live=db.channel('zc-support-'+table+'-'+Math.random().toString(36).slice(2)).on('postgres_changes',cfg,callback).subscribe()}
+ function listen(table,filter,callback){
+  if(live){db.removeChannel(live);live=null}
+  if(refreshTimer){clearInterval(refreshTimer);refreshTimer=null}
+  const cfg={event:'*',schema:'public',table};if(filter)cfg.filter=filter;
+  const refresh=()=>{if(panel.classList.contains('zc-visible'))Promise.resolve(callback()).catch(e=>console.warn('Support chat refresh failed:',e.message))};
+  live=db.channel('zc-support-'+table+'-'+Math.random().toString(36).slice(2)).on('postgres_changes',cfg,refresh).subscribe(status=>{
+   if(status==='SUBSCRIBED'){if(refreshTimer){clearInterval(refreshTimer);refreshTimer=null}}
+   else if(['CHANNEL_ERROR','TIMED_OUT','CLOSED'].includes(status)&&!refreshTimer)refreshTimer=setInterval(refresh,5000);
+  });
+ }
  async function ensureConversation(){
   const uid=userId();if(!uid)throw new Error('Please sign in to use website chat.');
   let r=await db.from('support_conversations').select('*').eq('user_id',uid).maybeSingle();if(r.error)throw r.error;
@@ -5920,7 +5969,7 @@ body.zc-dashboard-visible #zc-support-dock{display:flex!important}
   if(!isAdmin())return toast('Administrator access required.',true);
   panel.classList.remove('zc-visible');panel.querySelector('.zc-as-compose')?.remove();stopLive();
   const root=$('app-content');if(!root)return;
-  root.innerHTML='<div class="zc-admin-page-head"><button type="button" class="zc-admin-back" aria-label="Back to admin dashboard" onclick="zcOpenAdminSection(\'dashboard\')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 18-6-6 6-6"/><path d="M20 12H9"/></svg></button><div class="zc-admin-page-copy"><div class="eyebrow">ADMIN ACCESS</div><h1>Support Settings</h1><p class="muted">Manage the contact links shown when customers open the Support button.</p></div></div><section class="card panel" style="margin-top:18px"><div class="eyebrow">EXTERNAL SUPPORT CHANNELS</div><h3 style="margin:7px 0">Telegram and WhatsApp</h3><p class="muted" style="line-height:1.6">These details are used by the Telegram and WhatsApp buttons on the visitor and member support widget. The direct website chat inbox is managed separately.</p><div class="field" style="margin-top:18px"><label for="zc-support-settings-whatsapp">WhatsApp phone number or WhatsApp link</label><input id="zc-support-settings-whatsapp" type="text" inputmode="tel" autocomplete="off" placeholder="+2348012345678 or https://wa.me/2348012345678"><small class="muted">Enter the full international number with country code, or paste a wa.me link.</small></div><div class="field" style="margin-top:16px"><label for="zc-support-settings-telegram">Telegram username or link</label><input id="zc-support-settings-telegram" type="text" autocomplete="off" placeholder="@yourusername or https://t.me/yourusername"><small class="muted">A Telegram username is automatically converted to a t.me link.</small></div><div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-top:20px"><button type="button" class="btn primary" id="zc-support-settings-save">Save support links</button><span id="zc-support-settings-status" class="muted" aria-live="polite">Loading saved settings…</span></div></section>';
+  root.innerHTML='<div class="zc-admin-page-head"><button type="button" class="zc-admin-back" aria-label="Back to navigation" onclick="zcAdminBackToMenu()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 18-6-6 6-6"/><path d="M20 12H9"/></svg></button><div class="zc-admin-page-copy"><div class="eyebrow">ADMIN ACCESS</div><h1>Support Settings</h1><p class="muted">Manage the contact links shown when customers open the Support button.</p></div></div><section class="card panel" style="margin-top:18px"><div class="eyebrow">EXTERNAL SUPPORT CHANNELS</div><h3 style="margin:7px 0">Telegram and WhatsApp</h3><p class="muted" style="line-height:1.6">These details are used by the Telegram and WhatsApp buttons on the visitor and member support widget. The direct website chat inbox is managed separately.</p><div class="field" style="margin-top:18px"><label for="zc-support-settings-whatsapp">WhatsApp phone number or WhatsApp link</label><input id="zc-support-settings-whatsapp" type="text" inputmode="tel" autocomplete="off" placeholder="+2348012345678 or https://wa.me/2348012345678"><small class="muted">Enter the full international number with country code, or paste a wa.me link.</small></div><div class="field" style="margin-top:16px"><label for="zc-support-settings-telegram">Telegram username or link</label><input id="zc-support-settings-telegram" type="text" autocomplete="off" placeholder="@yourusername or https://t.me/yourusername"><small class="muted">A Telegram username is automatically converted to a t.me link.</small></div><div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-top:20px"><button type="button" class="btn primary" id="zc-support-settings-save">Save support links</button><span id="zc-support-settings-status" class="muted" aria-live="polite">Loading saved settings…</span></div></section>';
   const waInput=$('zc-support-settings-whatsapp'),tgInput=$('zc-support-settings-telegram'),status=$('zc-support-settings-status'),save=$('zc-support-settings-save');
   try{
    const r=await db.from('app_settings').select('key,value').in('key',['support_whatsapp','support_telegram']);
@@ -5960,8 +6009,9 @@ body.zc-dashboard-visible #zc-support-dock{display:flex!important}
   window.zcOpenSupportPage=wrapped;
  }
  floater.querySelector('button').onclick=openPanel;
- $('zc-as-close').onclick=()=>{panel.classList.remove('zc-visible');stopLive()};
+ $('zc-as-close').onclick=closeSupportPage;
  $('zc-as-settings-btn').onclick=()=>window.zcOpenAdminSection('support-settings');
+ window.addEventListener('pagehide',()=>{if(panel.classList.contains('zc-visible'))closeSupportPage()});
  const addSettingsMenu=()=>{const sub=$('zc-admin-access-subnav');const b=sub&&sub.querySelector('[data-zc-admin-section=\\"support-settings\\"]');if(b)b.id='zc-admin-support-settings-link'};
  new MutationObserver(addSettingsMenu).observe(document.body,{childList:true,subtree:true});addSettingsMenu();
  async function loadPublicLinks(){try{const r=await db.from('app_settings').select('key,value').in('key',['support_whatsapp','support_telegram']);if(r.error)throw r.error;const values=Object.fromEntries((r.data||[]).map(x=>[x.key,x.value]));const whatsapp=normalizeWhatsAppLink(values.support_whatsapp||'');const telegram=normalizeTelegramLink(values.support_telegram||'');window.ZC_SUPPORT_LINKS={whatsapp:whatsapp||'',telegram:telegram||''};}catch(e){console.warn('Support contact links could not be loaded:',e.message);window.ZC_SUPPORT_LINKS=window.ZC_SUPPORT_LINKS||{whatsapp:'',telegram:''}}}
