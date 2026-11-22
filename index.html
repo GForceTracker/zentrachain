@@ -5758,7 +5758,7 @@ body.zc-dashboard-visible #zc-support-dock{display:flex!important}
  }
  function openPanel(){panel.classList.add('zc-visible');setMode(isAdmin());if(isAdmin())loadInbox();else openUserChat()}
  function stopLive(){if(live){db.removeChannel(live);live=null}if(refreshTimer){clearInterval(refreshTimer);refreshTimer=null}}
- function listen(table,filter,callback){if(live)db.removeChannel(live);live=db.channel('zc-support-'+table+'-'+Math.random().toString(36).slice(2)).on('postgres_changes',{event:'*',schema:'public',table,filter},callback).subscribe()}
+ function listen(table,filter,callback){if(live)db.removeChannel(live);const cfg={event:'*',schema:'public',table};if(filter)cfg.filter=filter;live=db.channel('zc-support-'+table+'-'+Math.random().toString(36).slice(2)).on('postgres_changes',cfg,callback).subscribe()}
  async function ensureConversation(){
   const uid=userId();if(!uid)throw new Error('Please sign in to use website chat.');
   let r=await db.from('support_conversations').select('*').eq('user_id',uid).maybeSingle();if(r.error)throw r.error;
