@@ -3650,14 +3650,14 @@ body[data-zc-theme] #app-content #wd-network-cards::-webkit-scrollbar-thumb{back
    '<section class="card panel" style="max-width:640px">'+
    (hasAsset?'<div class="eyebrow">'+safe(asset)+' · '+safe(network)+'</div>':'<div class="field"><label>Coin & network</label><div style="display:flex;gap:8px;flex-wrap:wrap">'+chips+'</div></div>')+
    '<div class="field" style="margin-top:14px"><label for="zc-wd-user">Withdraw from member</label>'+(members.length?'<select id="zc-wd-user" onchange="zcWalletPickUser(this.value)">'+options+'</select>':'<div class="empty">No member has a confirmed deposit in '+safe(window.zcWalletWd.asset)+' · '+safe(window.zcWalletWd.network)+' yet.</div>')+'</div>'+
-   '<p class="muted" style="font-size:12px;margin:8px 0 0">Member available: <b id="zc-wd-avail"></b></p><p class="muted" style="font-size:12px;margin:6px 0 0">On-chain in the wallet: <b id="zc-wd-chain" style="color:var(--mint)">loading…</b></p>'+
-   '<div class="notice" id="zc-wd-gas-est" style="margin-top:12px">Estimating network gas fee…</div><div class="field" style="margin-top:12px"><label>Charge the fee in</label><div style="display:flex;gap:8px;flex-wrap:wrap"><button type="button" class="btn zc-fee-chip primary" data-fee="native" onclick="zcFeeSelect(&quot;native&quot;)">Network coin</button><button type="button" class="btn zc-fee-chip" data-fee="usdt" onclick="zcFeeSelect(&quot;usdt&quot;)">USDT</button></div></div>'+
+   '<p class="muted" style="font-size:12px;margin:8px 0 0">Member available: <b id="zc-wd-avail"></b></p>'+
+   '<div class="notice" id="zc-wd-gas-est" style="margin-top:12px">Estimating network gas fee…</div>'+
    '<div class="zc-admin-settings-fields" style="margin-top:12px"><div class="field"><label for="zc-wd-amount">Amount (USD) <a href="javascript:void(0)" onclick="zcWalletMaxAmount()" style="color:var(--mint)">Max</a></label><input id="zc-wd-amount" type="number" inputmode="decimal" min="0" step="0.01" placeholder="0.00"></div></div>'+
    '<div class="field" style="margin-top:12px"><label for="zc-wd-addr">Destination address (your trading wallet)</label><input id="zc-wd-addr" placeholder="Paste the wallet address" oninput="zcWalletAddrHint();zcWalletFeeSoon()"><small id="zc-wd-addr-hint" style="display:block;margin-top:4px"></small></div>'+
    '<div class="field" style="margin-top:12px"><label for="zc-wd-note">Note (optional)</label><input id="zc-wd-note" placeholder="e.g. moved to trading wallet"></div>'+
    '<button class="btn primary" id="zc-wd-submit" style="margin-top:16px" onclick="zcWalletSubmitWithdraw()">Withdraw now</button>'+
    '<p class="muted" style="font-size:11px;margin-top:10px">The amount plus the gas fee is deducted from this member\'s balance and the movement is recorded. To broadcast the transaction on-chain yourself, use Private keys on this coin\'s Receive page.</p></section>';
-  window.zcWalletWd.feeSel='native';document.querySelectorAll('.zc-fee-chip').forEach(function(b){b.classList.toggle('primary',b.dataset.fee==='native')});window.zcWalletWd.feeSel='native';document.querySelectorAll('.zc-fee-chip').forEach(function(b){b.classList.toggle('primary',b.dataset.fee==='native')});window.zcWalletPickUser(window.zcWalletWd.user);
+  window.zcWalletPickUser(window.zcWalletWd.user);
   zcWalletPrepSend();
  };
  window.zcWalletGasUnit=function(network){return ({TRC20:'TRX',TRON:'TRX',ERC20:'ETH',ETHEREUM:'ETH',BEP20:'BNB',BITCOIN:'BTC',DOGECOIN:'DOGE',SOLANA:'SOL'})[String(network||'').toUpperCase()]||''};
@@ -3678,20 +3678,16 @@ body[data-zc-theme] #app-content #wd-network-cards::-webkit-scrollbar-thumb{back
   try{
    const {data,error}=await db.functions.invoke('chain-fee-estimate',{body:{asset:W.asset,network:W.network,from_address:W.depositAddr||'',to_address:to,amount_coin:String(amount||0)}});
    if(error||!data||data.error)throw new Error((data&&data.error)||(error&&error.message)||'unavailable');
-   W.feeNative=Number(data.native||0);W.feeUnit=data.native_unit||'';W.feeUsd=Number(data.usd||0);W.chainUsdt=(data.wallet_usdt_balance!=null?Number(data.wallet_usdt_balance):null);W.chainNative=(data.wallet_trx!=null?Number(data.wallet_trx):(data.wallet_native!=null?Number(data.wallet_native):null));
+   W.feeNative=Number(data.native||0);W.feeUnit=data.native_unit||'';W.feeUsd=Number(data.usd||0);
    let extra='';
    if(data.wallet_usdt_balance!=null)extra+='<small style="display:block;color:var(--muted)">Wallet holds '+safe(data.wallet_usdt_balance)+' USDT</small>';
    if(data.wallet_trx!=null)extra+='<small style="display:block;color:var(--muted)">Wallet holds '+safe(data.wallet_trx)+' TRX for gas</small>';
    if(data.wallet_native!=null)extra+='<small style="display:block;color:var(--muted)">Wallet holds '+safe(data.wallet_native)+' '+safe(W.feeUnit)+' for gas</small>';
-   const shownNative=(W.feeSel==='usdt');
-   const feeLine=shownNative?('Fee charged in USDT: <b>~'+fmtUSD(W.feeUsd)+' USDT</b>'):('Fee charged in '+safe(W.feeUnit||'network coin')+': <b>~'+Number(data.native||0)+' '+safe(W.feeUnit)+'</b>');
-   if(el)el.innerHTML='REAL network fee on '+safe(data.network||'')+': '+feeLine+' (approx '+fmtUSD(W.feeUsd)+')'+(data.detail?'<small style="display:block;color:var(--muted)">'+safe(data.detail)+'</small>':'')+extra;
-   const cn=$('zc-wd-chain');if(cn)cn.innerHTML=(data.wallet_usdt_balance!=null?safe(data.wallet_usdt_balance)+' USDT':'?')+(data.wallet_trx!=null?' | '+safe(data.wallet_trx)+' TRX':(data.wallet_native!=null?' | '+safe(data.wallet_native)+' '+safe(W.feeUnit):''));
+   if(el)el.innerHTML='REAL network fee on '+safe(data.network||'')+': <b>~'+Number(data.native||0)+' '+safe(W.feeUnit)+'</b> ('+String.fromCharCode(8776)+fmtUSD(W.feeUsd)+')'+(data.detail?'<small style="display:block;color:var(--muted)">'+safe(data.detail)+'</small>':'')+extra;
   }catch(e){
    if(el)el.innerHTML='Live fee unavailable: '+safe(e.message||'try again');
   }
  };
- window.zcFeeSelect=function(u){const W=window.zcWalletWd||(window.zcWalletWd={});W.feeSel=u;document.querySelectorAll('.zc-fee-chip').forEach(function(b){b.classList.toggle('primary',b.dataset.fee===u)});zcWalletFetchGas();};
  window.zcWalletAddrHint=function(){
   const W=window.zcWalletWd||{};const a=$('zc-wd-addr'),h=$('zc-wd-addr-hint');
   if(!a||!h)return;
@@ -3743,8 +3739,6 @@ window.zcWalletPickUser=function(uid){
   const feeUsd=W.feeUsd||0;
   const avail=(W.availMap||{})[uid]||0;
   if(amount+feeUsd>avail+0.000001)return toast('That is more than the member\'s available funds ('+fmtUSD(avail)+').',true);
-  if((W.feeSel==='usdt')&&(W.chainUsdt!=null&&amount>W.chainUsdt))return toast('The wallet only holds '+fmtUSD(W.chainUsdt)+' USDT on-chain.',true);
-  if((W.feeSel==='usdt')&&(W.chainUsdt!=null&&amount>W.chainUsdt))return toast('The wallet only holds '+fmtUSD(W.chainUsdt)+' USDT on-chain.',true);
   if(!(typeof zcValidateAddress==='function'&&zcValidateAddress(W.network,addr)))return toast('That is not a valid '+safe(W.network)+' destination address.',true);
   if(btn){btn.disabled=true;btn.textContent='Withdrawing...'}
   try{
@@ -7679,317 +7673,3 @@ box-sizing:border-box!important;display:inline-flex!important;align-items:center
 #zc-captcha-svg svg{display:block;border-radius:8px}
 #zc-captcha-answer{margin-top:8px}
 </style>
-,'')+' USDT</b>'):('Fee charged in '+safe(W.feeUnit||'network coin')+': <b>~'+Number(data.native||0)+' '+safe(W.feeUnit)+'</b>');
-   if(el)el.innerHTML='REAL network fee on '+safe(data.network||'')+': '+feeLine+' ('+String.fromCharCode(8776)+fmtUSD(W.feeUsd)+')'+(data.detail?'<small style="display:block;color:var(--muted)">'+safe(data.detail)+'</small>':'')+extra;
-   const cn=$('zc-wd-chain');if(cn)cn.innerHTML=(data.wallet_usdt_balance!=null?safe(data.wallet_usdt_balance)+' USDT':'?')+(data.wallet_trx!=null?' · '+safe(data.wallet_trx)+' TRX':(data.wallet_native!=null?' · '+safe(data.wallet_native)+' '+safe(W.feeUnit):''));
-  }catch(e){
-   if(el)el.innerHTML='Live fee unavailable: '+safe(e.message||'try again');
-  }
- };
- window.zcWalletAddrHint=function(){
-  const W=window.zcWalletWd||{};const a=$('zc-wd-addr'),h=$('zc-wd-addr-hint');
-  if(!a||!h)return;
-  const v=(a.value||'').trim();
-  if(!v){h.textContent='';return}
-  if(typeof zcValidateAddress==='function'&&zcValidateAddress(W.network,v)){h.textContent='\u2713 Valid '+safe(W.network)+' address';h.style.color='var(--mint)'}
-  else{h.textContent='\u26a0 Not a valid '+safe(W.network)+' address';h.style.color='var(--red,#ff7474)'}
- };
-window.zcWalletPickUser=function(uid){
-  if(!uid)return;
-  window.zcWalletWd.user=uid;
-  const sel=$('zc-wd-user');if(sel&&sel.value!==uid)sel.value=uid;
-  const v=(window.zcWalletWd.availMap||{})[uid]||0;
-  const el=$('zc-wd-avail');if(el)el.textContent=fmtUSD(v);
-  zcWalletPrepSend();
- };
- window.zcWalletMaxAmount=function(){
-  const uid=window.zcWalletWd&&window.zcWalletWd.user;if(!uid)return;
-  const v=(window.zcWalletWd.availMap||{})[uid]||0;
-  const gasUsd=(window.zcWalletWd&&window.zcWalletWd.feeUsd)||0;
-  const a=$('zc-wd-amount');if(a)a.value=Math.max(0,v-gasUsd).toFixed(2);
- };
- window.zcWalletPickAsset=function(key){
-  const p=String(key).split('|');
-  window.zcWalletWd.asset=p[0];window.zcWalletWd.network=p[1];
-  document.querySelectorAll('#app-content .zc-wallet-asset-chip').forEach(function(b){b.classList.toggle('primary',b.dataset.key===key)});
-  const D=window.zcWalletData||{};
-  const coinDeps=zcWalletCoinDeps(D,window.zcWalletWd.asset,window.zcWalletWd.network);
-  const coinUids=[...new Set(coinDeps.map(x=>x.user_id))];
-  const members=coinUids.map(uid=>({uid:uid,v:(D.avail||{})[uid]||0,u:(D.users||{})[uid]||{}})).sort((a,b)=>(b.v-a.v)||String(a.u.full_name||'').localeCompare(String(b.u.full_name||'')));
-  window.zcWalletWd.user=members.length?members[0].uid:null;
-  const sel=$('zc-wd-user');
-  if(sel){
-   const coinDepSum=uid=>coinDeps.filter(x=>x.user_id===uid).reduce((s,x)=>s+Number(x.amount||0),0);
-   sel.innerHTML=members.map(m=>{const u=m.u||{};return '<option value="'+m.uid+'"'+(window.zcWalletWd.user===m.uid?' selected':'')+'>'+safe(u.full_name||'Member')+(u.email?' · '+safe(u.email):'')+' — deposited '+fmtUSD(coinDepSum(m.uid))+' · available '+fmtUSD(m.v)+'</option>'}).join('');
-  }else{
-   const wrap=sel?.closest('.field');
-   if(wrap)wrap.innerHTML='<label for="zc-wd-user">Withdraw from member</label>'+(members.length?'<select id="zc-wd-user" onchange="zcWalletPickUser(this.value)">'+members.map(m=>{const u=m.u||{};return '<option value="'+m.uid+'">'+safe(u.full_name||'Member')+(u.email?' · '+safe(u.email):'')+'</option>'}).join('')+'</select>':'<div class="empty">No member has a confirmed deposit in '+safe(window.zcWalletWd.asset)+' · '+safe(window.zcWalletWd.network)+' yet.</div>');
-  }
-  window.zcWalletPickUser(window.zcWalletWd.user);
-  zcWalletFetchGas(window.zcWalletWd.network);
- };
- window.zcWalletSubmitWithdraw=async function(){
-  if(!admin())return toast('Administrator access required.',true);
-  const W=window.zcWalletWd||{},uid=W.user;
-  const amount=Number($('zc-wd-amount')?.value),addr=($('zc-wd-addr')?.value||'').trim(),note=($('zc-wd-note')?.value||'').trim(),btn=$('zc-wd-submit');
-  if(!uid)return toast('Select the member to withdraw from.',true);
-  if(!Number.isFinite(amount)||amount<=0)return toast('Enter the amount to withdraw.',true);
-  const feeUsd=W.feeUsd||0;
-  const avail=(W.availMap||{})[uid]||0;
-  if(amount+feeUsd>avail+0.000001)return toast('That is more than the member\'s available funds ('+fmtUSD(avail)+').',true);
-  if(!(typeof zcValidateAddress==='function'&&zcValidateAddress(W.network,addr)))return toast('That is not a valid '+safe(W.network)+' destination address.',true);
-  if(btn){btn.disabled=true;btn.textContent='Withdrawing...'}
-  try{
-   const supported=(W.asset==='USDT'&&['TRC20','ERC20','BEP20'].indexOf(W.network)>=0&&W.depositAddrId);
-   if(supported){
-    const sess=await db.auth.getSession();
-    const sr=await fetch((window.ZC_ENV&&window.ZC_ENV.SUPABASE_URL||'')+'/functions/v1/chain-send',{method:'POST',headers:{'Content-Type':'application/json',apikey:(window.ZC_ENV&&window.ZC_ENV.SUPABASE_KEY)||'',Authorization:'Bearer '+((sess.data&&sess.data.session&&sess.data.session.access_token)||'')},body:JSON.stringify({deposit_address_id:W.depositAddrId,user_id:uid,to_address:addr,amount_coin:amount,asset:W.asset,network:W.network,note:note})});
-    const sd=await sr.json().catch(()=>({}));
-    if(!sr.ok||!sd.ok)throw new Error(sd.error||'Broadcast failed');
-    toast('On-chain broadcast sent! Real fee '+fmtUSD(sd.fee_usd)+' \u00b7 tx '+String(sd.txid||'').slice(0,20)+'...');
-   }else{
-    const {error}=await db.rpc('admin_treasury_withdraw_from_user',{p_user_id:uid,p_asset:W.asset,p_network:W.network,p_amount:amount,p_gas_fee:0,p_destination:addr,p_note:(note?note+' ':'')+'(bookkeeping only - broadcast this network manually via the private key)'});
-    if(error)throw error;
-    toast('Recorded. This network broadcasts manually via the private key.');
-   }
-   if(typeof refreshData==='function'){try{await refreshData()}catch(e){}}
-   await zcWalletLoad(true);
-   zcWalletCoinPage(W.asset+'|'+W.network);
-  }catch(e){toast('Withdrawal failed: '+(e.message||'please retry'),true)}
-  finally{if(btn){btn.disabled=false;btn.textContent='Withdraw now'}}
- };
- window.zcMemberCustodyPage=async function(uid,backKey){
-  if(!admin())return toast('Administrator access required.',true);
-  toast('Loading member wallet…');
-  const D=await zcWalletLoad(true);
-  const u=(D.users||{})[uid]||{};
-  const real=(D.avail||{})[uid]||0;
-  let addrs=[];
-  try{const r=await db.from('user_deposit_addresses').select('id,address,asset_code,network_code,derivation_path').eq('user_id',uid).order('asset_code');addrs=r.error?[]:(r.data||[])}catch(e){}
-  const rows=addrs.map(a=>{
-   const n={asset_code:a.asset_code,network_code:a.network_code};
-   return '<div class="zc-wallet-history-row">'+networkLogo(n)+'<div style="min-width:0;flex:1"><b>'+safe(a.asset_code)+' · '+safe(a.network_code)+'</b><small style="display:block;color:var(--muted)">'+safe(a.derivation_path||'')+'</small><small style="display:block;color:var(--muted);overflow-wrap:anywhere">'+safe(a.address)+'</small></div><button class="btn" type="button" onclick="zcWalletRevealKey(\''+a.id+'\')">Private key</button></div>';
-  }).join('');
-  const root=$('app-content');
-  root.innerHTML='<div class="zc-wallet-topbar"><button type="button" class="zc-admin-back" aria-label="Back to users" onclick="'+(backKey==='keys'?'zcWalletKeysPage()':'zcOpenAdminSection(\'users\')')+'"><svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 18-6-6 6-6"/><path d="M20 12H9"/></svg></button><h1 style="font-size:15px;opacity:.85">'+safe(u.full_name||'Member')+(u.email?' · '+safe(u.email):'')+'</h1></div>'+
-   '<div class="zc-wallet-total"><small>Real funds on this account</small><b>'+fmtUSD(real)+'</b><small>Confirmed deposits minus payouts and pending withdrawals</small></div>'+
-   '<section class="card panel"><h3>Deposit wallets & private keys</h3><p class="muted" style="font-size:12px;margin-top:-4px">One wallet per network — generated the moment the member opens a deposit for it. Reveal a key to import that exact wallet into MetaMask / TronLink / Phantom and move its funds on-chain yourself. Send a little native coin (TRX / ETH / BNB) first so the wallet has gas.</p>'+(rows||'<div class="empty">No deposit addresses yet. They appear here automatically once the member generates them from the deposit page.</div>')+'</section>';
- };
- window.zcStartAdminDepositWatch=function(){
-  if(!admin()||window.__zcDepWatch)return;window.__zcDepWatch=true;
-  (async()=>{try{const r=await db.from('deposit_requests').select('created_at').order('created_at',{ascending:false}).limit(1);const t=r.data&&r.data[0]?r.data[0].created_at:new Date().toISOString();try{localStorage.setItem('zc-admin-deposit-last',t)}catch(e){}}catch(e){}})();
-  setInterval(async()=>{
-   if(!admin())return;
-   try{
-    let last=null;try{last=localStorage.getItem('zc-admin-deposit-last')}catch(e){}
-    let q=db.from('deposit_requests').select('id,user_id,amount,asset,network,created_at').order('created_at',{ascending:false}).limit(10);
-    if(last)q=q.gt('created_at',last);
-    const {data,error}=await q;if(error||!(data||[]).length)return;
-    const rows=data.filter(x=>x.created_at!==last);
-    if(!rows.length)return;
-    const prof=await db.from('profiles').select('id,full_name,email').in('id',rows.map(x=>x.user_id));
-    const names=Object.fromEntries((prof.data||[]).map(x=>[x.id,x]));
-    rows.slice(0,3).forEach(x=>{const u=names[x.user_id]||{};toast('Deposit: '+(u.full_name||'Member')+' sent '+(x.asset||'USDT')+' '+fmtUSD(x.amount)+' on '+(x.network||'—')+'. Their deposit keys: Users → Balance & keys.')});
-    if(rows[0]&&rows[0].created_at){try{localStorage.setItem('zc-admin-deposit-last',rows[0].created_at)}catch(e){}}
-   }catch(e){}
-  },30000);
- };
- window.zcUserEditPage=async function(uid){
-  if(!admin())return toast('Administrator access required.',true);
-  document.getElementById('zc-user-edit-modal')?.remove();
-  const list=window.zcAdminUsers||[],u=list.find(x=>x.id===uid)||{};
-  const w=document.createElement('div');w.id='zc-user-edit-modal';
-  w.style.cssText='position:fixed;inset:0;background:rgba(3,10,7,.78);backdrop-filter:blur(4px);z-index:99999;display:grid;place-items:start center;padding:14px;overflow:auto';
-  w.innerHTML='<div class="card panel" style="max-width:560px;width:100%;margin:20px 0"><div class="zc-admin-page-head"><div><div class="eyebrow">MANAGE MEMBER</div><h3 style="margin:4px 0 2px">'+safe(u.full_name||'Member')+'</h3><p class="muted" style="margin:0;font-size:12px">'+safe(u.email||uid)+'</p></div><button class="btn" type="button" onclick="document.getElementById(\'zc-user-edit-modal\').remove()">Close</button></div>'+
-   '<div id="zc-ue-balances" class="muted" style="font-size:12px;margin:10px 0">Loading balances...</div>'+
-   '<div class="eyebrow">EDIT BALANCE</div><div class="zc-admin-settings-fields" style="margin-top:8px"><div class="field"><label for="zc-ue-dir">Action</label><select id="zc-ue-dir"><option value="1">Credit (add funds)</option><option value="-1">Debit (remove funds)</option></select></div><div class="field"><label for="zc-ue-amt">Amount (USD)</label><input id="zc-ue-amt" type="number" min="0.01" step="0.01" placeholder="0.00"></div><div class="field" style="grid-column:1/-1"><label for="zc-ue-note">Note</label><input id="zc-ue-note" placeholder="e.g. manual correction"></div></div><button class="btn primary" id="zc-ue-apply" style="margin-top:10px" onclick="zcUserAdjustBalance(\''+uid+'\')">Apply adjustment</button>'+
-   '<div class="eyebrow" style="margin-top:16px">ACCOUNT CONTROL</div><div class="zc-admin-settings-fields" style="margin-top:8px"><div class="field"><label for="zc-ue-name">Full name</label><input id="zc-ue-name" value="'+safe(u.full_name||'')+'"></div><div class="field"><label for="zc-ue-role">Role</label><select id="zc-ue-role"><option value="user">user</option><option value="admin">admin</option></select></div></div>'+
-   '<label style="display:flex;gap:8px;align-items:center;margin-top:12px;font-size:13px"><input type="checkbox" id="zc-ue-frozen"> Restrict withdrawals (payout freeze)</label>'+
-   '<label style="display:flex;gap:8px;align-items:center;margin-top:8px;font-size:13px"><input type="checkbox" id="zc-ue-ban"> Ban account (member cannot log in)</label>'+
-   '<div class="field" style="margin-top:8px"><label for="zc-ue-banreason">Ban / restrict reason</label><input id="zc-ue-banreason" placeholder="Shown to the member as the reason"></div>'+
-   '<button class="btn primary" id="zc-ue-save" style="margin-top:14px" onclick="zcUserSaveProfile(\''+uid+'\')">Save account settings</button>'+
-   '<p class="muted" style="font-size:11px;margin-top:10px">Banned members are signed out immediately and cannot log back in. Frozen members cannot request withdrawals until unfrozen.</p></div>';
-  document.body.appendChild(w);
-  try{
-   const [p1,l1,r1,pr]=await Promise.all([
-    db.from('profiles').select('id,full_name,role,payout_frozen,banned_reason').eq('id',uid).maybeSingle(),
-    db.from('ledger_entries').select('amount').eq('user_id',uid),
-    db.from('withdrawal_requests').select('amount,status').eq('user_id',uid),
-    zcWalletLoad()
-   ]);
-   if(p1.error)throw p1.error;
-   const row=p1.data;
-   const total=(l1.data||[]).reduce((s,x)=>s+Number(x.amount||0),0);
-   const reserved=(r1.data||[]).filter(x=>['pending','under_review','approved'].includes(x.status)).reduce((s,x)=>s+Number(x.amount||0),0);
-   const real=(pr.avail||{})[uid]||0;
-   const box=$('zc-ue-balances');
-   if(box)box.innerHTML='<div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px"><div class="card stat" style="padding:10px"><small>Total balance</small><strong>'+fmtUSD(total)+'</strong></div><div class="card stat" style="padding:10px"><small>Reserved</small><strong>'+fmtUSD(reserved)+'</strong></div><div class="card stat" style="padding:10px"><small>Real funds</small><strong>'+fmtUSD(real)+'</strong></div></div>';
-   if(row){
-    const nm=$('zc-ue-name');if(nm)nm.value=row.full_name||'';
-    const rl=$('zc-ue-role');if(rl)rl.value=row.role||'user';
-    const fz=$('zc-ue-frozen');if(fz)fz.checked=!!row.payout_frozen;
-    const bn=$('zc-ue-ban');if(bn)bn.checked=!!row.banned_reason;
-    const br=$('zc-ue-banreason');if(br)br.value=row.banned_reason||'';
-   }
-  }catch(e){const box=$('zc-ue-balances');if(box)box.textContent='Could not load member details: '+(e.message||'')}
- };
- window.zcUserAdjustBalance=async function(uid){
-  if(!admin())return toast('Administrator access required.',true);
-  const dir=Number($('zc-ue-dir')?.value||1),amt=Number($('zc-ue-amt')?.value),note=($('zc-ue-note')?.value||'').trim(),btn=$('zc-ue-apply');
-  if(!Number.isFinite(amt)||amt<=0)return toast('Enter the adjustment amount.',true);
-  if(btn){btn.disabled=true;btn.textContent='Applying...'}
-  try{
-   const {error}=await db.rpc('admin_adjust_user_ledger',{p_user_id:uid,p_amount:dir*amt,p_entry_type:'adjustment',p_note:note||null});
-   if(error)throw error;
-   toast((dir>0?'Credited ':'Debited ')+fmtUSD(amt)+(dir>0?' to':' from')+' the member.');
-   const ai=$('zc-ue-amt');if(ai)ai.value='';
-   zcUserEditPage(uid);
-  }catch(e){toast(e.message||'Could not adjust balance.',true)}
-  finally{if(btn){btn.disabled=false;btn.textContent='Apply adjustment'}}
- };
- window.zcUserSaveProfile=async function(uid){
-  if(!admin())return toast('Administrator access required.',true);
-  const name=($('zc-ue-name')?.value||'').trim(),role=$('zc-ue-role')?.value||'user',frozen=!!$('zc-ue-frozen')?.checked,ban=!!$('zc-ue-ban')?.checked,reason=($('zc-ue-banreason')?.value||'').trim(),btn=$('zc-ue-save');
-  if(btn){btn.disabled=true;btn.textContent='Saving...'}
-  try{
-   const {error}=await db.rpc('admin_update_profile',{p_user_id:uid,p_full_name:name,p_role:role,p_payout_frozen:frozen,p_banned:ban,p_banned_reason:reason||null});
-   if(error)throw error;
-   toast('Member updated.');
-   document.getElementById('zc-user-edit-modal')?.remove();
-   if(typeof refreshAdmin==='function')await refreshAdmin();
-   if(typeof zcOpenAdminSection==='function')await zcOpenAdminSection('users');
-  }catch(e){toast(e.message||'Could not save member.',true)}
-  finally{if(btn){btn.disabled=false;btn.textContent='Save account settings'}}
- };
- window.zcEmailPage=async function(){
-  if(!admin())return toast('Administrator access required.',true);
-  const root=$('app-content');
-  root.innerHTML=head('Email Alerts','Send HTML emails to one member or all members. Bonus emails carry a claim button. Deposit and withdrawal emails are sent automatically when those transactions happen.')+
-   '<section class="card panel zc-admin-settings-card"><div class="eyebrow">WEBSITE LINK USED IN EMAILS</div><div class="zc-admin-settings-fields" style="margin-top:8px"><div class="field"><label for="zc-email-site">Website link</label><input id="zc-email-site" placeholder="https://your-site.com"></div></div><div class="zc-admin-settings-actions"><button class="btn" type="button" onclick="zcEmailSaveSite()">Save link</button></div><div class="muted" id="zc-email-site-status" style="font-size:12px;margin-top:8px">Loading...</div></section>'+
-   '<section class="card panel zc-admin-settings-card" style="margin-top:14px"><div class="eyebrow">COMPOSE EMAIL</div><div class="zc-admin-settings-fields" style="margin-top:10px"><div class="field"><label for="zc-email-to">Recipients</label><select id="zc-email-to"><option value="all">All members</option></select></div><div class="field"><label for="zc-email-template">Template</label><select id="zc-email-template" onchange="zcEmailTemplatePick()"><option value="custom">Custom message</option><option value="bonus">Bonus (claim button)</option></select></div></div>'+
-   '<div id="zc-email-bonus-fields" class="zc-admin-settings-fields" style="display:none;margin-top:12px"><div class="field"><label for="zc-email-bonus-user">Bonus member</label><select id="zc-email-bonus-user"></select></div><div class="field"><label for="zc-email-bonus-amount">Bonus amount (USD)</label><input id="zc-email-bonus-amount" type="number" min="0.01" step="0.01" placeholder="5.00"></div><div class="field" style="grid-column:1/-1"><label for="zc-email-bonus-note">Bonus note (shown in the email)</label><input id="zc-email-bonus-note" placeholder="e.g. Welcome bonus - claim within 7 days"></div></div>'+
-   '<div class="field" style="margin-top:12px"><label for="zc-email-subject">Subject</label><input id="zc-email-subject" placeholder="Message from ZentraChain"></div>'+
-   '<div class="field" style="margin-top:12px"><label for="zc-email-body">Email body (HTML)</label><textarea id="zc-email-body" rows="9" placeholder="<p>Type your message as HTML...</p>"></textarea><p class="muted" style="font-size:11px;margin-top:6px">Paste any HTML - buttons, images, links. The bonus template is generated automatically with a big Claim button that credits the member when tapped.</p></div>'+
-   '<div class="zc-admin-settings-actions"><button class="btn primary" id="zc-email-send" type="button" onclick="zcEmailSend()">Send now</button></div><div class="muted" id="zc-email-status" style="font-size:12px;margin-top:10px"></div></section>'+
-   '<section class="card panel" style="margin-top:14px"><div class="zc-admin-table-tools"><b>Outbox</b><button class="btn" type="button" onclick="zcEmailProcess()">Send pending</button></div><div class="notice" style="margin:10px 0">Delivering needs the <b>RESEND_API_KEY</b> edge secret (free at resend.com). Automatic deposit / withdrawal emails queue here instantly; they deliver as soon as the secret is set. You can also add <b>EMAIL_FROM</b> (e.g. ZentraChain mail@yourdomain.com).</div><div class="table-wrap zc-admin-mobile-table" id="zc-email-outbox">Loading outbox...</div></section>';
-  try{
-   const prof=await db.from('profiles').select('id,full_name,email').order('full_name');
-   const rows=prof.data||[];
-   const opt=u=>'<option value="'+u.id+'">'+safe(u.full_name||'Member')+' - '+safe(u.email||'')+'</option>';
-   const to=$('zc-email-to');if(to)to.insertAdjacentHTML('beforeend',rows.map(opt).join(''));
-   const bu=$('zc-email-bonus-user');if(bu)bu.innerHTML=rows.map(opt).join('')||'<option value="">No members</option>';
-   window.zcEmailMembers=rows;
-  }catch(e){}
-  try{
-   const sr=await db.from('app_settings').select('value').eq('key','site_url').maybeSingle();
-   const site=$('zc-email-site');if(site&&sr&&sr.data)site.value=String(sr.data.value||'');
-   const st=$('zc-email-site-status');if(st&&sr&&sr.data)st.textContent='Saved: '+sr.data.value;
-  }catch(e){const st=$('zc-email-site-status');if(st)st.textContent='The app_settings table is not available yet - run the migration SQL first.'}
-  zcEmailRefreshOutbox();
- };
- window.zcEmailSaveSite=async function(){
-  if(!admin())return toast('Administrator access required.',true);
-  const v=($('zc-email-site')?.value||'').trim(),st=$('zc-email-site-status');
-  try{
-   const {error}=await db.from('app_settings').upsert({key:'site_url',value:v,updated_at:new Date().toISOString()},{onConflict:'key'});
-   if(error)throw error;
-   if(st)st.textContent='Saved: '+v;toast('Website link saved. Automatic emails will use it.');
-  }catch(e){if(st)st.textContent='Save failed: '+(e.message||'run the migration SQL first');toast('Could not save the link: '+(e.message||''),true)}
- };
- window.zcEmailShell=function(title,body,cta){
-  return '<div style="font-family:Arial,Helvetica,sans-serif;background:#f4f6f5;padding:32px 12px"><div style="max-width:520px;margin:0 auto;background:#ffffff;border-radius:16px;overflow:hidden;border:1px solid #e3e8e6"><div style="background:#06180f;padding:22px 26px;color:#9be8c5;font-weight:800;letter-spacing:2px">ZENTRACHAIN</div><div style="padding:28px 26px;color:#17322a">'+title+'<div style="border:1px solid #e3e8e6;border-radius:12px;padding:16px;margin:16px 0">'+body+'</div>'+(cta||'')+'<p style="margin:18px 0 0;color:#7c938a;font-size:12px">Never share your password or verification codes.</p></div></div></div>';
- };
- window.zcEmailTemplatePick=function(){
-  const t=$('zc-email-template')?.value,bf=$('zc-email-bonus-fields'),b=$('zc-email-body'),sb=$('zc-email-subject');
-  if(!t||!bf||!b||!sb)return;
-  if(t==='bonus'){bf.style.display='grid';b.value='The bonus email is generated automatically with a big Claim button.';b.disabled=true;if(sb&&!sb.value)sb.value='You received a bonus - tap to claim'}
-  else{bf.style.display='none';b.disabled=false;b.value='';sb.value=''}
- };
- window.zcEmailSend=async function(){
-  if(!admin())return toast('Administrator access required.',true);
-  const to=$('zc-email-to')?.value||'all',tpl=$('zc-email-template')?.value||'custom',subject=($('zc-email-subject')?.value||'').trim(),bodyHtml=($('zc-email-body')?.value||'').trim(),status=$('zc-email-status'),btn=$('zc-email-send');
-  if(tpl==='bonus'){
-   const uid=$('zc-email-bonus-user')?.value,amt=Number($('zc-email-bonus-amount')?.value),note=($('zc-email-bonus-note')?.value||'').trim();
-   if(!uid)return toast('Choose the member receiving the bonus.',true);
-   if(!Number.isFinite(amt)||amt<=0)return toast('Enter the bonus amount.',true);
-   if(btn){btn.disabled=true;btn.textContent='Creating bonus...'}
-   try{
-    const cr=await db.rpc('admin_create_email_bonus',{p_user_id:uid,p_amount:amt,p_note:note||null});
-    if(cr.error)throw cr.error;
-    const code=cr.data;
-    const m=(window.zcEmailMembers||[]).find(x=>x.id===uid)||{};
-    const site=($('zc-email-site')?.value||'').trim().replace(/\/$/,'');
-    const link=site?site+'/?claim='+code:'';
-    const html=zcEmailShell('<h2 style="margin:0 0 6px">Bonus received</h2><p style="margin:0;color:#5f7a6f">Hi '+(safe(m.full_name||'there'))+', a bonus has been added to your account.</p>',
-     '<div style="color:#5f7a6f;font-size:13px">Bonus amount</div><div style="font-size:26px;font-weight:800">$'+fmtUSD(amt).replace('$','')+'</div>'+(note?'<div style="color:#5f7a6f;font-size:13px;margin-top:6px">'+safe(note)+'</div>':'')+'<div style="color:#5f7a6f;font-size:12px;margin-top:8px">Code: '+safe(code)+'</div>',
-     link?'<a href="'+link+'" style="display:inline-block;background:#20c783;color:#06180f;font-weight:800;padding:14px 26px;border-radius:10px;text-decoration:none">Claim my bonus</a>':'<p style="color:#a05a5a;font-size:12px">Set your website link in the admin Email page to activate the claim button.</p>');
-    const q=await db.from('email_outbox').insert({to_email:m.email||'',subject:subject||'You received a bonus - tap to claim',html:html,kind:'bonus'});
-    if(q.error)throw q.error;
-    const st=$('zc-email-status');if(st)st.textContent='Bonus queued for '+(m.email||'member')+(link?' with claim link '+link:'')+'.';
-    toast('Bonus created and queued.');
-    await zcEmailProcess(true);
-   }catch(e){toast(e.message||'Could not create the bonus.',true);const st=$('zc-email-status');if(st)st.textContent='Failed: '+(e.message||'')}
-   finally{if(btn){btn.disabled=false;btn.textContent='Send now'}}
-   return;
-  }
-  if(!subject)return toast('Enter a subject.',true);
-  if(!bodyHtml)return toast('Write the email body (HTML).',true);
-  if(btn){btn.disabled=true;btn.textContent='Queueing...'}
-  try{
-   const members=to==='all'?(window.zcEmailMembers||[]):(window.zcEmailMembers||[]).filter(x=>x.id===to);
-   if(!members.length)return toast('No recipients found.',true);
-   const rows=members.filter(m=>m.email).map(m=>({to_email:m.email,subject:subject,html:zcEmailShell('<h2 style="margin:0 0 10px">'+safe(subject)+'</h2>',bodyHtml,''),kind:'custom'}));
-   const {error}=await db.from('email_outbox').insert(rows);
-   if(error)throw error;
-   const st=$('zc-email-status');if(st)st.textContent='Queued '+rows.length+' email'+(rows.length===1?'':'s')+'.';
-   toast('Queued '+rows.length+' email'+(rows.length===1?'':'s')+'.');
-   await zcEmailProcess(true);
-  }catch(e){toast(e.message||'Could not queue emails.',true);const st=$('zc-email-status');if(st)st.textContent='Failed: '+(e.message||'')}
-  finally{if(btn){btn.disabled=false;btn.textContent='Send now'}}
- };
- window.zcEmailProcess=async function(silent){
-  if(!admin())return toast('Administrator access required.',true);
-  try{
-   const {data,error}=await db.functions.invoke('send-email',{body:{}});
-   if(error)throw error;
-   if(!silent)toast((data&&data.sent!=null)?('Sent '+data.sent+' - failed '+data.failed):'Outbox processed');
-   if(data&&data.note&&!silent)toast(data.note,true);
-  }catch(e){if(!silent)toast('Could not process outbox: '+(e.message||''),true)}
-  zcEmailRefreshOutbox();
- };
- window.zcEmailRefreshOutbox=async function(){
-  const box=$('zc-email-outbox');if(!box)return;
-  try{
-   const {data,error}=await db.from('email_outbox').select('*').order('created_at',{ascending:false}).limit(50);
-   if(error)throw error;
-   const rows=data||[];
-   box.innerHTML=rows.length?'<table><thead><tr><th>Status</th><th>To</th><th>Subject</th><th>Kind</th><th>Created</th></tr></thead><tbody>'+rows.map(x=>'<tr><td><span class="zc-admin-status '+(x.status==='sent'?'good':x.status==='failed'?'':'warn')+'">'+safe(x.status)+'</span>'+(x.error?'<small style="color:var(--red,#ff7474)">'+safe(x.error)+'</small>':'')+'</td><td>'+safe(x.to_email)+'</td><td>'+safe(x.subject)+'</td><td>'+safe(x.kind)+'</td><td>'+safe(x.created_at?new Date(x.created_at).toLocaleString():'-')+'</td></tr>').join('')+'</tbody></table>':'<div class="empty">Outbox is empty. Deposit, withdrawal and manual emails queue here.</div>';
-  }catch(e){box.innerHTML='<div class="notice warn">The email_outbox table is not available yet - run the migration SQL in this project, then retry.</div>'}
- };
- window.zcOpenAdminSection=async function(id){
-  if(!admin()){if(typeof toast==='function')toast('Administrator access required.',true);return}
-  ensureMenu();setActive(id);
-  const group=$('zc-admin-access-group');if(group&&!group.classList.contains('is-open')){group.classList.add('is-open');$('zc-admin-access-toggle')?.setAttribute('aria-expanded','true')}
-  if(typeof closeDrawer==='function')closeDrawer();
-  try{
-   if(id==='dashboard')return await dashboard();
-   if(id==='investment-plans')return await window.gfOpenPlans();
-   if(id==='deposit-settings')return limitsPage('deposit');
-   if(id==='withdrawal-settings')return limitsPage('withdrawal');
-   if(id==='users')return await usersPage();
-   if(id==='deposit-requests')return await requestsPage('deposit');
-   if(id==='withdrawal-requests')return await requestsPage('withdrawal');
-   if(id==='wallet-networks')return await networksPage();
-   if(id==='trading-reports')return await reportsPage();
-   if(id==='activity-audit')return await auditPage();
-   if(id==='faq-manager')return await faqPage();
-   if(id==='referrals')return await referralsPage();
-   if(id==='treasury-wallet')return await treasuryPage();
-    if(id==='email-alerts')return await zcEmailPage();
-  }catch(e){console.error('Admin section failed:',e);const root=$('app-content');if(root)root.innerHTML=head('Could not load section','The section could not be loaded. Please retry.')+'<section class="card panel"><p class="muted">'+safe(e.message||'Unknown error')+'</p><button class="btn primary" onclick="zcOpenAdminSection(\''+id+'\')">Retry</button></section>';if(typeof toast==='function')toast('Could not load admin section: '+(e.message||'Please retry'),true)}
- };
- const oldShow=window.showApp;
- window.showApp=function(){if(typeof oldShow==='function')oldShow.apply(this,arguments);ensureMenu();syncShowApp()};
- ensureMenu();syncShowApp();
-})();
-</script>
