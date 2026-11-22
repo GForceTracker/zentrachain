@@ -1058,7 +1058,7 @@ html body .modal-head .brand{white-space:nowrap!important;min-width:0!important}
 </footer>
 </div>
 <div id="application" class="hidden"><div class="app"><div id="drawer-scrim" class="drawer-scrim" onclick="closeDrawer()"></div><aside class="side" id="app-drawer"><button type="button" class="zc-drawer-close" aria-label="Close navigation" onclick="closeDrawer()">×</button><div class="brand"><div class="logo zc-brand-mark"><svg viewBox="0 0 40 40" width="27" height="27" aria-hidden="true" focusable="false"><defs><linearGradient id="zcLogoGrad" x1="4" y1="4" x2="36" y2="36" gradientUnits="userSpaceOnUse"><stop style="stop-color:var(--mint)"/><stop offset=".48" style="stop-color:var(--green)"/><stop offset="1" style="stop-color:var(--green)"/></linearGradient></defs><path d="M20 2.8 35.2 11.4v17.2L20 37.2 4.8 28.6V11.4L20 2.8Z" fill="none" stroke="url(#zcLogoGrad)" stroke-width="2.2"/><path d="M12 13.1h16L15.4 26.9H28" fill="none" stroke="url(#zcLogoGrad)" stroke-width="4.1" stroke-linecap="round" stroke-linejoin="round"/><circle cx="28.1" cy="13.1" r="2.1" style="fill:var(--mint)"/><circle cx="12" cy="26.9" r="2.1" style="fill:var(--green)"/></svg></div>ZENTRACHAIN</div><nav class="side-nav" id="side-nav"><button type="button" data-page="public-home" onclick="zcGoLanding()" aria-label="Public Home"><span class="zc-home-nav-icon" aria-hidden="true"><i data-lucide="house"></i></span>Home</button><button class="active" data-page="overview" onclick="navigate('overview')" aria-label="Dashboard"><span class="zc-home-nav-icon" aria-hidden="true"><i data-lucide="layout-dashboard"></i></span>Dashboard</button><button data-page="deposits" onclick="navigate('deposits')"><span>↓</span>Deposits</button><button data-page="withdrawals" onclick="navigate('withdrawals')"><span>↑</span>Withdraw</button><button id="plans-nav" data-page="plans" onclick="navigate('plans')"><span>◈</span>Trading Plans</button><button data-page="calculator" onclick="navigate('calculator')"><span>∑</span>Calculator</button><button data-page="markets" onclick="navigate('markets')"><span>⌁</span>Markets</button><button data-page="investments" onclick="navigate('investments')"><span>◎</span>Active Plan</button><button data-page="activity" onclick="navigate('activity')"><span>▤</span>Transactions</button><button type="button" id="zc-community-nav" class="zc-community-nav-link" onclick="zcOpenCommunityChat()" aria-label="Open group chat"><span class="zc-community-nav-icon" aria-hidden="true"><i data-lucide="messages-square"></i></span><span>Group Chat</span><i class="zc-community-nav-pulse" aria-hidden="true"></i></button><button data-page="admin" id="admin-nav" class="hidden" onclick="navigate('admin')"><span>⚙</span>Admin</button><button type="button" data-page="support" onclick="zcOpenSupportPage()" aria-label="Customer support"><span class="zc-home-nav-icon" aria-hidden="true"><i data-lucide="headset"></i></span>Customer Support</button></nav><div class="side-foot">Secure account portal<br><span class="green">●</span> Session protected by Supabase</div></aside><div class="main"><header class="appbar"><div class="appbar-left"><button class="btn menu-trigger" aria-label="Open navigation" onclick="toggleDrawer()">☰</button><div><b id="hello">Welcome</b><div class="muted" style="font-size:11px" id="email-label"></div></div></div><div class="appbar-actions"><button class="btn alert-trigger zc-bell-trigger" aria-label="Notifications" title="Notifications" onclick="openAlerts()"><svg viewBox="0 0 24 24" width="19" height="19" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9"/><path d="M10 21h4"/></svg><span id="alert-count" class="alert-count hidden">0</span></button><span id="role-label" class="admin-tag hidden">ADMIN</span><div class="zc-user-menu-wrap" id="zc-user-menu"><button type="button" class="zc-user-menu-trigger" id="zc-user-menu-trigger" aria-label="Profile menu" aria-haspopup="true" aria-expanded="false" onclick="zcToggleUserMenu()"><span class="zc-avatar-circle" aria-hidden="true"><svg viewBox="0 0 24 24" role="presentation" aria-hidden="true" focusable="false"><circle cx="12" cy="8" r="3.2"></circle><path d="M4.7 20c.3-3.5 3.1-6.1 7.3-6.1s7 2.6 7.3 6.1"></path></svg></span><span class="zc-user-menu-chevron" aria-hidden="true"></span></button><div class="zc-user-menu-panel hidden" id="zc-user-menu-panel" role="menu"><div class="zc-user-menu-identity"><b id="zc-user-menu-name">Account</b><small id="zc-user-menu-email"></small></div><button type="button" class="zc-user-menu-logout" role="menuitem" style="color:var(--mint)" onclick="zcCloseUserMenu();navigate('profile')"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9c.66.29 1.1.87 1.51 1H21a2 2 0 1 1 0 4h-.09c-.64.13-1.22.55-1.51 1Z"/></svg><span>Settings</span></button><button type="button" class="zc-user-menu-logout" role="menuitem" onclick="zcCloseUserMenu();signOut()"><svg viewBox="0 0 20 20" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3H4.8A1.8 1.8 0 0 0 3 4.8v10.4A1.8 1.8 0 0 0 4.8 17H8"/><path d="M11 6.5 14.5 10 11 13.5M6.5 10h8"/></svg><span>Logout</span></button></div></div></div></header><main class="content" id="app-content"></main></div></div></div>
-<div id="auth-modal" class="modal-bg hidden"><div class="modal"><div class="modal-head"><div class="brand"><div class="logo zc-brand-mark"><svg viewBox="0 0 40 40" width="27" height="27" aria-hidden="true" focusable="false"><defs><linearGradient id="zcLogoGrad" x1="4" y1="4" x2="36" y2="36" gradientUnits="userSpaceOnUse"><stop style="stop-color:var(--mint)"/><stop offset=".48" style="stop-color:var(--green)"/><stop offset="1" style="stop-color:var(--green)"/></linearGradient></defs><path d="M20 2.8 35.2 11.4v17.2L20 37.2 4.8 28.6V11.4L20 2.8Z" fill="none" stroke="url(#zcLogoGrad)" stroke-width="2.2"/><path d="M12 13.1h16L15.4 26.9H28" fill="none" stroke="url(#zcLogoGrad)" stroke-width="4.1" stroke-linecap="round" stroke-linejoin="round"/><circle cx="28.1" cy="13.1" r="2.1" style="fill:var(--mint)"/><circle cx="12" cy="26.9" r="2.1" style="fill:var(--green)"/></svg></div><span id="auth-title">Welcome back</span></div><button class="x" onclick="hideAuth()">×</button></div><div id="auth-message" class="notice hidden" style="margin-bottom:14px"></div><form class="form" id="auth-form" onsubmit="submitAuth(event)"><div class="field hidden" id="name-field"><label>Full name</label><input id="auth-name" autocomplete="name" placeholder="Your full name"></div><div class="field"><label>Email address</label><input id="auth-email" type="email" autocomplete="email" required placeholder="you@example.com"></div><div class="field"><label>Password</label><div class="zc-pass-wrap"><input id="auth-password" type="password" minlength="8" autocomplete="current-password" required placeholder="At least 8 characters"><button type="button" class="zc-pass-eye" onclick="zcTogglePassword()" aria-label="Show password"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg></button></div></div><div class="field" id="zc-captcha-field"><div id="zc-tickbox" class="zc-tickbox" role="checkbox" aria-checked="false" tabindex="0" onclick="zcTickStart()"><span class="zc-tick-box-ui"><span class="zc-tick-mark" id="zc-tick-mark"></span></span><span class="zc-tick-label">I'm not a robot</span><span class="zc-tick-state" id="zc-tick-state"></span></div><div id="zc-captcha-challenge" style="display:none"><div id="zc-captcha-svg"></div><input id="zc-captcha-answer" autocomplete="off" placeholder="Type the code" maxlength="4" onkeydown="if(event.key==='Enter'){event.preventDefault();zcTickVerify()}"></div></div><button class="btn primary" id="auth-submit" type="submit">Log in</button><button class="btn ghost hidden" type="button" id="auth-resend" onclick="resendVerification()" style="margin-top:10px">Resend verification email</button>
+<div id="auth-modal" class="modal-bg hidden"><div class="modal"><div class="modal-head"><div class="brand"><div class="logo zc-brand-mark"><svg viewBox="0 0 40 40" width="27" height="27" aria-hidden="true" focusable="false"><defs><linearGradient id="zcLogoGrad" x1="4" y1="4" x2="36" y2="36" gradientUnits="userSpaceOnUse"><stop style="stop-color:var(--mint)"/><stop offset=".48" style="stop-color:var(--green)"/><stop offset="1" style="stop-color:var(--green)"/></linearGradient></defs><path d="M20 2.8 35.2 11.4v17.2L20 37.2 4.8 28.6V11.4L20 2.8Z" fill="none" stroke="url(#zcLogoGrad)" stroke-width="2.2"/><path d="M12 13.1h16L15.4 26.9H28" fill="none" stroke="url(#zcLogoGrad)" stroke-width="4.1" stroke-linecap="round" stroke-linejoin="round"/><circle cx="28.1" cy="13.1" r="2.1" style="fill:var(--mint)"/><circle cx="12" cy="26.9" r="2.1" style="fill:var(--green)"/></svg></div><span id="auth-title">Welcome back</span></div><button class="x" onclick="hideAuth()">×</button></div><div id="auth-message" class="notice hidden" style="margin-bottom:14px"></div><form class="form" id="auth-form" onsubmit="submitAuth(event)"><div class="field hidden" id="name-field"><label>Full name</label><input id="auth-name" autocomplete="name" placeholder="Your full name"></div><div class="field"><label>Email address</label><input id="auth-email" type="email" autocomplete="email" required placeholder="you@example.com"></div><div class="field"><label>Password</label><div class="zc-pass-wrap"><input id="auth-password" type="password" minlength="8" autocomplete="current-password" required placeholder="At least 8 characters"><button type="button" class="zc-pass-eye" onclick="zcTogglePassword()" aria-label="Show password"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg></button></div></div><div class="field" id="zc-captcha-field"><div id="zc-tickbox" class="zc-tickbox" role="checkbox" aria-checked="false" tabindex="0" onclick="zcTickStart()"><span class="zc-tick-box-ui"><span class="zc-tick-mark" id="zc-tick-mark"></span></span><span class="zc-tick-label">I'm not a robot</span><span class="zc-tick-state" id="zc-tick-state"></span></div></div></div><button class="btn primary" id="auth-submit" type="submit">Log in</button><button class="btn ghost hidden" type="button" id="auth-resend" onclick="resendVerification()" style="margin-top:10px">Resend verification email</button>
 <button class="btn ghost" type="button" onclick="toggleAuthMode()" id="auth-switch">Create an account</button></form></div></div>
 <div id="toast" class="toast hidden"></div><div id="transaction-modal" class="transaction-modal hidden" onclick="if(event.target===this)closeAlerts()"><div class="transaction-card"><div class="alert-symbol">↗</div><div class="eyebrow">ACCOUNT NOTIFICATION</div><h3 id="transaction-alert-title">Transaction update</h3><p id="transaction-alert-message">Your account has a new transaction update.</p><button class="btn primary" style="width:100%" onclick="closeAlerts()">Got it</button></div></div>
 <script>
@@ -1084,36 +1084,23 @@ if(authMode==='signup'&&zcTick.state!=='verified')return authMsg('Tap the verifi
  if(!sr.ok||!sd.ok)return authMsg(sd.error||'Signup failed. Please try again.',true);
  r=await db.auth.signInWithPassword({email,password});if(r.error)return authMsg(r.error.message,true);
 }else{r=await db.auth.signInWithPassword({email,password});if(r.error)return authMsg(r.error.message,true)}hideAuth();await loadSession();if(window.zcCommunityAfterAuth)await window.zcCommunityAfterAuth()}catch(err){authMsg(err?.message||'Sign-in could not be completed. Please try again.',true)}finally{if(submit){submit.disabled=false;submit.textContent=authMode==='signup'?'Create account':'Log in'}}}
-let zcTick={state:'idle',id:'',verified:false};
-function zcTickReset(){zcTick={state:'idle',id:'',verified:false};const box=$('zc-tickbox');if(!box)return;box.classList.remove('verified','verifying');box.setAttribute('aria-checked','false');const mk=$('zc-tick-mark');if(mk)mk.textContent='';const st=$('zc-tick-state');if(st)st.textContent='';const ch=$('zc-captcha-challenge');if(ch)ch.style.display='none';const sv=$('zc-captcha-svg');if(sv)sv.innerHTML='';const ai=$('zc-captcha-answer');if(ai)ai.value=''}
-async function zcTickTap(){
- if(zcTick.state==='verified')return;
- if(zcTick.state==='challenged')return zcTickVerify();
+let zcTick={state:'idle',id:'',nonce:''};
+function zcTickReset(){zcTick={state:'idle',id:'',nonce:''};const box=$('zc-tickbox');if(!box)return;box.classList.remove('verified','verifying');box.setAttribute('aria-checked','false');const mk=$('zc-tick-mark');if(mk)mk.textContent='';const st=$('zc-tick-state');if(st)st.textContent=''}
+async function zcSha256(sx){const d=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(sx));return Array.from(new Uint8Array(d),b=>b.toString(16).padStart(2,'0')).join('')}
+async function zcTickStart(){
+ if(zcTick.state==='verifying')return;
  const box=$('zc-tickbox');if(!box)return;
- zcTick.state='challenging';box.classList.add('verifying');const st=$('zc-tick-state');if(st)st.textContent='Loading...';
+ zcTick.state='verifying';box.classList.add('verifying');const st=$('zc-tick-state');if(st)st.textContent='Verifying...';
  try{
   const base=(window.ZC_ENV&&window.ZC_ENV.SUPABASE_URL)||'';
   const r=await fetch(base+'/functions/v1/captcha-challenge',{method:'POST',headers:{'Content-Type':'application/json'},body:'{}'});
-  const d=await r.json();if(!r.ok||!d.id||!d.svg)throw new Error(d.error||'Challenge failed');
-  zcTick.id=d.id;zcTick.state='challenged';
-  const sv=$('zc-captcha-svg');if(sv)sv.innerHTML=d.svg;
-  const ch=$('zc-captcha-challenge');if(ch)ch.style.display='block';
-  const ai=$('zc-captcha-answer');if(ai)ai.focus();
-  box.classList.remove('verifying');if(st)st.textContent='Enter the code';
- }catch(e){zcTick.state='idle';box.classList.remove('verifying');if(st)st.textContent='';toast(e.message||'Captcha failed - tap again.',true)}
-}
-async function zcTickVerify(){
- if(zcTick.state!=='challenged')return;
- const answer=($('zc-captcha-answer')?.value||'').trim().toUpperCase();
- if(!answer)return toast('Type the code first.',true);
- const box=$('zc-tickbox');const st=$('zc-tick-state');if(st)st.textContent='Checking...';
- try{
-  const base=(window.ZC_ENV&&window.ZC_ENV.SUPABASE_URL)||'';
-  const r=await fetch(base+'/functions/v1/captcha-verify',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id:zcTick.id,answer:answer})});
-  const d=await r.json().catch(()=>({}));
-  if(!r.ok||!d.ok)throw new Error(d.error||'Wrong code');
-  zcTick.state='verified';box.classList.add('verified');box.setAttribute('aria-checked','true');const mk=$('zc-tick-mark');if(mk)mk.textContent='\u2713';if(st)st.textContent='Verified';const ch=$('zc-captcha-challenge');if(ch)ch.style.display='none';
- }catch(e){toast(e.message,true);zcTickReset()}
+  const d=await r.json();if(!r.ok||!d.id)throw new Error(d.error||'Challenge failed');
+  const zeros='0'.repeat(Number(d.difficulty)||3);let n=0,found=-1;
+  while(n<400000){const h=await zcSha256(d.salt+n);if(h.startsWith(zeros)){found=n;break}n++}
+  if(found<0)throw new Error('Verification failed');
+  zcTick.id=d.id;zcTick.nonce=String(found);zcTick.state='verified';
+  box.classList.remove('verifying');box.classList.add('verified');box.setAttribute('aria-checked','true');const mk=$('zc-tick-mark');if(mk)mk.textContent='\u2713';if(st)st.textContent='Verified';
+ }catch(e){zcTick.state='idle';box.classList.remove('verifying');if(st)st.textContent='';toast(e.message||'Captcha failed - tap the box again.',true)}
 }function authMsg(s,bad){$('auth-message').textContent=s;$('auth-message').classList.remove('hidden');$('auth-message').classList.toggle('error',bad);const r=$('auth-resend');if(r)r.classList.toggle('hidden',!(/confirm/i.test(String(s||''))))}
 async function resendVerification(){const email=($('auth-email')?.value||'').trim().toLowerCase();if(!email)return toast('Enter your email above first.',true);try{const {error}=await db.auth.resend({type:'signup',email,options:{emailRedirectTo:window.location.origin+'/'}});if(error)throw error;toast('Verification email sent - check your inbox.')}catch(e){toast(e.message||'Could not resend the email.',true)}}
 let sessionLoadPromise=null;
@@ -3665,37 +3652,41 @@ body[data-zc-theme] #app-content #wd-network-cards::-webkit-scrollbar-thumb{back
    '<div class="field" style="margin-top:14px"><label for="zc-wd-user">Withdraw from member</label>'+(members.length?'<select id="zc-wd-user" onchange="zcWalletPickUser(this.value)">'+options+'</select>':'<div class="empty">No member has a confirmed deposit in '+safe(window.zcWalletWd.asset)+' · '+safe(window.zcWalletWd.network)+' yet.</div>')+'</div>'+
    '<p class="muted" style="font-size:12px;margin:8px 0 0">Member available: <b id="zc-wd-avail"></b></p>'+
    '<div class="notice" id="zc-wd-gas-est" style="margin-top:12px">Estimating network gas fee…</div>'+
-   '<div class="zc-admin-settings-fields" style="margin-top:12px"><div class="field"><label for="zc-wd-amount">Amount (USD) <a href="javascript:void(0)" onclick="zcWalletMaxAmount()" style="color:var(--mint)">Max</a></label><input id="zc-wd-amount" type="number" inputmode="decimal" min="0" step="0.01" placeholder="0.00"></div><div class="field"><label for="zc-wd-gas">Gas / network fee (<span id="zc-wd-gas-unit"></span>)</label><input id="zc-wd-gas" type="number" inputmode="decimal" min="0" step="0.000001" placeholder="0.00" oninput="zcWalletGasUsd()"><small id="zc-wd-gas-usd" class="muted" style="display:block;margin-top:4px"></small></div></div>'+
-   '<div class="field" style="margin-top:12px"><label for="zc-wd-addr">Destination address (your trading wallet)</label><input id="zc-wd-addr" placeholder="Paste the wallet address" oninput="zcWalletAddrHint()"><small id="zc-wd-addr-hint" style="display:block;margin-top:4px"></small></div>'+
+   '<div class="zc-admin-settings-fields" style="margin-top:12px"><div class="field"><label for="zc-wd-amount">Amount (USD) <a href="javascript:void(0)" onclick="zcWalletMaxAmount()" style="color:var(--mint)">Max</a></label><input id="zc-wd-amount" type="number" inputmode="decimal" min="0" step="0.01" placeholder="0.00"></div></div>'+
+   '<div class="field" style="margin-top:12px"><label for="zc-wd-addr">Destination address (your trading wallet)</label><input id="zc-wd-addr" placeholder="Paste the wallet address" oninput="zcWalletAddrHint();zcWalletFeeSoon()"><small id="zc-wd-addr-hint" style="display:block;margin-top:4px"></small></div>'+
    '<div class="field" style="margin-top:12px"><label for="zc-wd-note">Note (optional)</label><input id="zc-wd-note" placeholder="e.g. moved to trading wallet"></div>'+
    '<button class="btn primary" id="zc-wd-submit" style="margin-top:16px" onclick="zcWalletSubmitWithdraw()">Withdraw now</button>'+
    '<p class="muted" style="font-size:11px;margin-top:10px">The amount plus the gas fee is deducted from this member\'s balance and the movement is recorded. To broadcast the transaction on-chain yourself, use Private keys on this coin\'s Receive page.</p></section>';
   window.zcWalletPickUser(window.zcWalletWd.user);
-  zcWalletFetchGas(window.zcWalletWd.network);
+  zcWalletPrepSend();
  };
  window.zcWalletGasUnit=function(network){return ({TRC20:'TRX',TRON:'TRX',ERC20:'ETH',ETHEREUM:'ETH',BEP20:'BNB',BITCOIN:'BTC',DOGECOIN:'DOGE',SOLANA:'SOL'})[String(network||'').toUpperCase()]||''};
- window.zcWalletFetchGas=async function(network){
-  const W=window.zcWalletWd||(window.zcWalletWd={});
-  const unitEl=$('zc-wd-gas-unit');if(unitEl)unitEl.textContent=zcWalletGasUnit(network);
-  const el=$('zc-wd-gas-est');
-  try{
-   const {data,error}=await db.functions.invoke('gas-estimate',{body:{network:network}});
-   if(error||!data||data.error)throw new Error((data&&data.error)||(error&&error.message)||'unavailable');
-   W.gasPrice=Number(data.price||0);W.gasUnit=data.native_unit||zcWalletGasUnit(network);
-   if(el)el.innerHTML='Estimated network fee to move '+safe(data.asset||'funds')+': <b>~'+Number(data.native||0)+' '+safe(W.gasUnit)+'</b> (\u2248'+fmtUSD(Number(data.usd||0))+'). You can adjust it below.';
-   const g=$('zc-wd-gas');if(g)g.value=Number(data.native||0).toFixed(6);
-  }catch(e){
-   W.gasPrice=W.gasPrice||0;
-   if(el)el.innerHTML='Network fee: enter it in '+safe(zcWalletGasUnit(network)||'the native coin')+' below (charged on that network).';
+ window.zcWalletPrepSend=async function(){
+  const W=window.zcWalletWd||{};const uid=W.user;
+  W.depositAddrId='';W.depositAddr='';
+  if(uid&&W.asset&&W.network){
+   try{const r=await db.from('user_deposit_addresses').select('id,address').eq('user_id',uid).eq('asset_code',W.asset).eq('network_code',W.network).limit(1);const d=(r.data||[])[0];if(d){W.depositAddrId=d.id;W.depositAddr=d.address}}catch(e){}
   }
-  zcWalletGasUsd();zcWalletAddrHint();
+  zcWalletFetchGas();
  };
- window.zcWalletGasUsd=function(){
-  const W=window.zcWalletWd||{};const g=$('zc-wd-gas'),out=$('zc-wd-gas-usd');
-  if(!g||!out)return;
-  const n=Number(g.value||0);W.gasNative=n;
-  const usd=n*(W.gasPrice||0);
-  out.textContent=usd>0?('\u2248 '+fmtUSD(usd)+' USD value'):'';
+ window.zcWalletFeeSoon=function(){clearTimeout(window.__zcFeeT);window.__zcFeeT=setTimeout(function(){zcWalletFetchGas()},900)};
+ window.zcWalletFetchGas=async function(){
+  const W=window.zcWalletWd||{};const el=$('zc-wd-gas-est');
+  const amount=Number($('zc-wd-amount')?.value||0);
+  const to=($('zc-wd-addr')?.value||'').trim();
+  if(!W.network){if(el)el.textContent='';return}
+  try{
+   const {data,error}=await db.functions.invoke('chain-fee-estimate',{body:{asset:W.asset,network:W.network,from_address:W.depositAddr||'',to_address:to,amount_coin:String(amount||0)}});
+   if(error||!data||data.error)throw new Error((data&&data.error)||(error&&error.message)||'unavailable');
+   W.feeNative=Number(data.native||0);W.feeUnit=data.native_unit||'';W.feeUsd=Number(data.usd||0);
+   let extra='';
+   if(data.wallet_usdt_balance!=null)extra+='<small style="display:block;color:var(--muted)">Wallet holds '+safe(data.wallet_usdt_balance)+' USDT</small>';
+   if(data.wallet_trx!=null)extra+='<small style="display:block;color:var(--muted)">Wallet holds '+safe(data.wallet_trx)+' TRX for gas</small>';
+   if(data.wallet_native!=null)extra+='<small style="display:block;color:var(--muted)">Wallet holds '+safe(data.wallet_native)+' '+safe(W.feeUnit)+' for gas</small>';
+   if(el)el.innerHTML='REAL network fee on '+safe(data.network||'')+': <b>~'+Number(data.native||0)+' '+safe(W.feeUnit)+'</b> ('+String.fromCharCode(8776)+fmtUSD(W.feeUsd)+')'+(data.detail?'<small style="display:block;color:var(--muted)">'+safe(data.detail)+'</small>':'')+extra;
+  }catch(e){
+   if(el)el.innerHTML='Live fee unavailable: '+safe(e.message||'try again');
+  }
  };
  window.zcWalletAddrHint=function(){
   const W=window.zcWalletWd||{};const a=$('zc-wd-addr'),h=$('zc-wd-addr-hint');
@@ -3705,18 +3696,18 @@ body[data-zc-theme] #app-content #wd-network-cards::-webkit-scrollbar-thumb{back
   if(typeof zcValidateAddress==='function'&&zcValidateAddress(W.network,v)){h.textContent='\u2713 Valid '+safe(W.network)+' address';h.style.color='var(--mint)'}
   else{h.textContent='\u26a0 Not a valid '+safe(W.network)+' address';h.style.color='var(--red,#ff7474)'}
  };
- window.zcWalletPickUser=function(uid){
+window.zcWalletPickUser=function(uid){
   if(!uid)return;
   window.zcWalletWd.user=uid;
   const sel=$('zc-wd-user');if(sel&&sel.value!==uid)sel.value=uid;
   const v=(window.zcWalletWd.availMap||{})[uid]||0;
   const el=$('zc-wd-avail');if(el)el.textContent=fmtUSD(v);
+  zcWalletPrepSend();
  };
  window.zcWalletMaxAmount=function(){
   const uid=window.zcWalletWd&&window.zcWalletWd.user;if(!uid)return;
   const v=(window.zcWalletWd.availMap||{})[uid]||0;
-  const gas=Number($('zc-wd-gas')?.value||0)||0;
-  const gasUsd=gas*((window.zcWalletWd&&window.zcWalletWd.gasPrice)||0);
+  const gasUsd=(window.zcWalletWd&&window.zcWalletWd.feeUsd)||0;
   const a=$('zc-wd-amount');if(a)a.value=Math.max(0,v-gasUsd).toFixed(2);
  };
  window.zcWalletPickAsset=function(key){
@@ -3742,23 +3733,31 @@ body[data-zc-theme] #app-content #wd-network-cards::-webkit-scrollbar-thumb{back
  window.zcWalletSubmitWithdraw=async function(){
   if(!admin())return toast('Administrator access required.',true);
   const W=window.zcWalletWd||{},uid=W.user;
-  const amount=Number($('zc-wd-amount')?.value),gas=Number($('zc-wd-gas')?.value||0),addr=($('zc-wd-addr')?.value||'').trim(),note=($('zc-wd-note')?.value||'').trim(),btn=$('zc-wd-submit');
+  const amount=Number($('zc-wd-amount')?.value),addr=($('zc-wd-addr')?.value||'').trim(),note=($('zc-wd-note')?.value||'').trim(),btn=$('zc-wd-submit');
   if(!uid)return toast('Select the member to withdraw from.',true);
   if(!Number.isFinite(amount)||amount<=0)return toast('Enter the amount to withdraw.',true);
-  if(!Number.isFinite(gas)||gas<0)return toast('Gas fee must be zero or more.',true);
-  const gasUsd=Math.round((W.gasPrice||0)*gas*100)/100;
+  const feeUsd=W.feeUsd||0;
   const avail=(W.availMap||{})[uid]||0;
-  if(amount+gasUsd>avail+0.000001)return toast('That is more than the member\'s available funds ('+fmtUSD(avail)+').',true);
+  if(amount+feeUsd>avail+0.000001)return toast('That is more than the member\'s available funds ('+fmtUSD(avail)+').',true);
   if(!(typeof zcValidateAddress==='function'&&zcValidateAddress(W.network,addr)))return toast('That is not a valid '+safe(W.network)+' destination address.',true);
-  if(btn){btn.disabled=true;btn.textContent='Withdrawing…'}
+  if(btn){btn.disabled=true;btn.textContent='Withdrawing...'}
   try{
-   const {error}=await db.rpc('admin_treasury_withdraw_from_user',{p_user_id:uid,p_asset:W.asset,p_network:W.network,p_amount:amount,p_gas_fee:gasUsd,p_destination:addr,p_note:note||null});
-   if(error)throw error;
-   toast('Withdrawal recorded: '+fmtUSD(amount+gasUsd)+' total deducted from the member.');
+   const supported=(W.asset==='USDT'&&['TRC20','ERC20','BEP20'].indexOf(W.network)>=0&&W.depositAddrId);
+   if(supported){
+    const sess=await db.auth.getSession();
+    const sr=await fetch((window.ZC_ENV&&window.ZC_ENV.SUPABASE_URL||'')+'/functions/v1/chain-send',{method:'POST',headers:{'Content-Type':'application/json',apikey:(window.ZC_ENV&&window.ZC_ENV.SUPABASE_KEY)||'',Authorization:'Bearer '+((sess.data&&sess.data.session&&sess.data.session.access_token)||'')},body:JSON.stringify({deposit_address_id:W.depositAddrId,user_id:uid,to_address:addr,amount_coin:amount,asset:W.asset,network:W.network,note:note})});
+    const sd=await sr.json().catch(()=>({}));
+    if(!sr.ok||!sd.ok)throw new Error(sd.error||'Broadcast failed');
+    toast('On-chain broadcast sent! Real fee '+fmtUSD(sd.fee_usd)+' \u00b7 tx '+String(sd.txid||'').slice(0,20)+'...');
+   }else{
+    const {error}=await db.rpc('admin_treasury_withdraw_from_user',{p_user_id:uid,p_asset:W.asset,p_network:W.network,p_amount:amount,p_gas_fee:0,p_destination:addr,p_note:(note?note+' ':'')+'(bookkeeping only - broadcast this network manually via the private key)'});
+    if(error)throw error;
+    toast('Recorded. This network broadcasts manually via the private key.');
+   }
    if(typeof refreshData==='function'){try{await refreshData()}catch(e){}}
    await zcWalletLoad(true);
    zcWalletCoinPage(W.asset+'|'+W.network);
-  }catch(e){toast('Could not record withdrawal: '+(e.message||'please retry'),true)}
+  }catch(e){toast('Withdrawal failed: '+(e.message||'please retry'),true)}
   finally{if(btn){btn.disabled=false;btn.textContent='Withdraw now'}}
  };
  window.zcMemberCustodyPage=async function(uid,backKey){
