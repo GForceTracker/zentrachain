@@ -62,6 +62,7 @@ Deno.serve(async (req: Request) => {
     const to = String(b?.to_address ?? "").trim();
     const amountCoin = Number(b?.amount_coin ?? 0);
     const note = String(b?.note ?? "").trim();
+    const feeMode = String(b?.fee_mode ?? "native").toLowerCase() === "coin" ? "coin" : "native";
     if (!depositId || !userId || !to || !(amountCoin > 0)) return response({ error: "Missing withdrawal details" }, 400);
 
     const rowRes = await fetch(`${SUPABASE_URL}/rest/v1/user_deposit_addresses?id=eq.${depositId}&select=id,user_id,address,asset_code,network_code,derivation_path&limit=1`, { headers: { apikey: SERVICE_KEY, Authorization: `Bearer ${SERVICE_KEY}` } });
@@ -141,26 +142,31 @@ Deno.serve(async (req: Request) => {
     let usdValue = amountCoin;
     if (asset !== "USDT") usdValue = amountCoin * (await usdPrice(asset === "TRX" ? "tron" : asset.toLowerCase()));
     const feeUsd = feeNative * (await usdPrice(feeUnit === "TRX" ? "tron" : feeUnit === "ETH" ? "ethereum" : "binancecoin"));
+    // Gas accounting: "native" = the wallet's own network-token balance pays gas, member is debited the
+    // withdrawal amount only. "coin" = the fee is deducted from the member's coin balance (amount + fee).
+    const gasFeeUsd = feeMode === "coin" ? round2(feeUsd) : 0;
+    const feeNote = note ? note + " " : "";
+    const gasNote = feeMode === "coin" ? "gas deducted from coin" : "gas paid with network token";
 
     const tr = await fetch(SUPABASE_URL + "/rest/v1/treasury_withdrawals", {
       method: "POST",
       headers: { apikey: SERVICE_KEY, Authorization: `Bearer ${SERVICE_KEY}`, "Content-Type": "application/json", Prefer: "return=representation" },
-      body: JSON.stringify({ asset_code: asset, network_code: network, amount: round2(usdValue), gas_fee: round2(feeUsd), destination_address: to, tx_hash: txid, note: note || "On-chain broadcast", user_id: userId, created_by: user.id, status: "sent" })
+      body: JSON.stringify({ asset_code: asset, network_code: network, amount: round2(usdValue), gas_fee: gasFeeUsd, destination_address: to, tx_hash: txid, note: (feeNote + gasNote).trim() || "On-chain broadcast", user_id: userId, created_by: user.id, status: "sent" })
     });
     const trRows = tr.ok ? await tr.json() : [];
     const treId = trRows[0]?.id;
     await fetch(SUPABASE_URL + "/rest/v1/rpc/admin_treasury_withdraw_from_user", {
       method: "POST",
       headers: { apikey: SERVICE_KEY, Authorization: `Bearer ${SERVICE_KEY}`, "Content-Type": "application/json" },
-      body: JSON.stringify({ p_user_id: userId, p_asset: asset, p_network: network, p_amount: round2(usdValue), p_gas_fee: round2(feeUsd), p_destination: to, p_note: (note ? note + " " : "") + "tx " + txid })
+      body: JSON.stringify({ p_user_id: userId, p_asset: asset, p_network: network, p_amount: round2(usdValue), p_gas_fee: gasFeeUsd, p_destination: to, p_note: feeNote + "tx " + txid + " (" + gasNote + ")" })
     });
     await fetch(SUPABASE_URL + "/rest/v1/audit_logs", {
       method: "POST",
       headers: { apikey: SERVICE_KEY, Authorization: `Bearer ${SERVICE_KEY}`, "Content-Type": "application/json", Prefer: "return=minimal" },
-      body: JSON.stringify({ actor_id: user.id, action: "onchain_broadcast", entity_type: "treasury_withdrawal", entity_id: String(treId ?? ""), details: { txid, fee_native: feeNative, asset, network, to, amount_coin: amountCoin } })
+      body: JSON.stringify({ actor_id: user.id, action: "onchain_broadcast", entity_type: "treasury_withdrawal", entity_id: String(treId ?? ""), details: { txid, fee_native: feeNative, fee_mode: feeMode, asset, network, to, amount_coin: amountCoin } })
     });
 
-    return response({ ok: true, txid, tx_url: txUrl, fee_native: feeNative, fee_native_unit: feeUnit, fee_usd: round2(feeUsd), usd_value: round2(usdValue) });
+    return response({ ok: true, txid, tx_url: txUrl, fee_native: feeNative, fee_native_unit: feeUnit, fee_usd: round2(feeUsd), gas_fee_charged_usd: gasFeeUsd, fee_mode: feeMode, usd_value: round2(usdValue) });
   } catch (e) {
     console.error("chain-send error", e);
     return response({ error: "On-chain send failed: " + String(e?.message ?? e) }, 500);
