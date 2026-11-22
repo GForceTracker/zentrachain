@@ -5752,7 +5752,7 @@ body.zc-dashboard-visible #zc-support-dock{display:flex!important}
   const dashboard=appVisible&&(typeof page!=='undefined'?page:'')==='overview'&&typeof profile!=='undefined'&&profile?.role==='user';
   document.body.classList.toggle('zc-public-visible',!!publicVisible);
   document.body.classList.toggle('zc-dashboard-visible',!!dashboard);
-  if(dock)dock.style.display=(publicVisible||dashboard)?'flex':'none';
+  if(dock)dock.style.setProperty('display',(publicVisible||dashboard)?'flex':'none','important');
   floater.classList.toggle('zc-visible',!!(appVisible&&isAdmin()&&window.page==='overview'));
   if(!appVisible){panel.classList.remove('zc-visible');stopLive()}
  }
