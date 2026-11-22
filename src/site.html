@@ -4963,7 +4963,7 @@ body.zc-support-page-open{overflow:hidden!important}
   if(dock)dock.style.setProperty('display',(publicVisible||dashboard)?'flex':'none','important');
   floater.classList.toggle('zc-visible',!!(appVisible&&isAdmin()));
   if(appVisible&&isAdmin())startBadgeWatch();else stopBadgeWatch();
-  if(!appVisible&&panel.classList.contains('zc-visible'))closeSupportPage();
+  if(!appVisible&&!publicVisible&&panel.classList.contains('zc-visible'))closeSupportPage();
  }
  function closeSupportPage(){panel.classList.remove('zc-visible');document.body.classList.remove('zc-support-page-open');stopLive();if(isAdmin())refreshUnreadCount()}
  function openPanel(){
@@ -4971,7 +4971,7 @@ body.zc-support-page-open{overflow:hidden!important}
   panel.classList.add('zc-visible');document.body.classList.add('zc-support-page-open');
   setMode(isAdmin());if(isAdmin())loadInbox();else openUserChat();
  }
- function stopLive(){if(live){db.removeChannel(live);live=null}if(refreshTimer){clearInterval(refreshTimer);refreshTimer=null}}
+ function stopLive(){const previous=live;live=null;if(previous)db.removeChannel(previous);if(refreshTimer){clearInterval(refreshTimer);refreshTimer=null}}
  function setUnreadCount(count){
   unread=Math.max(0,Number(count)||0);
   const badge=$('zc-as-count'),button=floater.querySelector('button');
@@ -5006,12 +5006,16 @@ body.zc-support-page-open{overflow:hidden!important}
   if(r.error)throw r.error;
   await refreshUnreadCount();
  }
- function listen(table,filter,callback){
-  if(live){db.removeChannel(live);live=null}
+ function listen(table,filter,callback,alsoTables=[]){
+  const previous=live;live=null;if(previous)db.removeChannel(previous);
   if(refreshTimer){clearInterval(refreshTimer);refreshTimer=null}
-  const cfg={event:'*',schema:'public',table};if(filter)cfg.filter=filter;
   const refresh=()=>{if(panel.classList.contains('zc-visible'))Promise.resolve(callback()).catch(e=>console.warn('Support chat refresh failed:',e.message))};
-  live=db.channel('zc-support-'+table+'-'+Math.random().toString(36).slice(2)).on('postgres_changes',cfg,refresh).subscribe(status=>{
+  let channel=db.channel('zc-support-'+table+'-'+Math.random().toString(36).slice(2));
+  const cfg={event:'*',schema:'public',table};if(filter)cfg.filter=filter;
+  channel=channel.on('postgres_changes',cfg,refresh);
+  alsoTables.forEach(extra=>channel=channel.on('postgres_changes',{event:'*',schema:'public',table:extra},refresh));
+  live=channel.subscribe(status=>{
+   if(live!==channel)return;
    if(status==='SUBSCRIBED'){if(refreshTimer){clearInterval(refreshTimer);refreshTimer=null}}
    else if(['CHANNEL_ERROR','TIMED_OUT','CLOSED'].includes(status)&&!refreshTimer)refreshTimer=setInterval(refresh,5000);
   });
@@ -5051,7 +5055,7 @@ body.zc-support-page-open{overflow:hidden!important}
   if(ids.length){const u=await db.from('profiles').select('id,full_name,email').in('id',ids);(u.data||[]).forEach(x=>users[x.id]=x)}
   body().innerHTML=rows.map(c=>{const u=users[c.user_id]||{},fresh=isUnreadConversation(c);return '<button class="zc-as-thread'+(fresh?' zc-as-thread-unread':'')+'" data-id="'+c.id+'" data-user="'+c.user_id+'"><span class="zc-as-thread-title"><b>'+esc(u.full_name||u.email||'Customer')+'</b>'+(fresh?'<span class="zc-as-unread-badge">New</span>':'')+'</span><small>'+esc(c.last_message_preview||'No messages yet')+'</small><small>'+esc(c.status)+' · '+new Date(c.last_message_at).toLocaleString()+'</small></button>'}).join('')||'<p class="muted">No customer conversations yet.</p>';
   body().querySelectorAll('[data-id]').forEach(b=>b.onclick=()=>openAdminThread(b.dataset.id,b.dataset.user,users[b.dataset.user]?.full_name||users[b.dataset.user]?.email||'Customer'));
-  listen('support_conversations',null,()=>loadInbox());
+  listen('support_conversations',null,()=>loadInbox(),['support_messages']);
  }
  async function openAdminThread(id,uid,name){
   try{await markConversationRead(id)}catch(e){console.warn('Could not mark support conversation as read:',e.message)}
