@@ -1119,35 +1119,27 @@ function depositTotal(){return ledgerDeposits().reduce((s,x)=>s+Number(x.amount|
 function withdrawnTotal(){return (ledger||[]).filter(x=>x.entry_type==='withdrawal').reduce((s,x)=>s+Math.abs(Number(x.amount||0)),0)}
 function activeInvestTotal(){return (investments||[]).filter(x=>x&&x.status==='active'&&(!x.ends_at||Date.now()<new Date(x.ends_at).getTime())).reduce((s,x)=>s+Number(x.amount||0),0)}
 function bonusTotal(){return (ledger||[]).filter(x=>x.entry_type==='bonus').reduce((s,x)=>s+Number(x.amount||0),0)}
-function pendingPlanProfit(){const now=Date.now();let s=0;for(const x of (investments||[])){if(!x||x.status!=='active')continue;const st=x.starts_at?new Date(x.starts_at).getTime():now;const en=x.ends_at?new Date(x.ends_at).getTime():st;if(now>=en)continue;const full=Number(x.amount||0)*Number(x.rate||0)/100;s+=full*Math.min(1,Math.max(0,(now-st)/Math.max(1,en-st)))}return s}
-function uninvestedDepositTotal(){const used=new Set((investments||[]).filter(u=>u&&u.ledger_entry_id).map(u=>u.ledger_entry_id));return ledgerDeposits().filter(d=>!used.has(d.id)).reduce((s,d)=>s+Number(d.amount||0),0)}
-function purchasedPlanRows(){
- const out=[];
- for(const u of (investments||[])){
-  if(!u||!u.plan_id)continue;
-  const amt=Number(u.amount||0);if(!(amt>0))continue;
-  const rate=Number(u.rate||0);
-  const startT=u.starts_at?new Date(u.starts_at).getTime():new Date(u.created_at||Date.now()).getTime();
-  const endT=u.ends_at?new Date(u.ends_at).getTime():startT+86400000;
-  const completed=u.status==='completed'||u.status==='cancelled';
-  const total=Math.max(1,endT-startT);
-  const prog=completed?1:Math.min(1,Math.max(0,(Date.now()-startT)/total));
-  out.push({id:u.id,plan:String(u.note||'Plan').replace(/^Plan purchase: /,''),amount:amt,rate:rate,profit:amt*rate/100,startsAt:startT,endsAt:endT,completed:completed,status:u.status,progress:prog,perMin:(amt*rate/100)/Math.max(1,(endT-startT)/60000)});
- }
- out.sort((a,b)=>b.startsAt-a.startsAt);
- return out;
+function legacyLockedTotal(){
+ const entryById=new Map((ledger||[]).map(x=>[x.id,x]));
+ return (investments||[]).filter(u=>{
+  if(!u||u.status!=='active')return false;
+  if(u.ends_at&&Date.now()>=new Date(u.ends_at).getTime())return false;
+  const entry=entryById.get(u.ledger_entry_id);
+  return !entry||!(Number(entry.amount||0)<0);
+ }).reduce((sum,u)=>sum+Math.max(0,Number(u.amount||0)),0);
 }
-function planTierFor(amount){let list=[];try{list=(typeof gfPlans!=='undefined'&&Array.isArray(gfPlans)?gfPlans:[])}catch(e){}const act=list.filter(p=>p&&p.is_active!==false&&Number(p.min_amount)<=amount&&amount<=Number(p.max_amount));act.sort((a,b)=>Number(b.percentage)-Number(a.percentage));return act[0]||null}
-function profitOfDeposit(d){const u=invForDeposit(d.id);if(u){if(u.status==='cancelled')return 0;return Number(d.amount||0)*Number(u.rate||0)/100}const t=planTierFor(Number(d.amount||0));return t?Number(d.amount||0)*Number(t.percentage||0)/100:0}
-function invForDeposit(ledgerId){try{const all=(typeof investments!=='undefined'&&Array.isArray(investments)?investments:[]);return all.find(u=>u.ledger_entry_id===ledgerId)||null}catch(e){return null}}
-function invPlanName(d){const u=invForDeposit(d.id);if(u&&u.plan_id){try{const ps=(typeof gfPlans!=='undefined'&&Array.isArray(gfPlans)?gfPlans:[]);const p=ps.find(x=>x.id===u.plan_id);if(p)return p.name}catch(e){}}const t=planTierFor(Number(d.amount||0));return t?t.name:'Standard plan'}
-function invEndsAt(d){const u=invForDeposit(d.id);if(u&&u.ends_at)return new Date(u.ends_at).getTime();if(u&&u.status==='cancelled')return Date.now();const t=u&&u.plan_id?null:planTierFor(Number(d.amount||0));if(u&&u.plan_id){try{const ps=(typeof gfPlans!=='undefined'&&Array.isArray(gfPlans)?gfPlans:[]);const p=ps.find(x=>x.id===u.plan_id);if(p)return new Date(d.created_at).getTime()+tierDurationMs(p)}catch(e){}}if(!t)return Date.now();return new Date(d.created_at).getTime()+tierDurationMs(t)}
-function invMatured(d){const u=invForDeposit(d.id);if(u){if(u.status==='cancelled'||u.status==='completed')return true;if(u.ends_at)return Date.now()>=new Date(u.ends_at).getTime()}return Date.now()>=invEndsAt(d)}
-function maturedBase(){const now=Date.now();let s=0;for(const x of (ledger||[])){const a=Number(x.amount||0);if(x.entry_type==='withdrawal')continue;if(x.entry_type!=='deposit'){if(a>0)s+=a;continue}const u=invForDeposit(x.id);if(u&&u.status==='cancelled'){s+=a;continue}const t=u&&u.plan_id?null:planTierFor(a);let rate=0,end=now;if(u){if(u.status==='completed'){s+=a+Number(x.amount||0)*Number(u.rate||0)/100;continue}rate=Number(u.rate||0);end=u.ends_at?new Date(u.ends_at).getTime():now}else if(t){rate=Number(t.percentage||0);end=new Date(x.created_at).getTime()+tierDurationMs(t)}else{s+=a;continue}if(now>=end)s+=a+a*rate/100}return s}
-function profitTotal(){return ledgerDeposits().reduce((s,d)=>s+profitOfDeposit(d),0)}
-function tierDurationMs(p){const v=Number(p.duration_value||0);return String(p.duration_unit||'days')==='hours'?v*3600000:v*86400000}
-function maturedBase(){const now=Date.now();let s=0;for(const x of (ledger||[])){const a=Number(x.amount||0);if(x.entry_type==='withdrawal')continue;if(x.entry_type!=='deposit'){if(a>0)s+=a;continue}const t=planTierFor(a);if(!t){s+=a;continue}const ok=now-new Date(x.created_at).getTime()>=tierDurationMs(t);if(ok)s+=a+a*Number(t.percentage||0)/100}return s}
-function availableUnlocked(){return Math.max(0,Math.min(balance()-reserved(),maturedBase()-withdrawnTotal()))}
+function pendingPlanProfit(){return accruedProfitTotal()}
+function uninvestedDepositTotal(){
+ const entryById=new Map((ledger||[]).map(x=>[x.id,x]));
+ const invested=(investments||[]).reduce((sum,u)=>{
+  if(!u)return sum;
+  const entry=entryById.get(u.ledger_entry_id);
+  if(u.status==='cancelled'&&entry&&entry.entry_type==='deposit')return sum;
+  return sum+Math.max(0,Number(u.amount||0));
+ },0);
+ return Math.max(0,depositTotal()-invested);
+}
+function availableUnlocked(){return Math.max(0,balance()-reserved()-legacyLockedTotal())}
 function toggleDrawer(){const drawer=$('app-drawer'),scrim=$('drawer-scrim');if(!drawer||!scrim)return;if(typeof zcInitThemeUI==='function')zcInitThemeUI();const opening=!drawer.classList.contains('open');drawer.classList.toggle('open',opening);scrim.classList.toggle('show',opening);document.body.classList.toggle('zc-drawer-open',opening);}function closeDrawer(){const drawer=$('app-drawer'),scrim=$('drawer-scrim');if(drawer)drawer.classList.remove('open');if(scrim)scrim.classList.remove('show');document.body.classList.remove('zc-drawer-open')}function navigate(p){if(!p)return;if(p==='admin'&&profile?.role!=='admin'){toast('Administrator access required.',true);closeDrawer();return}const c=$('app-content');try{page=p;document.querySelectorAll('.side-nav button').forEach(b=>b.classList.toggle('active',b.dataset.page===p));closeDrawer();if(p==='calculator'){renderCalculatorPage();return}if(c)c.innerHTML='<div class="card panel" style="min-height:90px;display:flex;align-items:center"><span class="muted">Opening '+esc(p==='deposits'?'deposit':p==='withdrawals'?'withdrawal':p)+'…</span></div>';if(p==='deposits'){renderDepositPage();return}if(p==='withdrawals'){renderWithdrawalPage();return}if(p==='investments'){renderInvestmentsPage();return}renderPage();if(p==='overview'&&typeof loadReferralList==='function')loadReferralList()}catch(err){console.error('Navigation failed:',err);if(c)c.innerHTML='<section class="card panel"><h3>Unable to open this section</h3><p class="muted">'+esc(err?.message||'A page error occurred. Please try again.')+'</p><button class="btn primary" onclick="navigate(\'overview\')">Back to overview</button></section>';toast('Could not open this section: '+(err?.message||'Please try again.'),true)}}
 
 async function renderDepositPage(){
@@ -1301,24 +1293,24 @@ function invCardHTML(x){
  '<div class="zc-progress" style="margin-top:6px"><i style="width:'+pct+'%"></i></div></article>';
 }
 function investmentRows(){
+ const plans=(typeof gfPlans!=='undefined'&&Array.isArray(gfPlans)?gfPlans:[]);
  const out=[];
- for(const d of ledgerDeposits()){
-  const u=invForDeposit(d.id);
-  const amt=Number(d.amount||0);
-  const rate=u?Number(u.rate||0):invRate(d);
-  let plan='Standard plan';
-  if(u&&u.plan_id){try{const ps=(typeof gfPlans!=='undefined'&&Array.isArray(gfPlans)?gfPlans:[]);const p=ps.find(x=>x.id===u.plan_id);if(p)plan=p.name}catch(e){}}
-  if(plan==='Standard plan')plan=invPlanName(d);
-  const startT=u&&u.starts_at?new Date(u.starts_at).getTime():new Date(d.created_at).getTime();
-  const endT=u&&u.ends_at?new Date(u.ends_at).getTime():invEndsAt(d);
-  const profit=u&&u.status==='cancelled'?0:amt*rate/100;
-  const matured=u?(u.status==='cancelled'||u.status==='completed'||Date.now()>=endT):invMatured(d);
-  const total=Math.max(1,endT-startT);
-  const prog=matured?1:Math.min(1,Math.max(0,(Date.now()-startT)/total));
-  const perMin=profit/Math.max(1,(endT-startT)/60000);
-  out.push({deposit:d,plan:plan,status:u?u.status:(matured?'completed':'active'),amount:amt,rate:rate,profit:profit,startsAt:startT,endsAt:endT,matured:matured,progress:prog,perMin:perMin});
+ for(const u of (investments||[])){
+  if(!u)continue;
+  const amount=Number(u.amount||0);if(!(amount>0))continue;
+  const rate=Number(u.rate||0);
+  const startsAt=u.starts_at?new Date(u.starts_at).getTime():new Date(u.created_at||Date.now()).getTime();
+  const endsAt=u.ends_at?new Date(u.ends_at).getTime():startsAt+86400000;
+  const cancelled=u.status==='cancelled';
+  const matured=cancelled||u.status==='completed'||Date.now()>=endsAt;
+  const profit=cancelled?0:amount*rate/100;
+  const duration=Math.max(1,endsAt-startsAt);
+  let plan='Investment plan';
+  if(u.plan_id){const configured=plans.find(p=>p&&p.id===u.plan_id);if(configured)plan=configured.name}
+  if(plan==='Investment plan'&&u.note)plan=String(u.note).replace(/^Plan purchase:\s*/,'');
+  out.push({id:u.id,investment:u,plan:plan,status:u.status,amount:amount,rate:rate,profit:profit,startsAt:startsAt,endsAt:endsAt,matured:matured,completed:matured,progress:matured?1:Math.min(1,Math.max(0,(Date.now()-startsAt)/duration)),perMin:profit/Math.max(1,duration/60000)});
  }
- out.sort((a,b)=>String(b.deposit.created_at||'').localeCompare(String(a.deposit.created_at||'')));
+ out.sort((a,b)=>b.startsAt-a.startsAt);
  return out;
 }
 function renderTransactions(){
@@ -1370,7 +1362,22 @@ let zcTradePts=[],zcTradeFeedReady=false,zcProfitTicker=null;
 function zcStartProfitTicker(){if(zcProfitTicker)return;zcProfitTicker=setInterval(()=>{try{zcProfitTick()}catch(e){}},1000)}
 async function zcLoadTradeFeed(){try{const data=await fetchMarketData('candles','BTC');const rows=(data.candles||[]).slice(-40).map(x=>Number(x[1])).filter(v=>Number.isFinite(v)&&v>0);if(rows.length>5){zcTradePts=rows;zcTradeFeedReady=true}}catch(e){}
  if(!zcTradeFeedReady){zcTradePts=Array.from({length:40},(_,i)=>64000*(1+Math.sin(i/5)*0.012+Math.random()*0.005));zcTradeFeedReady=true}}
-function accruedProfitTotal(){const now=Date.now();let s=0;for(const d of ledgerDeposits()){const u=invForDeposit(d.id);if(u&&u.status==='cancelled')continue;const full=profitOfDeposit(d);if(!(full>0))continue;if(invMatured(d)){s+=full;continue}const startT=u&&u.starts_at?new Date(u.starts_at).getTime():new Date(d.created_at).getTime();const endT=u&&u.ends_at?new Date(u.ends_at).getTime():invEndsAt(d);s+=full*Math.min(1,Math.max(0,(now-startT)/Math.max(1,endT-startT)))}return s}
+function accruedProfitTotal(){
+ const now=Date.now();let total=0;
+ for(const u of (investments||[])){
+  if(!u||u.status==='cancelled')continue;
+  const amount=Number(u.amount||0),rate=Number(u.rate||0);
+  if(!(amount>0)||!(rate>0))continue;
+  const startsAt=u.starts_at?new Date(u.starts_at).getTime():new Date(u.created_at||now).getTime();
+  const profit=amount*rate/100;
+  if(u.status==='completed'){total+=profit;continue}
+  if(!u.ends_at)continue;
+  const endsAt=new Date(u.ends_at).getTime();
+  if(now>=endsAt){total+=profit;continue}
+  total+=profit*Math.min(1,Math.max(0,(now-startsAt)/Math.max(1,endsAt-startsAt)));
+ }
+ return total;
+}
 function zcProfitTick(){
  const v=accruedProfitTotal();
  const a=$('zc-profit-live');if(a)a.textContent=money(v);
@@ -5659,8 +5666,8 @@ schedule(FIRST_DELAY);
   if(!plan){showErr('Choose a plan first.');return}
   if(!(amount>0)){showErr('Enter the amount you want to invest.');return}
   if(amount<plan.min_amount||amount>plan.max_amount){showErr('Amount must be between '+money(plan.min_amount)+' and '+money(plan.max_amount)+'.');return}
-  var bal=typeof balance==='function'?balance():0,res=typeof reserved==='function'?reserved():0,lck=typeof activeInvestTotal==='function'?activeInvestTotal():0;
-  var avail=bal-res-lck;
+  var avail=typeof availableUnlocked==='function'?availableUnlocked():0;
+
   if(amount>avail){showErr('Not enough balance. You need '+money(amount-avail)+' more.');return}
   el.disabled=true;var old=el.textContent;el.textContent='Processing…';
   try{
