@@ -5755,6 +5755,9 @@ body.zc-dashboard-visible #zc-support-dock{display:flex!important}
 #zc-admin-support-panel .zc-as-head button,#zc-admin-support-panel .zc-as-back{border:1px solid var(--line);border-radius:9px;background:var(--panel);color:var(--text);padding:7px 10px}
 #zc-admin-support-panel .zc-as-list{flex:1;overflow:auto;padding:9px}
 #zc-admin-support-panel .zc-as-thread{width:100%;display:block;text-align:left;padding:11px;margin-bottom:7px;border:1px solid var(--line);border-radius:11px;background:var(--panel);color:var(--text)}
+#zc-admin-support-panel .zc-as-thread-unread{border-color:var(--green);box-shadow:inset 3px 0 0 var(--green)}
+#zc-admin-support-panel .zc-as-thread-title{display:flex;align-items:center;justify-content:space-between;gap:8px}
+#zc-admin-support-panel .zc-as-unread-badge{display:inline-flex;align-items:center;border-radius:20px;padding:3px 7px;background:var(--green);color:#062116;font-size:10px;font-weight:900;white-space:nowrap}
 #zc-admin-support-panel .zc-as-thread small{display:block;color:var(--muted);margin-top:4px}
 #zc-admin-support-panel .zc-as-messages{flex:1;overflow:auto;padding:12px}
 #zc-admin-support-panel .zc-as-msg{max-width:88%;padding:9px 11px;margin:0 0 9px;border:1px solid var(--line);border-radius:12px;background:var(--panel2);overflow-wrap:anywhere;white-space:pre-wrap}
@@ -5774,7 +5777,7 @@ body.zc-dashboard-visible #zc-support-dock{display:flex!important}
  if(window.__zcDirectSupportV2)return;window.__zcDirectSupportV2=true;
  const $=id=>document.getElementById(id), esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
  const app=$('application'),pub=$('public'),dock=$('zc-support-dock');
- let conversationId=null,threadUserId=null,threadName='',live=null,adminMode=false,unread=0,refreshTimer=null;
+ let conversationId=null,threadUserId=null,threadName='',live=null,badgeLive=null,adminMode=false,unread=0,refreshTimer=null,badgeTimer=null;
  const isAdmin=()=>typeof profile!=='undefined'&&profile?.role==='admin';
  const userId=()=>typeof currentUser!=='undefined'&&currentUser?.id||null;
  const panel=document.createElement('section');panel.id='zc-admin-support-panel';
@@ -5792,11 +5795,46 @@ body.zc-dashboard-visible #zc-support-dock{display:flex!important}
   document.body.classList.toggle('zc-public-visible',!!publicVisible);
   document.body.classList.toggle('zc-dashboard-visible',!!dashboard);
   if(dock)dock.style.setProperty('display',(publicVisible||dashboard)?'flex':'none','important');
-  floater.classList.toggle('zc-visible',!!(appVisible&&isAdmin()&&window.page==='overview'));
+  floater.classList.toggle('zc-visible',!!(appVisible&&isAdmin()));
+  if(appVisible&&isAdmin())startBadgeWatch();else stopBadgeWatch();
   if(!appVisible){panel.classList.remove('zc-visible');stopLive()}
  }
  function openPanel(){panel.classList.add('zc-visible');setMode(isAdmin());if(isAdmin())loadInbox();else openUserChat()}
  function stopLive(){if(live){db.removeChannel(live);live=null}if(refreshTimer){clearInterval(refreshTimer);refreshTimer=null}}
+ function setUnreadCount(count){
+  unread=Math.max(0,Number(count)||0);
+  const badge=$('zc-as-count'),button=floater.querySelector('button');
+  if(badge){badge.textContent=unread>99?'99+':String(unread);badge.style.display=unread?'grid':'none'}
+  if(button)button.setAttribute('aria-label',unread?'Open admin support inbox, '+unread+' unread conversation'+(unread===1?'':'s'):'Open admin support inbox');
+ }
+ function isUnreadConversation(c){
+  if(!c||!c.last_message_sender_id||c.last_message_sender_id===userId())return false;
+  const last=Date.parse(c.last_message_at||''),read=Date.parse(c.admin_last_read_at||'');
+  return !Number.isFinite(read)||!Number.isFinite(last)||last>read;
+ }
+ async function refreshUnreadCount(){
+  if(!isAdmin()||!app||app.classList.contains('hidden')){setUnreadCount(0);return}
+  const r=await db.from('support_conversations').select('last_message_at,last_message_sender_id,admin_last_read_at');
+  if(r.error){console.warn('Support unread counter could not be refreshed:',r.error.message);return}
+  setUnreadCount((r.data||[]).filter(isUnreadConversation).length);
+ }
+ function startBadgeWatch(){
+  if(!isAdmin()||!app||app.classList.contains('hidden'))return;
+  refreshUnreadCount();
+  if(!badgeLive)badgeLive=db.channel('zc-support-admin-unread').on('postgres_changes',{event:'*',schema:'public',table:'support_conversations'},()=>refreshUnreadCount()).subscribe();
+  if(!badgeTimer)badgeTimer=setInterval(refreshUnreadCount,30000);
+ }
+ function stopBadgeWatch(){
+  if(badgeLive){db.removeChannel(badgeLive);badgeLive=null}
+  if(badgeTimer){clearInterval(badgeTimer);badgeTimer=null}
+  setUnreadCount(0);
+ }
+ async function markConversationRead(id){
+  if(!isAdmin()||!id)return;
+  const r=await db.from('support_conversations').update({admin_last_read_at:new Date().toISOString()}).eq('id',id);
+  if(r.error)throw r.error;
+  await refreshUnreadCount();
+ }
  function listen(table,filter,callback){if(live)db.removeChannel(live);const cfg={event:'*',schema:'public',table};if(filter)cfg.filter=filter;live=db.channel('zc-support-'+table+'-'+Math.random().toString(36).slice(2)).on('postgres_changes',cfg,callback).subscribe()}
  async function ensureConversation(){
   const uid=userId();if(!uid)throw new Error('Please sign in to use website chat.');
@@ -5826,21 +5864,23 @@ body.zc-dashboard-visible #zc-support-dock{display:flex!important}
   }catch(e){toast('Message could not be sent: '+e.message,true)}finally{$('zc-as-send').disabled=false}
  }
  async function loadInbox(){
-  stopLive();body().className='zc-as-list';body().innerHTML='<p class="muted">Loading conversations…</p>';
-  const r=await db.from('support_conversations').select('id,user_id,status,last_message_preview,last_message_at,last_message_sender_id').order('last_message_at',{ascending:false});
+  panel.querySelector('.zc-as-compose')?.remove();stopLive();body().className='zc-as-list';body().innerHTML='<p class="muted">Loading conversations…</p>';
+  const r=await db.from('support_conversations').select('id,user_id,status,last_message_preview,last_message_at,last_message_sender_id,admin_last_read_at').order('last_message_at',{ascending:false});
   if(r.error){body().innerHTML='<p class="muted">'+esc(r.error.message)+'</p>';return}
-  const ids=(r.data||[]).map(x=>x.user_id);let users={};
+  const rows=r.data||[];setUnreadCount(rows.filter(isUnreadConversation).length);const ids=rows.map(x=>x.user_id);let users={};
   if(ids.length){const u=await db.from('profiles').select('id,full_name,email').in('id',ids);(u.data||[]).forEach(x=>users[x.id]=x)}
-  body().innerHTML=(r.data||[]).map(c=>{const u=users[c.user_id]||{};return '<button class="zc-as-thread" data-id="'+c.id+'" data-user="'+c.user_id+'"><b>'+esc(u.full_name||u.email||'Customer')+'</b><small>'+esc(c.last_message_preview||'No messages yet')+'</small><small>'+esc(c.status)+' · '+new Date(c.last_message_at).toLocaleString()+'</small></button>'}).join('')||'<p class="muted">No customer conversations yet.</p>';
+  body().innerHTML=rows.map(c=>{const u=users[c.user_id]||{},fresh=isUnreadConversation(c);return '<button class="zc-as-thread'+(fresh?' zc-as-thread-unread':'')+'" data-id="'+c.id+'" data-user="'+c.user_id+'"><span class="zc-as-thread-title"><b>'+esc(u.full_name||u.email||'Customer')+'</b>'+(fresh?'<span class="zc-as-unread-badge">New</span>':'')+'</span><small>'+esc(c.last_message_preview||'No messages yet')+'</small><small>'+esc(c.status)+' · '+new Date(c.last_message_at).toLocaleString()+'</small></button>'}).join('')||'<p class="muted">No customer conversations yet.</p>';
   body().querySelectorAll('[data-id]').forEach(b=>b.onclick=()=>openAdminThread(b.dataset.id,b.dataset.user,users[b.dataset.user]?.full_name||users[b.dataset.user]?.email||'Customer'));
   listen('support_conversations',null,()=>loadInbox());
  }
  async function openAdminThread(id,uid,name){
+  try{await markConversationRead(id)}catch(e){console.warn('Could not mark support conversation as read:',e.message)}
+  panel.querySelector('.zc-as-compose')?.remove();
   if(live){db.removeChannel(live);live=null}conversationId=id;threadUserId=uid;threadName=name;
   $('zc-as-title').textContent=name;body().className='zc-as-messages';
   body().innerHTML='<button class="zc-as-back" id="zc-as-back">← Inbox</button><div id="zc-as-thread-messages"></div>';
   $('zc-as-back').onclick=loadInbox;
-  await renderAdminMessages();listen('support_messages','conversation_id=eq.'+id,()=>renderAdminMessages());
+  await renderAdminMessages();listen('support_messages','conversation_id=eq.'+id,async()=>{await renderAdminMessages();try{await markConversationRead(id)}catch(e){console.warn('Could not refresh support read receipt:',e.message)}});
   const compose=document.createElement('div');compose.className='zc-as-compose';compose.innerHTML='<textarea id="zc-as-input" maxlength="3000" placeholder="Reply to '+esc(name)+'..."></textarea><button class="zc-as-send" id="zc-as-send">Reply</button>';panel.appendChild(compose);$('zc-as-send').onclick=sendAdminReply;
  }
  async function renderAdminMessages(){
@@ -5851,12 +5891,13 @@ body.zc-dashboard-visible #zc-support-dock{display:flex!important}
   const input=$('zc-as-input'),text=(input?.value||'').trim();if(!text||!conversationId||!isAdmin())return;
   $('zc-as-send').disabled=true;
   try{const r=await db.from('support_messages').insert({conversation_id:conversationId,sender_id:userId(),body:text});if(r.error)throw r.error;
-   await db.from('support_conversations').update({status:'open',last_message_preview:text.slice(0,160),last_message_at:new Date().toISOString(),last_message_sender_id:userId(),updated_at:new Date().toISOString()}).eq('id',conversationId);
+   await db.from('support_conversations').update({status:'open',last_message_preview:text.slice(0,160),last_message_at:new Date().toISOString(),last_message_sender_id:userId(),admin_last_read_at:new Date().toISOString(),updated_at:new Date().toISOString()}).eq('id',conversationId);
    input.value='';await renderAdminMessages();
   }catch(e){toast('Reply failed: '+e.message,true)}finally{if($('zc-as-send'))$('zc-as-send').disabled=false}
  }
  async function openSettings(){
   if(!isAdmin())return toast('Administrator access required.',true);
+  panel.classList.add('zc-visible');setMode(true);panel.querySelector('.zc-as-compose')?.remove();
   stopLive();$('zc-as-title').textContent='Support settings';$('zc-as-settings-btn').style.display='none';
   body().className='zc-as-settings';body().innerHTML='<label for="zc-as-wa">WhatsApp number or link</label><input id="zc-as-wa" placeholder="e.g. 2348012345678"><label for="zc-as-tg">Telegram link</label><input id="zc-as-tg" placeholder="e.g. https://t.me/yourusername"><button class="btn primary" id="zc-as-save">Save contact links</button><p class="muted" id="zc-as-settings-status">Loading saved links…</p>';
   const [wa,tg]=await Promise.all([db.from('app_settings').select('value').eq('key','support_whatsapp').maybeSingle(),db.from('app_settings').select('value').eq('key','support_telegram').maybeSingle()]);
