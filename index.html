@@ -1117,13 +1117,12 @@ function reserved(){return withdrawals.filter(x=>['pending','under_review','appr
 function ledgerDeposits(){return (ledger||[]).filter(x=>x.entry_type==='deposit')}
 function depositTotal(){return ledgerDeposits().reduce((s,x)=>s+Number(x.amount||0),0)}
 function withdrawnTotal(){return (ledger||[]).filter(x=>x.entry_type==='withdrawal').reduce((s,x)=>s+Math.abs(Number(x.amount||0)),0)}
-function activeInvestTotal(){return (investments||[]).filter(x=>x&&x.status==='active'&&(!x.ends_at||Date.now()<new Date(x.ends_at).getTime())).reduce((s,x)=>s+Number(x.amount||0),0)}
+function activeInvestTotal(){return (investments||[]).filter(x=>x&&x.status==='active').reduce((s,x)=>s+Number(x.amount||0),0)}
 function bonusTotal(){return (ledger||[]).filter(x=>x.entry_type==='bonus').reduce((s,x)=>s+Number(x.amount||0),0)}
 function legacyLockedTotal(){
  const entryById=new Map((ledger||[]).map(x=>[x.id,x]));
  return (investments||[]).filter(u=>{
   if(!u||u.status!=='active')return false;
-  if(u.ends_at&&Date.now()>=new Date(u.ends_at).getTime())return false;
   const entry=entryById.get(u.ledger_entry_id);
   return !entry||!(Number(entry.amount||0)<0);
  }).reduce((sum,u)=>sum+Math.max(0,Number(u.amount||0)),0);
@@ -1131,13 +1130,13 @@ function legacyLockedTotal(){
 function pendingPlanProfit(){return accruedProfitTotal()}
 function uninvestedDepositTotal(){
  const entryById=new Map((ledger||[]).map(x=>[x.id,x]));
- const invested=(investments||[]).reduce((sum,u)=>{
-  if(!u)return sum;
+ const locked=(investments||[]).reduce((sum,u)=>{
+  if(!u||u.status!=='active')return sum;
   const entry=entryById.get(u.ledger_entry_id);
-  if(u.status==='cancelled'&&entry&&entry.entry_type==='deposit')return sum;
+  if(!entry||entry.entry_type!=='deposit'||Number(entry.amount||0)<=0)return sum;
   return sum+Math.max(0,Number(u.amount||0));
  },0);
- return Math.max(0,depositTotal()-invested);
+ return Math.max(0,depositTotal()-locked);
 }
 function availableUnlocked(){return Math.max(0,balance()-reserved()-legacyLockedTotal())}
 function toggleDrawer(){const drawer=$('app-drawer'),scrim=$('drawer-scrim');if(!drawer||!scrim)return;if(typeof zcInitThemeUI==='function')zcInitThemeUI();const opening=!drawer.classList.contains('open');drawer.classList.toggle('open',opening);scrim.classList.toggle('show',opening);document.body.classList.toggle('zc-drawer-open',opening);}function closeDrawer(){const drawer=$('app-drawer'),scrim=$('drawer-scrim');if(drawer)drawer.classList.remove('open');if(scrim)scrim.classList.remove('show');document.body.classList.remove('zc-drawer-open')}function navigate(p){if(!p)return;if(p==='admin'&&profile?.role!=='admin'){toast('Administrator access required.',true);closeDrawer();return}const c=$('app-content');try{page=p;document.querySelectorAll('.side-nav button').forEach(b=>b.classList.toggle('active',b.dataset.page===p));closeDrawer();if(p==='calculator'){renderCalculatorPage();return}if(c)c.innerHTML='<div class="card panel" style="min-height:90px;display:flex;align-items:center"><span class="muted">Opening '+esc(p==='deposits'?'deposit':p==='withdrawals'?'withdrawal':p)+'…</span></div>';if(p==='deposits'){renderDepositPage();return}if(p==='withdrawals'){renderWithdrawalPage();return}if(p==='investments'){renderInvestmentsPage();return}renderPage();if(p==='overview'&&typeof loadReferralList==='function')loadReferralList()}catch(err){console.error('Navigation failed:',err);if(c)c.innerHTML='<section class="card panel"><h3>Unable to open this section</h3><p class="muted">'+esc(err?.message||'A page error occurred. Please try again.')+'</p><button class="btn primary" onclick="navigate(\'overview\')">Back to overview</button></section>';toast('Could not open this section: '+(err?.message||'Please try again.'),true)}}
