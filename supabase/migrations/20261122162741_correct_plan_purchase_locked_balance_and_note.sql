@@ -114,5 +114,5 @@ begin
 end;
 $function$;
 
-revoke all on function public.purchase_gforce_plan(uuid, numeric) from public, anon;
+revoke all on function public.purchase_gforce_plan(uuid, numeric) from public;
 grant execute on function public.purchase_gforce_plan(uuid, numeric) to authenticated;

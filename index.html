@@ -1117,13 +1117,12 @@ function reserved(){return withdrawals.filter(x=>['pending','under_review','appr
 function ledgerDeposits(){return (ledger||[]).filter(x=>x.entry_type==='deposit')}
 function depositTotal(){return ledgerDeposits().reduce((s,x)=>s+Number(x.amount||0),0)}
 function withdrawnTotal(){return (ledger||[]).filter(x=>x.entry_type==='withdrawal').reduce((s,x)=>s+Math.abs(Number(x.amount||0)),0)}
-function activeInvestTotal(){return (investments||[]).filter(x=>x&&x.status==='active'&&(!x.ends_at||Date.now()<new Date(x.ends_at).getTime())).reduce((s,x)=>s+Number(x.amount||0),0)}
+function activeInvestTotal(){return (investments||[]).filter(x=>x&&x.status==='active').reduce((s,x)=>s+Number(x.amount||0),0)}
 function bonusTotal(){return (ledger||[]).filter(x=>x.entry_type==='bonus').reduce((s,x)=>s+Number(x.amount||0),0)}
 function legacyLockedTotal(){
  const entryById=new Map((ledger||[]).map(x=>[x.id,x]));
  return (investments||[]).filter(u=>{
   if(!u||u.status!=='active')return false;
-  if(u.ends_at&&Date.now()>=new Date(u.ends_at).getTime())return false;
   const entry=entryById.get(u.ledger_entry_id);
   return !entry||!(Number(entry.amount||0)<0);
  }).reduce((sum,u)=>sum+Math.max(0,Number(u.amount||0)),0);
@@ -1131,13 +1130,13 @@ function legacyLockedTotal(){
 function pendingPlanProfit(){return accruedProfitTotal()}
 function uninvestedDepositTotal(){
  const entryById=new Map((ledger||[]).map(x=>[x.id,x]));
- const invested=(investments||[]).reduce((sum,u)=>{
-  if(!u)return sum;
+ const locked=(investments||[]).reduce((sum,u)=>{
+  if(!u||u.status!=='active')return sum;
   const entry=entryById.get(u.ledger_entry_id);
-  if(u.status==='cancelled'&&entry&&entry.entry_type==='deposit')return sum;
+  if(!entry||entry.entry_type!=='deposit'||Number(entry.amount||0)<=0)return sum;
   return sum+Math.max(0,Number(u.amount||0));
  },0);
- return Math.max(0,depositTotal()-invested);
+ return Math.max(0,depositTotal()-locked);
 }
 function availableUnlocked(){return Math.max(0,balance()-reserved()-legacyLockedTotal())}
 function toggleDrawer(){const drawer=$('app-drawer'),scrim=$('drawer-scrim');if(!drawer||!scrim)return;if(typeof zcInitThemeUI==='function')zcInitThemeUI();const opening=!drawer.classList.contains('open');drawer.classList.toggle('open',opening);scrim.classList.toggle('show',opening);document.body.classList.toggle('zc-drawer-open',opening);}function closeDrawer(){const drawer=$('app-drawer'),scrim=$('drawer-scrim');if(drawer)drawer.classList.remove('open');if(scrim)scrim.classList.remove('show');document.body.classList.remove('zc-drawer-open')}function navigate(p){if(!p)return;if(p==='admin'&&profile?.role!=='admin'){toast('Administrator access required.',true);closeDrawer();return}const c=$('app-content');try{page=p;document.querySelectorAll('.side-nav button').forEach(b=>b.classList.toggle('active',b.dataset.page===p));closeDrawer();if(p==='calculator'){renderCalculatorPage();return}if(c)c.innerHTML='<div class="card panel" style="min-height:90px;display:flex;align-items:center"><span class="muted">Opening '+esc(p==='deposits'?'deposit':p==='withdrawals'?'withdrawal':p)+'…</span></div>';if(p==='deposits'){renderDepositPage();return}if(p==='withdrawals'){renderWithdrawalPage();return}if(p==='investments'){renderInvestmentsPage();return}renderPage();if(p==='overview'&&typeof loadReferralList==='function')loadReferralList()}catch(err){console.error('Navigation failed:',err);if(c)c.innerHTML='<section class="card panel"><h3>Unable to open this section</h3><p class="muted">'+esc(err?.message||'A page error occurred. Please try again.')+'</p><button class="btn primary" onclick="navigate(\'overview\')">Back to overview</button></section>';toast('Could not open this section: '+(err?.message||'Please try again.'),true)}}
@@ -1288,7 +1287,7 @@ function requestsTable(rows,type){if(!rows.length)return '<div class="empty">No 
 let zcTxFilter='all',zcTradeSimTimer=null,zcTradeChartTimer=null;
 function invCardHTML(x){
  const pct=Math.round((x.progress||0)*100);
- return '<article class="card panel zc-inv-card" style="margin-top:18px"><div class="app-hero-row"><div><b>'+esc(x.plan)+'</b> <span class="pill pending">Active</span><div class="muted" style="font-size:12px;margin-top:4px">'+money(x.amount)+' at '+x.rate+'% · projected profit '+money(x.profit)+'</div></div><div style="text-align:right"><small class="muted">≈ +'+fmt(x.perMin)+' / min</small></div></div>'+
+ return '<article class="card panel zc-inv-card" style="margin-top:18px"><div class="app-hero-row"><div><b>'+esc(x.plan)+'</b> <span class="pill '+(x.matured?'':'pending')+'">'+(x.matured?'Matured · awaiting settlement':'Active')+'</span><div class="muted" style="font-size:12px;margin-top:4px">'+money(x.amount)+' at '+x.rate+'% · projected profit '+money(x.profit)+'</div></div><div style="text-align:right"><small class="muted">≈ +'+fmt(x.perMin)+' / min</small></div></div>'+
  '<div class="zc-minute-row" style="margin-top:10px" data-start="'+x.startsAt+'"><small class="muted">Minute cycle</small><div class="zc-progress zc-minute"><i class="zc-minute-fill" style="width:0%"></i></div><small class="muted zc-minute-push">push 0</small></div>'+
  '<div class="zc-progress" style="margin-top:6px"><i style="width:'+pct+'%"></i></div></article>';
 }
@@ -1322,7 +1321,7 @@ function renderTransactions(){
 }
 function renderInvestmentsPage(){
  const c=$('app-content');if(!c)return;
- const invs=investmentRows().filter(x=>x.status==='active'&&!x.matured);
+ const invs=investmentRows().filter(x=>x.status==='active');
  let h='<div style="display:flex;justify-content:flex-end;gap:10px;margin-bottom:12px"><button class="btn primary" onclick="navigate(\'deposits\')">+ New deposit</button></div>';
  h+='<section class="card panel"><div class="app-hero-row"><div><div class="eyebrow">ACTIVE TRADING · DELAYED MARKET FEED</div><h3 style="margin:5px 0">BTC / USDT <span class="muted" id="zc-trade-price" style="font-weight:400"></span></h3></div><div style="text-align:right"><b id="zc-trade-accrued" class="zc-tx-amount pos">+$0.00</b><div><small class="muted" id="zc-trade-rate"></small></div><div><small class="muted" id="zc-trade-target"></small></div></div></div><div class="zc-trade-chart" id="zc-trade-chart"><div class="empty">Connecting to delayed market feed…</div></div><p class="muted" style="font-size:11px;margin:6px 0 0">Delayed market feed. Profit accrues each second at your plan rate until the plan completes.</p></section>';
  h+='<div id="zc-accrual-stream" class="zc-accrual-stream"></div>';
