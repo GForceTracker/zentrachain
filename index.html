@@ -1125,7 +1125,7 @@ function legacyLockedTotal(){
   if(!u||u.status!=='active')return false;
   if(u.ends_at&&Date.now()>=new Date(u.ends_at).getTime())return false;
   const entry=entryById.get(u.ledger_entry_id);
-  return !!entry&&entry.entry_type==='deposit'&&Number(entry.amount||0)>0;
+  return !entry||!(Number(entry.amount||0)<0);
  }).reduce((sum,u)=>sum+Math.max(0,Number(u.amount||0)),0);
 }
 function pendingPlanProfit(){return accruedProfitTotal()}
