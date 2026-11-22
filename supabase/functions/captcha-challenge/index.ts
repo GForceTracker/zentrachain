@@ -18,27 +18,50 @@ function ipLimited(ip: string): boolean {
   return rec.count > 12;
 }
 
+function makeSvg(code: string): string {
+  const chars = code.split("");
+  let glyphs = "";
+  let x = 14;
+  for (const c of chars) {
+    const rot = (Math.random() * 44 - 22).toFixed(1);
+    const dy = (Math.random() * 14 - 7).toFixed(1);
+    const size = (26 + Math.random() * 8).toFixed(0);
+    const fill = ["#0a8a4d", "#1b6e5a", "#20575e", "#7a4a12"][Math.floor(Math.random() * 4)];
+    glyphs += '<text x="' + x + '" y="' + (30 + Number(dy)) + '" font-family="Georgia,serif" font-size="' + size + '" font-weight="700" fill="' + fill + '" transform="rotate(' + rot + ' ' + x + ' ' + (30 + Number(dy)) + ')">' + c + '</text>';
+    x += 30;
+  }
+  let noise = "";
+  for (let i = 0; i < 3; i++) {
+    const y1 = (Math.random() * 40 + 4).toFixed(0), y2 = (Math.random() * 40 + 4).toFixed(0);
+    noise += '<line x1="0" y1="' + y1 + '" x2="150" y2="' + y2 + '" stroke="#94a89f" stroke-width="1"/>';
+  }
+  for (let i = 0; i < 8; i++) {
+    noise += '<circle cx="' + (Math.random() * 150).toFixed(0) + '" cy="' + (Math.random() * 46 + 2).toFixed(0) + '" r="1.4" fill="#94a89f"/>';
+  }
+  return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 150 48" width="150" height="48" style="background:#ffffff;border-radius:8px">' + noise + glyphs + '</svg>';
+}
+
 Deno.serve(async (req: Request) => {
   if (req.method === "OPTIONS") return response({ ok: true });
   if (req.method !== "POST") return response({ error: "Method not allowed" }, 405);
   try {
     const ip = req.headers.get("cf-connecting-ip") ?? req.headers.get("x-forwarded-for") ?? "local";
     if (ipLimited(ip)) return response({ error: "Too many attempts. Try again shortly." }, 429);
-    // cleanup stale challenges (older than 10 minutes)
     await fetch(SUPABASE_URL + "/rest/v1/captcha_challenges?created_at=lt." + new Date(Date.now() - 600000).toISOString(), {
       method: "DELETE",
       headers: { apikey: SERVICE_KEY, Authorization: `Bearer ${SERVICE_KEY}`, Prefer: "return=minimal" }
     });
-    const salt = crypto.getRandomValues(new Uint8Array(8)).reduce((s, b) => s + b.toString(16).padStart(2, "0"), "");
-    const difficulty = 3;
+    const alphabet = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+    let code = "";
+    for (let i = 0; i < 4; i++) code += alphabet[Math.floor(Math.random() * alphabet.length)];
     const ins = await fetch(SUPABASE_URL + "/rest/v1/captcha_challenges", {
       method: "POST",
       headers: { apikey: SERVICE_KEY, Authorization: `Bearer ${SERVICE_KEY}`, "Content-Type": "application/json", Prefer: "return=representation" },
-      body: JSON.stringify({ salt, difficulty })
+      body: JSON.stringify({ code })
     });
     const rows = ins.ok ? await ins.json() : [];
     if (!rows.length) throw new Error("Challenge could not be created");
-    return response({ id: rows[0].id, salt, difficulty });
+    return response({ id: rows[0].id, svg: makeSvg(code) });
   } catch (e) {
     console.error("captcha-challenge error", e);
     return response({ error: "Challenge failed. Try again." }, 500);
