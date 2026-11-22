@@ -26,20 +26,24 @@ begin
   end if;
 
   perform pg_advisory_xact_lock(hashtextextended(v_uid::text, 0));
+  -- Release matured plans before checking the balance available for a new purchase.
+  perform public.zc_settle_gforce_investments();
+
   select coalesce(sum(amount),0) into v_balance
     from public.ledger_entries where user_id = v_uid;
   select coalesce(sum(amount),0) into v_reserved
     from public.withdrawal_requests
     where user_id = v_uid and status in ('pending','under_review','approved');
-  select coalesce(sum(ui.amount),0) into v_locked
+  select coalesce(sum(ui.amount), 0)
+    into v_locked
     from public.user_investments ui
-    join public.ledger_entries le on le.id = ui.ledger_entry_id
+    left join public.ledger_entries le
+      on le.id = ui.ledger_entry_id
+     and le.user_id = v_uid
     where ui.user_id = v_uid
       and ui.status = 'active'
       and (ui.ends_at is null or ui.ends_at > now())
-      and le.user_id = v_uid
-      and le.entry_type = 'deposit'
-      and le.amount > 0;
+      and not coalesce(le.amount < 0, false);
 
   if p_amount > v_balance - v_reserved - v_locked then
     raise exception 'Not enough balance. Fund your account to continue.';
@@ -49,13 +53,14 @@ begin
   values (v_uid, -round(p_amount, 8), 'investment', 'Plan purchase: ' || v_plan.name, 'plan_purchase')
   returning id into v_led;
 
-  insert into public.user_investments (user_id, ledger_entry_id, plan_id, amount, rate, status, starts_at, ends_at)
+  insert into public.user_investments (user_id, ledger_entry_id, plan_id, amount, rate, status, starts_at, ends_at, note)
   values (
     v_uid, v_led, v_plan.id, round(p_amount, 8), v_plan.percentage, 'active', now(),
     case
       when lower(v_plan.duration_unit) = 'hours' then now() + (v_plan.duration_value || ' hours')::interval
       else now() + (v_plan.duration_value || ' days')::interval
-    end
+    end,
+    'Plan purchase: ' || v_plan.name
   )
   returning id into v_inv;
 
@@ -110,7 +115,7 @@ begin
       where le.id = v_row.ledger_entry_id
         and le.user_id = v_uid;
 
-    if v_source_type = 'deposit' and coalesce(v_source_amount, 0) > 0 then
+    if coalesce(v_source_amount, 0) > 0 then
       v_payout := round(v_row.amount * coalesce(v_row.rate, 0) / 100.0, 8);
     else
       v_payout := round(v_row.amount + v_row.amount * coalesce(v_row.rate, 0) / 100.0, 8);
@@ -154,6 +159,9 @@ declare
   v_max_withdrawal numeric;
 begin
   if v_uid is null then raise exception 'Authentication required'; end if;
+  if exists (select 1 from public.profiles where id = v_uid and payout_frozen = true) then
+    raise exception 'Withdrawals are paused on this account. Please contact support.';
+  end if;
 
   select numeric_value into v_min_withdrawal
     from public.site_settings where setting_key='minimum_withdrawal_usd';
@@ -169,18 +177,20 @@ begin
   if length(p_destination) < 20 or length(p_destination) > 150 then raise exception 'Invalid destination address'; end if;
 
   perform pg_advisory_xact_lock(hashtextextended(v_uid::text, 0));
+  perform public.zc_settle_gforce_investments();
   select coalesce(sum(amount),0) into v_balance from public.ledger_entries where user_id = v_uid;
   select coalesce(sum(amount),0) into v_reserved from public.withdrawal_requests
     where user_id = v_uid and status in ('pending','under_review','approved');
-  select coalesce(sum(ui.amount),0) into v_locked
+  select coalesce(sum(ui.amount), 0)
+    into v_locked
     from public.user_investments ui
-    join public.ledger_entries le on le.id = ui.ledger_entry_id
+    left join public.ledger_entries le
+      on le.id = ui.ledger_entry_id
+     and le.user_id = v_uid
     where ui.user_id = v_uid
       and ui.status = 'active'
       and (ui.ends_at is null or ui.ends_at > now())
-      and le.user_id = v_uid
-      and le.entry_type = 'deposit'
-      and le.amount > 0;
+      and not coalesce(le.amount < 0, false);
 
   if p_amount > v_balance - v_reserved - v_locked then
     raise exception 'Insufficient available balance';
@@ -215,6 +225,9 @@ declare
   v_max_withdrawal numeric;
 begin
   if v_uid is null then raise exception 'Authentication required'; end if;
+  if exists (select 1 from public.profiles where id = v_uid and payout_frozen = true) then
+    raise exception 'Withdrawals are paused on this account. Please contact support.';
+  end if;
 
   select numeric_value into v_min_withdrawal
     from public.site_settings where setting_key='minimum_withdrawal_usd';
@@ -237,18 +250,20 @@ begin
   if length(p_destination) < 20 or length(p_destination) > 150 then raise exception 'Invalid destination address'; end if;
 
   perform pg_advisory_xact_lock(hashtextextended(v_uid::text, 0));
+  perform public.zc_settle_gforce_investments();
   select coalesce(sum(amount),0) into v_balance from public.ledger_entries where user_id = v_uid;
   select coalesce(sum(amount),0) into v_reserved from public.withdrawal_requests
     where user_id = v_uid and status in ('pending','under_review','approved');
-  select coalesce(sum(ui.amount),0) into v_locked
+  select coalesce(sum(ui.amount), 0)
+    into v_locked
     from public.user_investments ui
-    join public.ledger_entries le on le.id = ui.ledger_entry_id
+    left join public.ledger_entries le
+      on le.id = ui.ledger_entry_id
+     and le.user_id = v_uid
     where ui.user_id = v_uid
       and ui.status = 'active'
       and (ui.ends_at is null or ui.ends_at > now())
-      and le.user_id = v_uid
-      and le.entry_type = 'deposit'
-      and le.amount > 0;
+      and not coalesce(le.amount < 0, false);
 
   if p_amount > v_balance - v_reserved - v_locked then
     raise exception 'Insufficient available balance';
