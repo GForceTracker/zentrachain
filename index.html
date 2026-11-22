@@ -8034,3 +8034,47 @@ box-sizing:border-box!important;display:inline-flex!important;align-items:center
  showApp=function(){prevShowApp();window.zcStartDepositMonitor()};
 })();
 </script>
+
+<style id="zc-support-logo-restore-css">
+#zc-support-dock .zc-support-main{display:grid!important;place-items:center!important;color:#9be8c5!important;line-height:0!important;font-size:0!important;visibility:visible!important;opacity:1!important}
+#zc-support-dock .zc-support-main:after{content:none!important;display:none!important}
+#zc-support-dock .zc-support-main svg[data-zc-support-logo="true"]{display:block!important;width:28px!important;height:28px!important;min-width:28px!important;min-height:28px!important;visibility:visible!important;opacity:1!important;fill:none!important;stroke:#9be8c5!important;stroke-width:1.9!important;stroke-linecap:round!important;stroke-linejoin:round!important;pointer-events:none!important}
+</style>
+<script id="zc-support-logo-restore-script">
+(function(){
+ const ns='http://www.w3.org/2000/svg';
+ let watchedButton=null,buttonObserver=null;
+ function buildLogo(){
+  const svg=document.createElementNS(ns,'svg');
+  svg.setAttribute('viewBox','0 0 24 24');
+  svg.setAttribute('width','28');svg.setAttribute('height','28');
+  svg.setAttribute('data-zc-support-logo','true');
+  svg.setAttribute('aria-hidden','true');svg.setAttribute('focusable','false');
+  svg.setAttribute('fill','none');svg.setAttribute('stroke','#9be8c5');
+  svg.setAttribute('stroke-width','1.9');svg.setAttribute('stroke-linecap','round');svg.setAttribute('stroke-linejoin','round');
+  const add=(tag,attrs)=>{const el=document.createElementNS(ns,tag);Object.keys(attrs).forEach(k=>el.setAttribute(k,attrs[k]));svg.appendChild(el)};
+  add('path',{d:'M20.2 11.2a8.2 8.2 0 0 1-8.2 8.2 8.4 8.4 0 0 1-3.7-.9L3 20l1.5-5.1a8.1 8.1 0 0 1-.8-3.7A8.2 8.2 0 0 1 12 3h.2a8.2 8.2 0 0 1 8 8v.2Z'});
+  add('path',{d:'M8.5 10.2h7M8.5 13.7h4.5'});
+  return svg;
+ }
+ function restore(){
+  const dock=document.getElementById('zc-support-dock');
+  const button=dock&&dock.querySelector('.zc-support-main');
+  if(!button)return;
+  if(!button.querySelector('svg[data-zc-support-logo="true"]')){
+   button.replaceChildren(buildLogo());
+  }
+  button.setAttribute('aria-label','Open support options');
+  if(button.getAttribute('aria-expanded')===null)button.setAttribute('aria-expanded','false');
+  if(buttonObserver&&watchedButton!==button){buttonObserver.disconnect();buttonObserver=null}
+  if(!buttonObserver){
+   watchedButton=button;
+   buttonObserver=new MutationObserver(restore);
+   buttonObserver.observe(button,{childList:true});
+  }
+ }
+ restore();
+ const pageObserver=new MutationObserver(restore);
+ if(document.documentElement)pageObserver.observe(document.documentElement,{childList:true,subtree:true});
+})();
+</script>
