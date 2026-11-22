@@ -2,6 +2,16 @@
 
 ZentraChain digital asset platform.
 
+## Run on this computer
+
+```powershell
+node serve.js
+```
+
+Then open http://localhost:8080. The page talks to the hosted Supabase backend
+(same as production). See `LOCAL-DEV.md` for details, the backend switch, and
+how to push fixes back to GitHub.
+
 ## Website source
 
 - `index.html` — editable HTML source for the visitor and account portal.
