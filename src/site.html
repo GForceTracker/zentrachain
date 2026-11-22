@@ -1200,7 +1200,7 @@ function requestsTable(rows,type){if(!rows.length)return '<div class="empty">No 
 let zcTxFilter='all',zcTradeSimTimer=null,zcTradeChartTimer=null;
 function invCardHTML(x){
  const pct=Math.round((x.progress||0)*100);
- return '<article class="card panel zc-inv-card" style="margin-top:18px"><div class="app-hero-row"><div><b>'+esc(x.plan)+'</b> <span class="pill pending">Active</span><div class="muted" style="font-size:12px;margin-top:4px">'+money(x.amount)+' at '+x.rate+'% · projected profit '+money(x.profit)+'</div></div><div style="text-align:right"><small class="muted">≈ +'+fmt(x.perMin)+' / min</small></div></div>'+
+ return '<article class="card panel zc-inv-card" style="margin-top:12px"><div class="app-hero-row"><div><b>'+esc(x.plan)+'</b> <span class="pill pending">Active</span><div class="muted" style="font-size:12px;margin-top:4px">'+money(x.amount)+' at '+x.rate+'% · projected profit '+money(x.profit)+'</div></div><div style="text-align:right"><small class="muted">≈ +'+zcSmartUsd(x.perSec)+' / sec</small></div></div>'+
  '<div class="zc-minute-row" style="margin-top:10px" data-start="'+x.startsAt+'"><small class="muted">Minute cycle</small><div class="zc-progress zc-minute"><i class="zc-minute-fill" style="width:0%"></i></div><small class="muted zc-minute-push">push 0</small></div>'+
  '<div class="zc-progress" style="margin-top:6px"><i style="width:'+pct+'%"></i></div></article>';
 }
@@ -1211,16 +1211,21 @@ function investmentRows(){
   if(!u)continue;
   const amount=Number(u.amount||0);if(!(amount>0))continue;
   const rate=Number(u.rate||0);
+  const configured=u.plan_id?plans.find(p=>p&&p.id===u.plan_id):null;
   const startsAt=u.starts_at?new Date(u.starts_at).getTime():new Date(u.created_at||Date.now()).getTime();
-  const endsAt=u.ends_at?new Date(u.ends_at).getTime():startsAt+86400000;
+  const planDurationValue=Math.max(1,Number(configured?.duration_value)||1);
+  const planDurationUnit=String(configured?.duration_unit||'days').toLowerCase();
+  const fallbackDurationMs=planDurationValue*(planDurationUnit==='hours'?3600000:86400000);
+  const savedEndsAt=u.ends_at?new Date(u.ends_at).getTime():NaN;
+  const endsAt=Number.isFinite(savedEndsAt)&&savedEndsAt>startsAt?savedEndsAt:startsAt+fallbackDurationMs;
   const cancelled=u.status==='cancelled';
   const matured=cancelled||u.status==='completed'||Date.now()>=endsAt;
   const profit=cancelled?0:amount*rate/100;
   const duration=Math.max(1,endsAt-startsAt);
-  let plan='Investment plan';
-  if(u.plan_id){const configured=plans.find(p=>p&&p.id===u.plan_id);if(configured)plan=configured.name}
-  if(plan==='Investment plan'&&u.note)plan=String(u.note).replace(/^Plan purchase:\s*/,'');
-  out.push({id:u.id,investment:u,deposit:(ledger||[]).find(e=>e.id===u.ledger_entry_id)||null,plan:plan,status:u.status,amount:amount,rate:rate,profit:profit,startsAt:startsAt,endsAt:endsAt,matured:matured,completed:matured,progress:matured?1:Math.min(1,Math.max(0,(Date.now()-startsAt)/duration)),perMin:profit/Math.max(1,duration/60000)});
+  const perSec=profit/Math.max(1,duration/1000);
+  let plan=configured?.name||'Investment plan';
+  if(plan==='Investment plan'&&u.note)plan=String(u.note).replace(new RegExp('^Plan purchase:\\s*'),'');
+  out.push({id:u.id,investment:u,deposit:(ledger||[]).find(e=>e.id===u.ledger_entry_id)||null,plan:plan,status:u.status,amount:amount,rate:rate,profit:profit,startsAt:startsAt,endsAt:endsAt,matured:matured,completed:matured,progress:matured?1:Math.min(1,Math.max(0,(Date.now()-startsAt)/duration)),perSec:perSec,perMin:perSec*60});
  }
  out.sort((a,b)=>b.startsAt-a.startsAt);
  return out;
@@ -1236,10 +1241,14 @@ function renderInvestmentsPage(){
  const c=$('app-content');if(!c)return;
  const invs=investmentRows().filter(x=>x.status==='active'&&!x.matured);
  let h='<div style="display:flex;justify-content:flex-end;gap:10px;margin-bottom:12px"><button class="btn primary" onclick="navigate(\'deposits\')">+ New deposit</button></div>';
- h+='<section class="card panel"><div class="app-hero-row"><div><div class="eyebrow">ACTIVE TRADING · DELAYED MARKET FEED</div><h3 style="margin:5px 0">BTC / USDT <span class="muted" id="zc-trade-price" style="font-weight:400"></span></h3></div><div style="text-align:right"><b id="zc-trade-accrued" class="zc-tx-amount pos">+$0.00</b><div><small class="muted" id="zc-trade-rate"></small></div><div><small class="muted" id="zc-trade-target"></small></div></div></div><div class="zc-trade-chart" id="zc-trade-chart"><div class="empty">Connecting to delayed market feed…</div></div><p class="muted" style="font-size:11px;margin:6px 0 0">Delayed market feed. Profit accrues each second at your plan rate until the plan completes.</p></section>';
+ if(invs.length){
+  h+='<div class="eyebrow" style="margin:14px 0 2px">YOUR SUBSCRIBED PLANS · '+invs.length+'</div>';
+  h+=invs.map(invCardHTML).join('');
+ }else{
+  h+='<div class="card panel" style="margin:14px 0"><div class="empty">No active plan yet. Fund your account to start a trading plan.</div></div>';
+ }
+ h+='<section class="card panel" style="margin-top:18px"><div class="app-hero-row"><div><div class="eyebrow">LIVE PLAN ACTIVITY</div><h3 style="margin:5px 0">Live earnings chart</h3></div><div style="text-align:right"><b id="zc-trade-accrued" class="zc-tx-amount pos">+'+zcSmartUsd(accruedProfitTotal())+'</b><div><small class="muted" id="zc-trade-rate"></small></div><div><small class="muted" id="zc-trade-target"></small></div></div></div><div class="zc-trade-chart" id="zc-trade-chart"><div class="empty">Loading live chart…</div></div></section>';
  h+='<div id="zc-accrual-stream" class="zc-accrual-stream"></div>';
- if(!invs.length)h+='<div class="card panel" style="margin-top:14px"><div class="empty">No active plan yet. Fund your account to start a trading plan.</div></div>';
- else h+=invs.map(invCardHTML).join('');
  c.innerHTML=h;
  startTradeSim();
  try{zcProfitTick()}catch(e){}
@@ -1312,11 +1321,11 @@ function accruedProfitTotal(){
 function zcProfitTick(){
  const v=accruedProfitTotal();
  const a=$('zc-profit-live');if(a)a.textContent=money(v);
- const t=$('zc-trade-accrued');if(t)t.textContent='+'+fmt(v);
+ const t=$('zc-trade-accrued');if(t)t.textContent='+'+zcSmartUsd(v);
  const act=investmentRows().filter(x=>x.status==='active'&&!x.matured);
  const tgt=act.reduce((s,x)=>s+x.profit,0);
- const perSec=act.reduce((s,x)=>s+x.perMin/60,0);
- const r=$('zc-trade-rate');if(r)r.textContent=perSec>0?'+'+perSec.toFixed(6)+' USDT / sec':'';
+ const perSec=act.reduce((s,x)=>s+x.perSec,0);
+ const r=$('zc-trade-rate');if(r)r.textContent='+'+zcSmartUsd(perSec)+' USDT / sec';
  const g=$('zc-trade-target');if(g)g.textContent=tgt>0?'earning toward +'+fmt(tgt)+' total':'no active plan';
 }
 function zcDrawTradeChart(){
@@ -1335,13 +1344,19 @@ function zcDrawTradeChart(){
  let vol='';for(let i=0;i<pts.length;i+=2){const hh=(6+Math.random()*(VOL-8)).toFixed(0);vol+='<rect x="'+(X(i)-3).toFixed(1)+'" y="'+(H-P-Number(hh)).toFixed(1)+'" width="5" height="'+hh+'" rx="1.5" fill="currentColor" opacity=".14"/>'}
  const up=pts[pts.length-1]>=pts[0];
  const stroke=up?'var(--green)':'var(--red,#ff7474)';
- box.innerHTML='<svg viewBox="0 0 '+W+' '+H+'" preserveAspectRatio="none" style="color:var(--green)">'+vol+'<path d="'+area+'" fill="'+stroke+'" opacity=".14"/><path d="'+line+'" fill="none" stroke="'+stroke+'" stroke-width="2"/><circle cx="'+lx.toFixed(1)+'" cy="'+ly.toFixed(1)+'" r="3.4" fill="'+stroke+'"/><text x="'+P+'" y="14" fill="var(--muted)" font-size="11">$'+fmt(pts[0])+' → $'+fmt(pts[pts.length-1])+'</text></svg>';
- const pr=$('zc-trade-price');if(pr)pr.textContent='$'+fmt(pts[pts.length-1]);
+ box.innerHTML='<svg viewBox="0 0 '+W+' '+H+'" preserveAspectRatio="none" style="color:var(--green)">'+vol+'<path d="'+area+'" fill="'+stroke+'" opacity=".14"/><path d="'+line+'" fill="none" stroke="'+stroke+'" stroke-width="2"/><circle cx="'+lx.toFixed(1)+'" cy="'+ly.toFixed(1)+'" r="3.4" fill="'+stroke+'"/></svg>';
+
  let tickN=(window.__zcChartTick||0)+1;window.__zcChartTick=tickN;
  try{zcUpdateMinuteBars()}catch(e){}
  try{if(tickN%2===0)zcSpawnPip();if(tickN%3===0)zcPushAccrualRow()}catch(e){}
 }
-function zcSmartUsd(v){v=Number(v)||0;return '$'+(v>=1?v.toFixed(2):v>=0.01?v.toFixed(4):v.toFixed(6))}
+function zcSmartUsd(v){
+ v=Number(v)||0;
+ if(v>=1)return '$'+v.toFixed(2);
+ if(v>=0.01)return '$'+v.toFixed(4);
+ const decimals=v>0?Math.min(12,Math.max(8,Math.ceil(-Math.log10(v))+4)):8;
+ return '$'+v.toFixed(decimals).replace(new RegExp('0+$'),'').replace(new RegExp('\\.$'),'');
+}
 function zcUpdateMinuteBars(){const now=Date.now();const p=Math.round((now%60000)/600);document.querySelectorAll('.zc-minute-fill').forEach(b=>{b.style.width=p+'%'});document.querySelectorAll('.zc-minute-row').forEach(row=>{const st=Number(row.dataset.start||0);const push=st?Math.floor((now-st)/60000):0;const lab=row.querySelector('.zc-minute-push');if(lab)lab.textContent='push '+push})}
 function zcSpawnPip(){const box=$('zc-trade-chart');if(!box)return;const act=investmentRows().filter(x=>x.status==='active'&&!x.matured);if(!act.length)return;const tot=accruedProfitTotal();if(!(tot>0))return;if(box.querySelectorAll('.zc-pip').length>5)return;const pip=document.createElement('span');pip.className='zc-pip';pip.textContent='+'+zcSmartUsd(tot);pip.style.left=(10+Math.random()*74).toFixed(0)+'%';pip.style.bottom=(16+Math.random()*52).toFixed(0)+'%';box.appendChild(pip);setTimeout(()=>{if(pip.parentNode)pip.parentNode.removeChild(pip)},2400)}
 function zcPushAccrualRow(){const box=$('zc-accrual-stream');if(!box)return;const tot=accruedProfitTotal();if(!(tot>0))return;if(box.querySelectorAll('.zc-accrual-row').length>3)return;const row=document.createElement('div');row.className='zc-accrual-row';row.innerHTML='<b>+'+zcSmartUsd(tot)+'</b> <span class="muted">accrued so far</span>';box.prepend(row)}
