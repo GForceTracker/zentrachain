@@ -3326,6 +3326,7 @@ body[data-zc-theme] #app-content #wd-network-cards::-webkit-scrollbar-thumb{back
   ['wallet-networks','⌘','Wallet Networks','Review supported asset and network status'],
   ['trading-reports','▤','Trading Reports','View performance reports and publication status'],
    ['activity-audit','◷','Activity & Audit','Review administrator activity records'],
+  ['support-settings','✉','Support Settings','Set Telegram and WhatsApp contact links'],
    ['faq-manager','?','FAQ Manager','Edit help questions, answers and order'],
    ['referrals','◈','Referrals','Set rewards, see who invited whom'],
    ['treasury-wallet','◈','Treasury Wallet','Move funds to trading, credit profits'],
@@ -4146,6 +4147,7 @@ window.zcWalletPickUser=function(uid){
    if(id==='wallet-networks')return await networksPage();
    if(id==='trading-reports')return await reportsPage();
    if(id==='activity-audit')return await auditPage();
+   if(id==='support-settings')return await window.zcOpenSupportAdminSettingsPage();
    if(id==='faq-manager')return await faqPage();
    if(id==='referrals')return await referralsPage();
    if(id==='treasury-wallet')return await treasuryPage();
@@ -5895,24 +5897,62 @@ body.zc-dashboard-visible #zc-support-dock{display:flex!important}
    input.value='';await renderAdminMessages();
   }catch(e){toast('Reply failed: '+e.message,true)}finally{if($('zc-as-send'))$('zc-as-send').disabled=false}
  }
- async function openSettings(){
-  if(!isAdmin())return toast('Administrator access required.',true);
-  panel.classList.add('zc-visible');setMode(true);panel.querySelector('.zc-as-compose')?.remove();
-  stopLive();$('zc-as-title').textContent='Support settings';$('zc-as-settings-btn').style.display='none';
-  body().className='zc-as-settings';body().innerHTML='<label for="zc-as-wa">WhatsApp number or link</label><input id="zc-as-wa" placeholder="e.g. 2348012345678"><label for="zc-as-tg">Telegram link</label><input id="zc-as-tg" placeholder="e.g. https://t.me/yourusername"><button class="btn primary" id="zc-as-save">Save contact links</button><p class="muted" id="zc-as-settings-status">Loading saved links…</p>';
-  const [wa,tg]=await Promise.all([db.from('app_settings').select('value').eq('key','support_whatsapp').maybeSingle(),db.from('app_settings').select('value').eq('key','support_telegram').maybeSingle()]);
-  $('zc-as-wa').value=wa.data?.value||'';$('zc-as-tg').value=tg.data?.value||'';$('zc-as-settings-status').textContent='';
-  $('zc-as-save').onclick=async()=>{
-   const whatsapp=$('zc-as-wa').value.trim(),telegram=$('zc-as-tg').value.trim();
-   if(whatsapp&&!/^(https:\/\/|\+?[0-9\s()-]{7,20}$)/i.test(whatsapp))return toast('Enter a valid WhatsApp link or phone number.',true);
-   if(telegram&&!/^https:\/\//i.test(telegram))return toast('Enter a full Telegram https link.',true);
-   const rows=[{key:'support_whatsapp',value:whatsapp,updated_at:new Date().toISOString()},{key:'support_telegram',value:telegram,updated_at:new Date().toISOString()}];
-   const r=await db.from('app_settings').upsert(rows,{onConflict:'key'});if(r.error)return toast('Could not save support settings: '+r.error.message,true);
-   window.ZC_SUPPORT_LINKS={whatsapp:whatsapp?(whatsapp.startsWith('http')?whatsapp:'https://wa.me/'+whatsapp.replace(/\D/g,'')):'',telegram};toast('Support contact links saved.');loadInbox();
-  };
+
+ function normalizeWhatsAppLink(value){
+  const raw=String(value||'').trim();
+  if(!raw)return '';
+  if(/^https?:\\/\\//i.test(raw)){
+   try{const u=new URL(raw);if(!['wa.me','www.wa.me','api.whatsapp.com'].includes(u.hostname.toLowerCase()))return null;return u.href}catch(e){return null}
+  }
+  const digits=raw.replace(/\\D/g,'');
+  return digits.length>=7&&digits.length<=15?'https://wa.me/'+digits:null;
  }
+ function normalizeTelegramLink(value){
+  const raw=String(value||'').trim();
+  if(!raw)return '';
+  const username=raw.replace(/^@/,'');
+  if(/^[A-Za-z0-9_]{5,32}$/.test(username))return 'https://t.me/'+username;
+  const link=/^https?:\\/\\//i.test(raw)?raw:(/^t\\.me\\//i.test(raw)?'https://'+raw:'');
+  if(!link)return null;
+  try{const u=new URL(link);if(!['t.me','www.t.me','telegram.me','www.telegram.me'].includes(u.hostname.toLowerCase()))return null;return u.href}catch(e){return null}
+ }
+ window.zcOpenSupportAdminSettingsPage=async function(){
+  if(!isAdmin())return toast('Administrator access required.',true);
+  panel.classList.remove('zc-visible');panel.querySelector('.zc-as-compose')?.remove();stopLive();
+  const root=$('app-content');if(!root)return;
+  root.innerHTML='<div class="zc-admin-page-head"><button type="button" class="zc-admin-back" aria-label="Back to admin dashboard" onclick="zcOpenAdminSection(\\'dashboard\\')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 18-6-6 6-6"/><path d="M20 12H9"/></svg></button><div class="zc-admin-page-copy"><div class="eyebrow">ADMIN ACCESS</div><h1>Support Settings</h1><p class="muted">Manage the contact links shown when customers open the Support button.</p></div></div><section class="card panel" style="margin-top:18px"><div class="eyebrow">EXTERNAL SUPPORT CHANNELS</div><h3 style="margin:7px 0">Telegram and WhatsApp</h3><p class="muted" style="line-height:1.6">These details are used by the Telegram and WhatsApp buttons on the visitor and member support widget. The direct website chat inbox is managed separately.</p><div class="field" style="margin-top:18px"><label for="zc-support-settings-whatsapp">WhatsApp phone number or WhatsApp link</label><input id="zc-support-settings-whatsapp" type="text" inputmode="tel" autocomplete="off" placeholder="+2348012345678 or https://wa.me/2348012345678"><small class="muted">Enter the full international number with country code, or paste a wa.me link.</small></div><div class="field" style="margin-top:16px"><label for="zc-support-settings-telegram">Telegram username or link</label><input id="zc-support-settings-telegram" type="text" autocomplete="off" placeholder="@yourusername or https://t.me/yourusername"><small class="muted">A Telegram username is automatically converted to a t.me link.</small></div><div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-top:20px"><button type="button" class="btn primary" id="zc-support-settings-save">Save support links</button><span id="zc-support-settings-status" class="muted" aria-live="polite">Loading saved settings…</span></div></section>';
+  const waInput=$('zc-support-settings-whatsapp'),tgInput=$('zc-support-settings-telegram'),status=$('zc-support-settings-status'),save=$('zc-support-settings-save');
+  try{
+   const r=await db.from('app_settings').select('key,value').in('key',['support_whatsapp','support_telegram']);
+   if(r.error)throw r.error;
+   const values=Object.fromEntries((r.data||[]).map(x=>[x.key,x.value]));
+   waInput.value=values.support_whatsapp||'';tgInput.value=values.support_telegram||'';
+   status.textContent='Saved contact settings loaded.';
+  }catch(e){status.textContent='Could not load saved links: '+e.message;status.classList.add('red');return}
+  save.onclick=async()=>{
+   const waRaw=waInput.value.trim(),tgRaw=tgInput.value.trim();
+   const whatsapp=normalizeWhatsAppLink(waRaw),telegram=normalizeTelegramLink(tgRaw);
+   if(whatsapp===null){status.textContent='Enter an international WhatsApp number or a valid wa.me link.';status.classList.add('red');return}
+   if(telegram===null){status.textContent='Enter a Telegram username or a valid t.me link.';status.classList.add('red');return}
+   save.disabled=true;save.textContent='Saving…';status.classList.remove('red');status.textContent='Saving support links…';
+   try{
+    const now=new Date().toISOString();
+    const r=await db.from('app_settings').upsert([
+     {key:'support_whatsapp',value:whatsapp,updated_at:now},
+     {key:'support_telegram',value:telegram,updated_at:now}
+    ],{onConflict:'key'});
+    if(r.error)throw r.error;
+    window.ZC_SUPPORT_LINKS={whatsapp,telegram};
+    waInput.value=whatsapp;tgInput.value=telegram;
+    status.textContent='Support links saved successfully.';
+    toast('Support contact links saved.');
+   }catch(e){status.textContent='Could not save links: '+e.message;status.classList.add('red');toast('Could not save support links: '+e.message,true)}
+   finally{save.disabled=false;save.textContent='Save support links'}
+  };
+ };
+ 
  window.zcOpenDirectSupportChat=()=>openPanel();
- window.zcOpenSupportAdminSettings=openSettings;
+ window.zcOpenSupportAdminSettings=()=>window.zcOpenAdminSection('support-settings');
  window.zcOpenSupportAdminInbox=loadInbox;
  const originalOpen=window.zcOpenSupportPage;
  if(typeof originalOpen==='function'){
@@ -5921,10 +5961,10 @@ body.zc-dashboard-visible #zc-support-dock{display:flex!important}
  }
  floater.querySelector('button').onclick=openPanel;
  $('zc-as-close').onclick=()=>{panel.classList.remove('zc-visible');stopLive()};
- $('zc-as-settings-btn').onclick=openSettings;
- const addSettingsMenu=()=>{const sub=$('zc-admin-access-subnav');if(sub&&!$('zc-admin-support-settings-link')){const b=document.createElement('button');b.id='zc-admin-support-settings-link';b.type='button';b.textContent='✉ Support Settings';b.onclick=openSettings;sub.appendChild(b)}};
+ $('zc-as-settings-btn').onclick=()=>window.zcOpenAdminSection('support-settings');
+ const addSettingsMenu=()=>{const sub=$('zc-admin-access-subnav');const b=sub&&sub.querySelector('[data-zc-admin-section=\\"support-settings\\"]');if(b)b.id='zc-admin-support-settings-link'};
  new MutationObserver(addSettingsMenu).observe(document.body,{childList:true,subtree:true});addSettingsMenu();
- async function loadPublicLinks(){try{const r=await db.from('app_settings').select('key,value').in('key',['support_whatsapp','support_telegram']);if(r.error)throw r.error;const values=Object.fromEntries((r.data||[]).map(x=>[x.key,x.value]));const wa=String(values.support_whatsapp||'').trim();window.ZC_SUPPORT_LINKS={whatsapp:wa?(wa.startsWith('http')?wa:'https://wa.me/'+wa.replace(/\\D/g,'')):'',telegram:String(values.support_telegram||'').trim()};}catch(e){window.ZC_SUPPORT_LINKS=window.ZC_SUPPORT_LINKS||{}}}
+ async function loadPublicLinks(){try{const r=await db.from('app_settings').select('key,value').in('key',['support_whatsapp','support_telegram']);if(r.error)throw r.error;const values=Object.fromEntries((r.data||[]).map(x=>[x.key,x.value]));const whatsapp=normalizeWhatsAppLink(values.support_whatsapp||'');const telegram=normalizeTelegramLink(values.support_telegram||'');window.ZC_SUPPORT_LINKS={whatsapp:whatsapp||'',telegram:telegram||''};}catch(e){console.warn('Support contact links could not be loaded:',e.message);window.ZC_SUPPORT_LINKS=window.ZC_SUPPORT_LINKS||{whatsapp:'',telegram:''}}}
  loadPublicLinks();
  const oldShow=window.showApp;if(typeof oldShow==='function')window.showApp=function(){oldShow.apply(this,arguments);syncVisibility()};
  if(app)new MutationObserver(syncVisibility).observe(app,{attributes:true,attributeFilter:['class']});
