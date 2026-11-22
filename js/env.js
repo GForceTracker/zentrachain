@@ -1,11 +1,11 @@
 // ZentraChain backend switch.
-// MODE: 'sandbox' = clone project for testing (this is for LOCAL use on the laptop)
+// MODE: 'cloud' = clone project for testing (this is for LOCAL use on the laptop)
 //       'cloud'   = live production Supabase (what the deployed site must use)
 // NOTE: js/env.js (this file) is for local testing; src/js/env.js is the deployed
 // copy and must keep MODE: 'cloud'. Never set this MODE to 'cloud' locally by
 // accident — sandbox keeps mistakes away from real data.
 window.ZC_CONFIG = {
-  MODE: 'sandbox',
+  MODE: 'cloud',
   sandbox: {
     SUPABASE_URL: 'https://mdpdcpxvohbcdlhirtdp.supabase.co',
     SUPABASE_KEY: 'sb_publishable_hySEI1W9BQV0AKny0THJsg_mOp8YsDF'
