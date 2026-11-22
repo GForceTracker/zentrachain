@@ -1287,7 +1287,7 @@ function requestsTable(rows,type){if(!rows.length)return '<div class="empty">No 
 let zcTxFilter='all',zcTradeSimTimer=null,zcTradeChartTimer=null;
 function invCardHTML(x){
  const pct=Math.round((x.progress||0)*100);
- return '<article class="card panel zc-inv-card" style="margin-top:18px"><div class="app-hero-row"><div><b>'+esc(x.plan)+'</b> <span class="pill pending">Active</span><div class="muted" style="font-size:12px;margin-top:4px">'+money(x.amount)+' at '+x.rate+'% · projected profit '+money(x.profit)+'</div></div><div style="text-align:right"><small class="muted">≈ +'+fmt(x.perMin)+' / min</small></div></div>'+
+ return '<article class="card panel zc-inv-card" style="margin-top:18px"><div class="app-hero-row"><div><b>'+esc(x.plan)+'</b> <span class="pill '+(x.matured?'':'pending')+'">'+(x.matured?'Matured · awaiting settlement':'Active')+'</span><div class="muted" style="font-size:12px;margin-top:4px">'+money(x.amount)+' at '+x.rate+'% · projected profit '+money(x.profit)+'</div></div><div style="text-align:right"><small class="muted">≈ +'+fmt(x.perMin)+' / min</small></div></div>'+
  '<div class="zc-minute-row" style="margin-top:10px" data-start="'+x.startsAt+'"><small class="muted">Minute cycle</small><div class="zc-progress zc-minute"><i class="zc-minute-fill" style="width:0%"></i></div><small class="muted zc-minute-push">push 0</small></div>'+
  '<div class="zc-progress" style="margin-top:6px"><i style="width:'+pct+'%"></i></div></article>';
 }
@@ -1321,7 +1321,7 @@ function renderTransactions(){
 }
 function renderInvestmentsPage(){
  const c=$('app-content');if(!c)return;
- const invs=investmentRows().filter(x=>x.status==='active'&&!x.matured);
+ const invs=investmentRows().filter(x=>x.status==='active');
  let h='<div style="display:flex;justify-content:flex-end;gap:10px;margin-bottom:12px"><button class="btn primary" onclick="navigate(\'deposits\')">+ New deposit</button></div>';
  h+='<section class="card panel"><div class="app-hero-row"><div><div class="eyebrow">ACTIVE TRADING · DELAYED MARKET FEED</div><h3 style="margin:5px 0">BTC / USDT <span class="muted" id="zc-trade-price" style="font-weight:400"></span></h3></div><div style="text-align:right"><b id="zc-trade-accrued" class="zc-tx-amount pos">+$0.00</b><div><small class="muted" id="zc-trade-rate"></small></div><div><small class="muted" id="zc-trade-target"></small></div></div></div><div class="zc-trade-chart" id="zc-trade-chart"><div class="empty">Connecting to delayed market feed…</div></div><p class="muted" style="font-size:11px;margin:6px 0 0">Delayed market feed. Profit accrues each second at your plan rate until the plan completes.</p></section>';
  h+='<div id="zc-accrual-stream" class="zc-accrual-stream"></div>';
