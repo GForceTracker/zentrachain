@@ -5736,8 +5736,8 @@ body.zc-dashboard-visible #zc-support-dock{display:flex!important}
  const $=id=>document.getElementById(id), esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
  const app=$('application'),pub=$('public'),dock=$('zc-support-dock');
  let conversationId=null,threadUserId=null,threadName='',live=null,adminMode=false,unread=0,refreshTimer=null;
- const isAdmin=()=>window.profile?.role==='admin';
- const userId=()=>window.currentUser?.id||null;
+ const isAdmin=()=>typeof profile!=='undefined'&&profile?.role==='admin';
+ const userId=()=>typeof currentUser!=='undefined'&&currentUser?.id||null;
  const panel=document.createElement('section');panel.id='zc-admin-support-panel';
  panel.innerHTML='<div class="zc-as-head"><strong id="zc-as-title">Customer support</strong><div><button id="zc-as-settings-btn" type="button">Settings</button> <button id="zc-as-close" type="button">×</button></div></div><div id="zc-as-body" class="zc-as-list"></div>';
  document.body.appendChild(panel);
@@ -5749,7 +5749,7 @@ body.zc-dashboard-visible #zc-support-dock{display:flex!important}
  function syncVisibility(){
   const publicVisible=pub&&!pub.classList.contains('hidden');
   const appVisible=app&&!app.classList.contains('hidden');
-  const dashboard=appVisible&&window.page==='overview'&&window.profile?.role==='user';
+  const dashboard=appVisible&&(typeof page!=='undefined'?page:'')==='overview'&&typeof profile!=='undefined'&&profile?.role==='user';
   document.body.classList.toggle('zc-public-visible',!!publicVisible);
   document.body.classList.toggle('zc-dashboard-visible',!!dashboard);
   if(dock)dock.style.display=(publicVisible||dashboard)?'flex':'none';
@@ -5831,7 +5831,7 @@ body.zc-dashboard-visible #zc-support-dock{display:flex!important}
    window.ZC_SUPPORT_LINKS={whatsapp:whatsapp?(whatsapp.startsWith('http')?whatsapp:'https://wa.me/'+whatsapp.replace(/\D/g,'')):'',telegram};toast('Support contact links saved.');loadInbox();
   };
  }
- window.zcOpenDirectSupportChat=openUserChat;
+ window.zcOpenDirectSupportChat=()=>openPanel();
  window.zcOpenSupportAdminSettings=openSettings;
  window.zcOpenSupportAdminInbox=loadInbox;
  const originalOpen=window.zcOpenSupportPage;
@@ -5844,7 +5844,7 @@ body.zc-dashboard-visible #zc-support-dock{display:flex!important}
  $('zc-as-settings-btn').onclick=openSettings;
  const addSettingsMenu=()=>{const sub=$('zc-admin-access-subnav');if(sub&&!$('zc-admin-support-settings-link')){const b=document.createElement('button');b.id='zc-admin-support-settings-link';b.type='button';b.textContent='✉ Support Settings';b.onclick=openSettings;sub.appendChild(b)}};
  new MutationObserver(addSettingsMenu).observe(document.body,{childList:true,subtree:true});addSettingsMenu();
- const oldShow=window.showApp;if(typeof oldShow==='function')window.showApp=function(){oldShow.apply(this,arguments);syncVisibility()};
+ async function loadPublicLinks(){try{const r=await db.from('app_settings').select('key,value').in('key',['support_whatsapp','support_telegram']);if(r.error)throw r.error;const values=Object.fromEntries((r.data||[]).map(x=>[x.key,x.value]));const wa=String(values.support_whatsapp||'').trim();window.ZC_SUPPORT_LINKS={whatsapp:wa?(wa.startsWith('http')?wa:'https://wa.me/'+wa.replace(/\\D/g,'')):'',telegram:String(values.support_telegram||'').trim()};}catch(e){window.ZC_SUPPORT_LINKS=window.ZC_SUPPORT_LINKS||{}}}\n loadPublicLinks();\n const oldShow=window.showApp;if(typeof oldShow==='function')window.showApp=function(){oldShow.apply(this,arguments);syncVisibility()};
  if(app)new MutationObserver(syncVisibility).observe(app,{attributes:true,attributeFilter:['class']});
  if(pub)new MutationObserver(syncVisibility).observe(pub,{attributes:true,attributeFilter:['class']});
  const oldNavigate=window.navigate;if(typeof oldNavigate==='function')window.navigate=function(p){const r=oldNavigate.apply(this,arguments);setTimeout(syncVisibility,0);return r};
