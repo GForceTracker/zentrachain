@@ -1429,19 +1429,36 @@ function accruedProfitTotal(){
 }
 function zcProfitTick(){
  const v=accruedProfitTotal();
- const a=$('zc-profit-live');if(a)a.textContent=money(v);
- const t=$('zc-trade-accrued');if(t)t.textContent='+'+zcSmartUsd(v);
  const act=investmentRows().filter(x=>x.status==='active'&&!x.matured);
+ const history=investmentRows();
+ const a=$('zc-profit-live');if(a)a.textContent=money(v);
+ const displayProfit=(act.length||history.length)?zcSmartUsd(v):'$0.00';
+ const t=$('zc-trade-accrued');if(t)t.textContent='+'+displayProfit;
  const tgt=act.reduce((s,x)=>s+x.profit,0);
  const perSec=act.reduce((s,x)=>s+x.perSec,0);
- const r=$('zc-trade-rate');if(r)r.textContent='+'+zcSmartUsd(perSec)+' USDT / sec';
+ const r=$('zc-trade-rate');if(r)r.textContent='+'+(act.length?zcSmartUsd(perSec):'$0.00')+' USDT / sec';
  const g=$('zc-trade-target');if(g)g.textContent=tgt>0?'earning toward +'+fmt(tgt)+' total':'no active plan';
  try{zcUpdateMinuteBars()}catch(e){}
+}
+function zcRenderZeroEarningsChart(box){
+ if(!box)return;
+ box.innerHTML='<div class="zc-zero-earnings-chart" role="img" aria-label="Earnings graph showing zero earnings while no plan is active">'+
+  '<div class="zc-zero-chart-caption"><span>No active plan</span><b>+$0.00</b></div>'+
+  '<svg viewBox="0 0 600 200" preserveAspectRatio="none" aria-hidden="true">'+
+   '<g fill="none" stroke="var(--line)" stroke-width="1" opacity=".8">'+
+    '<path d="M18 35H582 M18 82H582 M18 130H582 M18 177H582"/>'+
+    '<path d="M18 18V182 M159 18V182 M300 18V182 M441 18V182 M582 18V182" opacity=".5"/>'+
+   '</g>'+
+   '<path d="M18 130H582" fill="none" stroke="var(--green)" stroke-width="2.5" stroke-linecap="round"/>'+
+   '<circle cx="582" cy="130" r="4" fill="var(--green)"/>'+
+  '</svg>'+
+  '<div class="zc-zero-chart-axis"><span>$0.00 earned</span><span>Waiting for plan activation</span></div>'+
+ '</div>';
 }
 function zcDrawTradeChart(){
  const box=$('zc-trade-chart');if(!box)return;
  const hasActive=investmentRows().some(x=>x.status==='active'&&!x.matured);
- if(!hasActive){box.innerHTML='<div class="empty">No active plan. Live earnings activity will appear here after you subscribe to a plan.</div>';return;}
+ if(!hasActive){zcRenderZeroEarningsChart(box);return;}
  const W=600,H=200,P=10,VOL=30;
  const last=zcTradePts.length?zcTradePts[zcTradePts.length-1]:64000;
  zcTradePts.push(last*(1+(Math.random()-0.5)*0.0007));
@@ -1475,7 +1492,7 @@ function zcPushAccrualRow(){const box=$('zc-accrual-stream');if(!box)return;cons
 function startTradeSim(){
  zcStartProfitTicker();
  const hasActive=investmentRows().some(x=>x.status==='active'&&!x.matured);
- if(!hasActive){const box=$('zc-trade-chart');if(box)box.innerHTML='<div class="empty">No active plan. Live earnings activity will appear here after you subscribe to a plan.</div>';return;}
+ if(!hasActive){const box=$('zc-trade-chart');if(box)zcRenderZeroEarningsChart(box);try{zcProfitTick()}catch(e){}return;}
  if(!zcTradeFeedReady)zcLoadTradeFeed().then(()=>{if(page==='investments')zcDrawTradeChart()}).catch(()=>{});
  if(!zcTradeChartTimer)zcTradeChartTimer=setInterval(()=>{if(page!=='investments')return;zcDrawTradeChart()},1000);
  try{zcProfitTick()}catch(e){}
@@ -4847,6 +4864,12 @@ body #app-content #zc-deposit-options .deposit-asset-option.selected>.btn{
 .zc-trade-bars i{flex:1;border-radius:3px 3px 0 0;background:linear-gradient(180deg,var(--green),color-mix(in srgb,var(--green) 25%,transparent));min-height:6px;transition:height .8s ease}
 .zc-trade-chart{position:relative;height:200px;border-radius:12px;background:var(--panel2);border:1px solid var(--line);overflow:hidden;margin-top:10px}
 .zc-trade-chart svg{display:block;width:100%;height:100%}
+.zc-zero-earnings-chart{position:relative;width:100%;height:100%;min-height:180px;padding:12px 14px;box-sizing:border-box}
+.zc-zero-earnings-chart svg{position:absolute;inset:0;width:100%;height:100%;display:block}
+.zc-zero-chart-caption,.zc-zero-chart-axis{position:absolute;z-index:1;left:14px;right:14px;display:flex;justify-content:space-between;gap:10px;align-items:center;color:var(--muted);font-size:11px}
+.zc-zero-chart-caption{top:12px}
+.zc-zero-chart-caption b{color:var(--green);font-size:13px}
+.zc-zero-chart-axis{bottom:10px}
 .zc-inv-grid{display:grid;gap:12px}
 @media(max-width:640px){.zc-tx-row{grid-template-columns:36px minmax(0,1fr);gap:9px}.zc-tx-right{grid-column:2;text-align:left}.zc-tx-amount{font-size:14px}}
 @media(max-width:900px){.side-nav{overflow-x:auto;scrollbar-width:none}.side-nav::-webkit-scrollbar{display:none}}
