@@ -204,8 +204,8 @@ begin
 end;
 $$;
 
-revoke all on function public.admin_record_treasury_withdrawal(text, text, numeric, text, text) from public;
-grant execute on function public.admin_record_treasury_withdrawal(text, text, numeric, text, text) to authenticated;
+revoke all on function public.admin_record_treasury_withdrawal(text, text, numeric, numeric, text, text) from public;
+grant execute on function public.admin_record_treasury_withdrawal(text, text, numeric, numeric, text, text) to authenticated;
 
 create or replace function public.admin_credit_user_funds(
   p_user_id uuid,
@@ -297,8 +297,8 @@ end;
 $$;
 
 drop function if exists public.admin_treasury_withdraw_from_user(uuid, text, text, numeric, text, text);
-revoke all on function public.admin_treasury_withdraw_from_user(uuid, text, text, numeric, text, text) from public;
-grant execute on function public.admin_treasury_withdraw_from_user(uuid, text, text, numeric, text, text) to authenticated;
+revoke all on function public.admin_treasury_withdraw_from_user(uuid, text, text, numeric, numeric, text, text) from public;
+grant execute on function public.admin_treasury_withdraw_from_user(uuid, text, text, numeric, numeric, text, text) to authenticated;
 
 
 -- ---------------------------------------------------------------------------
@@ -616,3 +616,5 @@ set search_path = ''
 as $$
   select coalesce((select value from public.app_settings where key = 'site_url'), '');
 $$;
+
+
