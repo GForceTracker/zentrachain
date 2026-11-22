@@ -1,0 +1,72 @@
+name: Validate inline scripts
+
+on:
+  push:
+    branches:
+      - "fix/**"
+      - "test/**"
+  pull_request:
+    branches:
+      - main
+    paths:
+      - "index.html"
+      - ".github/workflows/inline-script-validation.yml"
+
+jobs:
+  validate-inline-scripts:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Extract and syntax-check every inline script
+        run: |
+          node <<'NODE'
+          const fs = require('node:fs');
+          const os = require('node:os');
+          const path = require('node:path');
+          const { spawnSync } = require('node:child_process');
+
+          const html = fs.readFileSync('index.html', 'utf8');
+          const forbidden = [
+            'function planTierFor(function planTierFor(',
+            'function renderTransactions(){function renderTransactions('
+          ];
+
+          for (const signature of forbidden) {
+            if (html.includes(signature)) {
+              throw new Error('Duplicate declaration signature found: ' + signature);
+            }
+          }
+
+          const blocks = [];
+          const re = /<script\b([^>]*)>([\s\S]*?)<\/script\s*>/gi;
+          for (const match of html.matchAll(re)) {
+            const code = match[2];
+            if (!code.trim()) continue;
+            const id = (match[1].match(/\bid=["']([^"']+)["']/i) || [])[1] || 'inline-' + (blocks.length + 1);
+            const line = html.slice(0, match.index).split('\n').length;
+            blocks.push({ id, line, code });
+          }
+
+          if (blocks.length === 0) throw new Error('No inline script blocks were found.');
+          const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'zentra-inline-'));
+          try {
+            for (let i = 0; i < blocks.length; i++) {
+              const block = blocks[i];
+              const file = path.join(dir, 'script-' + String(i + 1).padStart(2, '0') + '.js');
+              fs.writeFileSync(file, block.code, 'utf8');
+              const result = spawnSync(process.execPath, ['--check', file], { encoding: 'utf8' });
+              if (result.status !== 0) {
+                process.stderr.write('Syntax check failed for ' + block.id + ' (index.html line ' + block.line + ')\n');
+                process.stderr.write(result.stderr || result.stdout || 'node --check failed\n');
+                process.exit(result.status || 1);
+              }
+              console.log('PASS ' + block.id + ' (index.html line ' + block.line + ')');
+            }
+            console.log('Validated ' + blocks.length + ' inline script blocks.');
+          } finally {
+            fs.rmSync(dir, { recursive: true, force: true });
+          }
+          NODE
