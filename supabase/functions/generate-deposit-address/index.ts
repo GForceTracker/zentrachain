@@ -102,7 +102,7 @@ Deno.serve(async (req: Request) => {
     const settingRes=await fetch(`${SUPABASE_URL}/rest/v1/site_settings?setting_key=eq.minimum_deposit_usd&select=numeric_value&limit=1`,{headers:{apikey:SERVICE_KEY,Authorization:`Bearer ${SERVICE_KEY}`}});
     if (!settingRes.ok) return response({error:"Minimum deposit setting is unavailable. Please try again later."},503);
     const settingRows=await settingRes.json();
-    const minimumUsd=Number(settingRows?.[0]?.numeric_value ?? 10);
+    const minimumUsd=Number(settingRows?.[0]?.numeric_value ?? 0.01);
     if (!Number.isFinite(minimumUsd) || amountUsd < minimumUsd) return response({error:`Minimum deposit is ${minimumUsd.toFixed(2)} USD`},400);
     const assetNetworkId=String(body.asset_network_id ?? "");
     const config=ASSETS[assetNetworkId];
