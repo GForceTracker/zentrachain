@@ -68,7 +68,7 @@ begin
 end;
 $$;
 
-revoke all on function public.purchase_gforce_plan(uuid, numeric) from public;
+revoke all on function public.purchase_gforce_plan(uuid, numeric) from public, anon;
 grant execute on function public.purchase_gforce_plan(uuid, numeric) to authenticated;
 
 -- Legacy deposit-backed investments retain principal in their original positive
@@ -129,7 +129,7 @@ begin
 end;
 $$;
 
-revoke execute on function public.zc_settle_gforce_investments() from anon;
+revoke all on function public.zc_settle_gforce_investments() from public, anon;
 grant execute on function public.zc_settle_gforce_investments() to authenticated;
 
 -- Withdrawal RPCs apply the same legacy lock rule. Manually purchased plan
@@ -261,7 +261,7 @@ begin
 end;
 $function$;
 
-revoke all on function public.request_gforce_withdrawal(numeric,text,text) from public;
+revoke all on function public.request_gforce_withdrawal(numeric,text,text) from public, anon;
 grant execute on function public.request_gforce_withdrawal(numeric,text,text) to authenticated;
-revoke all on function public.request_gforce_withdrawal_v2(numeric,text,text,text,numeric,numeric) from public;
+revoke all on function public.request_gforce_withdrawal_v2(numeric,text,text,text,numeric,numeric) from public, anon;
 grant execute on function public.request_gforce_withdrawal_v2(numeric,text,text,text,numeric,numeric) to authenticated;
