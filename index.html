@@ -1044,7 +1044,7 @@ html body .modal-head .brand{white-space:nowrap!important;min-width:0!important}
 
 
 <section class="section zc-account-access" id="account-access"><div class="section-head"><div><div class="eyebrow">Account access</div><h2>Get started in a few steps</h2><p class="muted">A clear path from registration to reviewing your account activity.</p></div></div><div class="zc-access-grid"><article class="zc-access-card"><span class="zc-access-number">01</span><div><h3>Create your account</h3><p>Register with your email and complete the verification steps shown on screen.</p></div></article><article class="zc-access-card"><span class="zc-access-number">02</span><div><h3>Review deposit instructions</h3><p>Check the deposit network and destination details carefully before sending any funds.</p></div></article><article class="zc-access-card"><span class="zc-access-number">03</span><div><h3>Track verified activity</h3><p>Follow deposit reviews, recorded ledger entries and withdrawal request statuses.</p></div></article></div></section>
-<section class="section" id="plans"><div class="section-head"><div><div class="eyebrow">Plan information</div><h2>Explore plan configurations</h2><p class="muted">Review each plan’s duration and deposit limits before selecting it.</p></div></div><div id="public-plan-cards" class="plan-grid">Loading plans…</div><div class="calc-shell" style="margin-top:22px"><div class="eyebrow">PLAN TOOLS</div><h2>Plan calculator</h2><p class="muted">Choose a plan and enter an amount or use the slider.</p><div class="field"><label>Investment Plan</label><select id="pub-select" onchange="planUpdate('pub')"></select></div><div class="field"><label>Amount (USDT)</label><input class="calc-amount" id="pub-amount" type="number" step=".01" value="50" oninput="planSync('pub','input')" onblur="planSync('pub','blur')"></div><div class="calc-control"><label for="pub-range">Amount slider</label><input id="pub-range" class="calc-range" type="range" oninput="planSync('pub','range')"></div><div class="calc-control"><div class="calc-days-heading"><label for="pub-days">Duration</label><b><span id="pub-days-value">1</span> days</b></div><input id="pub-days" class="calc-range" type="range" min="1" max="365" step="1" value="1" oninput="planSync('pub','days')"><div class="calc-days-limits"><span>1 day</span><span>365 days</span></div></div><div id="pub-limits">Select a plan</div><div class="calc-result"><span>Profit</span><b id="pub-profit">—</b></div><div class="calc-result"><span>Total</span><b class="calc-total" id="pub-total">—</b></div><p class="risk">Calculator figures are based on the plan settings entered here. They are not proof of executed trades or a completed payout.</p></div></section>
+<section class="section" id="plans"><div class="section-head"><div><div class="eyebrow">Plan information</div><h2>Explore plan configurations</h2><p class="muted">Review each plan’s duration and deposit limits before selecting it.</p></div></div><div id="public-plan-cards" class="plan-grid">Loading plans…</div><div class="zc-calc-card" style="margin-top:22px"><div class="zc-calc-plan-box"><label class="zc-calc-plan-label" for="pub-select">Plan</label><select id="pub-select" class="zc-calc-plan-select" aria-label="Investment plan" onchange="planUpdate('pub')"></select></div><div class="zc-calc-body"><div class="zc-calc-amount-row"><label for="pub-amount">Amount (USD)</label><div class="zc-calc-amount-input"><span>$</span><input class="calc-amount" id="pub-amount" type="number" step=".01" inputmode="decimal" value="50" oninput="planSync('pub','input')" onblur="planSync('pub','blur')"></div></div><input id="pub-range" class="zc-calc-range" type="range" min="0" max="100" step="10" aria-label="Amount slider" oninput="planSync('pub','range')"><div class="zc-calc-minmax"><span id="pub-min">Min —</span><span>Steps of $10</span><span id="pub-max">Max —</span></div><div class="zc-calc-facts"><div><small>Plan rate</small><b id="pub-rate">—</b></div><div><small>Duration</small><b id="pub-dur">—</b></div><div><small>Projected profit</small><b id="pub-profit">—</b></div><div><small>Total at maturity</small><b class="calc-total" id="pub-total">—</b></div></div><input id="pub-days" type="hidden"><div id="pub-limits" hidden></div></div></div></section>
 
   </main><section class="section" id="faq"><div class="eyebrow">Help centre</div><h2>Frequently asked questions</h2><details class="faq"><summary>Are market prices the same as my account performance?</summary><p>No. Market prices are third-party reference data. Your account balance is calculated only from ledger entries recorded for your account.</p></details><details class="faq"><summary>How are deposits confirmed?</summary><p>Every account has its own unique deposit addresses — always use the address shown in your account for the selected asset and network. Incoming transfers are tracked on the blockchain and credited after the required network confirmations.</p></details><details class="faq"><summary>How do withdrawals work?</summary><p>Submit the amount, network and destination address. Each request is checked, then paid with its blockchain transaction hash recorded, so you can verify the transfer yourself on any explorer. Payout timing depends on network conditions.</p></details><details class="faq"><summary>How are profits generated?</summary><p>ZentraChain runs automated trading systems that monitor the markets around the clock for opportunities. The percentages shown on plans are targets based on that activity — not guaranteed outcomes. All trading carries risk, including possible loss of capital.</p></details><details class="faq"><summary>Does the platform guarantee returns?</summary><p>No. Cryptocurrency trading is high risk. There are no guaranteed profits, and historical results do not predict future results.</p></details><details class="faq"><summary>Is exchange trading automated?</summary><p>No exchange API is currently connected to this portal. The market chart is informational and does not execute trades.</p></details><details class="faq"><summary>How do I contact support?</summary><p>Use the support contact supplied through your verified company communication channel. Do not trust unsolicited wallet addresses or messages claiming to be support.</p></details></section>
 <section class="section zc-service-note" id="risk"><div class="zc-service-note-inner"><span class="zc-note-mark">i</span><div><b>Clear information. Verified account records.</b><p>Digital asset values can fluctuate. Market information is provided for general reference and may be delayed or unavailable. Account balances and transaction records are subject to verification.</p></div></div></section>
@@ -1201,8 +1201,7 @@ function renderCalculatorPage(){
  '<div class="zc-calc-minmax"><span id="zc-calc-min">Min —</span><span>Steps of $10</span><span id="zc-calc-max">Max —</span></div>'+
  '<div class="zc-calc-facts"><div><small>Plan rate</small><b id="zc-calc-rate">—</b></div><div><small>Duration</small><b id="zc-calc-duration">—</b></div><div><small>Projected profit</small><b id="zc-calc-profit">—</b></div><div><small>Total at maturity</small><b id="zc-calc-total">—</b></div></div>'+
  '<div class="zc-calc-fund-row"><span>Available funds</span><b id="zc-calc-funds">'+money(availableUnlocked())+'</b></div>'+
- '<div id="zc-calc-action"></div>'+
- '<p class="risk" style="margin:12px 0 0">This calculator is an estimate only. Plans are bought from their plan cards on the dashboard; buying a plan locks the amount until the plan completes.</p></div></section>';
+ '<div id="zc-calc-action"></div></div></section>';
  const run=()=>{
   gfLoadPlans().then(()=>{
    const list=$('zc-calc-plan-list');if(!list)return;
@@ -1268,7 +1267,7 @@ function zcCalcUpdate(){
  if(totEl)totEl.textContent=valid?money(v+profit):'—';
  const fundsEl=$('zc-calc-funds');if(fundsEl)fundsEl.textContent=money(availableUnlocked());
  if(valid&&v>availableUnlocked()){
-  action.innerHTML='<button class="btn zc-calc-deposit" type="button" onclick="navigate(\'deposits\')">Insufficient funds · Deposit '+money(v-availableUnlocked())+' more</button><p class="risk" style="margin:8px 0 0">You need '+money(v-availableUnlocked())+' more available. Deposit first — the calculator cannot buy plans.</p>';
+  action.innerHTML='<button class="btn primary zc-calc-deposit" type="button" onclick="navigate(\'deposits\')">Insufficient funds · Deposit '+money(v-availableUnlocked())+' more</button>';
  }else{
   action.innerHTML='';
  }
@@ -1467,6 +1466,11 @@ function planUpdate(s){
  else a.value=Math.min(Number(p.max_amount),Math.max(Number(p.min_amount),Number(a.value)));
  r.min=p.min_amount;r.max=p.max_amount;r.step='10';r.value=a.value;
  if(days){const base=Math.max(1,Number(p.duration_value||1)*(String(p.duration_unit).toLowerCase().startsWith('hour')?1/24:1));days.value=Math.min(365,Math.max(1,Math.round(base)));const out=$(s+'-days-value');if(out)out.textContent=days.value;}
+ const mn2=$(s+'-min'),mx2=$(s+'-max'),rate2=$(s+'-rate'),dur2=$(s+'-dur');
+ if(mn2)mn2.textContent='Min '+money(p.min_amount);
+ if(mx2)mx2.textContent='Max '+money(p.max_amount);
+ if(rate2)rate2.textContent=fmt(p.percentage)+'%';
+ if(dur2)dur2.textContent=p.duration_value+' '+esc(p.duration_unit);
  $(s+'-limits').innerHTML='';
  planCalc(s);
 }
@@ -2268,6 +2272,16 @@ input,textarea{font-size:16px!important}
 .zc-calc-option-head b{font-size:13px}
 .zc-calc-option-rate{font-style:normal;font-size:12px;font-weight:800;color:var(--mint)}
 .zc-calc-plan-option small{font-size:11px;color:var(--muted);line-height:1.4}
+.zc-calc-plan-select{width:100%;box-sizing:border-box;padding:12px 42px 12px 15px;border:1px solid var(--line);border-radius:13px;background:var(--panel2);color:var(--text);font-size:15px;font-weight:700;font-family:inherit;cursor:pointer;-webkit-appearance:none;appearance:none;background-image:linear-gradient(45deg,transparent 50%,var(--muted) 50%),linear-gradient(135deg,var(--muted) 50%,transparent 50%);background-position:calc(100% - 19px) 50%,calc(100% - 14px) 50%;background-size:5px 5px,5px 5px;background-repeat:no-repeat}
+.zc-calc-plan-select:focus-visible{outline:2px solid var(--green);outline-offset:2px}
+.zc-calc-plan-select option{background:var(--panel);color:var(--text);font-weight:500}
+body[data-zc-theme] #public .zc-calc-card{background:linear-gradient(145deg,var(--panel2),var(--panel))!important;border-color:var(--line)!important;color:var(--text)!important}
+body[data-zc-theme] #public .zc-calc-plan-select{background-color:var(--panel2)!important;border-color:var(--line)!important;color:var(--text)!important}
+body[data-zc-theme] #public .zc-calc-plan-select option{background:var(--panel)!important;color:var(--text)!important}
+body[data-zc-theme] #public .zc-calc-amount-input{background:var(--panel2)!important;border-color:var(--line)!important}
+body[data-zc-theme] #public .zc-calc-amount-input .calc-amount{background:transparent!important;border:0!important;box-shadow:none!important;color:var(--text)!important}
+body[data-zc-theme] #public .zc-calc-facts>div,
+body[data-zc-theme] #public .zc-calc-fund-row{background:var(--panel2)!important;border-color:var(--line)!important}
 .zc-calc-body{margin-top:12px;display:flex;flex-direction:column;gap:12px}
 .zc-calc-amount-row label{font-size:12px;color:var(--muted);display:block;margin-bottom:7px}
 .zc-calc-amount-input{display:flex;align-items:center;gap:9px;padding:9px 13px;border:1px solid var(--line);border-radius:12px;background:var(--panel2)}
@@ -2288,7 +2302,13 @@ input[type=range].zc-calc-range::-moz-range-thumb{width:12px;height:12px;border-
 .zc-calc-fund-row{display:flex;justify-content:space-between;align-items:center;padding:11px 13px;border:1px solid var(--line);border-radius:13px;background:var(--panel2)}
 .zc-calc-fund-row span{font-size:12px;color:var(--muted)}
 .zc-calc-fund-row b{color:var(--mint);font-size:15px}
-.zc-calc-deposit{width:100%;padding:13px;font-size:14px;font-weight:850;background:#3d1f1f!important;border:1px solid #a85555!important;color:#ffd9d9!important;box-shadow:inset 0 0 0 1px rgba(255,120,120,.08)}
+.zc-calc-deposit{width:100%;padding:14px;font-size:15px;font-weight:850}
+body[data-zc-theme] #app-content .zc-calc-amount-input,
+body[data-zc-theme] #app-content .zc-calc-facts>div,
+body[data-zc-theme] #app-content .zc-calc-fund-row,
+body[data-zc-theme] #app-content .zc-calc-plan-btn,
+body[data-zc-theme] #app-content .zc-calc-plan-option{background:var(--panel2)!important;border-color:var(--line)!important;color:var(--text)!important}
+body[data-zc-theme] #app-content .zc-calc-amount-input input{background:transparent!important;border:0!important;box-shadow:none!important;color:var(--text)!important}
 .zc-plan-active-card{padding:14px;border:1px solid var(--line);border-radius:16px;background:var(--panel);margin-top:10px}
 .zc-plan-active-card:first-child{margin-top:0}
 .zc-plan-active-head{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
