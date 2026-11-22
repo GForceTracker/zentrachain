@@ -1205,24 +1205,24 @@ function invCardHTML(x){
  '<div class="zc-progress" style="margin-top:6px"><i style="width:'+pct+'%"></i></div></article>';
 }
 function investmentRows(){
+ const plans=(typeof gfPlans!=='undefined'&&Array.isArray(gfPlans)?gfPlans:[]);
  const out=[];
- for(const d of ledgerDeposits()){
-  const u=invForDeposit(d.id);
-  const amt=Number(d.amount||0);
-  const rate=u?Number(u.rate||0):invRate(d);
-  let plan='Standard plan';
-  if(u&&u.plan_id){try{const ps=(typeof gfPlans!=='undefined'&&Array.isArray(gfPlans)?gfPlans:[]);const p=ps.find(x=>x.id===u.plan_id);if(p)plan=p.name}catch(e){}}
-  if(plan==='Standard plan')plan=invPlanName(d);
-  const startT=u&&u.starts_at?new Date(u.starts_at).getTime():new Date(d.created_at).getTime();
-  const endT=u&&u.ends_at?new Date(u.ends_at).getTime():invEndsAt(d);
-  const profit=u&&u.status==='cancelled'?0:amt*rate/100;
-  const matured=u?(u.status==='cancelled'||u.status==='completed'||Date.now()>=endT):invMatured(d);
-  const total=Math.max(1,endT-startT);
-  const prog=matured?1:Math.min(1,Math.max(0,(Date.now()-startT)/total));
-  const perMin=profit/Math.max(1,(endT-startT)/60000);
-  out.push({deposit:d,plan:plan,status:u?u.status:(matured?'completed':'active'),amount:amt,rate:rate,profit:profit,startsAt:startT,endsAt:endT,matured:matured,progress:prog,perMin:perMin});
+ for(const u of (investments||[])){
+  if(!u)continue;
+  const amount=Number(u.amount||0);if(!(amount>0))continue;
+  const rate=Number(u.rate||0);
+  const startsAt=u.starts_at?new Date(u.starts_at).getTime():new Date(u.created_at||Date.now()).getTime();
+  const endsAt=u.ends_at?new Date(u.ends_at).getTime():startsAt+86400000;
+  const cancelled=u.status==='cancelled';
+  const matured=cancelled||u.status==='completed'||Date.now()>=endsAt;
+  const profit=cancelled?0:amount*rate/100;
+  const duration=Math.max(1,endsAt-startsAt);
+  let plan='Investment plan';
+  if(u.plan_id){const configured=plans.find(p=>p&&p.id===u.plan_id);if(configured)plan=configured.name}
+  if(plan==='Investment plan'&&u.note)plan=String(u.note).replace(/^Plan purchase:\\s*/,'');
+  out.push({id:u.id,investment:u,deposit:(ledger||[]).find(e=>e.id===u.ledger_entry_id)||null,plan:plan,status:u.status,amount:amount,rate:rate,profit:profit,startsAt:startsAt,endsAt:endsAt,matured:matured,completed:matured,progress:matured?1:Math.min(1,Math.max(0,(Date.now()-startsAt)/duration)),perMin:profit/Math.max(1,duration/60000)});
  }
- out.sort((a,b)=>String(b.deposit.created_at||'').localeCompare(String(a.deposit.created_at||'')));
+ out.sort((a,b)=>b.startsAt-a.startsAt);
  return out;
 }
 function renderTransactions(){
@@ -1293,7 +1293,22 @@ let zcTradePts=[],zcTradeFeedReady=false,zcProfitTicker=null;
 function zcStartProfitTicker(){if(zcProfitTicker)return;zcProfitTicker=setInterval(()=>{try{zcProfitTick()}catch(e){}},1000)}
 async function zcLoadTradeFeed(){try{const data=await fetchMarketData('candles','BTC');const rows=(data.candles||[]).slice(-40).map(x=>Number(x[1])).filter(v=>Number.isFinite(v)&&v>0);if(rows.length>5){zcTradePts=rows;zcTradeFeedReady=true}}catch(e){}
  if(!zcTradeFeedReady){zcTradePts=Array.from({length:40},(_,i)=>64000*(1+Math.sin(i/5)*0.012+Math.random()*0.005));zcTradeFeedReady=true}}
-function accruedProfitTotal(){const now=Date.now();let s=0;for(const d of ledgerDeposits()){const u=invForDeposit(d.id);if(u&&u.status==='cancelled')continue;const full=profitOfDeposit(d);if(!(full>0))continue;if(invMatured(d)){s+=full;continue}const startT=u&&u.starts_at?new Date(u.starts_at).getTime():new Date(d.created_at).getTime();const endT=u&&u.ends_at?new Date(u.ends_at).getTime():invEndsAt(d);s+=full*Math.min(1,Math.max(0,(now-startT)/Math.max(1,endT-startT)))}return s}
+function accruedProfitTotal(){
+ const now=Date.now();let total=0;
+ for(const u of (investments||[])){
+  if(!u||u.status==='cancelled')continue;
+  const amount=Number(u.amount||0),rate=Number(u.rate||0);
+  if(!(amount>0)||!(rate>0))continue;
+  const startsAt=u.starts_at?new Date(u.starts_at).getTime():new Date(u.created_at||now).getTime();
+  const profit=amount*rate/100;
+  if(u.status==='completed'){total+=profit;continue}
+  if(!u.ends_at)continue;
+  const endsAt=new Date(u.ends_at).getTime();
+  if(now>=endsAt){total+=profit;continue}
+  total+=profit*Math.min(1,Math.max(0,(now-startsAt)/Math.max(1,endsAt-startsAt)));
+ }
+ return total;
+}
 function zcProfitTick(){
  const v=accruedProfitTotal();
  const a=$('zc-profit-live');if(a)a.textContent=money(v);
