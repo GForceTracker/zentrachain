@@ -1593,6 +1593,7 @@ async function zcActivateDashboardStyle(id){
  zcApplyDashboardStyle();
  toast(item.name+' is now the active customer dashboard.');
  if(page==='admin')await refreshAdmin();
+ else if($('zc-dashboard-studio')&&typeof window.zcOpenAdminSection==='function')await window.zcOpenAdminSection('dashboard-studio');
 }
 
 async function loadSession(){if(sessionLoadPromise)return sessionLoadPromise;sessionLoadPromise=(async()=>{const {data:{user},error:userError}=await db.auth.getUser();if(userError)throw userError;if(!user){showPublic();return}currentUser=user;const p=await db.from('profiles').select('*').eq('id',user.id).maybeSingle();if(p.error)throw p.error;if(!p.data){showPublic();showAuth('login');return authMsg('Your account profile is not ready yet. Please contact support.',true)}profile=p.data;
@@ -4067,6 +4068,7 @@ body[data-zc-theme] #app-content #wd-network-cards::-webkit-scrollbar-thumb{back
  const nav=document.getElementById('side-nav');
  const menuItems=[
   ['dashboard','▦','Dashboard','Admin overview and shortcuts'],
+  ['dashboard-studio','▧','Dashboard Studio','Preview and activate one of five customer dashboard designs'],
    ['investment-plans','◈','Investment Plans','Create, edit, brand and publish plans'],
   ['deposit-settings','↓','Deposit Settings','Set minimum and maximum deposits'],
   ['withdrawal-settings','↑','Withdrawal Settings','Set minimum and maximum withdrawals'],
@@ -4141,9 +4143,18 @@ body[data-zc-theme] #app-content #wd-network-cards::-webkit-scrollbar-thumb{back
   const root=$('app-content');
   root.innerHTML=head('Admin dashboard','Your administrator workspace. Open Admin Access in the sidebar to select one area at a time.')+
    '<div class="stats zc-admin-stats"><div class="card stat"><small>Registered users</small><strong id="zc-admin-count-users">—</strong></div><div class="card stat"><small>Investment plans</small><strong id="zc-admin-count-plans">—</strong></div><div class="card stat"><small>Deposit requests</small><strong id="zc-admin-count-deposits">—</strong></div><div class="card stat"><small>Withdrawal requests</small><strong id="zc-admin-count-withdrawals">—</strong></div></div>'+
-   '<section class="card panel"><div class="eyebrow">ADMIN ACCESS</div><h2 style="margin:5px 0 8px">Manage ZentraChain</h2><p class="muted" style="margin:0">Choose a single section from the expanded Admin Access menu. Each section opens on its own page with a back arrow.</p></section>';
+   '<section class="card panel"><div class="eyebrow">ADMIN ACCESS</div><h2 style="margin:5px 0 8px">Manage ZentraChain</h2><p class="muted" style="margin:0">Choose a single section from the expanded Admin Access menu. Each section opens on its own page with a back arrow.</p><div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-top:16px"><button type="button" class="btn primary" onclick="zcOpenAdminSection(&quot;dashboard-studio&quot;)">Open Dashboard Studio →</button><span class="muted" style="font-size:11px">5 customer designs · Dashboard 1 remains available</span></div></section>';
   const tasks=[['profiles','zc-admin-count-users'],['gforce_investment_plans','zc-admin-count-plans'],['deposit_requests','zc-admin-count-deposits'],['withdrawal_requests','zc-admin-count-withdrawals']];
   await Promise.all(tasks.map(async x=>{try{const n=await count(x[0]);const node=$(x[1]);if(node)node.textContent=n.toLocaleString()}catch(e){const node=$(x[1]);if(node)node.textContent='—'}}));
+ }
+ function dashboardStudioPage(){
+  const root=$('app-content');
+  if(!root)return;
+  if(typeof zcDashboardStudioHTML!=='function'){
+   root.innerHTML=head('Dashboard Studio','The dashboard design manager is not available. Please refresh and retry.')+'<section class="card panel"><button type="button" class="btn primary" onclick="zcOpenAdminSection(&quot;dashboard-studio&quot;)">Retry</button></section>';
+   return;
+  }
+  root.innerHTML=head('Dashboard Studio','Choose the customer dashboard design used throughout the member area. Preview first, then activate your selection.')+zcDashboardStudioHTML();
  }
  async function loadSettings(keys){
   const {data,error}=await db.from('site_settings').select('setting_key,numeric_value').in('setting_key',keys);
@@ -4896,6 +4907,7 @@ window.zcWalletPickUser=function(uid){
   if(typeof closeDrawer==='function')closeDrawer();
   try{
    if(id==='dashboard')return await dashboard();
+   if(id==='dashboard-studio')return dashboardStudioPage();
    if(id==='investment-plans')return await window.gfOpenPlans();
    if(id==='deposit-settings')return limitsPage('deposit');
    if(id==='withdrawal-settings')return limitsPage('withdrawal');
