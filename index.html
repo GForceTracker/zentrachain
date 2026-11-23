@@ -1457,6 +1457,8 @@ const fmt=n=>new Intl.NumberFormat('en-US',{minimumFractionDigits:2,maximumFract
 const date=s=>s?new Date(s).toLocaleString():'—';
 function toast(msg,bad=false){const el=$('toast');if(!el)return;el.textContent=String(msg??'');el.classList.remove('hidden','zc-toast-success','zc-toast-error');el.classList.add(bad?'zc-toast-error':'zc-toast-success');el.setAttribute('role',bad?'alert':'status');el.setAttribute('aria-live',bad?'assertive':'polite');if(window.__zcToastTimer)clearTimeout(window.__zcToastTimer);window.__zcToastTimer=setTimeout(()=>{el.classList.add('hidden');el.classList.remove('zc-toast-success','zc-toast-error')},4200)}
 function money(n){return '$'+fmt(n)}
+// Shared admin-role guard for administrator action handlers.
+function admin(){return typeof profile!=='undefined'&&profile?.role==='admin'}
 function showAuth(mode){authMode=mode;$('auth-modal').classList.remove('hidden');$('auth-form').classList.remove('hidden');$('auth-message').classList.add('hidden');renderAuthMode()}
 function hideAuth(){$('auth-modal').classList.add('hidden');$('auth-form').classList.remove('hidden');}
 function renderAuthMode(){
