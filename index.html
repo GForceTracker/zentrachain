@@ -1528,7 +1528,7 @@ function zcAuthFocusField(field){
  },true);
  if(window.visualViewport){
   window.visualViewport.addEventListener('resize',()=>{sync();scheduleField()},{passive:true});
-  window.visualViewport.addEventListener('scroll',()=>{sync();scheduleField()},{passive:true});
+  window.visualViewport.addEventListener('scroll',sync,{passive:true});
  }
  window.addEventListener('resize',()=>{sync();scheduleField()},{passive:true});
  window.addEventListener('orientationchange',()=>{sync();scheduleField()},{passive:true});
@@ -1612,7 +1612,7 @@ async function zcTickVerify(){
   if(feedback)feedback.textContent='';
   if(button){button.disabled=false;button.textContent='Verify'}
   const submit=$('auth-submit');
-  if(submit)setTimeout(()=>zcAuthFocusField(submit),180);
+  if(submit)setTimeout(()=>{try{submit.scrollIntoView({behavior:'smooth',block:'center',inline:'nearest'})}catch(e){submit.scrollIntoView()}},220);
  }catch(error){
   zcTick.state='challenge';
   if(feedback)feedback.textContent=error?.message||'Could not verify the answer. Please retry.';
