@@ -1998,7 +1998,13 @@ html body .zc-motion-reveal{transition:opacity .62s ease,transform .62s cubic-be
   const rows=[];
   (deposits||[]).filter(x=>!uid||x.user_id===uid).forEach(x=>rows.push({kind:'deposit',id:x.id,title:'Deposit '+String(x.status||'update').replace(/_/g,' '),detail:(Number(x.amount)||0).toLocaleString('en-US',{maximumFractionDigits:6})+' '+(x.asset||'asset')+' · '+String(x.status||'Updated').replace(/_/g,' '),at:x.reviewed_at||x.created_at}));
   (withdrawals||[]).filter(x=>!uid||x.user_id===uid).forEach(x=>rows.push({kind:'withdrawal',id:x.id,title:'Withdrawal '+String(x.status||'update').replace(/_/g,' '),detail:(Number(x.amount)||0).toLocaleString('en-US',{maximumFractionDigits:6})+' '+(x.asset||'asset')+' · '+String(x.status||'Updated').replace(/_/g,' '),at:x.reviewed_at||x.created_at}));
-  (ledger||[]).filter(x=>!uid||x.user_id===uid).forEach(x=>rows.push({kind:'ledger',id:x.id,title:'Account activity recorded',detail:(x.description||x.entry_type||'Ledger entry')+' · '+(Number(x.amount)||0).toLocaleString('en-US',{maximumFractionDigits:6})+' '+(x.asset||''),at:x.created_at}));
+  (ledger||[]).filter(x=>!uid||x.user_id===uid).forEach(x=>{
+   const amount=Number(x.amount)||0;
+   const description=String(x.description||'');
+   const reference=String(x.reference_type||'');
+   const adminAdjustment=reference.startsWith('admin_')||/administrator|admin added|admin credited|credited by admin/i.test(description);
+   rows.push({kind:'ledger',id:x.id,title:adminAdjustment?'Balance updated':'Account activity recorded',detail:amount.toLocaleString('en-US',{maximumFractionDigits:6})+' '+(x.asset||'USDT'),at:x.created_at});
+  });
   return rows.filter(x=>x.at).sort((a,b)=>new Date(b.at)-new Date(a.at)).slice(0,30);
  }
  function zcUnread(){return zcNotifications().filter(x=>new Date(x.at).getTime()>zcReadAt()).length}
@@ -4833,12 +4839,27 @@ schedule(FIRST_DELAY);
   document.querySelectorAll('#dash-cards .zc-card-buy').forEach(function(p){p.hidden=true});
   panel.hidden=wasOpen;
   if(!panel.hidden){
+   var planId=card.getAttribute('data-gf-plan-id');
+   var plan=(typeof gfPlans!=='undefined'&&Array.isArray(gfPlans)?gfPlans:[]).find(function(p){return p.id===planId});
+   var available=Number(availableFundsUnlocked())||0;
+   var deposit=Number(depositBalanceUnlocked())||0;
+   var insufficient=!!(plan&&Math.max(available,deposit)<Number(plan.min_amount||0));
+   var sourceSelect=panel.querySelector('.zc-buy-source');
+   var amountInput=panel.querySelector('.zc-buy-amount');
+   var amountLimit=panel.querySelector('.zc-buy-limit');
+   var confirmButton=panel.querySelector('.zc-buy-confirm');
+   [sourceSelect,amountInput,amountLimit,confirmButton].forEach(function(node){if(node)node.hidden=insufficient});
    var err=card.querySelector('.zc-buy-err');
-   if(err)err.classList.add('hidden');
+   var msg=err?err.querySelector('.zc-buy-msg'):null;
    var depositButton=err?err.querySelector('.zc-buy-deposit'):null;
-   if(depositButton)depositButton.style.display='none';
-   var amt=panel.querySelector('.zc-buy-amount');
-   if(amt){amt.focus();if(amt.select)amt.select()}
+   if(insufficient){
+    if(err){err.classList.remove('hidden');if(msg)msg.textContent='You do not have sufficient funds.'}
+    if(depositButton)depositButton.style.display='inline-flex';
+   }else{
+    if(err)err.classList.add('hidden');
+    if(depositButton)depositButton.style.display='none';
+    if(amountInput){amountInput.focus();if(amountInput.select)amountInput.select()}
+   }
   }
  };
  window.zcStartPlanDeposit=async function(button){
@@ -4882,9 +4903,16 @@ schedule(FIRST_DELAY);
    showErr('This amount is outside the plan limits. Use the allowed range shown above.',false);
    return;
   }
-  var funds=Number(source==='deposit'?depositBalanceUnlocked():availableFundsUnlocked())||0;
+  var availableBalance=Number(availableFundsUnlocked())||0;
+  var depositBalance=Number(depositBalanceUnlocked())||0;
+  var funds=Number(source==='deposit'?depositBalance:availableBalance)||0;
   if(amount>funds){
-   showErr('Insufficient '+(source==='deposit'?'Deposit Balance':'Available Funds')+'. You have '+money(funds)+' and need '+money(amount)+'. Tap Deposit to continue.',true);
+   if(amount>availableBalance&&amount>depositBalance){
+    [card.querySelector('.zc-buy-source'),input,card.querySelector('.zc-buy-limit'),card.querySelector('.zc-buy-confirm')].forEach(function(node){if(node)node.hidden=true});
+    showErr('You do not have sufficient funds.',true);
+   }else{
+    showErr('The selected balance is insufficient. Choose the other balance.',false);
+   }
    return;
   }
   el.disabled=true;var old=el.textContent;el.textContent='Processing…';
@@ -4898,8 +4926,19 @@ schedule(FIRST_DELAY);
    navigate('investments');
   }catch(e){
    var m=(e&&e.message)||'Purchase failed.';
-   showErr(m,/(not enough|insufficient)/i.test(m));
-   if(!/(not enough|insufficient)/i.test(m))toast(m,true);
+   if(/(not enough|insufficient)/i.test(m)){
+    var availableBalance=Number(availableFundsUnlocked())||0;
+    var depositBalance=Number(depositBalanceUnlocked())||0;
+    if(amount>availableBalance&&amount>depositBalance){
+     [card.querySelector('.zc-buy-source'),input,card.querySelector('.zc-buy-limit'),card.querySelector('.zc-buy-confirm')].forEach(function(node){if(node)node.hidden=true});
+     showErr('You do not have sufficient funds.',true);
+    }else{
+     showErr('The selected balance is insufficient. Choose the other balance.',false);
+    }
+   }else{
+    showErr(m,false);
+    toast(m,true);
+   }
   }finally{
    el.disabled=false;el.textContent=old;
   }
