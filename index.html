@@ -3195,6 +3195,8 @@ html body .zc-motion-reveal{transition:opacity .62s ease,transform .62s cubic-be
 })();
 </script><script id="zc-notifications-live-v1">
 (function(){
+ // This script has its own scope; keep its currency formatter local.
+ const fmtUSD=v=>String.fromCharCode(36)+Number(v||0).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
  const readKey=()=> 'zc-alerts-read-at-'+(currentUser?.id||'guest');
  function zcReadAt(){try{return Number(localStorage.getItem(readKey())||0)}catch(e){return 0}}
  function zcNotifications(){
