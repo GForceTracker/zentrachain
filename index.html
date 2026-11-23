@@ -1417,34 +1417,20 @@ html body .modal-head .brand{white-space:nowrap!important;min-width:0!important}
     <span class="zc-tick-label">I'm not a robot</span>
     <span class="zc-tick-state" id="zc-tick-state"></span>
   </div>
-
+  <div id="zc-captcha-challenge" class="hidden" role="group" aria-label="Human verification challenge">
+    <div class="zc-captcha-head">
+      <div><b>Security check</b><small>Type the six characters shown in the image.</small></div>
+      <button type="button" class="zc-captcha-refresh" aria-label="Get a new challenge" onclick="zcTickStart()">↻</button>
+    </div>
+    <div class="zc-captcha-image-frame"><img id="zc-captcha-image" width="256" height="88" alt="CAPTCHA challenge image"></div>
+    <div class="zc-captcha-answer-row">
+      <input id="zc-captcha-answer" type="text" maxlength="6" autocomplete="off" autocapitalize="characters" spellcheck="false" inputmode="text" enterkeyhint="done" placeholder="Enter the six characters" aria-label="Enter the CAPTCHA characters" onkeydown="if(event.key==='Enter'){event.preventDefault();zcTickVerify()}">
+      <button id="zc-captcha-verify" type="button" class="btn primary" onclick="zcTickVerify()">Verify</button>
+    </div>
+    <p id="zc-captcha-feedback" role="status" aria-live="polite"></p>
+  </div>
 </div></div><button class="btn primary" id="auth-submit" type="submit">Log in</button><button class="btn ghost hidden" type="button" id="auth-resend" onclick="resendVerification()" style="margin-top:10px">Resend verification email</button>
 <button class="btn ghost" type="button" onclick="toggleAuthMode()" id="auth-switch">Create an account</button></form></div></div>
-<div id="zc-captcha-modal" class="modal-bg hidden" role="dialog" aria-modal="true" aria-labelledby="zc-captcha-title" onclick="if(event.target===this)zcCloseCaptchaModal()">
-  <div class="modal zc-captcha-modal-card">
-    <div class="modal-head zc-captcha-modal-head">
-      <div>
-        <div class="eyebrow">ACCOUNT SECURITY</div>
-        <b id="zc-captcha-title">Verify you are human</b>
-      </div>
-      <button type="button" class="x" aria-label="Close security challenge" onclick="zcCloseCaptchaModal()">×</button>
-    </div>
-    <div id="zc-captcha-challenge" role="group" aria-label="Human verification challenge">
-      <p class="zc-captcha-instruction">Enter the six characters shown below to complete the security check.</p>
-      <div id="zc-captcha-loading" class="zc-captcha-loading" aria-live="polite">Loading security challenge…</div>
-      <div class="zc-captcha-image-frame"><img id="zc-captcha-image" width="256" height="88" alt="CAPTCHA challenge image"></div>
-      <div class="zc-captcha-answer-row">
-        <input id="zc-captcha-answer" type="text" maxlength="6" autocomplete="off" autocapitalize="characters" spellcheck="false" inputmode="text" enterkeyhint="done" placeholder="Enter the six characters" aria-label="Enter the CAPTCHA characters" onkeydown="if(event.key==='Enter'){event.preventDefault();zcTickVerify()}">
-        <button id="zc-captcha-verify" type="button" class="btn primary" onclick="zcTickVerify()">Verify</button>
-      </div>
-      <div class="zc-captcha-modal-actions">
-        <button type="button" class="zc-captcha-refresh" onclick="zcTickStart()">Get a new image</button>
-        <span>Challenge expires in 10 minutes</span>
-      </div>
-      <p id="zc-captcha-feedback" role="status" aria-live="polite"></p>
-    </div>
-  </div>
-</div>
 <div id="toast" class="toast hidden" role="status" aria-live="polite" aria-atomic="true"></div><div id="transaction-modal" class="transaction-modal hidden" onclick="if(event.target===this)closeAlerts()"><div class="transaction-card"><div class="alert-symbol">↗</div><div class="eyebrow">ACCOUNT NOTIFICATION</div><h3 id="transaction-alert-title">Transaction update</h3><p id="transaction-alert-message">Your account has a new transaction update.</p><button class="btn primary" style="width:100%" onclick="closeAlerts()">Got it</button></div></div>
 <script>
 const SUPABASE_URL=(window.ZC_ENV&&window.ZC_ENV.SUPABASE_URL)||'https://ltowdrhwebaitbrrupks.supabase.co';
@@ -1476,18 +1462,11 @@ function zcTickReset(){
  if(box){box.classList.remove('verified','verifying');box.setAttribute('aria-checked','false')}
  const mark=$('zc-tick-mark');if(mark)mark.textContent='';
  const state=$('zc-tick-state');if(state)state.textContent='';
- const modal=$('zc-captcha-modal');if(modal)modal.classList.add('hidden');
+ const challenge=$('zc-captcha-challenge');if(challenge)challenge.classList.add('hidden');
  const image=$('zc-captcha-image');if(image)image.removeAttribute('src');
  const answer=$('zc-captcha-answer');if(answer){answer.value='';answer.blur()}
  const feedback=$('zc-captcha-feedback');if(feedback)feedback.textContent='';
- const loading=$('zc-captcha-loading');if(loading)loading.classList.remove('hidden');
  const verify=$('zc-captcha-verify');if(verify){verify.disabled=false;verify.textContent='Verify'}
-}
-function zcCloseCaptchaModal(){
- if(zcTick.state==='verified')return;
- zcTickReset();
- const tickbox=$('zc-tickbox');
- if(tickbox)setTimeout(()=>tickbox.focus({preventScroll:false}),40);
 }
 function zcAuthFocusField(field){
  if(!field||!field.isConnected)return;
@@ -1536,18 +1515,16 @@ function zcAuthFocusField(field){
 })();
 async function zcTickStart(){
  if(['loading','checking','verified'].includes(zcTick.state))return;
- const box=$('zc-tickbox'),modal=$('zc-captcha-modal'),state=$('zc-tick-state');
- if(!box||!modal)return;
- modal.classList.remove('hidden');
+ const box=$('zc-tickbox'),challenge=$('zc-captcha-challenge'),state=$('zc-tick-state');
+ if(!box||!challenge)return;
  zcTick.state='loading';
  box.classList.add('verifying');
  if(state)state.textContent='Loading challenge…';
- const feedback=$('zc-captcha-feedback'),loading=$('zc-captcha-loading'),image=$('zc-captcha-image'),answer=$('zc-captcha-answer'),verify=$('zc-captcha-verify');
+ const feedback=$('zc-captcha-feedback'),image=$('zc-captcha-image'),answer=$('zc-captcha-answer'),button=$('zc-captcha-verify');
  if(feedback)feedback.textContent='';
- if(loading){loading.classList.remove('hidden');loading.textContent='Loading security challenge…'}
  if(image)image.removeAttribute('src');
  if(answer)answer.value='';
- if(verify){verify.disabled=true;verify.textContent='Loading…'}
+ if(button){button.disabled=true;button.textContent='Loading…'}
  try{
   const base=(window.ZC_ENV&&window.ZC_ENV.SUPABASE_URL)||SUPABASE_URL||'';
   const response=await fetch(base+'/functions/v1/captcha-challenge',{method:'POST',headers:{'Content-Type':'application/json'},body:'{}',cache:'no-store'});
@@ -1556,21 +1533,18 @@ async function zcTickStart(){
   zcTick.id=data.id;
   zcTick.state='challenge';
   if(image)image.src='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(data.svg);
-  if(loading)loading.classList.add('hidden');
+  challenge.classList.remove('hidden');
   if(state)state.textContent='Solve the challenge';
-  if(answer){
-   answer.value='';
-   setTimeout(()=>{if(!$('zc-captcha-modal')?.classList.contains('hidden')){answer.focus();zcAuthFocusField(answer)}},80);
-  }
+  if(answer)setTimeout(()=>{answer.focus({preventScroll:true});zcAuthFocusField(answer)},80);
  }catch(error){
   zcTick.state='idle';
-  if(feedback)feedback.textContent=error?.message||'The CAPTCHA could not be loaded.';
-  if(loading){loading.classList.remove('hidden');loading.textContent='The challenge could not be loaded. Tap “Get a new image” to retry.'}
+  challenge.classList.remove('hidden');
+  if(feedback)feedback.textContent=error?.message||'The CAPTCHA could not be loaded. Tap the refresh icon to retry.';
   if(state)state.textContent='Try again';
   toast(error?.message||'Could not load the CAPTCHA. Please try again.',true);
  }finally{
   box.classList.remove('verifying');
-  if(verify){verify.disabled=false;verify.textContent='Verify'}
+  if(button){button.disabled=false;button.textContent='Verify'}
  }
 }
 async function zcTickVerify(){
@@ -1579,7 +1553,7 @@ async function zcTickVerify(){
  const feedback=$('zc-captcha-feedback'),button=$('zc-captcha-verify'),box=$('zc-tickbox'),state=$('zc-tick-state');
  if(!/^[A-HJ-NP-Z2-9]{6}$/.test(answer)){
   if(feedback)feedback.textContent='Enter all six characters shown in the image.';
-  const input=$('zc-captcha-answer');if(input){input.focus();zcAuthFocusField(input)}
+  const input=$('zc-captcha-answer');if(input){input.focus({preventScroll:true});zcAuthFocusField(input)}
   return;
  }
  zcTick.state='checking';
@@ -1607,7 +1581,7 @@ async function zcTickVerify(){
   box.setAttribute('aria-checked','true');
   const mark=$('zc-tick-mark');if(mark)mark.textContent='✓';
   if(state)state.textContent='Verified';
-  const modal=$('zc-captcha-modal');if(modal)modal.classList.add('hidden');
+  const challenge=$('zc-captcha-challenge');if(challenge)challenge.classList.add('hidden');
   const input=$('zc-captcha-answer');if(input){input.value='';input.blur()}
   if(feedback)feedback.textContent='';
   if(button){button.disabled=false;button.textContent='Verify'}
@@ -10474,35 +10448,17 @@ body[data-zc-theme] #application .zc-studio-note b {
 <style id="zc-plan-from-visitor-highlight-v1">
 #dash-cards>.zc-plan-from-visitor{outline:2px solid var(--green)!important;outline-offset:4px!important;box-shadow:0 0 0 5px color-mix(in srgb,var(--green) 18%,transparent),0 22px 58px rgba(0,0,0,.34)!important}
 </style>
-<style id="zc-mobile-auth-focus-and-captcha-popup-v2">
+<style id="zc-mobile-auth-focus-and-inline-captcha-v3">
 :root{--zc-visual-height:100dvh;--zc-visual-top:0px}
-#zc-captcha-modal.modal-bg{z-index:100020!important}
-#zc-captcha-modal .zc-captcha-modal-card{
- width:min(100%,420px)!important;
- max-height:calc(var(--zc-visual-height,100dvh) - 28px)!important;
- overflow-y:auto!important;
- overscroll-behavior:contain!important;
-}
-#zc-captcha-modal .zc-captcha-modal-head{align-items:center;margin-bottom:13px}
-#zc-captcha-modal .zc-captcha-modal-head b{display:block;font-size:19px;font-weight:850;color:var(--text);margin-top:5px}
-#zc-captcha-modal .zc-captcha-instruction{margin:0 0 13px;color:var(--muted);font-size:13px;line-height:1.6}
-#zc-captcha-modal .zc-captcha-loading{padding:16px 10px;text-align:center;border:1px dashed var(--line);border-radius:12px;color:var(--muted);font-size:13px;margin-bottom:10px}
-#zc-captcha-modal .zc-captcha-image-frame{display:flex;align-items:center;justify-content:center;padding:8px;border:1px solid var(--line);border-radius:13px;background:#e5f0e9;min-height:104px}
-#zc-captcha-modal #zc-captcha-image{display:block;width:100%;max-width:256px;height:auto;aspect-ratio:256/88;object-fit:contain;border-radius:7px}
-#zc-captcha-modal .zc-captcha-answer-row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:9px;margin-top:13px}
-#zc-captcha-modal #zc-captcha-answer{width:100%;min-width:0;min-height:48px;padding:12px 14px;border:1px solid var(--line);border-radius:11px;background:var(--bg);color:var(--text);font-size:16px;letter-spacing:3px;text-transform:uppercase;outline:none}
-#zc-captcha-modal #zc-captcha-answer:focus{border-color:var(--green);box-shadow:0 0 0 3px color-mix(in srgb,var(--green) 16%,transparent)}
-#zc-captcha-modal #zc-captcha-verify{min-width:96px;min-height:48px;padding:11px 15px}
-#zc-captcha-modal .zc-captcha-modal-actions{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:11px}
-#zc-captcha-modal .zc-captcha-modal-actions span{font-size:10px;color:var(--muted);text-align:right}
-#zc-captcha-modal .zc-captcha-refresh{border:0;padding:5px 0;background:transparent;color:var(--mint);font-size:12px;font-weight:750}
-#zc-captcha-modal #zc-captcha-feedback{min-height:18px;margin:10px 0 0;color:var(--muted);font-size:12px;line-height:1.5}
 #auth-modal .modal input:not([type="checkbox"]):not([type="radio"]):not([type="file"]):not([type="range"]),
-#auth-modal .modal textarea,
-#zc-captcha-modal .modal input{font-size:16px!important}
-#auth-modal .modal,#zc-captcha-modal .modal{scroll-padding-block:100px 150px;-webkit-overflow-scrolling:touch}
+#auth-modal .modal textarea{font-size:16px!important}
+#auth-modal .modal{max-height:calc(var(--zc-visual-height,100dvh) - 24px)!important;overflow-y:auto!important;overscroll-behavior:contain!important;-webkit-overflow-scrolling:touch!important;scroll-padding-block:100px 150px}
+#zc-captcha-field{max-width:100%;min-width:0}
+#zc-captcha-field #zc-captcha-challenge{width:100%;max-width:390px;box-sizing:border-box}
+#zc-captcha-field #zc-captcha-answer{font-size:16px!important;min-width:0}
+#zc-captcha-field #zc-captcha-answer:focus{border-color:var(--green);box-shadow:0 0 0 3px color-mix(in srgb,var(--green) 16%,transparent)}
 @media(max-width:700px){
- #auth-modal.modal-bg,#zc-captcha-modal.modal-bg{
+ #auth-modal.modal-bg:not(.hidden){
   position:fixed!important;inset-inline:0!important;top:var(--zc-visual-top,0px)!important;bottom:auto!important;
   width:100%!important;height:var(--zc-visual-height,100dvh)!important;max-height:none!important;
   display:grid!important;align-items:start!important;justify-items:center!important;
@@ -10510,13 +10466,12 @@ body[data-zc-theme] #application .zc-studio-note b {
   padding:10px 10px max(14px,env(safe-area-inset-bottom))!important;
   overscroll-behavior:contain!important;-webkit-overflow-scrolling:touch!important;
  }
- #auth-modal .modal,#zc-captcha-modal .modal{
+ #auth-modal .modal{
   width:100%!important;max-height:calc(var(--zc-visual-height,100dvh) - 24px)!important;
   min-height:0!important;margin:0 auto!important;padding:18px!important;overflow-y:auto!important;
   overscroll-behavior:contain!important;
  }
- #zc-captcha-modal .zc-captcha-modal-card{max-width:420px!important}
- #zc-captcha-modal .zc-captcha-answer-row{grid-template-columns:1fr!important}
- #zc-captcha-modal #zc-captcha-verify{width:100%!important}
+ #zc-captcha-field .zc-captcha-answer-row{flex-direction:column}
+ #zc-captcha-field #zc-captcha-verify{width:100%}
 }
 </style>
