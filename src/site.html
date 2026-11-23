@@ -1275,21 +1275,91 @@ function zcCustomerLedgerType(entry){
 }
 function txFeedItems(){
  const rows=[];
- for(const d of (deposits||[]))rows.push({t:new Date(d.created_at).getTime(),kind:'deposit',title:'Deposit received',amt:Number(d.amount||0),sub:esc(d.network||'')+' · '+esc(d.status||''),ref:d.tx_hash?('TX '+String(d.tx_hash).slice(0,12)+'…'):''});
- for(const w of (withdrawals||[]))rows.push({t:new Date(w.created_at).getTime(),kind:'withdrawal',title:'Withdrawal sent',amt:-Math.abs(Number(w.amount||0)),sub:esc((w.asset||'USDT')+' · '+w.network)+' · '+esc(w.status||''),ref:w.tx_hash?('TX '+String(w.tx_hash).slice(0,12)+'…'):esc(String(w.destination_address||'')).slice(0,26)});
- for(const l of (ledger||[])){const a=Number(l.amount||0);rows.push({t:new Date(l.created_at).getTime(),kind:'ledger',title:zcCustomerLedgerTitle(l),amt:a,sub:zcCustomerLedgerType(l),ref:''})}
+ for(const d of (deposits||[])){
+  const id=String(d.id||'');
+  rows.push({id:id,record:d,t:new Date(d.created_at).getTime(),kind:'deposit',title:'Deposit received',amt:Number(d.amount||0),sub:esc(d.network||'')+' · '+esc(d.status||''),ref:d.tx_hash?('TX '+String(d.tx_hash).slice(0,12)+'…'):''});
+ }
+ for(const w of (withdrawals||[])){
+  const id=String(w.id||'');
+  rows.push({id:id,record:w,t:new Date(w.created_at).getTime(),kind:'withdrawal',title:'Withdrawal sent',amt:-Math.abs(Number(w.amount||0)),sub:esc((w.asset||'USDT')+' · '+w.network)+' · '+esc(w.status||''),ref:w.tx_hash?('TX '+String(w.tx_hash).slice(0,12)+'…'):esc(String(w.destination_address||'')).slice(0,26)});
+ }
+ for(const l of (ledger||[])){
+  const id=String(l.id||''),a=Number(l.amount||0);
+  rows.push({id:id,record:l,t:new Date(l.created_at).getTime(),kind:'ledger',title:zcCustomerLedgerTitle(l),amt:a,sub:zcCustomerLedgerType(l),ref:''});
+ }
  rows.sort((a,b)=>b.t-a.t);return rows;
 }
-function renderRecentActivity(){const box=$('zc-recent-activity');if(!box)return;const items=txFeedItems().slice(0,20);if(!items.length){box.innerHTML='<div class="empty">No activity yet — your deposits, withdrawals and plan updates will appear here.</div>';return}box.innerHTML=items.map(r=>{const pos=r.amt>=0;return '<article class="zc-tx-row"><div class="zc-tx-icon '+(pos?'in':'out')+'">'+(pos?'↓':'↑')+'</div><div class="zc-tx-main"><div class="zc-tx-main-top"><strong>'+esc(r.title)+'</strong></div><div class="zc-tx-sub">'+r.sub+'</div>'+(r.ref?'<div class="zc-tx-hash">'+esc(r.ref)+'</div>':'')+'</div><div class="zc-tx-right"><div class="zc-tx-amount '+(pos?'pos':'neg')+'">'+(pos?'+':'−')+fmt(Math.abs(r.amt))+' USDT</div><div class="zc-tx-time">'+new Date(r.t).toLocaleString()+'</div></div></article>'}).join('')}
+function zcTxViewButton(r){
+ if(!r||!r.id)return '';
+ return '<button type="button" class="btn ghost zc-tx-view" data-tx-kind="'+esc(r.kind)+'" data-tx-id="'+esc(r.id)+'" onclick="zcViewTransaction(this.dataset.txKind,this.dataset.txId)">View Transaction</button>';
+}
+function renderRecentActivity(){
+ const box=$('zc-recent-activity');if(!box)return;
+ const items=txFeedItems().slice(0,20);
+ if(!items.length){box.innerHTML='<div class="empty">No activity yet — your deposits, withdrawals and plan updates will appear here.</div>';return}
+ box.innerHTML=items.map(r=>{
+  const pos=r.amt>=0;
+  return '<article class="zc-tx-row"><div class="zc-tx-icon '+(pos?'in':'out')+'">'+(pos?'↓':'↑')+'</div><div class="zc-tx-main"><div class="zc-tx-main-top"><strong>'+esc(r.title)+'</strong></div><div class="zc-tx-sub">'+r.sub+'</div>'+(r.ref?'<div class="zc-tx-hash">'+esc(r.ref)+'</div>':'')+'</div><div class="zc-tx-right"><div class="zc-tx-amount '+(pos?'pos':'neg')+'">'+(pos?'+':'−')+fmt(Math.abs(r.amt))+' USDT</div><div class="zc-tx-time">'+new Date(r.t).toLocaleString()+'</div>'+zcTxViewButton(r)+'</div></article>';
+ }).join('');
+}
 function renderTxFeed(){
  const box=$('zc-tx-feed');if(!box)return;
  const items=txFeedItems().filter(r=>zcTxFilter==='all'||r.kind===zcTxFilter);
  if(!items.length){box.innerHTML='<div class="empty">Nothing here yet.</div>';return}
  box.innerHTML=items.slice(0,200).map(r=>{
   const pos=r.amt>=0;
-  return '<article class="zc-tx-row"><div class="zc-tx-icon '+(pos?'in':'out')+'">'+(pos?'↓':'↑')+'</div><div class="zc-tx-main"><div class="zc-tx-main-top"><strong>'+esc(r.title)+'</strong></div><div class="zc-tx-sub">'+r.sub+'</div>'+(r.ref?'<div class="zc-tx-hash">'+esc(r.ref)+'</div>':'')+'</div><div class="zc-tx-right"><div class="zc-tx-amount '+(pos?'pos':'neg')+'">'+(pos?'+':'−')+fmt(Math.abs(r.amt))+' USDT</div><div class="zc-tx-time">'+new Date(r.t).toLocaleString()+'</div></div></article>'}).join('');
+  return '<article class="zc-tx-row"><div class="zc-tx-icon '+(pos?'in':'out')+'">'+(pos?'↓':'↑')+'</div><div class="zc-tx-main"><div class="zc-tx-main-top"><strong>'+esc(r.title)+'</strong></div><div class="zc-tx-sub">'+r.sub+'</div>'+(r.ref?'<div class="zc-tx-hash">'+esc(r.ref)+'</div>':'')+'</div><div class="zc-tx-right"><div class="zc-tx-amount '+(pos?'pos':'neg')+'">'+(pos?'+':'−')+fmt(Math.abs(r.amt))+' USDT</div><div class="zc-tx-time">'+new Date(r.t).toLocaleString()+'</div>'+zcTxViewButton(r)+'</div></article>';
+ }).join('');
  document.querySelectorAll('.zc-tx-filter').forEach(b=>b.classList.toggle('active',b.dataset.txf===zcTxFilter));
 }
+function zcTxDetailField(label,value,mono){
+ const clean=String(value??'').trim();
+ if(!clean)return '';
+ return '<div class="zc-tx-detail-field"><small>'+esc(label)+'</small><b'+(mono?' class="mono"':'')+'>'+esc(clean)+'</b></div>';
+}
+function zcViewTransaction(kind,id){
+ const transaction=txFeedItems().find(r=>r.kind===String(kind)&&r.id===String(id));
+ if(!transaction){toast('Transaction details could not be found. Refresh your account and try again.',true);return}
+ const record=transaction.record||{},user=currentUser||{},account=profile||{};
+ const asset=String(record.asset||record.currency||'USDT');
+ const amountText=(transaction.amt>=0?'+':'−')+fmt(Math.abs(transaction.amt))+' '+asset;
+ let description=String(record.description||'');
+ if(/administrator|admin added|admin credited|credited by admin/i.test(description))description=transaction.title;
+ const details=[
+  zcTxDetailField('Transaction type',transaction.title),
+  zcTxDetailField('Amount',amountText),
+  zcTxDetailField('Status',String(record.status||'Recorded').replace(/_/g,' ')),
+  zcTxDetailField('Date',new Date(transaction.t).toLocaleString()),
+  zcTxDetailField('Asset',asset),
+  zcTxDetailField('Network',record.network||record.network_code),
+  zcTxDetailField('Transaction hash',record.tx_hash,true),
+  zcTxDetailField('Destination address',record.destination_address,true),
+  zcTxDetailField('Ledger category',transaction.kind==='ledger'?zcCustomerLedgerType(record):''),
+  zcTxDetailField('Description',description),
+  zcTxDetailField('Review note',record.admin_note),
+  zcTxDetailField('Reference type',record.reference_type),
+  zcTxDetailField('Transaction ID',record.id,true)
+ ].filter(Boolean).join('');
+ const userDetails=[
+  zcTxDetailField('Full name',account.full_name||user.user_metadata?.full_name||'Not provided'),
+  zcTxDetailField('Email address',user.email||'Not available'),
+  zcTxDetailField('Account ID',record.user_id||user.id||'Not available',true),
+  zcTxDetailField('Account role',account.role||'Member')
+ ].join('');
+ let modal=document.getElementById('zc-tx-detail-modal');
+ if(!modal){modal=document.createElement('div');modal.id='zc-tx-detail-modal';modal.className='zc-tx-detail-modal';document.body.appendChild(modal)}
+ modal.innerHTML='<section class="zc-tx-detail-dialog" role="dialog" aria-modal="true" aria-labelledby="zc-tx-detail-title"><header class="zc-tx-detail-head"><div><div class="eyebrow">TRANSACTION RECEIPT</div><h3 id="zc-tx-detail-title">Transaction details</h3></div><button type="button" class="btn ghost zc-tx-detail-close" aria-label="Close" onclick="zcCloseTransaction()">×</button></header><div class="zc-tx-detail-amount '+(transaction.amt>=0?'pos':'neg')+'">'+esc(amountText)+'</div><section class="zc-tx-detail-section"><div class="eyebrow">TRANSACTION INFORMATION</div><div class="zc-tx-detail-grid">'+(details||'<div class="muted">No additional transaction information is available.</div>')+'</div></section><section class="zc-tx-detail-section"><div class="eyebrow">ACCOUNT INFORMATION</div><div class="zc-tx-detail-grid">'+userDetails+'</div></section><button type="button" class="btn primary zc-tx-detail-done" onclick="zcCloseTransaction()">Close</button></section>';
+ modal.hidden=false;
+ document.body.style.overflow='hidden';
+ const close=modal.querySelector('.zc-tx-detail-close');if(close)close.focus();
+ modal.onclick=function(event){if(event.target===modal)zcCloseTransaction()};
+}
+function zcCloseTransaction(){
+ const modal=document.getElementById('zc-tx-detail-modal');
+ if(modal){modal.remove();document.body.style.overflow=''}
+}
+window.addEventListener('keydown',function(event){if(event.key==='Escape'&&document.getElementById('zc-tx-detail-modal'))zcCloseTransaction()});
+
 function zcTxSetFilter(f){zcTxFilter=f;renderTxFeed()}
 function zcExportTxCSV(){
  const rows=txFeedItems();
@@ -3909,6 +3979,25 @@ body #app-content #zc-deposit-options .deposit-asset-option.selected>.btn{
 .zc-tx-amount.pos{color:var(--green)}
 .zc-tx-amount.neg{color:var(--red,#ff7474)}
 .zc-tx-time{font-size:11px;color:var(--muted);margin-top:3px}
+.zc-tx-view{display:inline-flex!important;align-items:center;justify-content:center;margin-top:8px!important;padding:6px 10px!important;font-size:11px!important;line-height:1.2!important;white-space:nowrap!important}
+.zc-tx-detail-modal{position:fixed;inset:0;z-index:100500;display:grid;place-items:center;padding:16px;background:rgba(2,9,18,.78);backdrop-filter:blur(7px);-webkit-backdrop-filter:blur(7px);overflow-y:auto}
+.zc-tx-detail-modal[hidden]{display:none!important}
+.zc-tx-detail-dialog{width:min(680px,100%);max-height:min(88vh,900px);overflow:auto;padding:22px;border:1px solid var(--line);border-radius:20px;background:var(--panel);box-shadow:0 24px 80px rgba(0,0,0,.48);color:var(--text)}
+.zc-tx-detail-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+.zc-tx-detail-head h3{margin:5px 0 0;font-size:20px}
+.zc-tx-detail-close{width:38px;height:38px;padding:0!important;font-size:24px!important}
+.zc-tx-detail-amount{margin:19px 0;padding:16px;border-radius:14px;background:var(--panel2);font-size:25px;font-weight:850;overflow-wrap:anywhere}
+.zc-tx-detail-amount.pos{color:var(--green)}
+.zc-tx-detail-amount.neg{color:var(--red,#ff7474)}
+.zc-tx-detail-section{margin-top:17px;padding:15px;border:1px solid var(--line);border-radius:14px;background:color-mix(in srgb,var(--panel2) 55%,transparent)}
+.zc-tx-detail-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:13px 16px;margin-top:12px}
+.zc-tx-detail-field{min-width:0;display:flex;flex-direction:column;gap:5px}
+.zc-tx-detail-field small{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.55px}
+.zc-tx-detail-field b{font-size:12px;font-weight:650;overflow-wrap:anywhere;word-break:break-word}
+.zc-tx-detail-field b.mono{font-family:ui-monospace,SFMono-Regular,monospace;font-size:11px}
+.zc-tx-detail-done{width:100%;margin-top:18px}
+@media(max-width:560px){.zc-tx-detail-dialog{padding:16px;border-radius:16px}.zc-tx-detail-grid{grid-template-columns:1fr}.zc-tx-detail-amount{font-size:21px}.zc-tx-view{padding:6px 8px!important;font-size:10px!important}}
+
 .zc-progress{height:8px;border-radius:6px;background:var(--panel2);overflow:hidden}
 .zc-progress>i{display:block;height:100%;background:linear-gradient(90deg,var(--green),var(--mint));border-radius:6px;transition:width .6s ease}
 .zc-trade-bars{display:flex;align-items:flex-end;gap:4px;height:90px;margin:10px 0 6px}
