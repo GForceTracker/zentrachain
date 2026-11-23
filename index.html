@@ -8209,6 +8209,107 @@ body.zc-community-chat-open{overflow:hidden!important;overscroll-behavior:none}
  #auth-modal #auth-form #auth-switch{margin-top:0!important}
 }
 </style>
+<style id="zc-mobile-balance-live-effects-v1">
+/* Dashboard Studio style 5 only: animated LIVE signal, edge light and ambient blue lighting. */
+@property --zc-balance-edge-angle{
+ syntax:"<angle>";
+ inherits:false;
+ initial-value:0deg;
+}
+@keyframes zcBalanceEdgeSweep{
+ to{--zc-balance-edge-angle:360deg}
+}
+@keyframes zcBalanceAmbientLight{
+ 0%{transform:translate3d(-2.2%,-1.2%,0) scale(1);opacity:.40}
+ 50%{opacity:.66}
+ 100%{transform:translate3d(2.2%,1.6%,0) scale(1.07);opacity:.50}
+}
+@keyframes zcBalanceLiveBlink{
+ 0%,100%{opacity:1;transform:scale(1);box-shadow:0 0 0 3px rgba(77,160,255,.16),0 0 13px rgba(77,160,255,.66)}
+ 50%{opacity:.58;transform:scale(.84);box-shadow:0 0 0 1px rgba(77,160,255,.08),0 0 5px rgba(77,160,255,.30)}
+}
+@keyframes zcBalanceLiveRing{
+ 0%{transform:scale(.72);opacity:.72}
+ 85%,100%{transform:scale(2.05);opacity:0}
+}
+#application[data-zc-dashboard-style="5"] #app-content .zc-mobile-balance{
+ position:relative!important;
+ isolation:isolate!important;
+}
+#application[data-zc-dashboard-style="5"] #app-content .zc-mobile-balance::after{
+ content:"";
+ position:absolute;
+ inset:0;
+ z-index:0;
+ border-radius:inherit;
+ pointer-events:none;
+ background:
+  radial-gradient(ellipse at 17% 18%,rgba(72,153,255,.30),transparent 43%),
+  radial-gradient(ellipse at 84% 82%,rgba(36,112,224,.23),transparent 46%),
+  radial-gradient(ellipse at 58% 0%,rgba(101,184,255,.12),transparent 38%);
+ animation:zcBalanceAmbientLight 10s ease-in-out infinite alternate;
+}
+#application[data-zc-dashboard-style="5"] #app-content .zc-mobile-balance::before{
+ content:"";
+ position:absolute;
+ inset:0;
+ z-index:2;
+ padding:1.6px;
+ border-radius:inherit;
+ pointer-events:none;
+ background:conic-gradient(
+  from var(--zc-balance-edge-angle,0deg),
+  rgba(74,158,255,0) 0deg,
+  rgba(74,158,255,0) 248deg,
+  rgba(74,158,255,.18) 282deg,
+  rgba(75,157,255,.96) 305deg,
+  rgba(196,229,255,.98) 314deg,
+  rgba(74,158,255,.35) 329deg,
+  rgba(74,158,255,0) 349deg,
+  rgba(74,158,255,0) 360deg
+ );
+ -webkit-mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0);
+ -webkit-mask-composite:xor;
+ mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0);
+ mask-composite:exclude;
+ animation:zcBalanceEdgeSweep 6.2s linear infinite;
+ filter:drop-shadow(0 0 4px rgba(73,157,255,.34));
+}
+#application[data-zc-dashboard-style="5"] #app-content .zc-mobile-balance>*{
+ position:relative;
+ z-index:1;
+}
+#application[data-zc-dashboard-style="5"] #app-content .zc-mobile-live i{
+ position:relative!important;
+ display:inline-block!important;
+ flex:0 0 9px!important;
+ width:9px!important;
+ height:9px!important;
+ border-radius:50%!important;
+ background:#55a7ff!important;
+ animation:zcBalanceLiveBlink 1.55s ease-in-out infinite!important;
+}
+#application[data-zc-dashboard-style="5"] #app-content .zc-mobile-live i::after{
+ content:"";
+ position:absolute;
+ inset:-4px;
+ border:1px solid rgba(91,174,255,.68);
+ border-radius:50%;
+ pointer-events:none;
+ animation:zcBalanceLiveRing 1.85s ease-out infinite;
+}
+@media(prefers-reduced-motion:reduce){
+ #application[data-zc-dashboard-style="5"] #app-content .zc-mobile-balance::after,
+ #application[data-zc-dashboard-style="5"] #app-content .zc-mobile-balance::before,
+ #application[data-zc-dashboard-style="5"] #app-content .zc-mobile-live i,
+ #application[data-zc-dashboard-style="5"] #app-content .zc-mobile-live i::after{
+  animation:none!important;
+ }
+ #application[data-zc-dashboard-style="5"] #app-content .zc-mobile-balance::before{opacity:.38}
+ #application[data-zc-dashboard-style="5"] #app-content .zc-mobile-live i{opacity:1!important;transform:none!important}
+ #application[data-zc-dashboard-style="5"] #app-content .zc-mobile-live i::after{display:none}
+}
+</style>
 </html>
 
 <style id="zc-plan-tap-only-demarcation-v6">
