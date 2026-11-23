@@ -1169,19 +1169,29 @@ async function renderDepositPage(){
   const timeout=new Promise((_,reject)=>{timeoutId=setTimeout(()=>reject(new Error('The deposit service took too long to respond. Check your connection and tap Retry.')),12000)});
   const fetchData=Promise.all([
    db.from('crypto_asset_networks').select('id,asset_code,network_code,asset_name,network_name,is_enabled').eq('is_enabled',true).eq('asset_code','USDT').order('network_code'),
-   db.from('user_deposit_addresses').select('asset_network_id,asset_code,network_code,address,address_status').eq('user_id',currentUser.id).eq('address_status','active')
+   db.from('user_deposit_addresses').select('asset_network_id,asset_code,network_code,address,address_status').eq('user_id',currentUser.id).eq('address_status','active'),
+   db.from('plan_deposit_intents').select('id,plan_id,expires_at').eq('user_id',currentUser.id).eq('status','pending').gt('expires_at',new Date().toISOString()).order('created_at',{ascending:false}).limit(1).maybeSingle()
   ]);
   const results=await Promise.race([fetchData,timeout]);
   clearTimeout(timeoutId);
   if(results[0].error)throw results[0].error;
   if(results[1].error)throw results[1].error;
-  const networks=results[0].data||[],addresses=results[1].data||[];
+  if(results[2].error)throw results[2].error;
+  const networks=results[0].data||[],addresses=results[1].data||[],activeIntent=results[2].data||null;
+  let planIntentBanner='';
+  if(activeIntent){
+   const target=await db.from('gforce_investment_plans').select('id,name,min_amount,max_amount').eq('id',activeIntent.plan_id).maybeSingle();
+   if(target.error)throw target.error;
+   if(target.data){
+    planIntentBanner='<section class="card panel" style="margin:0 0 14px;border-color:var(--green)"><div class="eyebrow">PLAN DEPOSIT SELECTED</div><h3 style="margin:5px 0">'+esc(target.data.name)+'</h3><p class="muted" style="margin:0">Your next verified deposit will automatically purchase this plan only when the credited USD amount is between <b>'+money(target.data.min_amount)+'</b> and <b>'+money(target.data.max_amount)+'</b>. Deposits outside this range stay in Deposit Balance. This selection expires in 24 hours.</p></section>';
+   }
+  }
   const cards=networks.map(function(n){
    const a=addresses.find(function(x){return x.asset_network_id===n.id||x.network_code===n.network_code});
    return '<div class="card panel" style="margin-top:12px"><b>USDT · '+esc(n.network_code)+'</b><div class="muted" style="font-size:12px;margin-top:4px">'+esc(n.network_name||n.network_code)+'</div>'+(a?'<div style="margin-top:14px;overflow-wrap:anywhere;font-family:ui-monospace,monospace;background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:13px">'+esc(a.address)+'</div>':'<p class="muted" style="margin-top:12px">No deposit address has been assigned for this network yet. Do not send funds until an address appears here.</p>')+'</div>';
   }).join('');
   const opts=networks.map(function(n){return '<option value="'+esc(n.network_code)+'">USDT · '+esc(n.network_code)+'</option>'}).join('');
-  c.innerHTML='<div class="page-title"><div><div class="eyebrow">Add funds</div><h1>Deposit USDT</h1><p class="muted">Use only the exact network and address assigned to your account. Sending on another network may result in permanent loss.</p></div></div>'+(cards||'<div class="card panel"><p class="muted">No USDT deposit networks are enabled. Please contact support.</p></div>')+'<div class="card panel" style="margin-top:16px"><h3>Submit deposit transaction for review</h3><p class="muted">A submitted request is not a credit. Your balance changes only after independent verification.</p><form class="form" style="max-width:620px" onsubmit="submitDeposit(event)"><div class="field"><label>Amount (USDT)</label><input id="dep-amount" type="number" min="0.01" max="10000000" step="0.01" required placeholder="Amount sent"></div><div class="field"><label>Network</label><select id="dep-network" required>'+opts+'</select></div><div class="field"><label>Transaction hash (optional if not yet available)</label><input id="dep-hash" maxlength="180" placeholder="Paste transaction hash"></div><button class="btn primary" '+(!networks.length?'disabled':'')+'>Submit deposit for review</button></form></div><div class="card panel" style="margin-top:16px"><h3>Deposit history</h3>'+requestsTable(deposits||[],'deposit')+'</div>';
+  c.innerHTML='<div class="page-title"><div><div class="eyebrow">Add funds</div><h1>Deposit USDT</h1><p class="muted">Use only the exact network and address assigned to your account. Sending on another network may result in permanent loss.</p></div></div>'+planIntentBanner+(cards||'<div class="card panel"><p class="muted">No USDT deposit networks are enabled. Please contact support.</p></div>')+'<div class="card panel" style="margin-top:16px"><h3>Submit deposit transaction for review</h3><p class="muted">A submitted request is not a credit. Your balance changes only after independent verification.</p><form class="form" style="max-width:620px" onsubmit="submitDeposit(event)"><div class="field"><label>Amount (USDT)</label><input id="dep-amount" type="number" min="0.01" max="10000000" step="0.01" required placeholder="Amount sent"></div><div class="field"><label>Network</label><select id="dep-network" required>'+opts+'</select></div><div class="field"><label>Transaction hash (optional if not yet available)</label><input id="dep-hash" maxlength="180" placeholder="Paste transaction hash"></div><button class="btn primary" '+(!networks.length?'disabled':'')+'>Submit deposit for review</button></form></div><div class="card panel" style="margin-top:16px"><h3>Deposit history</h3>'+requestsTable(deposits||[],'deposit')+'</div>';
  }catch(err){
   clearTimeout(timeoutId);
   console.error('Deposit page load failed:',err);
@@ -1521,7 +1531,34 @@ function startTradeSim(){
  if(!zcTradeChartTimer)zcTradeChartTimer=setInterval(()=>{if(page!=='investments')return;zcDrawTradeChart()},1000);
  try{zcProfitTick()}catch(e){}
 }
-async function submitDeposit(e){e.preventDefault();const {error}=await db.from('deposit_requests').insert({user_id:currentUser.id,amount:Number($('dep-amount').value),network:$('dep-network').value,tx_hash:$('dep-hash').value.trim()});if(error)return toast(error.message,true);toast('Deposit evidence submitted for manual review. No balance has been credited yet.');await refreshData();navigate('deposits')}
+async function submitDeposit(e){
+ e.preventDefault();
+ const amount=Number($('dep-amount').value);
+ if(!Number.isFinite(amount)||amount<10)return toast('The minimum deposit request is $10.00.',true);
+ const intentResult=await db.from('plan_deposit_intents')
+  .select('id,plan_id')
+  .eq('user_id',currentUser.id)
+  .eq('status','pending')
+  .gt('expires_at',new Date().toISOString())
+  .order('created_at',{ascending:false})
+  .limit(1)
+  .maybeSingle();
+ if(intentResult.error)return toast(intentResult.error.message,true);
+ const linkedIntent=intentResult.data||null;
+ const {error}=await db.from('deposit_requests').insert({
+  user_id:currentUser.id,
+  amount,
+  network:$('dep-network').value,
+  tx_hash:$('dep-hash').value.trim()||null,
+  plan_id:linkedIntent?.plan_id||null,
+  plan_deposit_intent_id:linkedIntent?.id||null,
+  auto_purchase_status:linkedIntent?'pending':'not_requested'
+ });
+ if(error)return toast(error.message,true);
+ toast(linkedIntent?'Deposit submitted. After verification, it will buy the selected plan only if the credited amount is within that plan limits.':'Deposit evidence submitted for manual review. No balance has been credited yet.');
+ await refreshData();
+ navigate('deposits');
+}
 async function submitWithdrawal(e){e.preventDefault();const {data,error}=await db.rpc('request_gforce_withdrawal',{p_amount:Number($('wd-amount').value),p_network:$('wd-network').value,p_destination:$('wd-address').value.trim()});if(error)return toast(error.message,true);if(n&&address&&typeof zcSaveUsedAddress==='function')zcSaveUsedAddress(n,address);toast('Withdrawal request submitted: '+data);await refreshData();navigate('withdrawals')}
 function zcReferralLink(){const code=(profile&&profile.referral_code)||'';return code?location.origin+location.pathname+'?ref='+code:''}
 function zcCopyReferral(){const v=zcReferralLink();if(!v)return toast('Referral link is not ready yet.',true);const done=()=>toast('Referral link copied.');if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(v).then(done,()=>toast('Copy failed. Long-press the link to copy.',true))}else{const i=$('zc-ref-link');if(i){i.select();try{document.execCommand('copy');done();return}catch(e){}}toast('Copy failed. Long-press the link to copy.',true)}}
@@ -3283,7 +3320,7 @@ body[data-zc-theme] #app-content #wd-network-cards::-webkit-scrollbar-thumb{back
   }else{
    art='<div class="gf-plan-artwork zc-plan-photo" role="img" aria-label="'+planName+' plan artwork"></div>';
   }
-  return '<article class="plan-card gf-plan-compact-card" data-gf-plan-id="'+id+'" role="button" tabindex="0" aria-label="Select '+planName+'" onclick="gfChoose(&quot;'+s+'&quot;,&quot;'+id+'&quot;)" onkeydown="if(event.keyCode===13||event.keyCode===32){event.preventDefault();gfChoose(&quot;'+s+'&quot;,&quot;'+id+'&quot;)}">'+art+'<div class="gf-plan-card-heading"><div class="gf-plan-card-title"><div class="eyebrow">'+planName+'</div>'+(cleanPlanCopy(p.tagline,'')?'<p class="muted">'+escapeValue(cleanPlanCopy(p.tagline,''))+'</p>':'')+badge+'</div>'+(s==='pub'?'':'<div class="gf-plan-days-circle" aria-label="Duration '+duration+'"><b>'+escapeValue(p.duration_value)+'</b><i>'+escapeValue(p.duration_unit)+'</i></div>')+'</div><p class="muted gf-plan-description">'+escapeValue(cleanPlanCopy(p.description,'Plan details are shown below.'))+'</p><div class="gf-plan-details"><div class="gf-plan-detail-line"><i data-lucide="arrow-down-to-line" aria-hidden="true"></i><span>Min deposit: <b>'+money(p.min_amount)+'</b></span></div><div class="gf-plan-detail-line"><i data-lucide="arrow-up-from-line" aria-hidden="true"></i><span>Max deposit: <b>'+money(p.max_amount)+'</b></span></div><div class="gf-plan-detail-line"><i data-lucide="percent" aria-hidden="true"></i><span>Plan percentage: <b>'+fmt(p.percentage)+'%</b></span></div></div>'+(s==='pub'?'<div class="muted gf-plan-duration" style="margin:5px 11px 0">'+duration+'</div>':'')+(s==='pub'?'<button type="button" class="btn gf-plan-select-button" onclick="event.stopPropagation();gfChoose(&quot;'+s+'&quot;,&quot;'+id+'&quot;)">Choose plan</button>':'<button type="button" class="btn primary zc-buy-open" onclick="event.stopPropagation();zcToggleCardBuy(this)">Buy now</button><div class="zc-card-buy" hidden onclick="event.stopPropagation()"><select class="zc-buy-source" aria-label="Payment balance"><option value="available">Available Funds</option><option value="deposit">Deposit Balance</option></select><input class="zc-buy-amount" type="number" inputmode="decimal" min="'+p.min_amount+'" max="'+p.max_amount+'" step="0.01" placeholder="Amount (USD)"><button type="button" class="btn primary zc-buy-confirm" onclick="event.stopPropagation();zcConfirmCardBuy(this)">Confirm</button><div class="zc-buy-err hidden"><span class="zc-buy-msg"></span><button type="button" class="btn primary" onclick="navigate(\'deposits\')">Deposit</button></div></div>')+'</article>';
+  return '<article class="plan-card gf-plan-compact-card" data-gf-plan-id="'+id+'" role="button" tabindex="0" aria-label="Select '+planName+'" onclick="gfChoose(&quot;'+s+'&quot;,&quot;'+id+'&quot;)" onkeydown="if(event.keyCode===13||event.keyCode===32){event.preventDefault();gfChoose(&quot;'+s+'&quot;,&quot;'+id+'&quot;)}">'+art+'<div class="gf-plan-card-heading"><div class="gf-plan-card-title"><div class="eyebrow">'+planName+'</div>'+(cleanPlanCopy(p.tagline,'')?'<p class="muted">'+escapeValue(cleanPlanCopy(p.tagline,''))+'</p>':'')+badge+'</div>'+(s==='pub'?'':'<div class="gf-plan-days-circle" aria-label="Duration '+duration+'"><b>'+escapeValue(p.duration_value)+'</b><i>'+escapeValue(p.duration_unit)+'</i></div>')+'</div><p class="muted gf-plan-description">'+escapeValue(cleanPlanCopy(p.description,'Plan details are shown below.'))+'</p><div class="gf-plan-details"><div class="gf-plan-detail-line"><i data-lucide="arrow-down-to-line" aria-hidden="true"></i><span>Min deposit: <b>'+money(p.min_amount)+'</b></span></div><div class="gf-plan-detail-line"><i data-lucide="arrow-up-from-line" aria-hidden="true"></i><span>Max deposit: <b>'+money(p.max_amount)+'</b></span></div><div class="gf-plan-detail-line"><i data-lucide="percent" aria-hidden="true"></i><span>Plan percentage: <b>'+fmt(p.percentage)+'%</b></span></div></div>'+(s==='pub'?'<div class="muted gf-plan-duration" style="margin:5px 11px 0">'+duration+'</div>':'')+(s==='pub'?'<button type="button" class="btn gf-plan-select-button" onclick="event.stopPropagation();gfChoose(&quot;'+s+'&quot;,&quot;'+id+'&quot;)">Choose plan</button>':'<button type="button" class="btn primary zc-buy-open" onclick="event.stopPropagation();zcToggleCardBuy(this)">Buy now</button><div class="zc-card-buy" hidden onclick="event.stopPropagation()"><select class="zc-buy-source" aria-label="Payment balance"><option value="available">Available Funds · '+money(availableFundsUnlocked())+'</option><option value="deposit">Deposit Balance · '+money(depositBalanceUnlocked())+'</option></select><input class="zc-buy-amount" type="number" inputmode="decimal" min="'+p.min_amount+'" max="'+p.max_amount+'" step="0.01" placeholder="Amount (USD)"><button type="button" class="btn primary zc-buy-confirm" onclick="event.stopPropagation();zcConfirmCardBuy(this)">Confirm</button><div class="zc-buy-err hidden"><span class="zc-buy-msg"></span><button type="button" class="btn primary" onclick="navigate(\'deposits\')">Deposit</button></div></div>')+'</article>';
  };
  window.gfLogoPublicUrl=logoUrl;
  window.gfAdminPanel=function(rows){
@@ -5835,9 +5872,23 @@ schedule(FIRST_DELAY);
   var __pu=planUpdate;
   window.planUpdate=function(s){var r=__pu(s);if(s==='dash'&&typeof zcSyncDashCards==='function')zcSyncDashCards(s,document.getElementById('dash-select')?document.getElementById('dash-select').value:'');return r};
  }
- window.zcToggleCardBuy=function(btn){
+ window.zcToggleCardBuy=async function(btn){
   var card=btn.closest('.plan-card');if(!card)return;
   var panel=card.querySelector('.zc-card-buy');if(!panel)return;
+  var available=Number(availableFundsUnlocked()||0),deposit=Number(depositBalanceUnlocked()||0);
+  if(available<=0&&deposit<=0){
+   var planId=card.getAttribute('data-gf-plan-id');
+   if(!planId)return toast('Choose a plan first.',true);
+   var old=btn.textContent;btn.disabled=true;btn.textContent='Opening deposit…';
+   try{
+    var intent=await db.rpc('start_gforce_plan_deposit',{p_plan_id:planId});
+    if(intent.error)throw intent.error;
+    toast('Plan selected. Your next verified deposit will be checked against this plan.');
+    navigate('deposits');
+   }catch(e){toast(e?.message||'Could not link this plan to your deposit.',true)}
+   finally{btn.disabled=false;btn.textContent=old}
+   return;
+  }
   var wasOpen=!panel.hidden;
   document.querySelectorAll('#dash-cards .zc-card-buy').forEach(function(p){p.hidden=true});
   panel.hidden=wasOpen;
