@@ -8650,3 +8650,45 @@ box-sizing:border-box!important;display:inline-flex!important;align-items:center
   #toast.toast{left:14px;right:14px;bottom:88px;max-width:none}
 }
 </style>
+
+
+<style id="zc-hide-all-scrollbars-v1">
+/* Hide visible scrollbars globally without disabling scrolling or changing overflow. */
+html,
+body,
+body *{
+  scrollbar-width:none!important;
+  -ms-overflow-style:none!important;
+}
+html::-webkit-scrollbar,
+body::-webkit-scrollbar,
+body *::-webkit-scrollbar{
+  display:none!important;
+  width:0!important;
+  height:0!important;
+}
+html::-webkit-scrollbar-thumb,
+body::-webkit-scrollbar-thumb,
+body *::-webkit-scrollbar-thumb,
+html::-webkit-scrollbar-track,
+body::-webkit-scrollbar-track,
+body *::-webkit-scrollbar-track,
+html::-webkit-scrollbar-corner,
+body::-webkit-scrollbar-corner,
+body *::-webkit-scrollbar-corner{
+  display:none!important;
+  background:transparent!important;
+}
+/* Override legacy, more-specific panels that previously forced thin scrollbars. */
+html body .deposit-asset-list,
+html body .zc-theme-grid,
+html body #zc-deposit-options,
+html body #app-content .zc-deposit-original-card .zc-deposit-scroll-list,
+html body #app-content #zc-deposit-options,
+html body #app-content .zc-recent-activity,
+html body .calc-shell{
+  scrollbar-width:none!important;
+  scrollbar-color:transparent transparent!important;
+  -ms-overflow-style:none!important;
+}
+</style>
