@@ -1126,6 +1126,7 @@ async function refreshData(){
  if(l.error)toast(l.error.message,true);
  ledger=l.data||[];deposits=d.error?[]:(d.data||[]);withdrawals=w.error?[]:(w.data||[]);
  reports=r.data||[];referrals=rf.error?[]:(rf.data||[]);investments=iv.error?[]:(iv.data||[]);
+ if(typeof window.zcRefreshCardFundingLabels==='function')window.zcRefreshCardFundingLabels();
 }
 function balance(){return (ledger||[]).reduce((s,x)=>s+Number(x.amount||0),0)}
 function reserved(){return (withdrawals||[]).filter(x=>['pending','under_review','approved'].includes(x.status)).reduce((s,x)=>s+Number(x.amount||0),0)}
@@ -1191,7 +1192,7 @@ async function renderDepositPage(){
    return '<div class="card panel" style="margin-top:12px"><b>USDT · '+esc(n.network_code)+'</b><div class="muted" style="font-size:12px;margin-top:4px">'+esc(n.network_name||n.network_code)+'</div>'+(a?'<div style="margin-top:14px;overflow-wrap:anywhere;font-family:ui-monospace,monospace;background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:13px">'+esc(a.address)+'</div>':'<p class="muted" style="margin-top:12px">No deposit address has been assigned for this network yet. Do not send funds until an address appears here.</p>')+'</div>';
   }).join('');
   const opts=networks.map(function(n){return '<option value="'+esc(n.network_code)+'">USDT · '+esc(n.network_code)+'</option>'}).join('');
-  c.innerHTML='<div class="page-title"><div><div class="eyebrow">Add funds</div><h1>Deposit USDT</h1><p class="muted">Use only the exact network and address assigned to your account. Sending on another network may result in permanent loss.</p></div></div>'+planIntentBanner+(cards||'<div class="card panel"><p class="muted">No USDT deposit networks are enabled. Please contact support.</p></div>')+'<div class="card panel" style="margin-top:16px"><h3>Submit deposit transaction for review</h3><p class="muted">A submitted request is not a credit. Your balance changes only after independent verification.</p><form class="form" style="max-width:620px" onsubmit="submitDeposit(event)"><div class="field"><label>Amount (USDT)</label><input id="dep-amount" type="number" min="0.01" max="10000000" step="0.01" required placeholder="Amount sent"></div><div class="field"><label>Network</label><select id="dep-network" required>'+opts+'</select></div><div class="field"><label>Transaction hash (optional if not yet available)</label><input id="dep-hash" maxlength="180" placeholder="Paste transaction hash"></div><button class="btn primary" '+(!networks.length?'disabled':'')+'>Submit deposit for review</button></form></div><div class="card panel" style="margin-top:16px"><h3>Deposit history</h3>'+requestsTable(deposits||[],'deposit')+'</div>';
+  c.innerHTML='<div class="page-title"><div><div class="eyebrow">Add funds</div><h1>Deposit USDT</h1><p class="muted">Use only the exact network and address assigned to your account. Sending on another network may result in permanent loss.</p></div></div>'+planIntentBanner+(cards||'<div class="card panel"><p class="muted">No USDT deposit networks are enabled. Please contact support.</p></div>')+'<div class="card panel" style="margin-top:16px"><h3>Submit deposit transaction for review</h3><p class="muted">A submitted request is not a credit. Your balance changes only after independent verification.</p><form class="form" style="max-width:620px" onsubmit="submitDeposit(event)"><div class="field"><label>Amount (USDT)</label><input id="dep-amount" type="number" min="10" max="10000000" step="0.01" required placeholder="Amount sent"></div><div class="field"><label>Network</label><select id="dep-network" required>'+opts+'</select></div><div class="field"><label>Transaction hash (optional if not yet available)</label><input id="dep-hash" maxlength="180" placeholder="Paste transaction hash"></div><button class="btn primary" '+(!networks.length?'disabled':'')+'>Submit deposit for review</button></form></div><div class="card panel" style="margin-top:16px"><h3>Deposit history</h3>'+requestsTable(deposits||[],'deposit')+'</div>';
  }catch(err){
   clearTimeout(timeoutId);
   console.error('Deposit page load failed:',err);
@@ -5860,6 +5861,14 @@ schedule(FIRST_DELAY);
 (function(){
  if(window.__zcDashBuyV1)return;
  window.__zcDashBuyV1=true;
+ window.zcRefreshCardFundingLabels=function(){
+  document.querySelectorAll('.zc-buy-source').forEach(function(sel){
+   var available=sel.querySelector('option[value="available"]');
+   var deposit=sel.querySelector('option[value="deposit"]');
+   if(available)available.textContent='Available Funds · '+money(availableFundsUnlocked());
+   if(deposit)deposit.textContent='Deposit Balance · '+money(depositBalanceUnlocked());
+  });
+ };
  window.zcSyncDashCards=function(s,id){
   if(s!=='dash')return;
   document.querySelectorAll('#dash-cards .plan-card').forEach(function(card){
@@ -5867,6 +5876,7 @@ schedule(FIRST_DELAY);
     card.classList.toggle('is-selected',sel);
    });
   document.querySelectorAll('#dash-cards .zc-card-buy').forEach(function(p){p.hidden=true});
+  if(typeof window.zcRefreshCardFundingLabels==='function')window.zcRefreshCardFundingLabels();
  };
  if(typeof planUpdate==='function'){
   var __pu=planUpdate;
