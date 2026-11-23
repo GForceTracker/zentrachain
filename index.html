@@ -6465,12 +6465,37 @@ body[data-zc-theme] #app-content #dash-cards>.gf-plan-compact-card.is-tap-select
 })();
 </script>
 <div id="zc-community-invite" class="hidden" role="dialog" aria-label="Community invitation"><button class="zc-community-invite-close" type="button" aria-label="Dismiss invitation" onclick="zcDismissCommunityInvite()">×</button><div class="kicker"><i></i>ZENTRACHAIN COMMUNITY</div><strong>Join the conversation</strong><p>Meet other members, share updates and chat with the ZentraChain community.</p><button class="join" type="button" onclick="zcOpenCommunityChat()">Open group chat →</button></div>
-<div id="zc-community-modal" class="hidden" role="dialog" aria-modal="true" aria-label="ZentraChain community chat"><section class="shell"><header class="head"><div><strong>ZentraChain Community</strong><small>Group conversation</small></div><button class="close" type="button" aria-label="Close chat" onclick="zcCloseCommunityChat()">×</button></header><div id="zc-community-gate" class="gate"></div><div id="zc-community-room" class="room hidden"><div class="toolbar"><span id="zc-community-member-status">Connecting…</span><label class="zc-community-language-wrap" for="zc-community-language">My language <select id="zc-community-language" aria-label="My language" title="Message text is sent to the translation provider only when you request a translation." onchange="zcSetCommunityLanguage(this.value)"><option value="en">English</option><option value="ha">Hausa</option><option value="yo">Yoruba</option><option value="ig">Igbo</option><option value="fr">French</option><option value="pt">Portuguese</option><option value="es">Spanish</option><option value="ar">Arabic</option><option value="de">German</option><option value="zh">Chinese</option><option value="hi">Hindi</option><option value="ja">Japanese</option></select></label><button id="zc-community-admin-button" class="hidden" type="button" onclick="zcToggleCommunityAdmin()">Manage members</button><button id="zc-community-wipe-button" class="hidden" type="button" onclick="zcWipeCommunityChat()">Wipe chat</button></div><div id="zc-community-admin" class="admin hidden"></div><div id="zc-community-messages" class="messages" aria-live="polite"><div class="empty">Loading messages…</div></div><div class="compose"><div id="zc-community-compose-status" class="status"></div><div id="zc-community-reply" class="reply hidden"><span id="zc-community-reply-text"></span><button type="button" onclick="zcCancelCommunityReply()">×</button></div><div id="zc-community-photo-preview" class="photo-preview hidden" aria-live="polite"></div><div class="compose-row"><input id="zc-community-photo" type="file" accept="image/*" hidden onchange="zcCommunityPhotoChanged(this)"><button class="attach" type="button" aria-label="Upload photo" onclick="document.getElementById('zc-community-photo').click()">＋</button><textarea id="zc-community-input" rows="1" maxlength="3000" placeholder="Write a message…" oninput="zcCommunityAutoGrow(this)" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();zcSendCommunityMessage(event)}"></textarea><button id="zc-community-send" class="send" type="button" onclick="zcSendCommunityMessage(event)">Send</button></div></div></div></section></div><div id="zc-community-message-menu" class="hidden" role="menu" aria-label="Message actions"></div><div id="zc-community-lightbox" class="hidden" role="dialog" aria-modal="true" aria-label="Community photo viewer"><button type="button" class="zc-community-lightbox-close" aria-label="Close full-size photo" onclick="zcCloseCommunityLightbox()">×</button><img id="zc-community-lightbox-image" alt="Full-size community photo"></div>
+<div id="zc-community-modal" class="hidden" role="dialog" aria-modal="true" aria-label="ZentraChain community chat"><section class="shell"><header class="head"><div><strong>ZentraChain Community</strong><small>Group conversation</small></div><button class="close" type="button" aria-label="Close chat" onclick="zcCloseCommunityChat()">×</button></header><div id="zc-community-gate" class="gate"></div><div id="zc-community-room" class="room hidden"><div class="toolbar"><span id="zc-community-member-status">Connecting…</span><label class="zc-community-language-wrap" for="zc-community-language">My language <select id="zc-community-language" aria-label="My language" title="Messages are automatically translated into your selected language." onchange="zcSetCommunityLanguage(this.value)"><option value="en">English</option><option value="zh">Chinese</option><option value="hi">Hindi</option><option value="es">Spanish</option><option value="ar">Arabic</option><option value="fr">French</option><option value="bn">Bengali</option><option value="pt">Portuguese</option><option value="ru">Russian</option><option value="ur">Urdu</option><option value="id">Indonesian</option><option value="de">German</option><option value="ja">Japanese</option><option value="sw">Swahili</option><option value="ko">Korean</option><option value="tr">Turkish</option><option value="vi">Vietnamese</option><option value="fa">Persian</option><option value="it">Italian</option><option value="nl">Dutch</option><option value="pl">Polish</option><option value="th">Thai</option><option value="ms">Malay</option><option value="uk">Ukrainian</option><option value="el">Greek</option><option value="ro">Romanian</option><option value="sv">Swedish</option><option value="cs">Czech</option><option value="he">Hebrew</option><option value="ta">Tamil</option></select></label><button id="zc-community-admin-button" class="hidden" type="button" onclick="zcToggleCommunityAdmin()">Manage members</button><button id="zc-community-wipe-button" class="hidden" type="button" onclick="zcWipeCommunityChat()">Wipe chat</button></div><div id="zc-community-admin" class="admin hidden"></div><div id="zc-community-messages" class="messages" aria-live="polite"><div class="empty">Loading messages…</div></div><div class="compose"><div id="zc-community-compose-status" class="status"></div><div id="zc-community-reply" class="reply hidden"><span id="zc-community-reply-text"></span><button type="button" onclick="zcCancelCommunityReply()">×</button></div><div id="zc-community-photo-preview" class="photo-preview hidden" aria-live="polite"></div><div class="compose-row"><input id="zc-community-photo" type="file" accept="image/*" hidden onchange="zcCommunityPhotoChanged(this)"><button class="attach" type="button" aria-label="Upload photo" onclick="document.getElementById('zc-community-photo').click()">＋</button><textarea id="zc-community-input" rows="1" maxlength="3000" placeholder="Write a message…" oninput="zcCommunityAutoGrow(this)" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();zcSendCommunityMessage(event)}"></textarea><button id="zc-community-send" class="send" type="button" onclick="zcSendCommunityMessage(event)">Send</button></div></div></div></section></div><div id="zc-community-message-menu" class="hidden" role="menu" aria-label="Message actions"></div><div id="zc-community-lightbox" class="hidden" role="dialog" aria-modal="true" aria-label="Community photo viewer"><button type="button" class="zc-community-lightbox-close" aria-label="Close full-size photo" onclick="zcCloseCommunityLightbox()">×</button><img id="zc-community-lightbox-image" alt="Full-size community photo"></div>
 <script>
 (function(){
 const KEY='zc-community-invite-dismissed-v2',FIRST_DELAY=5000,REPEAT_DELAYS=[15000,45000,120000],MAX_DISMISSALS=4;
 let timer=null,chatChannel=null,memberChannel=null,memberRecord=null,replyRecord=null,photoFile=null,photoPreviewUrl=null,cache=[];
 const el=id=>document.getElementById(id),modal=el('zc-community-modal'),invite=el('zc-community-invite'),room=el('zc-community-room'),gate=el('zc-community-gate'),messages=el('zc-community-messages'),admin=el('zc-community-admin');
+let communityViewportBound=false;
+function syncCommunityViewport(){
+ const vv=window.visualViewport;
+ const height=vv?vv.height:window.innerHeight;
+ const top=vv?vv.offsetTop:0;
+ modal.style.setProperty('--zc-community-vv-height',Math.max(260,height)+'px');
+ modal.style.setProperty('--zc-community-vv-top',Math.max(0,top)+'px');
+}
+function bindCommunityViewport(){
+ syncCommunityViewport();
+ if(communityViewportBound)return;
+ communityViewportBound=true;
+ window.visualViewport?.addEventListener('resize',syncCommunityViewport);
+ window.visualViewport?.addEventListener('scroll',syncCommunityViewport);
+ window.addEventListener('resize',syncCommunityViewport);
+}
+function unbindCommunityViewport(){
+ if(!communityViewportBound)return;
+ communityViewportBound=false;
+ window.visualViewport?.removeEventListener('resize',syncCommunityViewport);
+ window.visualViewport?.removeEventListener('scroll',syncCommunityViewport);
+ window.removeEventListener('resize',syncCommunityViewport);
+ modal.style.removeProperty('--zc-community-vv-height');
+ modal.style.removeProperty('--zc-community-vv-top');
+}
 function publicVisible(){const p=el('public');return p&&!p.classList.contains('hidden')}
 let dismissals=0;try{dismissals=Math.max(0,Math.min(MAX_DISMISSALS,Number(localStorage.getItem(KEY)||0)))}catch(e){}
 const communityNav=el('zc-community-nav');if(communityNav)communityNav.classList.remove('zc-community-joined');
@@ -6480,60 +6505,207 @@ window.zcDismissCommunityInvite=function(){invite.classList.add('hidden');dismis
 document.addEventListener('visibilitychange',resumeInvite);
 const publicPage=el('public');if(publicPage&&'MutationObserver'in window)new MutationObserver(resumeInvite).observe(publicPage,{attributes:true,attributeFilter:['class']});
 function renderGate(title,copy,actions){room.classList.add('hidden');gate.classList.remove('hidden');gate.replaceChildren();const h=document.createElement('h3');h.textContent=title;const p=document.createElement('p');p.textContent=copy;gate.append(h,p);if(actions){const box=document.createElement('div');box.className='actions';[['Log in','login',false],['Create account','signup',true]].forEach(x=>{const b=document.createElement('button');b.type='button';b.textContent=x[0];if(x[2])b.className='secondary';b.onclick=()=>{window.zcCommunityPendingOpen=true;showAuth(x[1])};box.append(b)});gate.append(box)}}
-window.zcOpenCommunityChat=async function(){clearTimeout(timer);timer=null;invite.classList.add('hidden');modal.classList.remove('hidden');if(!currentUser){renderGate('Join the group chat','Sign in or create a ZentraChain account to take part in the live community conversation.',true);return}await join()};
+window.zcOpenCommunityChat=async function(){
+ clearTimeout(timer);timer=null;invite.classList.add('hidden');
+ const supportPanel=document.getElementById('zc-admin-support-panel');
+ if(supportPanel&&supportPanel.classList.contains('zc-visible'))document.getElementById('zc-as-close')?.click();
+ document.body.classList.add('zc-community-chat-open');
+ document.body.style.overflow='hidden';
+ bindCommunityViewport();
+ modal.classList.remove('hidden');
+ if(!currentUser){renderGate('Join the group chat','Sign in or create a ZentraChain account to take part in the live community conversation.',true);return}
+ await join();
+};
 async function join(){renderGate('Opening the community…','Checking your community access.',false);try{let q=await db.from('community_members').select('*').eq('user_id',currentUser.id).maybeSingle();if(q.error)throw q.error;if(!q.data){const ins=await db.from('community_members').insert({user_id:currentUser.id}).select('*').single();if(ins.error&&ins.error.code!=='23505')throw ins.error;q=await db.from('community_members').select('*').eq('user_id',currentUser.id).single();if(q.error)throw q.error}memberRecord=q.data;const communityNav=el('zc-community-nav');if(communityNav)communityNav.classList.add('zc-community-joined');try{localStorage.setItem('zc-community-joined-'+currentUser.id,'1')}catch(e){}if(memberRecord.status==='removed'){renderGate('Community access restricted',memberRecord.restriction_note||'An administrator has removed this account from the group chat. Contact support if you believe this is a mistake.',false);return}gate.classList.add('hidden');room.classList.remove('hidden');el('zc-community-admin-button').classList.toggle('hidden',profile?.role!=='admin');el('zc-community-wipe-button').classList.toggle('hidden',profile?.role!=='admin');el('zc-community-member-status').textContent=memberRecord.status==='muted'?'Muted: you can read but cannot post.':'Connected as '+memberRecord.display_name;composer(memberRecord.status==='active');await loadMessages();subscribe();initCommunityLanguage()}catch(e){renderGate('Unable to open the group chat',e?.message||'Please try again.',false)}}
-function composer(on){el('zc-community-input').disabled=!on;el('zc-community-send').disabled=!on;el('zc-community-photo').disabled=!on;el('zc-community-compose-status').textContent=on?'Be respectful. Photos up to 25 MB can be selected and are compressed automatically when needed.':'Posting is restricted. You can still read the chat.'}
-function subscribe(){if(chatChannel)db.removeChannel(chatChannel);if(memberChannel)db.removeChannel(memberChannel);chatChannel=db.channel('zc-community-messages').on('postgres_changes',{event:'*',schema:'public',table:'community_messages'},loadMessages).subscribe();memberChannel=db.channel('zc-community-member-'+currentUser.id).on('postgres_changes',{event:'UPDATE',schema:'public',table:'community_members',filter:'user_id=eq.'+currentUser.id},refreshMember).subscribe()}
+function composer(on){el('zc-community-input').disabled=!on;el('zc-community-send').disabled=!on;el('zc-community-photo').disabled=!on;el('zc-community-compose-status').textContent=on?'':'Posting is restricted. You can still read the chat.'}
+function subscribe(){if(chatChannel)db.removeChannel(chatChannel);if(memberChannel)db.removeChannel(memberChannel);chatChannel=db.channel('zc-community-messages').on('postgres_changes',{event:'*',schema:'public',table:'community_messages'},loadMessages).on('postgres_changes',{event:'*',schema:'public',table:'community_message_reactions'},loadCommunityReactions).subscribe();memberChannel=db.channel('zc-community-member-'+currentUser.id).on('postgres_changes',{event:'UPDATE',schema:'public',table:'community_members',filter:'user_id=eq.'+currentUser.id},refreshMember).subscribe()}
 async function refreshMember(){const r=await db.from('community_members').select('*').eq('user_id',currentUser.id).maybeSingle();if(r.error||!r.data)return;memberRecord=r.data;if(r.data.status==='removed')renderGate('Community access restricted',r.data.restriction_note||'An administrator has removed this account from the group chat.',false);else{el('zc-community-member-status').textContent=r.data.status==='muted'?'Muted: you can read but cannot post.':'Connected as '+r.data.display_name;composer(r.data.status==='active')}}
-async function loadMessages(){const r=await db.from('community_messages').select('*').order('created_at',{ascending:false}).limit(100);if(r.error){el('zc-community-compose-status').textContent=r.error.message;return}cache=(r.data||[]).reverse();const urls={};for(const m of cache)if(m.image_path&&!m.deleted_at&&!urls[m.image_path]){const x=await db.storage.from('community-photos').createSignedUrl(m.image_path,3600);if(!x.error)urls[m.image_path]=x.data.signedUrl}renderMessages(urls)}
+async function loadMessages(){
+ const r=await db.from('community_messages').select('*').order('created_at',{ascending:false}).limit(100);
+ if(r.error){el('zc-community-compose-status').textContent=r.error.message;return}
+ cache=(r.data||[]).reverse();
+ photoUrls={};
+ for(const m of cache)if(m.image_path&&!m.deleted_at&&!photoUrls[m.image_path]){
+  const x=await db.storage.from('community-photos').createSignedUrl(m.image_path,3600);
+  if(!x.error)photoUrls[m.image_path]=x.data.signedUrl;
+ }
+ await loadCommunityReactions(false);
+ renderMessages(photoUrls);
+}
 function renderMessages(urls){
  const atBottom=messages.scrollHeight-messages.scrollTop-messages.clientHeight<90;
  messages.replaceChildren();
- if(!cache.length){const x=document.createElement('div');x.className='empty';x.textContent='No messages yet. Start the conversation.';messages.append(x);return}
  const byId={};cache.forEach(m=>byId[m.id]=m);
+ if(!cache.length){
+  const x=document.createElement('div');x.className='empty';x.textContent='No messages yet. Start the conversation.';messages.append(x);return;
+ }
  cache.forEach(m=>{
   const photoUrl=m.image_path&&!m.deleted_at?urls[m.image_path]:null;
   const box=document.createElement('article');
   box.className='message'+(m.sender_id===currentUser.id?' mine':'')+(m.deleted_at?' deleted':'')+(photoUrl?' photo-message':'');
+  box.dataset.messageId=m.id;
   const head=document.createElement('div');head.className='message-head';
   const who=document.createElement('span');who.textContent=m.author_name||'Member';
   const time=document.createElement('time');time.textContent=new Date(m.created_at).toLocaleString([],{month:'short',day:'numeric',hour:'numeric',minute:'2-digit'});
   head.append(who,time);box.append(head);
-  if(m.reply_to&&byId[m.reply_to]){const q=document.createElement('div');q.className='quoted';q.textContent='Reply to '+byId[m.reply_to].author_name+': '+(byId[m.reply_to].body||'Photo');box.append(q)}
+  if(m.reply_to&&byId[m.reply_to]){
+   const q=document.createElement('div');q.className='quoted';
+   q.textContent='Reply to '+byId[m.reply_to].author_name+': '+(byId[m.reply_to].body||'Photo');box.append(q);
+  }
   if(photoUrl){
    const img=document.createElement('img');img.src=photoUrl;img.alt='Community photo';img.loading='lazy';img.decoding='async';img.tabIndex=0;img.setAttribute('role','button');img.setAttribute('aria-label','Open community photo in full size');
-   img.onclick=()=>openCommunityPhoto(photoUrl);
+   img.onclick=()=>{
+    if(Date.now()<suppressPhotoClickUntil)return;
+    if(photoOpenTimer)clearTimeout(photoOpenTimer);
+    photoOpenTimer=setTimeout(()=>{photoOpenTimer=null;openCommunityPhoto(photoUrl)},260);
+   };
    img.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();openCommunityPhoto(photoUrl)}};
    box.append(img);
   }
-  if(m.body||m.deleted_at){const p=document.createElement('p');p.textContent=m.deleted_at?'This message was removed by an administrator.':m.body;if(!m.deleted_at){p.className='zc-community-message-text';p.title='Tap to translate. Press and hold for copy and reply options.';p.onclick=()=>{if(!(window.getSelection&&window.getSelection().toString()))translateCommunityMessage(m.id,m.body)};p.style.userSelect='text';p.style.webkitUserSelect='text'}box.append(p);const translation=document.createElement('div');translation.className='zc-community-translation hidden';translation.id='zc-community-translation-'+m.id;box.append(translation)}
-  if(!m.deleted_at){const actions=document.createElement('div');actions.className='msg-actions';const reply=document.createElement('button');reply.type='button';reply.textContent='Reply';reply.onclick=()=>setReply(m.id);actions.append(reply);const translate=document.createElement('button');translate.type='button';translate.textContent='Translate';translate.onclick=()=>translateCommunityMessage(m.id,m.body||'');actions.append(translate);if(profile?.role==='admin'){const remove=document.createElement('button');remove.type='button';remove.textContent='Remove message';remove.onclick=()=>removeMessage(m.id);actions.append(remove)}box.append(actions)}
-  box.addEventListener('contextmenu',event=>{if(m.deleted_at)return;event.preventDefault();showCommunityMessageMenu(m,event.clientX,event.clientY)});
-  let touchStart=null,longPressTimer=null,longPressFired=false;
+  if(m.body||m.deleted_at){
+   const p=document.createElement('p');
+   p.id='zc-community-message-text-'+m.id;
+   p.textContent=m.deleted_at?'This message was removed by an administrator.':m.body;
+   if(!m.deleted_at){p.className='zc-community-message-text';p.dataset.originalText=m.body||''}
+   box.append(p);
+   const translation=document.createElement('div');
+   translation.className='zc-community-translation hidden';
+   translation.id='zc-community-translation-'+m.id;
+   box.append(translation);
+  }
+  const reactions=communityReactions.filter(r=>r.message_id===m.id);
+  if(reactions.length){
+   const grouped={};
+   reactions.forEach(r=>{
+    if(!grouped[r.emoji])grouped[r.emoji]={count:0,mine:false};
+    grouped[r.emoji].count++;
+    if(r.user_id===currentUser.id)grouped[r.emoji].mine=true;
+   });
+   const row=document.createElement('div');row.className='zc-community-reactions';
+   Object.entries(grouped).forEach(([emoji,data])=>{
+    const chip=document.createElement('button');chip.type='button';chip.className='zc-community-reaction'+(data.mine?' mine':'');
+    chip.textContent=emoji+' '+data.count;
+    chip.setAttribute('aria-label',emoji+' reaction, '+data.count+' users');
+    chip.onclick=()=>toggleCommunityReaction(m.id,emoji);
+    row.append(chip);
+   });
+   box.append(row);
+  }
+  box.addEventListener('contextmenu',event=>{
+   if(m.deleted_at)return;
+   event.preventDefault();showCommunityMessageMenu(m,event.clientX,event.clientY);
+  });
+  box.addEventListener('dblclick',event=>{
+   if(m.deleted_at)return;
+   event.preventDefault();toggleCommunityReaction(m.id,'❤️');
+  });
+  let touchStart=null,longPressTimer=null,longPressFired=false,lastTapAt=0,lastTapX=0,lastTapY=0;
   box.addEventListener('touchstart',event=>{
-   const t=event.touches&&event.touches[0];if(!t)return;
-   touchStart={x:t.clientX,y:t.clientY};longPressFired=false;
+   if(event.touches.length!==1)return;
+   const t=event.touches[0];
+   touchStart={x:t.clientX,y:t.clientY};
+   longPressFired=false;
    clearTimeout(longPressTimer);
-   longPressTimer=setTimeout(()=>{if(!m.deleted_at&&touchStart){longPressFired=true;showCommunityMessageMenu(m,t.clientX,t.clientY);touchStart=null}longPressTimer=null},560);
-  },{passive:true});
+   longPressTimer=setTimeout(()=>{
+    if(!m.deleted_at&&touchStart){
+     longPressFired=true;
+     if(photoOpenTimer){clearTimeout(photoOpenTimer);photoOpenTimer=null}
+     showCommunityMessageMenu(m,t.clientX,t.clientY);
+     touchStart=null;
+    }
+    longPressTimer=null;
+   },560);
+  },{capture:true,passive:true});
   box.addEventListener('touchmove',event=>{
-   if(!touchStart)return;const t=event.touches&&event.touches[0];
-   if(t&&(Math.abs(t.clientX-touchStart.x)>12||Math.abs(t.clientY-touchStart.y)>12)){clearTimeout(longPressTimer);longPressTimer=null}
-  },{passive:true});
+   if(!touchStart)return;
+   const t=event.touches&&event.touches[0];if(!t)return;
+   const dx=t.clientX-touchStart.x,dy=t.clientY-touchStart.y;
+   if(Math.abs(dx)>Math.abs(dy)&&Math.abs(dx)>8){
+    clearTimeout(longPressTimer);longPressTimer=null;
+    box.classList.add('zc-swipe-tracking');
+    box.style.transform='translateX('+Math.max(-96,Math.min(96,dx*.72))+'px)';
+    if(event.cancelable)event.preventDefault();
+   }else if(Math.abs(dy)>10){clearTimeout(longPressTimer);longPressTimer=null}
+  },{capture:true,passive:false});
   box.addEventListener('touchend',event=>{
    clearTimeout(longPressTimer);longPressTimer=null;
    if(!touchStart)return;
    const t=event.changedTouches&&event.changedTouches[0];
-   if(t){const dx=t.clientX-touchStart.x,dy=t.clientY-touchStart.y;if(Math.abs(dx)>68&&Math.abs(dy)<48&&!m.deleted_at&&!longPressFired){setReply(m.id);event.preventDefault()}}
+   if(!t){touchStart=null;return}
+   const dx=t.clientX-touchStart.x,dy=t.clientY-touchStart.y;
+   if(longPressFired){if(event.cancelable)event.preventDefault();touchStart=null;return}
+   if(Math.abs(dx)>58&&Math.abs(dy)<58){
+    if(event.cancelable)event.preventDefault();
+    box.classList.remove('zc-swipe-tracking');
+    box.style.transform='';
+    box.classList.remove('zc-swipe-reply');
+    void box.offsetWidth;
+    box.classList.add('zc-swipe-reply');
+    box.addEventListener('animationend',()=>box.classList.remove('zc-swipe-reply'),{once:true});
+    setReply(m.id);
+   }else if(Math.abs(dx)<18&&Math.abs(dy)<18){
+    const now=Date.now(),closeTap=now-lastTapAt<330&&Math.hypot(t.clientX-lastTapX,t.clientY-lastTapY)<42;
+    if(closeTap&&!m.deleted_at){
+     if(photoOpenTimer){clearTimeout(photoOpenTimer);photoOpenTimer=null}
+     suppressPhotoClickUntil=now+500;
+     if(event.cancelable)event.preventDefault();
+     lastTapAt=0;toggleCommunityReaction(m.id,'❤️');
+    }else{lastTapAt=now;lastTapX=t.clientX;lastTapY=t.clientY}
+   }
+   box.classList.remove('zc-swipe-tracking');
+   box.style.transform='';
    touchStart=null;
-  },{passive:false});
-  box.addEventListener('touchcancel',()=>{clearTimeout(longPressTimer);longPressTimer=null;touchStart=null},{passive:true});
+  },{capture:true,passive:false});
+  box.addEventListener('touchcancel',()=>{
+   clearTimeout(longPressTimer);longPressTimer=null;touchStart=null;
+   box.classList.remove('zc-swipe-tracking');box.style.transform='';
+  },{passive:true});
   messages.append(box);
  });
+ watchCommunityTranslations();
  if(atBottom)messages.scrollTop=messages.scrollHeight;
 }
+let communityTranslationObserver=null;
+let photoOpenTimer=null,suppressPhotoClickUntil=0;
+function watchCommunityTranslations(){
+ if(communityTranslationObserver)communityTranslationObserver.disconnect();
+ const paragraphs=messages.querySelectorAll('.zc-community-message-text');
+ const run=paragraph=>{
+  const mId=paragraph.id.replace('zc-community-message-text-','');
+  const original=paragraph.dataset.originalText||'';
+  if(mId&&original)translateCommunityMessage(mId,original);
+ };
+ if(!('IntersectionObserver'in window)){paragraphs.forEach(run);return}
+ communityTranslationObserver=new IntersectionObserver(entries=>{
+  entries.forEach(entry=>{
+   if(entry.isIntersecting){communityTranslationObserver.unobserve(entry.target);run(entry.target)}
+  });
+ },{root:messages,rootMargin:'120px 0px',threshold:.01});
+ paragraphs.forEach(p=>communityTranslationObserver.observe(p));
+}
+async function loadCommunityReactions(shouldRender=true){
+ const ids=cache.map(m=>m.id);
+ if(!ids.length){communityReactions=[];if(shouldRender)renderMessages(photoUrls);return}
+ const result=await db.from('community_message_reactions').select('message_id,user_id,emoji').in('message_id',ids);
+ if(result.error){console.warn('Community reactions could not be loaded:',result.error.message);return}
+ communityReactions=result.data||[];
+ if(shouldRender)renderMessages(photoUrls);
+}
+async function toggleCommunityReaction(messageId,emoji){
+ if(!currentUser||memberRecord?.status!=='active')return;
+ if(!['❤️','👍','😂','🔥','👏'].includes(emoji))return;
+ const already=communityReactions.some(r=>r.message_id===messageId&&r.user_id===currentUser.id&&r.emoji===emoji);
+ let result;
+ if(already){
+  result=await db.from('community_message_reactions').delete().eq('message_id',messageId).eq('user_id',currentUser.id).eq('emoji',emoji);
+ }else{
+  result=await db.from('community_message_reactions').insert({message_id:messageId,user_id:currentUser.id,emoji});
+ }
+ if(result.error){toast('Reaction could not be saved: '+result.error.message,true);return}
+ await loadCommunityReactions(true);
+}
 const ZC_COMMUNITY_LANGUAGE_KEY='zc-community-language-';
-const ZC_COMMUNITY_LANGUAGES=['en','ha','yo','ig','fr','pt','es','ar','de','zh','hi','ja'];
+const ZC_COMMUNITY_LANGUAGES=['en','zh','hi','es','ar','fr','bn','pt','ru','ur','id','de','ja','sw','ko','tr','vi','fa','it','nl','pl','th','ms','uk','el','ro','sv','cs','he','ta'];
 let communityTranslationCache={};
 function communityMessageLanguage(){const selected=el('zc-community-language')?.value;return ZC_COMMUNITY_LANGUAGES.includes(selected)?selected:'en'}
 function initCommunityLanguage(){
@@ -6546,6 +6718,7 @@ window.zcSetCommunityLanguage=function(code){
  if(!ZC_COMMUNITY_LANGUAGES.includes(code))return;
  try{localStorage.setItem(ZC_COMMUNITY_LANGUAGE_KEY+(currentUser?.id||''),code)}catch(e){}
  communityTranslationCache={};
+ renderMessages(photoUrls);
 };
 window.zcCommunityAutoGrow=function(input){
  if(!input)return;
@@ -6561,30 +6734,56 @@ function translationChunks(value,maxBytes){
  if(current.trim())chunks.push(current.trim());
  return chunks;
 }
+async function translateCommunityText(originalText,source,target){
+ if(!originalText||!String(originalText).trim())return '';
+ if(!ZC_COMMUNITY_LANGUAGES.includes(target))throw new Error('Select a supported language first.');
+ if(source===target)return String(originalText);
+ const translated=[];
+ for(const piece of translationChunks(originalText,450)){
+  const params=new URLSearchParams({q:piece,langpair:(source||'autodetect')+'|'+target});
+  const response=await fetch('https://api.mymemory.translated.net/get?'+params.toString(),{headers:{Accept:'application/json'}});
+  if(!response.ok)throw new Error('Translation service returned '+response.status+'.');
+  const data=await response.json();
+  if(Number(data.responseStatus)!==200||!data.responseData?.translatedText)throw new Error(data.responseDetails||'Translation is unavailable for this language.');
+  translated.push(data.responseData.translatedText);
+ }
+ return translated.join(' ');
+}
 async function translateCommunityMessage(messageId,originalText){
- const target=el('zc-community-language')?.value||'en';
+ const target=communityMessageLanguage();
  const output=el('zc-community-translation-'+messageId);
+ const paragraph=el('zc-community-message-text-'+messageId);
  const message=cache.find(item=>item.id===messageId);
  const source=ZC_COMMUNITY_LANGUAGES.includes(message?.language_code)?message.language_code:'en';
- if(!output||!originalText||!originalText.trim()||!ZC_COMMUNITY_LANGUAGES.includes(target))return;
+ if(!paragraph||!originalText||!originalText.trim()||!ZC_COMMUNITY_LANGUAGES.includes(target))return;
  const cacheKey=messageId+'|'+source+'|'+target;
- if(source===target){output.textContent='This message is already in '+target.toUpperCase()+'.';output.classList.remove('hidden');return}
- if(communityTranslationCache[cacheKey]){output.textContent=communityTranslationCache[cacheKey];output.classList.remove('hidden');return}
- if(output.dataset.loading==='1')return;
- output.dataset.loading='1';output.textContent='Translating…';output.classList.remove('hidden');
+ if(source===target){
+  paragraph.textContent=originalText;
+  if(output)output.classList.add('hidden');
+  return;
+ }
+ if(communityTranslationCache[cacheKey]){
+  paragraph.textContent=communityTranslationCache[cacheKey];
+  paragraph.title='Automatically translated to '+target.toUpperCase();
+  if(output)output.classList.add('hidden');
+  return;
+ }
+ if(paragraph.dataset.translating==='1')return;
+ paragraph.dataset.translating='1';
+ if(output){output.textContent='Translating…';output.classList.remove('hidden')}
  try{
-  const translated=[];
-  for(const piece of translationChunks(originalText,450)){
-   const params=new URLSearchParams({q:piece,langpair:source+'|'+target});
-   const response=await fetch('https://api.mymemory.translated.net/get?'+params.toString(),{headers:{Accept:'application/json'}});
-   if(!response.ok)throw new Error('Translation service returned '+response.status+'.');
-   const data=await response.json();
-   if(Number(data.responseStatus)!==200||!data.responseData?.translatedText)throw new Error(data.responseDetails||'Translation is unavailable for this language.');
-   translated.push(data.responseData.translatedText);
+  const translated=await translateCommunityText(originalText,source,target);
+  communityTranslationCache[cacheKey]=translated;
+  if(paragraph.isConnected){
+   paragraph.textContent=translated;
+   paragraph.title='Automatically translated to '+target.toUpperCase();
   }
-  const result=translated.join(' ');communityTranslationCache[cacheKey]=result;output.textContent=result;
- }catch(error){output.textContent='Translation is temporarily unavailable. '+(error?.message||'Please try again.')}
- finally{delete output.dataset.loading}
+  if(output)output.classList.add('hidden');
+ }catch(error){
+  if(paragraph.isConnected)paragraph.textContent=originalText;
+  if(output){output.textContent='Translation unavailable. Original message shown.';output.classList.remove('hidden')}
+  console.warn('Community message translation failed:',error?.message||error);
+ }finally{delete paragraph.dataset.translating}
 }
 function hideCommunityMessageMenu(){const menu=el('zc-community-message-menu');if(menu)menu.classList.add('hidden')}
 async function copyCommunityMessage(text){
@@ -6599,11 +6798,21 @@ function showCommunityMessageMenu(message,eventX,eventY){
  const menu=el('zc-community-message-menu');if(!menu)return;
  menu.replaceChildren();
  const messageText=message.body||'';
- [['Copy message',()=>copyCommunityMessage(messageText)],['Reply',()=>setReply(message.id)],['Translate',()=>translateCommunityMessage(message.id,messageText)]].forEach(([label,action])=>{
-  const button=document.createElement('button');button.type='button';button.textContent=label;button.onclick=()=>{hideCommunityMessageMenu();action()};menu.append(button);
+ const actions=[
+  ['Copy message',()=>copyCommunityMessage(messageText)],
+  ['Reply',()=>setReply(message.id)],
+  ['Show original',()=>{
+   const p=el('zc-community-message-text-'+message.id);
+   if(p){p.textContent=messageText;p.title='Original message';}
+  }]
+ ];
+ if(profile?.role==='admin')actions.push(['Remove message',()=>removeMessage(message.id)]);
+ actions.forEach(([label,action])=>{
+  const button=document.createElement('button');button.type='button';button.textContent=label;
+  button.onclick=()=>{hideCommunityMessageMenu();action()};menu.append(button);
  });
  menu.classList.remove('hidden');
- const width=menu.offsetWidth||160,height=menu.offsetHeight||120;
+ const width=menu.offsetWidth||170,height=menu.offsetHeight||150;
  menu.style.left=Math.max(8,Math.min(eventX||12,window.innerWidth-width-8))+'px';
  menu.style.top=Math.max(8,Math.min(eventY||12,window.innerHeight-height-8))+'px';
 }
@@ -6655,12 +6864,17 @@ window.zcCommunityPhotoChanged=function(input){
 window.zcSendCommunityMessage=async function(e){
  if(e)e.preventDefault();
  if(!currentUser||memberRecord?.status!=='active')return;
- const input=el('zc-community-input'),body=input.value.trim(),file=photoFile;
- if(!body&&!file)return;
+ const input=el('zc-community-input'),originalBody=input.value.trim(),file=photoFile,language=communityMessageLanguage();
+ if(!originalBody&&!file)return;
  const send=el('zc-community-send');send.disabled=true;send.textContent='Preparing…';
  let uploadedPath='';
  try{
-  let path=null;
+  let body=originalBody,path=null;
+  if(body){
+   send.textContent='Translating…';
+   body=await translateCommunityText(body,'autodetect',language);
+   if(body.length>3000)throw new Error('The translated message is too long. Please shorten it and try again.');
+  }
   if(file){
    if(typeof zcPrepareAvatar!=='function')throw new Error('The image compressor is unavailable. Refresh the page and try again.');
    const prepared=await zcPrepareAvatar(file);
@@ -6671,19 +6885,15 @@ window.zcSendCommunityMessage=async function(e){
    if(up.error)throw up.error;
    uploadedPath=path;
   }
-  const r=await db.from('community_messages').insert({sender_id:currentUser.id,body:body||null,image_path:path,reply_to:replyRecord?.id||null,language_code:communityMessageLanguage()});
+  const r=await db.from('community_messages').insert({sender_id:currentUser.id,body:body||null,image_path:path,reply_to:replyRecord?.id||null,language_code:language});
   if(r.error)throw r.error;
   input.value='';window.zcCommunityAutoGrow(input);
-  clearCommunityPhoto();
-  window.zcCancelCommunityReply();
+  clearCommunityPhoto();window.zcCancelCommunityReply();
   await loadMessages();
  }catch(error){
   if(uploadedPath){try{const cleanup=await db.storage.from('community-photos').remove([uploadedPath]);if(cleanup.error)console.warn('Could not remove unsent community photo:',cleanup.error)}catch(cleanupError){console.warn('Could not remove unsent community photo:',cleanupError)}}
   toast(error?.message||'Message could not be sent.',true);
- }finally{
-  send.disabled=memberRecord?.status!=='active';
-  send.textContent='Send';
- }
+ }finally{send.disabled=memberRecord?.status!=='active';send.textContent='Send'}
 };
 async function removeMessage(id){if(profile?.role!=='admin'||!confirm('Remove this message from the group?'))return;const r=await db.from('community_messages').update({deleted_at:new Date().toISOString(),deleted_by:currentUser.id}).eq('id',id);if(r.error)toast(r.error.message,true);else await loadMessages()}
 async function zcReadAllCommunityMessages(){
@@ -6873,7 +7083,7 @@ async function loadMembers(){
  search.addEventListener('input',draw);draw();
 }
 async function moderate(id,status){if(profile?.role!=='admin'||id===currentUser.id)return;const note=status==='active'?null:(status==='muted'?'Posting restricted by an administrator':'Removed by an administrator');const r=await db.from('community_members').update({status:status,restriction_note:note,updated_at:new Date().toISOString()}).eq('user_id',id);if(r.error){toast(r.error.message,true);return}await db.from('audit_logs').insert({actor_id:currentUser.id,action:'community_member_'+status,entity_type:'community_member',entity_id:id,details:{status:status,restriction_note:note}});toast(status==='active'?'Member restored.':status==='muted'?'Member muted.':'Member removed from group.');if(!admin.classList.contains('hidden'))await loadMembers()}
-window.zcCloseCommunityChat=function(){modal.classList.add('hidden');window.zcCommunityPendingOpen=false;if(chatChannel){db.removeChannel(chatChannel);chatChannel=null}if(memberChannel){db.removeChannel(memberChannel);memberChannel=null}replyRecord=null;clearCommunityPhoto();closeCommunityPhoto();resumeInvite()};
+window.zcCloseCommunityChat=function(){modal.classList.add('hidden');window.zcCommunityPendingOpen=false;document.body.classList.remove('zc-community-chat-open');document.body.style.overflow='';unbindCommunityViewport();if(chatChannel){db.removeChannel(chatChannel);chatChannel=null}if(memberChannel){db.removeChannel(memberChannel);memberChannel=null}replyRecord=null;clearCommunityPhoto();closeCommunityPhoto();hideCommunityMessageMenu();resumeInvite()};
 window.zcCommunityPendingOpen=false;
 window.zcCommunityAfterAuth=async function(){if(window.zcCommunityPendingOpen){window.zcCommunityPendingOpen=false;await window.zcOpenCommunityChat()}};
 schedule(FIRST_DELAY);
@@ -7466,6 +7676,45 @@ body.zc-support-page-open{overflow:hidden!important}
  #zc-community-modal .toolbar{gap:7px}
  #zc-community-modal .zc-community-admin-page-head{align-items:flex-start}
  #zc-community-modal #zc-community-language{max-width:104px}
+}
+</style>
+
+<style id="zc-community-chat-mobile-reactions-v3">
+/* The direct-support inbox and its shortcuts are separate from the community chat. */
+body.zc-community-chat-open #zc-admin-support-panel,
+body.zc-community-chat-open #zc-admin-support-float,
+body.zc-community-chat-open #zc-support-dock,
+body.zc-community-chat-open #zc-support-greeting,
+body.zc-community-chat-open #zc-support-drawer-entry{display:none!important;visibility:hidden!important;pointer-events:none!important}
+body.zc-community-chat-open{overflow:hidden!important;overscroll-behavior:none}
+/* Use the actual visual viewport so the chat and composer remain above the iPhone keyboard. */
+#zc-community-modal{inset:auto 0 auto 0!important;top:var(--zc-community-vv-top,0px)!important;height:var(--zc-community-vv-height,100dvh)!important;min-height:260px;overflow:hidden;align-items:stretch}
+#zc-community-modal .shell{height:100%!important;max-height:100%!important;min-height:0!important}
+#zc-community-modal .room{flex:1 1 auto;min-height:0;overflow:hidden}
+#zc-community-modal .messages{flex:1 1 auto;min-height:0;overscroll-behavior:contain;-webkit-overflow-scrolling:touch}
+#zc-community-modal .head,#zc-community-modal .toolbar{flex:0 0 auto}
+#zc-community-modal .compose{flex:0 0 auto;max-height:42%;overflow-y:auto;overscroll-behavior:contain}
+#zc-community-modal #zc-community-input{min-height:42px;max-height:92px;resize:none}
+#zc-community-modal .message,
+#zc-community-modal .message *{user-select:none!important;-webkit-user-select:none!important;-webkit-touch-callout:none!important}
+#zc-community-modal .message{touch-action:pan-y;will-change:transform}
+#zc-community-modal .message.zc-swipe-tracking{transition:none!important}
+#zc-community-modal .message.zc-swipe-reply{animation:zcCommunitySwipeSettle .24s ease-out}
+@keyframes zcCommunitySwipeSettle{0%{transform:translateX(42px)}55%{transform:translateX(-5px)}100%{transform:translateX(0)}}
+#zc-community-modal .zc-community-reactions{display:flex;flex-wrap:wrap;gap:5px;margin-top:6px}
+#zc-community-modal .zc-community-reaction{display:inline-flex;align-items:center;gap:4px;padding:3px 8px;border:1px solid var(--line);border-radius:999px;background:var(--panel);color:var(--text);font-size:11px;line-height:1.35}
+#zc-community-modal .zc-community-reaction.mine{border-color:var(--green);background:color-mix(in srgb,var(--green) 16%,var(--panel));color:var(--mint)}
+#zc-community-modal .zc-community-translation{font-size:10px;color:var(--muted);margin-top:4px}
+@media(max-width:560px){
+ #zc-community-modal{padding:0!important}
+ #zc-community-modal .shell{width:100%!important;border:0!important;border-radius:0!important}
+ #zc-community-modal .head{padding-top:calc(10px + env(safe-area-inset-top))!important}
+ #zc-community-modal .toolbar{gap:6px;padding:7px 10px;justify-content:flex-start}
+ #zc-community-modal #zc-community-member-status{flex:1 1 100%;margin:0}
+ #zc-community-modal .zc-community-language-wrap{font-size:10px}
+ #zc-community-modal #zc-community-language{max-width:150px}
+ #zc-community-modal .compose{padding-bottom:calc(8px + env(safe-area-inset-bottom))}
+ #zc-community-modal .messages{padding-bottom:8px}
 }
 </style>
 </body>
