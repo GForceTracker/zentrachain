@@ -15,6 +15,7 @@ create table if not exists public.plan_deposit_intents (
 );
 create unique index if not exists plan_deposit_intents_one_pending_per_user
   on public.plan_deposit_intents(user_id) where status='pending';
+create index if not exists plan_deposit_intents_plan_id_idx on public.plan_deposit_intents(plan_id);
 alter table public.plan_deposit_intents enable row level security;
 drop policy if exists "Users read own plan deposit intents" on public.plan_deposit_intents;
 create policy "Users read own plan deposit intents"
@@ -35,6 +36,8 @@ alter table public.deposit_requests add constraint deposit_requests_status_check
 alter table public.deposit_requests drop constraint if exists deposit_requests_auto_purchase_status_check;
 alter table public.deposit_requests add constraint deposit_requests_auto_purchase_status_check
   check(auto_purchase_status=any(array['not_requested','pending','purchased','not_eligible','plan_unavailable','expired']::text[]));
+create index if not exists deposit_requests_plan_id_idx on public.deposit_requests(plan_id);
+create index if not exists deposit_requests_plan_deposit_intent_id_idx on public.deposit_requests(plan_deposit_intent_id);
 create unique index if not exists deposit_requests_blockchain_deposit_uidx
   on public.deposit_requests(blockchain_deposit_id) where blockchain_deposit_id is not null;
 
