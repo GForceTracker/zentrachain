@@ -1012,6 +1012,10 @@ html body .modal-head .brand{white-space:nowrap!important;min-width:0!important}
 #application[data-zc-dashboard-style="4"] #app-content .zc-alt-dashboard .app-stat:hover,
 #application[data-zc-dashboard-style="5"] #app-content .zc-alt-dashboard .app-stat:hover{transform:translateY(-2px);box-shadow:0 20px 44px #0003}
 .zc-alt-dashboard{display:grid;gap:16px;min-width:0}
+#application[data-zc-dashboard-style="2"] #app-content > :not(.zc-alt-dashboard),
+#application[data-zc-dashboard-style="3"] #app-content > :not(.zc-alt-dashboard),
+#application[data-zc-dashboard-style="4"] #app-content > :not(.zc-alt-dashboard),
+#application[data-zc-dashboard-style="5"] #app-content > :not(.zc-alt-dashboard){animation:zcDashEnter .28s ease both}
 .zc-alt-heading,.zc-terminal-heading,.zc-minimal-heading,.zc-mobile-welcome{display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;margin-bottom:2px}
 .zc-alt-heading h1,.zc-terminal-heading h1,.zc-minimal-heading h1,.zc-mobile-welcome h1{margin:6px 0;font-size:clamp(25px,3vw,34px);letter-spacing:-1.1px}
 .zc-alt-heading p,.zc-minimal-heading p,.zc-mobile-welcome p{margin:5px 0 0;color:var(--muted)}
@@ -1482,8 +1486,25 @@ async function zcLoadDashboardStyle(){
  zcApplyDashboardStyle();
  return zcDashboardStyle;
 }
+let zcDashboardStyleCheckPending=false;
+function zcCheckDashboardStyle(){
+ if(!db||!currentUser||zcDashboardStyleCheckPending)return;
+ zcDashboardStyleCheckPending=true;
+ db.from('site_settings').select('numeric_value').eq('setting_key','user_dashboard_style').maybeSingle().then(r=>{
+  if(r.error)return;
+  const n=Math.round(Number(r.data&&r.data.numeric_value||1));
+  const next=[1,2,3,4,5].includes(n)?n:1;
+  if(next!==zcDashboardStyle){
+   zcDashboardStyle=next;
+   zcApplyDashboardStyle();
+   if(page==='overview')renderPage();
+  }
+ }).catch(e=>console.warn('Dashboard style sync skipped:',e&&e.message||e)).finally(()=>{zcDashboardStyleCheckPending=false});
+}
+setInterval(()=>{if(currentUser)zcCheckDashboardStyle()},60000);
 function zcDashboardStat(label,value,caption,icon){
- return '<article class="app-stat zc-alt-stat"><div class="zc-alt-stat-top"><small>'+esc(label)+'</small><span class="zc-alt-stat-icon" aria-hidden="true">'+(icon||'◈')+'</span></div><strong>'+value+'</strong><span class="stat-foot">'+caption+'</span></article>';
+ const liveId=(label==='Trading profit'||label==='Accrued profit')?' id="zc-profit-live"':'';
+ return '<article class="app-stat zc-alt-stat"><div class="zc-alt-stat-top"><small>'+esc(label)+'</small><span class="zc-alt-stat-icon" aria-hidden="true">'+(icon||'◈')+'</span></div><strong'+liveId+'>'+value+'</strong><span class="stat-foot">'+caption+'</span></article>';
 }
 function zcDashboardQuickActions(){
  return '<div class="zc-dash-quick-actions"><button class="btn primary" type="button" onclick="navigate(&quot;deposits&quot;)"><span aria-hidden="true">＋</span> Deposit</button><button class="btn" type="button" onclick="navigate(&quot;withdrawals&quot;)"><span aria-hidden="true">↑</span> Withdraw</button><button class="btn" type="button" onclick="navigate(&quot;investments&quot;)"><span aria-hidden="true">◈</span> Active plans</button><button class="btn" type="button" onclick="navigate(&quot;activity&quot;)"><span aria-hidden="true">▤</span> Transactions</button></div>';
