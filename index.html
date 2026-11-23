@@ -1184,7 +1184,7 @@ async function renderDepositPage(){
    const target=await db.from('gforce_investment_plans').select('id,name,min_amount,max_amount').eq('id',activeIntent.plan_id).maybeSingle();
    if(target.error)throw target.error;
    if(target.data){
-    planIntentBanner='<section class="card panel zc-plan-deposit-intent" style="margin:0 0 14px;border-color:var(--green)"><div class="eyebrow">PLAN DEPOSIT SELECTED</div><h3 style="margin:5px 0">'+esc(target.data.name)+'</h3><p class="zc-plan-intent-message" style="margin:0">Your next verified deposit will automatically purchase this plan only when the credited USD amount is between <b>'+money(target.data.min_amount)+'</b> and <b>'+money(target.data.max_amount)+'</b>. Deposits outside this range stay in Deposit Balance. This selection expires in 24 hours.</p></section>;
+    planIntentBanner='<section class="card panel zc-plan-deposit-intent" style="margin:0 0 14px;border-color:var(--green)"><div class="eyebrow">PLAN DEPOSIT SELECTED</div><h3 style="margin:5px 0">'+esc(target.data.name)+'</h3><p class="zc-plan-intent-message" style="margin:0">Your next verified deposit will automatically purchase this plan only when the credited USD amount is between <b>'+money(target.data.min_amount)+'</b> and <b>'+money(target.data.max_amount)+'</b>. Deposits outside this range stay in Deposit Balance. This selection expires in 24 hours.</p></section>';
    }
   }
   const cards=networks.map(function(n){
