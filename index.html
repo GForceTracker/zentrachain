@@ -3321,7 +3321,7 @@ body[data-zc-theme] #app-content #wd-network-cards::-webkit-scrollbar-thumb{back
   }else{
    art='<div class="gf-plan-artwork zc-plan-photo" role="img" aria-label="'+planName+' plan artwork"></div>';
   }
-  return '<article class="plan-card gf-plan-compact-card" data-gf-plan-id="'+id+'" role="button" tabindex="0" aria-label="Select '+planName+'" onclick="gfChoose(&quot;'+s+'&quot;,&quot;'+id+'&quot;)" onkeydown="if(event.keyCode===13||event.keyCode===32){event.preventDefault();gfChoose(&quot;'+s+'&quot;,&quot;'+id+'&quot;)}">'+art+'<div class="gf-plan-card-heading"><div class="gf-plan-card-title"><div class="eyebrow">'+planName+'</div>'+(cleanPlanCopy(p.tagline,'')?'<p class="muted">'+escapeValue(cleanPlanCopy(p.tagline,''))+'</p>':'')+badge+'</div>'+(s==='pub'?'':'<div class="gf-plan-days-circle" aria-label="Duration '+duration+'"><b>'+escapeValue(p.duration_value)+'</b><i>'+escapeValue(p.duration_unit)+'</i></div>')+'</div><p class="muted gf-plan-description">'+escapeValue(cleanPlanCopy(p.description,'Plan details are shown below.'))+'</p><div class="gf-plan-details"><div class="gf-plan-detail-line"><i data-lucide="arrow-down-to-line" aria-hidden="true"></i><span>Min deposit: <b>'+money(p.min_amount)+'</b></span></div><div class="gf-plan-detail-line"><i data-lucide="arrow-up-from-line" aria-hidden="true"></i><span>Max deposit: <b>'+money(p.max_amount)+'</b></span></div><div class="gf-plan-detail-line"><i data-lucide="percent" aria-hidden="true"></i><span>Plan percentage: <b>'+fmt(p.percentage)+'%</b></span></div></div>'+(s==='pub'?'<div class="muted gf-plan-duration" style="margin:5px 11px 0">'+duration+'</div>':'')+(s==='pub'?'<button type="button" class="btn gf-plan-select-button" onclick="event.stopPropagation();gfChoose(&quot;'+s+'&quot;,&quot;'+id+'&quot;)">Choose plan</button>':'<button type="button" class="btn primary zc-buy-open" onclick="event.stopPropagation();zcToggleCardBuy(this)">Buy now</button><div class="zc-card-buy" hidden onclick="event.stopPropagation()"><select class="zc-buy-source" aria-label="Payment balance"><option value="available">Available Funds · '+money(availableFundsUnlocked())+'</option><option value="deposit">Deposit Balance · '+money(depositBalanceUnlocked())+'</option></select><input class="zc-buy-amount" type="number" inputmode="decimal" min="'+p.min_amount+'" max="'+p.max_amount+'" step="0.01" placeholder="Amount (USD)"><button type="button" class="btn primary zc-buy-confirm" onclick="event.stopPropagation();zcConfirmCardBuy(this)">Confirm</button><div class="zc-buy-err hidden"><span class="zc-buy-msg"></span><button type="button" class="btn primary" onclick="navigate(\'deposits\')">Deposit</button></div></div>')+'</article>';
+  return '<article class="plan-card gf-plan-compact-card" data-gf-plan-id="'+id+'" role="button" tabindex="0" aria-label="Select '+planName+'" onclick="gfChoose(&quot;'+s+'&quot;,&quot;'+id+'&quot;)" onkeydown="if(event.keyCode===13||event.keyCode===32){event.preventDefault();gfChoose(&quot;'+s+'&quot;,&quot;'+id+'&quot;)}">'+art+'<div class="gf-plan-card-heading"><div class="gf-plan-card-title"><div class="eyebrow">'+planName+'</div>'+(cleanPlanCopy(p.tagline,'')?'<p class="muted">'+escapeValue(cleanPlanCopy(p.tagline,''))+'</p>':'')+badge+'</div>'+(s==='pub'?'':'<div class="gf-plan-days-circle" aria-label="Duration '+duration+'"><b>'+escapeValue(p.duration_value)+'</b><i>'+escapeValue(p.duration_unit)+'</i></div>')+'</div><p class="muted gf-plan-description">'+escapeValue(cleanPlanCopy(p.description,'Plan details are shown below.'))+'</p><div class="gf-plan-details"><div class="gf-plan-detail-line"><i data-lucide="arrow-down-to-line" aria-hidden="true"></i><span>Min deposit: <b>'+money(p.min_amount)+'</b></span></div><div class="gf-plan-detail-line"><i data-lucide="arrow-up-from-line" aria-hidden="true"></i><span>Max deposit: <b>'+money(p.max_amount)+'</b></span></div><div class="gf-plan-detail-line"><i data-lucide="percent" aria-hidden="true"></i><span>Plan percentage: <b>'+fmt(p.percentage)+'%</b></span></div></div>'+(s==='pub'?'<div class="muted gf-plan-duration" style="margin:5px 11px 0">'+duration+'</div>':'')+(s==='pub'?'<button type="button" class="btn gf-plan-select-button" onclick="event.stopPropagation();gfChoose(&quot;'+s+'&quot;,&quot;'+id+'&quot;)">Choose plan</button>':'<button type="button" class="btn primary zc-buy-open" onclick="event.stopPropagation();zcToggleCardBuy(this)">Buy now</button><div class="zc-card-buy" hidden onclick="event.stopPropagation()"><select class="zc-buy-source" aria-label="Payment balance"><option value="available">Available Funds · '+money(availableFundsUnlocked())+'</option><option value="deposit">Deposit Balance · '+money(depositBalanceUnlocked())+'</option></select><input class="zc-buy-amount" type="number" inputmode="decimal" min="'+p.min_amount+'" max="'+p.max_amount+'" step="0.01" placeholder="Amount (USD)"><small class="zc-buy-limit">Allowed amount: '+money(p.min_amount)+' – '+money(p.max_amount)+'</small><button type="button" class="btn primary zc-buy-confirm" onclick="event.stopPropagation();zcConfirmCardBuy(this)">Confirm</button><div class="zc-buy-err hidden" role="alert"><span class="zc-buy-msg"></span><button type="button" class="btn primary zc-buy-deposit" style="display:none" onclick="event.stopPropagation();zcStartPlanDeposit(this)">Deposit</button></div></div>')+'</article>';
  };
  window.gfLogoPublicUrl=logoUrl;
  window.gfAdminPanel=function(rows){
@@ -5882,26 +5882,37 @@ schedule(FIRST_DELAY);
   var __pu=planUpdate;
   window.planUpdate=function(s){var r=__pu(s);if(s==='dash'&&typeof zcSyncDashCards==='function')zcSyncDashCards(s,document.getElementById('dash-select')?document.getElementById('dash-select').value:'');return r};
  }
- window.zcToggleCardBuy=async function(btn){
+ window.zcToggleCardBuy=function(btn){
   var card=btn.closest('.plan-card');if(!card)return;
   var panel=card.querySelector('.zc-card-buy');if(!panel)return;
-  var available=Number(availableFundsUnlocked()||0),deposit=Number(depositBalanceUnlocked()||0);
-  if(available<=0&&deposit<=0){
-   var planId=card.getAttribute('data-gf-plan-id');
-   if(!planId)return toast('Choose a plan first.',true);
-   var old=btn.textContent;btn.disabled=true;btn.textContent='Opening deposit…';
-   try{
-    var intent=await db.rpc('start_gforce_plan_deposit',{p_plan_id:planId});
-    if(intent.error)throw intent.error;
-    toast('Plan selected. Your next verified deposit will be checked against this plan.');
-    navigate('deposits');
-   }catch(e){toast(e?.message||'Could not link this plan to your deposit.',true)}
-   finally{btn.disabled=false;btn.textContent=old}
-   return;
-  }
   var wasOpen=!panel.hidden;
   document.querySelectorAll('#dash-cards .zc-card-buy').forEach(function(p){p.hidden=true});
   panel.hidden=wasOpen;
+  if(!panel.hidden){
+   var err=card.querySelector('.zc-buy-err');
+   if(err)err.classList.add('hidden');
+   var depositButton=err?err.querySelector('.zc-buy-deposit'):null;
+   if(depositButton)depositButton.style.display='none';
+   var amt=panel.querySelector('.zc-buy-amount');
+   if(amt){amt.focus();if(amt.select)amt.select()}
+  }
+ };
+ window.zcStartPlanDeposit=async function(button){
+  var card=button.closest('.plan-card');if(!card)return;
+  var planId=card.getAttribute('data-gf-plan-id');
+  if(!planId)return toast('Choose a plan first.',true);
+  var old=button.textContent;
+  button.disabled=true;button.textContent='Opening deposit…';
+  try{
+   var intent=await db.rpc('start_gforce_plan_deposit',{p_plan_id:planId});
+   if(intent.error)throw intent.error;
+   toast('Plan linked. After your deposit is verified, it will purchase this plan only if the credited amount is within its limits. Otherwise, the funds stay in Deposit Balance.');
+   navigate('deposits');
+  }catch(e){
+   toast(e?.message||'Could not link this plan to your deposit.',true);
+  }finally{
+   button.disabled=false;button.textContent=old;
+  }
  };
  window.zcConfirmCardBuy=async function(el){
   var card=el.closest('.plan-card');if(!card)return;
@@ -5911,14 +5922,27 @@ schedule(FIRST_DELAY);
   var source=card.querySelector('.zc-buy-source')?.value||'available';
   var err=card.querySelector('.zc-buy-err');
   var msg=err?err.querySelector('.zc-buy-msg'):null;
-  var showErr=function(text){if(err){err.classList.remove('hidden');if(msg)msg.textContent=text}};
-  var hideErr=function(){if(err)err.classList.add('hidden')};
+  var depositButton=err?err.querySelector('.zc-buy-deposit'):null;
+  var showErr=function(text,showDeposit){
+   if(err){err.classList.remove('hidden');if(msg)msg.textContent=text}
+   if(depositButton)depositButton.style.display=showDeposit?'inline-flex':'none';
+  };
+  var hideErr=function(){
+   if(err)err.classList.add('hidden');
+   if(depositButton)depositButton.style.display='none';
+  };
   var amount=Number(input?input.value:0);
-  if(!plan){showErr('Choose a plan first.');return}
-  if(!(amount>0)){showErr('Enter the amount you want to invest.');return}
-  if(amount<plan.min_amount||amount>plan.max_amount){showErr('Amount must be between '+money(plan.min_amount)+' and '+money(plan.max_amount)+'.');return}
-  var funds=source==='deposit'?depositBalanceUnlocked():availableFundsUnlocked();
-  if(amount>funds){showErr('Not enough '+(source==='deposit'?'Deposit Balance':'Available Funds')+'. You have '+money(funds)+'.');return}
+  if(!plan){showErr('Choose a plan first.',false);return}
+  if(!(amount>0)){showErr('Enter an investment amount to continue.',false);return}
+  if(amount<Number(plan.min_amount)||amount>Number(plan.max_amount)){
+   showErr('This amount is outside the plan limits. Use the allowed range shown above.',false);
+   return;
+  }
+  var funds=Number(source==='deposit'?depositBalanceUnlocked():availableFundsUnlocked())||0;
+  if(amount>funds){
+   showErr('Insufficient '+(source==='deposit'?'Deposit Balance':'Available Funds')+'. You have '+money(funds)+' and need '+money(amount)+'. Tap Deposit to continue.',true);
+   return;
+  }
   el.disabled=true;var old=el.textContent;el.textContent='Processing…';
   try{
    var r=await db.rpc('purchase_gforce_plan_from_balance',{p_plan_id:planId,p_amount:amount,p_funding_source:source});
@@ -5930,11 +5954,12 @@ schedule(FIRST_DELAY);
    navigate('investments');
   }catch(e){
    var m=(e&&e.message)||'Purchase failed.';
-   showErr(m);
-   if(!/Not enough/i.test(m))toast(m,true);
-  }finally{el.disabled=false;el.textContent=old}
- };
-})();
+   showErr(m,/(not enough|insufficient)/i.test(m));
+   if(!/(not enough|insufficient)/i.test(m))toast(m,true);
+  }finally{
+   el.disabled=false;el.textContent=old;
+  }
+ };})();
 </script><style id="zc-dash-cards-compact-v2">
 #dash-cards{gap:22px!important}
 #dash-cards .gf-plan-artwork{height:140px!important;min-height:140px!important;max-height:140px!important;flex-basis:140px!important}
@@ -5952,6 +5977,7 @@ schedule(FIRST_DELAY);
 .zc-card-buy{display:flex;gap:7px;align-items:center;margin-top:8px;border:1px solid var(--line);border-radius:10px;padding:7px;background:var(--panel2)}
 .zc-card-buy .zc-buy-amount{flex:1 1 auto;min-width:0;height:34px;border-radius:9px;border:1px solid var(--line);background:var(--bg);color:var(--text);padding:0 10px;font-size:12px;outline:none}
 .zc-card-buy .zc-buy-amount:focus{border-color:var(--green)}
+.zc-card-buy .zc-buy-limit{flex:0 0 100%;font-size:10px;line-height:1.35;color:var(--muted);padding:0 2px}
 .zc-card-buy .zc-buy-confirm{height:34px;padding:0 12px!important;font-size:11px!important;flex:0 0 auto}
 .zc-buy-err{display:flex;gap:6px;align-items:center;justify-content:space-between;padding:7px 9px;border-radius:8px;background:color-mix(in srgb,var(--red,#ff7474) 12%,transparent);border:1px solid color-mix(in srgb,var(--red,#ff7474) 35%,transparent);font-size:10px}
 .zc-buy-err .btn{padding:5px 8px!important;font-size:10px!important;flex:0 0 auto}
