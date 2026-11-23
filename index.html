@@ -884,10 +884,10 @@ html body .modal-head .brand{white-space:nowrap!important;min-width:0!important}
 </style>
 <style id="zc-dashboard-studio-v1">
 /* ZentraChain Dashboard Studio: five complete user-area skins; the original style has no overrides. */
-#application[data-zc-dashboard-style="2"]{--bg:#090e0b;--panel:#121b15;--panel2:#18251b;--line:#2c4430;--green:#c3f53b;--mint:#e1ff95;--text:#f2f8ef;--muted:#9eaa9b;--shadow:0 18px 48px #0007;background:#090e0b;color:#f2f8ef}
-#application[data-zc-dashboard-style="3"]{--bg:#08111f;--panel:#101d2e;--panel2:#17283d;--line:#2a4059;--green:#42d8cb;--mint:#9cf7ed;--text:#edf6ff;--muted:#92a9bf;--shadow:0 18px 48px #020916aa;background:#08111f;color:#edf6ff}
-#application[data-zc-dashboard-style="4"]{--bg:#eff4f2;--panel:#ffffff;--panel2:#f6faf8;--line:#dce7e1;--green:#137f5b;--mint:#176b50;--text:#172a22;--muted:#65776e;--shadow:0 12px 35px #1a38200f;background:#eff4f2;color:#172a22}
-#application[data-zc-dashboard-style="5"]{--bg:#0b1020;--panel:#151d34;--panel2:#1c2946;--line:#334467;--green:#5ee7b0;--mint:#a7f5d2;--text:#f0f5ff;--muted:#9eabc5;--shadow:0 18px 48px #020716aa;background:#0b1020;color:#f0f5ff}
+#application[data-zc-dashboard-style="2"]{background:var(--bg);color:var(--text)}
+#application[data-zc-dashboard-style="3"]{background:var(--bg);color:var(--text)}
+#application[data-zc-dashboard-style="4"]{background:var(--bg);color:var(--text)}
+#application[data-zc-dashboard-style="5"]{background:var(--bg);color:var(--text)}
 #application[data-zc-dashboard-style="2"] .app,
 #application[data-zc-dashboard-style="3"] .app,
 #application[data-zc-dashboard-style="4"] .app,
@@ -9195,4 +9195,249 @@ html body .calc-shell{
   scrollbar-color:transparent transparent!important;
   -ms-overflow-style:none!important;
 }
+
+/* ZC-DASHBOARD-ACTIVE-THEME-BRIDGE-V1 */
+/* Dashboard Studio controls layout only. The active site palette supplies every dashboard color. */
+body[data-zc-theme] #application,
+body[data-zc-theme] #application .app,
+body[data-zc-theme] #application .main,
+body[data-zc-theme] #application .content,
+body[data-zc-theme] #application #app-content {
+  background-color:var(--bg)!important;
+  color:var(--text)!important;
+}
+body[data-zc-theme] #application #app-drawer,
+body[data-zc-theme] #application .side {
+  background:linear-gradient(180deg,var(--panel2),var(--bg))!important;
+  border-color:var(--line)!important;
+  color:var(--text)!important;
+}
+body[data-zc-theme] #application .appbar {
+  background:color-mix(in srgb,var(--panel) 96%,transparent)!important;
+  border-color:var(--line)!important;
+  color:var(--text)!important;
+}
+body[data-zc-theme] #application #app-drawer .brand,
+body[data-zc-theme] #application #app-drawer .side-foot,
+body[data-zc-theme] #application .appbar,
+body[data-zc-theme] #application .appbar strong {
+  color:var(--text)!important;
+}
+body[data-zc-theme] #application #app-drawer .side-nav button {
+  background:transparent!important;
+  border-color:transparent!important;
+  color:var(--muted)!important;
+}
+body[data-zc-theme] #application #app-drawer .side-nav button.active,
+body[data-zc-theme] #application #app-drawer .side-nav button:hover,
+body[data-zc-theme] #application #app-drawer .zc-admin-toggle:hover,
+body[data-zc-theme] #application #app-drawer .zc-admin-subnav button.active {
+  background:linear-gradient(100deg,color-mix(in srgb,var(--green) 16%,var(--panel2)),var(--panel))!important;
+  border-color:color-mix(in srgb,var(--green) 48%,var(--line))!important;
+  color:var(--mint)!important;
+}
+body[data-zc-theme] #application .logo,
+body[data-zc-theme] #application .zc-brand-mark {
+  background:linear-gradient(145deg,var(--green),var(--panel2))!important;
+  color:var(--bg)!important;
+}
+body[data-zc-theme] #application #app-content :is(
+  .card,.panel,.stat,.app-stat,.app-card,.stat-card,.market-panel,
+  .deposit-form-card,.admin-overview-tile,.zc-finflex-card,
+  .zc-alt-active-plans,.zc-alt-recent,.zc-alt-referrals,
+  .zc-quote-card,.zc-flow-node,.zc-terminal-footnote
+) {
+  background:linear-gradient(145deg,var(--panel2),var(--panel))!important;
+  border-color:var(--line)!important;
+  color:var(--text)!important;
+  box-shadow:var(--shadow)!important;
+}
+body[data-zc-theme] #application #app-content :is(
+  .app-hero,.zc-finflex-balance,.zc-minimal-balance,.zc-mobile-balance
+) {
+  background:
+    radial-gradient(ellipse at 86% 0%,color-mix(in srgb,var(--green) 22%,transparent),transparent 46%),
+    linear-gradient(135deg,var(--panel2),var(--panel))!important;
+  border-color:color-mix(in srgb,var(--green) 38%,var(--line))!important;
+  color:var(--text)!important;
+}
+body[data-zc-theme] #application #app-content :is(
+  h1,h2,h3,h4,.page-title,.page-title h1,.zc-finflex-balance-main strong,
+  .zc-minimal-balance strong,.zc-mobile-balance strong,.app-stat strong,
+  .zc-alt-stat strong,.market-panel-head h3
+) {
+  color:var(--text)!important;
+}
+body[data-zc-theme] #application #app-content :is(
+  .muted,.risk,.stat-foot,.field label,.page-title p,.app-hero p,
+  .zc-alt-heading p,.zc-minimal-heading p,.zc-mobile-welcome p,
+  .zc-finflex-balance-main small,.zc-finflex-balance-main span,
+  .zc-minimal-balance small,.zc-minimal-balance p,
+  .zc-mobile-balance>small,.zc-finflex-total-foot,
+  .zc-widget-head p,.zc-terminal-footnote
+) {
+  color:var(--muted)!important;
+}
+body[data-zc-theme] #application #app-content .eyebrow {
+  color:var(--mint)!important;
+}
+body[data-zc-theme] #application #app-content :is(
+  .zc-minimal-dashboard .app-stat,.zc-alt-stat,.zc-alt-stat-icon,
+  .zc-minimal-balance-mark,.zc-mobile-avatar
+) {
+  background:linear-gradient(145deg,var(--panel2),var(--panel))!important;
+  border-color:var(--line)!important;
+  color:var(--mint)!important;
+}
+body[data-zc-theme] #application #app-content :is(
+  .zc-finflex-orbit,.zc-terminal-status,.zc-mobile-live
+) {
+  border-color:color-mix(in srgb,var(--green) 42%,var(--line))!important;
+  color:var(--mint)!important;
+}
+body[data-zc-theme] #application #app-content .zc-terminal-status {
+  background:color-mix(in srgb,var(--green) 10%,var(--panel))!important;
+}
+body[data-zc-theme] #application #app-content .zc-terminal-status i,
+body[data-zc-theme] #application #app-content .zc-mobile-live i {
+  background:var(--green)!important;
+  box-shadow:0 0 0 4px color-mix(in srgb,var(--green) 18%,transparent)!important;
+}
+body[data-zc-theme] #application .btn:not(.primary):not(.danger) {
+  background:var(--panel2)!important;
+  border-color:var(--line)!important;
+  color:var(--text)!important;
+}
+body[data-zc-theme] #application .btn.primary {
+  background:linear-gradient(135deg,var(--green),color-mix(in srgb,var(--green) 72%,var(--panel2)))!important;
+  border-color:var(--green)!important;
+  color:var(--bg)!important;
+}
+body[data-zc-theme="light"] #application .btn.primary {
+  color:#fff!important;
+}
+body[data-zc-theme] #application .btn.danger {
+  background:color-mix(in srgb,var(--red) 18%,var(--panel))!important;
+  border-color:var(--red)!important;
+  color:var(--red)!important;
+}
+body[data-zc-theme] #application #app-content :is(
+  input:not([type="checkbox"]):not([type="radio"]):not([type="file"]),
+  select,textarea,.market-chart-select
+) {
+  background-color:var(--panel)!important;
+  border-color:var(--line)!important;
+  color:var(--text)!important;
+}
+body[data-zc-theme] #application #app-content :is(input,textarea)::placeholder {
+  color:var(--muted)!important;
+  opacity:1;
+}
+body[data-zc-theme] #application #app-content :is(input,select,textarea):focus {
+  border-color:var(--green)!important;
+  outline-color:color-mix(in srgb,var(--green) 32%,transparent)!important;
+}
+body[data-zc-theme] #application #app-content :is(.table-wrap,.zc-table-wrap) {
+  border-color:var(--line)!important;
+  background:var(--panel)!important;
+}
+body[data-zc-theme] #application #app-content table {
+  color:var(--text)!important;
+  border-color:var(--line)!important;
+}
+body[data-zc-theme] #application #app-content :is(th,td) {
+  border-bottom-color:var(--line)!important;
+}
+body[data-zc-theme] #application #app-content th {
+  color:var(--muted)!important;
+}
+body[data-zc-theme] #application #app-content td {
+  color:var(--text)!important;
+}
+body[data-zc-theme] #application #app-content tr:hover td {
+  background:color-mix(in srgb,var(--green) 6%,var(--panel))!important;
+}
+body[data-zc-theme] #application #app-content .pill:not(.pending):not(.rejected) {
+  background:color-mix(in srgb,var(--green) 13%,var(--panel2))!important;
+  border:1px solid color-mix(in srgb,var(--green) 32%,var(--line))!important;
+  color:var(--mint)!important;
+}
+body[data-zc-theme] #application #app-content .notice:not(.warn):not(.error) {
+  background:var(--panel2)!important;
+  border-color:var(--line)!important;
+  color:var(--text)!important;
+}
+body[data-zc-theme] #application #app-content .empty {
+  color:var(--muted)!important;
+}
+body[data-zc-theme] #application #app-content :is(
+  .deposit-flow-grid,.deposit-asset-option,.deposit-address-box,
+  .zc-deposit-original-card,.zc-quote-card,.zc-expiry-note,
+  .zc-recent-activity,.zc-saved-row,.zc-maturity-row,
+  .zc-notice-item,.zc-notice-empty
+) {
+  background:var(--panel)!important;
+  border-color:var(--line)!important;
+  color:var(--text)!important;
+}
+body[data-zc-theme] #application #app-content .deposit-asset-option.selected {
+  background:var(--panel2)!important;
+  border-color:var(--green)!important;
+}
+body[data-zc-theme] #application #app-content :is(.market-chart-box,.chart-frame) {
+  background:radial-gradient(ellipse at 50% 0%,var(--panel2),var(--panel) 78%)!important;
+  border-color:var(--line)!important;
+}
+body[data-zc-theme] #application #app-content :is(.market-chart-select,.chart-loading,.chart-error) {
+  background:var(--panel)!important;
+  border-color:var(--line)!important;
+  color:var(--text)!important;
+}
+body[data-zc-theme] #application :is(.modal,.transaction-card,.zc-dashboard-preview-dialog,.zc-user-menu-panel) {
+  background:var(--panel)!important;
+  border-color:var(--line)!important;
+  color:var(--text)!important;
+}
+body[data-zc-theme] #application :is(.modal-bg,.transaction-modal) {
+  background:color-mix(in srgb,var(--bg) 82%,#000 18%)!important;
+}
+body[data-zc-theme] #application .zc-user-menu-panel :is(a,button) {
+  color:var(--text)!important;
+  border-color:var(--line)!important;
+}
+body[data-zc-theme] #application #zc-theme-panel,
+body[data-zc-theme] #application .zc-theme-panel {
+  border-color:var(--line)!important;
+}
+body[data-zc-theme] #application .zc-theme-choice {
+  background:var(--panel)!important;
+  border-color:var(--line)!important;
+  color:var(--text)!important;
+}
+body[data-zc-theme] #application .zc-theme-choice.active {
+  background:var(--panel2)!important;
+  border-color:var(--green)!important;
+  color:var(--mint)!important;
+}
+body[data-zc-theme] #application #zc-theme-toggle {
+  background:var(--panel2)!important;
+  border-color:var(--line)!important;
+  color:var(--mint)!important;
+}
+body[data-zc-theme] #application .zc-dashboard-style-card {
+  background:var(--panel)!important;
+  border-color:var(--line)!important;
+  color:var(--text)!important;
+}
+body[data-zc-theme] #application .zc-studio-active,
+body[data-zc-theme] #application .zc-studio-note {
+  background:var(--panel2)!important;
+  border-color:var(--line)!important;
+  color:var(--muted)!important;
+}
+body[data-zc-theme] #application .zc-studio-note b {
+  color:var(--text)!important;
+}
+/* End dashboard active-theme bridge. */
+
 </style>
