@@ -1418,7 +1418,7 @@ html body .modal-head .brand{white-space:nowrap!important;min-width:0!important}
     <span class="zc-tick-state" id="zc-tick-state"></span>
   </div>
 
-</div></div><button class="btn primary" id="auth-submit" type="submit">Log in</button><button class="btn ghost hidden" type="button" id="auth-resend" onclick="resendVerification()" style="margin-top:10px">Resend verification email</button>
+</div><button class="btn primary" id="auth-submit" type="submit">Log in</button><button class="btn ghost hidden" type="button" id="auth-resend" onclick="resendVerification()" style="margin-top:10px">Resend verification email</button>
 <button class="btn ghost" type="button" onclick="toggleAuthMode()" id="auth-switch">Create an account</button></form></div></div> 
 <div id="zc-captcha-modal" class="modal-bg hidden" role="dialog" aria-modal="true" aria-labelledby="zc-captcha-title" onclick="if(event.target===this)zcCloseCaptchaModal()">
   <div class="modal zc-captcha-modal-card">
@@ -8152,6 +8152,34 @@ body.zc-community-chat-open{overflow:hidden!important;overscroll-behavior:none}
 })();
 </script>
 
+<style id="zc-auth-modal-centered-card-v1">
+@media(max-width:700px){
+ #auth-modal.modal-bg:not(.hidden){
+  align-content:safe center!important;
+  justify-items:center!important;
+ }
+ #auth-modal .modal{
+  width:100%!important;
+  max-width:460px!important;
+  margin:0 auto!important;
+  transform:none!important;
+ }
+ #auth-modal #auth-form{
+  display:grid!important;
+  grid-template-columns:minmax(0,1fr)!important;
+  gap:14px!important;
+ }
+ #auth-modal #auth-form #auth-submit,
+ #auth-modal #auth-form #auth-switch,
+ #auth-modal #auth-form #auth-resend{
+  display:block;
+  width:100%!important;
+  box-sizing:border-box!important;
+ }
+ #auth-modal #auth-form #auth-submit{margin-top:9px!important}
+ #auth-modal #auth-form #auth-switch{margin-top:0!important}
+}
+</style>
 </html>
 
 <style id="zc-plan-tap-only-demarcation-v6">
