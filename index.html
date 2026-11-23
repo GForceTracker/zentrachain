@@ -882,7 +882,356 @@ html body .modal-head .brand{white-space:nowrap!important;min-width:0!important}
 #dash-cards .plan-card .btn{margin-top:auto!important;padding:8px 10px!important;font-size:11px!important;min-height:32px!important}
 #dash-cards .plan-card.is-selected{border-color:var(--green)!important;box-shadow:0 0 0 1px color-mix(in srgb,var(--green) 40%,transparent),0 10px 28px rgba(0,0,0,.24)!important}
 </style>
-</head><body><script>try{var __zcT=localStorage.getItem('zentrachain-theme')||'blue';document.body.setAttribute('data-zc-theme',__zcT)}catch(__zcE){}</script><div class="zc-particle-field" aria-hidden="true"></div>
+<style id="zc-dashboard-studio-v1">
+/* ZentraChain Dashboard Studio: five complete user-area skins; the original style has no overrides. */
+#application[data-zc-dashboard-style="2"]{--bg:#090e0b;--panel:#121b15;--panel2:#18251b;--line:#2c4430;--green:#c3f53b;--mint:#e1ff95;--text:#f2f8ef;--muted:#9eaa9b;--shadow:0 18px 48px #0007;background:#090e0b;color:#f2f8ef}
+#application[data-zc-dashboard-style="3"]{--bg:#08111f;--panel:#101d2e;--panel2:#17283d;--line:#2a4059;--green:#42d8cb;--mint:#9cf7ed;--text:#edf6ff;--muted:#92a9bf;--shadow:0 18px 48px #020916aa;background:#08111f;color:#edf6ff}
+#application[data-zc-dashboard-style="4"]{--bg:#eff4f2;--panel:#ffffff;--panel2:#f6faf8;--line:#dce7e1;--green:#137f5b;--mint:#176b50;--text:#172a22;--muted:#65776e;--shadow:0 12px 35px #1a38200f;background:#eff4f2;color:#172a22}
+#application[data-zc-dashboard-style="5"]{--bg:#0b1020;--panel:#151d34;--panel2:#1c2946;--line:#334467;--green:#5ee7b0;--mint:#a7f5d2;--text:#f0f5ff;--muted:#9eabc5;--shadow:0 18px 48px #020716aa;background:#0b1020;color:#f0f5ff}
+#application[data-zc-dashboard-style="2"] .app,
+#application[data-zc-dashboard-style="3"] .app,
+#application[data-zc-dashboard-style="4"] .app,
+#application[data-zc-dashboard-style="5"] .app{background:var(--bg);color:var(--text);min-height:100vh}
+#application[data-zc-dashboard-style="2"] .side,
+#application[data-zc-dashboard-style="3"] .side,
+#application[data-zc-dashboard-style="4"] .side,
+#application[data-zc-dashboard-style="5"] .side{background:var(--panel);border-color:var(--line);color:var(--text)}
+#application[data-zc-dashboard-style="2"] .side-nav button,
+#application[data-zc-dashboard-style="3"] .side-nav button,
+#application[data-zc-dashboard-style="5"] .side-nav button{color:var(--muted);transition:background .2s,color .2s,transform .2s}
+#application[data-zc-dashboard-style="2"] .side-nav button.active,
+#application[data-zc-dashboard-style="2"] .side-nav button:hover{background:#28381c;color:#e5ff9a}
+#application[data-zc-dashboard-style="3"] .side-nav button.active,
+#application[data-zc-dashboard-style="3"] .side-nav button:hover{background:#1b344c;color:#9cf7ed}
+#application[data-zc-dashboard-style="5"] .side-nav button.active,
+#application[data-zc-dashboard-style="5"] .side-nav button:hover{background:#273657;color:#b1f6d8}
+#application[data-zc-dashboard-style="2"] .appbar,
+#application[data-zc-dashboard-style="3"] .appbar,
+#application[data-zc-dashboard-style="4"] .appbar,
+#application[data-zc-dashboard-style="5"] .appbar{background:var(--bg);border-color:var(--line);color:var(--text)}
+#application[data-zc-dashboard-style="2"] .content{max-width:1500px;padding:30px}
+#application[data-zc-dashboard-style="3"] .content{max-width:1680px;padding:22px}
+#application[data-zc-dashboard-style="4"] .content{max-width:1280px;padding:32px}
+#application[data-zc-dashboard-style="5"] .content{max-width:1180px;padding:24px}
+#application[data-zc-dashboard-style="2"] #app-content .panel,
+#application[data-zc-dashboard-style="2"] #app-content .card,
+#application[data-zc-dashboard-style="2"] #app-content .market-panel{background:linear-gradient(145deg,#172119,#101712);border-color:#2b3d2d;color:var(--text);border-radius:21px;box-shadow:0 16px 42px #0004}
+#application[data-zc-dashboard-style="2"] #app-content .app-stat{background:linear-gradient(145deg,#19251b,#101711);border-color:#2c3b2a;border-radius:18px}
+#application[data-zc-dashboard-style="2"] #app-content .app-stat small,
+#application[data-zc-dashboard-style="2"] #app-content .muted{color:#a6b3a0}
+#application[data-zc-dashboard-style="2"] #app-content .page-title h1,
+#application[data-zc-dashboard-style="2"] #app-content h2,
+#application[data-zc-dashboard-style="2"] #app-content h3{letter-spacing:-.55px}
+#application[data-zc-dashboard-style="2"] .btn.primary{background:linear-gradient(135deg,#d8ff58,#a8d925);color:#16200c;border-color:transparent}
+#application[data-zc-dashboard-style="2"] .btn:not(.primary){background:#1c2b20;border-color:#344b31;color:#e8f6dd}
+#application[data-zc-dashboard-style="2"] .field input,
+#application[data-zc-dashboard-style="2"] .field select,
+#application[data-zc-dashboard-style="2"] .field textarea,
+#application[data-zc-dashboard-style="2"] .market-chart-select{background:#0d1510;border-color:#344b31;color:#f1f8ec}
+#application[data-zc-dashboard-style="2"] #app-content .notice{background:#1b2a1c;border-color:#405b2c;color:#d3e8c0}
+#application[data-zc-dashboard-style="2"] .market-chart-box{background:radial-gradient(ellipse at 50% 0%,#253e20,#0b120d 76%);border-color:#293c2d}
+#application[data-zc-dashboard-style="3"] #app-content .panel,
+#application[data-zc-dashboard-style="3"] #app-content .card,
+#application[data-zc-dashboard-style="3"] #app-content .market-panel{background:linear-gradient(145deg,#152338,#0f1a2b);border-color:#2a405b;color:var(--text);border-radius:13px;box-shadow:0 15px 38px #020b18aa}
+#application[data-zc-dashboard-style="3"] #app-content .app-stat{background:#132237;border-color:#2c4965;border-radius:12px}
+#application[data-zc-dashboard-style="3"] #app-content .app-stat small,
+#application[data-zc-dashboard-style="3"] #app-content .muted{color:#9bb2c8}
+#application[data-zc-dashboard-style="3"] .btn.primary{background:linear-gradient(135deg,#59e5d5,#26aaa9);color:#061a21;border-color:transparent}
+#application[data-zc-dashboard-style="3"] .btn:not(.primary){background:#1a2c43;border-color:#34506e;color:#e4f3ff}
+#application[data-zc-dashboard-style="3"] .field input,
+#application[data-zc-dashboard-style="3"] .field select,
+#application[data-zc-dashboard-style="3"] .field textarea,
+#application[data-zc-dashboard-style="3"] .market-chart-select{background:#0b1728;border-color:#35516e;color:#edf7ff}
+#application[data-zc-dashboard-style="3"] .market-chart-box{background:radial-gradient(ellipse at 50% 0%,#1e3a54,#091321 76%);border-color:#2d435d}
+#application[data-zc-dashboard-style="3"] #app-content th{font-size:10px;letter-spacing:1.4px}
+#application[data-zc-dashboard-style="3"] .table-wrap{border:1px solid #263f59;border-radius:12px}
+#application[data-zc-dashboard-style="4"] .side{background:#fff;border-right:1px solid #dce7e1}
+#application[data-zc-dashboard-style="4"] .side .brand{color:#16382a}
+#application[data-zc-dashboard-style="4"] .side-nav button{color:#63776d}
+#application[data-zc-dashboard-style="4"] .side-nav button.active,
+#application[data-zc-dashboard-style="4"] .side-nav button:hover{background:#e8f4ee;color:#126447}
+#application[data-zc-dashboard-style="4"] .side-foot{color:#77877f}
+#application[data-zc-dashboard-style="4"] .appbar{background:#f7faf8;border-color:#dce7e1;color:#172a22}
+#application[data-zc-dashboard-style="4"] #app-content .page-title,
+#application[data-zc-dashboard-style="4"] #app-content .page-title h1,
+#application[data-zc-dashboard-style="4"] #app-content h2,
+#application[data-zc-dashboard-style="4"] #app-content h3,
+#application[data-zc-dashboard-style="4"] #app-content h4{color:#172a22}
+#application[data-zc-dashboard-style="4"] #app-content .muted,
+#application[data-zc-dashboard-style="4"] #app-content .eyebrow,
+#application[data-zc-dashboard-style="4"] #app-content .field label,
+#application[data-zc-dashboard-style="4"] #app-content th{color:#64786d}
+#application[data-zc-dashboard-style="4"] #app-content .panel,
+#application[data-zc-dashboard-style="4"] #app-content .card,
+#application[data-zc-dashboard-style="4"] #app-content .market-panel,
+#application[data-zc-dashboard-style="4"] #app-content .app-stat{background:#fff;border-color:#dce7e1;color:#172a22;box-shadow:0 12px 32px #193c2410;border-radius:17px}
+#application[data-zc-dashboard-style="4"] #app-content td{color:#344b40}
+#application[data-zc-dashboard-style="4"] #app-content th,
+#application[data-zc-dashboard-style="4"] #app-content td{border-bottom-color:#e7eeea}
+#application[data-zc-dashboard-style="4"] #app-content .app-stat small,
+#application[data-zc-dashboard-style="4"] #app-content .app-stat .stat-foot{color:#718278}
+#application[data-zc-dashboard-style="4"] #app-content .btn{background:#f2f7f4;border-color:#d5e5dc;color:#234537}
+#application[data-zc-dashboard-style="4"] #app-content .btn.primary{background:linear-gradient(135deg,#16865e,#0d6849);border-color:transparent;color:#fff}
+#application[data-zc-dashboard-style="4"] #app-content .field input,
+#application[data-zc-dashboard-style="4"] #app-content .field select,
+#application[data-zc-dashboard-style="4"] #app-content .field textarea,
+#application[data-zc-dashboard-style="4"] #app-content .market-chart-select{background:#f8fbf9;border-color:#d8e5dd;color:#203d30}
+#application[data-zc-dashboard-style="4"] #app-content .market-chart-box{background:radial-gradient(ellipse at 50% 0%,#e9f7ef,#f6faf8 76%);border-color:#e1ece5}
+#application[data-zc-dashboard-style="4"] #app-content .notice{background:#edf6f0;border-color:#d1e5d7;color:#385a46}
+#application[data-zc-dashboard-style="4"] #app-content .pill{background:#e4f3ea;color:#176443}
+#application[data-zc-dashboard-style="5"] #app-content .panel,
+#application[data-zc-dashboard-style="5"] #app-content .card,
+#application[data-zc-dashboard-style="5"] #app-content .market-panel{background:linear-gradient(145deg,#1a2743,#111a30);border-color:#334867;color:var(--text);border-radius:24px;box-shadow:0 18px 46px #02071688}
+#application[data-zc-dashboard-style="5"] #app-content .app-stat{background:linear-gradient(145deg,#1b2a47,#121d35);border-color:#364e72;border-radius:20px}
+#application[data-zc-dashboard-style="5"] #app-content .app-stat small,
+#application[data-zc-dashboard-style="5"] #app-content .muted{color:#aab8d0}
+#application[data-zc-dashboard-style="5"] .btn.primary{background:linear-gradient(135deg,#65e9b7,#2fb8a2);color:#08251e;border-color:transparent}
+#application[data-zc-dashboard-style="5"] .btn:not(.primary){background:#202f4c;border-color:#3a5278;color:#eef4ff}
+#application[data-zc-dashboard-style="5"] .field input,
+#application[data-zc-dashboard-style="5"] .field select,
+#application[data-zc-dashboard-style="5"] .field textarea,
+#application[data-zc-dashboard-style="5"] .market-chart-select{background:#101a30;border-color:#3a5278;color:#f1f6ff}
+#application[data-zc-dashboard-style="5"] .market-chart-box{background:radial-gradient(ellipse at 50% 0%,#253b60,#0c1528 76%);border-color:#304869}
+#application[data-zc-dashboard-style="2"] #app-content .page-title p,
+#application[data-zc-dashboard-style="3"] #app-content .page-title p,
+#application[data-zc-dashboard-style="5"] #app-content .page-title p{color:var(--muted)}
+#application[data-zc-dashboard-style="2"] .appbar .btn,
+#application[data-zc-dashboard-style="3"] .appbar .btn,
+#application[data-zc-dashboard-style="5"] .appbar .btn{background:var(--panel2);border-color:var(--line);color:var(--text)}
+#application[data-zc-dashboard-style="2"] .zc-alt-dashboard,
+#application[data-zc-dashboard-style="3"] .zc-alt-dashboard,
+#application[data-zc-dashboard-style="4"] .zc-alt-dashboard,
+#application[data-zc-dashboard-style="5"] .zc-alt-dashboard{animation:zcDashEnter .35s ease both}
+@keyframes zcDashEnter{from{opacity:0;transform:translateY(9px)}to{opacity:1;transform:translateY(0)}}
+#application[data-zc-dashboard-style="2"] #app-content .zc-alt-dashboard .app-stat,
+#application[data-zc-dashboard-style="3"] #app-content .zc-alt-dashboard .app-stat,
+#application[data-zc-dashboard-style="4"] #app-content .zc-alt-dashboard .app-stat,
+#application[data-zc-dashboard-style="5"] #app-content .zc-alt-dashboard .app-stat{transition:transform .2s ease,box-shadow .2s ease}
+#application[data-zc-dashboard-style="2"] #app-content .zc-alt-dashboard .app-stat:hover,
+#application[data-zc-dashboard-style="3"] #app-content .zc-alt-dashboard .app-stat:hover,
+#application[data-zc-dashboard-style="4"] #app-content .zc-alt-dashboard .app-stat:hover,
+#application[data-zc-dashboard-style="5"] #app-content .zc-alt-dashboard .app-stat:hover{transform:translateY(-2px);box-shadow:0 20px 44px #0003}
+.zc-alt-dashboard{display:grid;gap:16px;min-width:0}
+.zc-alt-heading,.zc-terminal-heading,.zc-minimal-heading,.zc-mobile-welcome{display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;margin-bottom:2px}
+.zc-alt-heading h1,.zc-terminal-heading h1,.zc-minimal-heading h1,.zc-mobile-welcome h1{margin:6px 0;font-size:clamp(25px,3vw,34px);letter-spacing:-1.1px}
+.zc-alt-heading p,.zc-minimal-heading p,.zc-mobile-welcome p{margin:5px 0 0;color:var(--muted)}
+.zc-dash-date{font-size:12px;color:var(--muted);padding:9px 12px;border:1px solid var(--line);border-radius:100px;background:var(--panel)}
+.zc-dash-quick-actions{display:flex;gap:9px;flex-wrap:wrap}
+.zc-dash-quick-actions .btn{display:inline-flex;align-items:center;justify-content:center;gap:7px}
+.zc-finflex-balance{position:relative;isolation:isolate;overflow:hidden;display:flex;align-items:center;justify-content:space-between;gap:22px;flex-wrap:wrap;min-height:190px;padding:28px;border:1px solid #4d612b;border-radius:25px;background:radial-gradient(ellipse at 85% 5%,#607c22aa,transparent 43%),linear-gradient(125deg,#28391d,#121a11);box-shadow:0 22px 55px #0006}
+.zc-finflex-balance-main{position:relative;z-index:2;display:grid;gap:8px}
+.zc-finflex-balance-main small,.zc-minimal-balance small,.zc-mobile-balance-top{font-size:10px;font-weight:850;letter-spacing:1.5px;color:#cad9b4}
+.zc-finflex-balance-main strong{font-size:clamp(34px,5vw,48px);letter-spacing:-1.8px;color:#f2ffe2}
+.zc-finflex-balance-main span{font-size:12px;color:#b1c59c}
+.zc-finflex-balance-actions{position:relative;z-index:2;max-width:510px}
+.zc-finflex-balance-actions .btn:not(.primary){background:#28391e;border-color:#52693a;color:#eff9df}
+.zc-finflex-orbit{position:absolute;z-index:1;right:60px;top:-110px;width:270px;height:270px;border:1px solid #e3ff9b22;border-radius:50%;box-shadow:0 0 0 30px #e3ff9b0d,0 0 0 65px #e3ff9b08;pointer-events:none}
+.zc-alt-stat-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.zc-alt-stat-top{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.zc-alt-stat-icon{width:28px;height:28px;border-radius:9px;display:grid;place-items:center;background:#ffffff0d;color:var(--green);font-size:15px}
+.zc-alt-stat strong{font-variant-numeric:tabular-nums}
+.zc-alt-section-heading{display:flex;align-items:end;justify-content:space-between;gap:12px;margin:4px 0 -7px}
+.zc-alt-section-heading h2{font-size:20px;margin:4px 0}
+.zc-alt-two-col{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(270px,.85fr);gap:15px;align-items:start}
+.zc-alt-two-col>.panel,.zc-alt-two-col>.market-panel{margin:0;min-width:0}
+.zc-alt-disclaimer{font-size:10px;line-height:1.6;margin:10px 0 0}
+.zc-alt-referral-link{display:flex;gap:8px}
+.zc-alt-referral-link input{min-width:0;flex:1}
+.zc-alt-referral-stats{margin:12px 0 15px;grid-template-columns:repeat(2,minmax(0,1fr))}
+.zc-alt-referral-stats .stat{padding:13px}
+.zc-alt-referral-stats .stat strong{font-size:20px}
+.zc-alt-plan-list{display:grid;gap:12px}
+.zc-alt-active-plans{margin:0}
+.zc-alt-active-plans>.app-hero-row{margin-bottom:14px}
+.zc-alt-recent{margin:0}
+.zc-alt-market-chart,.zc-alt-market-watch{margin:0}
+.zc-terminal-heading{align-items:flex-start}
+.zc-terminal-status{display:inline-flex;align-items:center;gap:8px;border:1px solid #2d625c;border-radius:7px;padding:9px 12px;color:#98eee3;font-size:10px;letter-spacing:1px;font-weight:800}
+.zc-terminal-status i,.zc-mobile-live i{width:7px;height:7px;border-radius:50%;background:#4ce0b7;box-shadow:0 0 0 4px #4ce0b722}
+.zc-terminal-metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+.zc-terminal-dashboard .app-stat{min-width:0}
+.zc-terminal-dashboard .app-stat strong{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:clamp(17px,2vw,24px)}
+.zc-terminal-market-grid{display:grid;grid-template-columns:minmax(0,1.7fr) minmax(280px,.8fr);gap:12px}
+.zc-terminal-market-grid>.market-panel{margin:0}
+.zc-terminal-action-row{display:flex;justify-content:flex-end}
+.zc-terminal-footnote{border:1px solid var(--line);background:var(--panel);color:var(--muted);padding:12px 14px;border-radius:10px;font-size:11px;line-height:1.55}
+.zc-minimal-heading{align-items:flex-end}
+.zc-minimal-heading .zc-dash-quick-actions{justify-content:flex-end}
+.zc-minimal-balance{display:flex;align-items:center;justify-content:space-between;gap:18px;padding:26px 28px;border:1px solid #d5e7dc;border-radius:21px;background:linear-gradient(130deg,#fff,#f2f8f4);box-shadow:0 14px 34px #203e2b0d;color:#172a22}
+.zc-minimal-balance small{color:#6b7c72}
+.zc-minimal-balance strong{display:block;color:#173d2d;font-size:clamp(34px,4.5vw,46px);letter-spacing:-1.6px;margin:6px 0}
+.zc-minimal-balance p{margin:0;color:#728278;font-size:12px}
+.zc-minimal-balance-mark{display:grid;place-items:center;width:66px;height:66px;border-radius:20px;background:#e6f3eb;color:#137f5b;font-size:28px;font-weight:900}
+.zc-minimal-dashboard .app-stat{background:#fff!important}
+.zc-minimal-dashboard .zc-alt-stat-icon{background:#eaf4ee;color:#137f5b}
+.zc-mobile-dashboard{gap:14px}
+.zc-mobile-welcome{align-items:center}
+.zc-mobile-avatar{width:44px;height:44px;display:grid;place-items:center;border-radius:15px;background:linear-gradient(145deg,#5ee7b0,#299b9d);color:#09251e;font-weight:900;font-size:19px}
+.zc-mobile-balance{padding:22px;border-radius:24px;border:1px solid #3d547b;background:radial-gradient(ellipse at 90% 0%,#3b5980aa,transparent 44%),linear-gradient(140deg,#24395d,#141f39);box-shadow:0 22px 48px #02071688}
+.zc-mobile-balance-top{display:flex;justify-content:space-between;align-items:center}
+.zc-mobile-live{display:inline-flex;align-items:center;gap:7px;font-size:9px;color:#b8f9df}
+.zc-mobile-balance strong{display:block;font-size:clamp(34px,5vw,46px);letter-spacing:-1.7px;margin:13px 0 4px}
+.zc-mobile-balance>small{color:#aebbd2}
+.zc-mobile-balance .zc-dash-quick-actions{margin-top:18px;display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}
+.zc-mobile-balance .zc-dash-quick-actions .btn{min-width:0;padding:10px 8px}
+.zc-mobile-stat-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+.zc-mobile-stat-grid .app-stat{padding:16px}
+.zc-mobile-section-head{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.zc-mobile-section-head h2{font-size:19px;margin:0}
+.zc-mobile-market-grid{display:grid;grid-template-columns:1fr;gap:14px}
+.zc-mobile-market-grid>.market-panel{margin:0}
+.zc-mobile-dashboard .zc-alt-referrals,
+.zc-mobile-dashboard .zc-alt-recent{margin:0}
+.zc-dashboard-studio{margin:0 0 18px;overflow:hidden}
+.zc-studio-head{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:18px}
+.zc-studio-head h3{font-size:20px;letter-spacing:-.5px}
+.zc-studio-head p{max-width:760px;line-height:1.6}
+.zc-studio-active{font-size:11px;font-weight:800;color:var(--mint);border:1px solid var(--line);background:var(--panel2);padding:9px 12px;border-radius:100px}
+.zc-dashboard-style-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:13px}
+.zc-dashboard-style-card{min-width:0;overflow:hidden;border:1px solid var(--line);background:var(--panel2);border-radius:16px;transition:transform .2s ease,border-color .2s ease,box-shadow .2s ease}
+.zc-dashboard-style-card:hover{transform:translateY(-2px);box-shadow:0 16px 30px #0002}
+.zc-dashboard-style-card.is-active{border-color:var(--green);box-shadow:0 0 0 1px var(--green) inset}
+.zc-dashboard-style-preview{position:relative;padding:10px 10px 0}
+.zc-current-style-pill,.zc-original-pill{display:inline-flex;align-items:center;white-space:nowrap;font-size:9px;font-weight:850;letter-spacing:.35px;padding:5px 8px;border-radius:100px;background:#d8ff58;color:#1a2a10}
+.zc-current-style-pill{position:absolute;right:16px;top:16px}
+.zc-original-pill{background:#e3eee8;color:#305645}
+.zc-dashboard-style-info{padding:12px 14px 14px}
+.zc-dashboard-style-title{display:flex;align-items:center;gap:9px;flex-wrap:wrap}
+.zc-dashboard-style-title b{font-size:14px}
+.zc-dashboard-style-info p{font-size:12px;color:var(--muted);line-height:1.55;margin:7px 0}
+.zc-dashboard-style-info>small{display:block;color:var(--muted);font-size:10px;line-height:1.5;min-height:28px}
+.zc-dashboard-style-actions{display:flex;gap:8px;margin-top:13px}
+.zc-dashboard-style-actions .btn{flex:1;padding:9px 10px;font-size:11px}
+.zc-studio-note{margin-top:16px;padding:12px 14px;border:1px solid var(--line);border-radius:12px;background:var(--panel);color:var(--muted);font-size:11px;line-height:1.6}
+.zc-studio-note b{color:var(--text)}
+.zc-dash-thumb{height:128px;display:grid;grid-template-columns:49px 1fr;overflow:hidden;border:1px solid #314b3a;border-radius:12px;background:#0b1710;color:#ecf8ef}
+.zc-thumb-side{display:grid;align-content:start;justify-items:center;gap:11px;padding:10px 5px;background:#0c2117;border-right:1px solid #ffffff13}
+.zc-thumb-side b{font-size:13px;color:#a7edbd}
+.zc-thumb-side i{width:21px;height:5px;border-radius:5px;background:#ffffff28}
+.zc-thumb-main{min-width:0;padding:10px}
+.zc-thumb-head{display:flex;justify-content:space-between;margin-bottom:10px}
+.zc-thumb-head i{width:35px;height:5px;border-radius:5px;background:#ffffff35}
+.zc-thumb-hero{display:grid;gap:4px;padding:9px;border-radius:8px;background:linear-gradient(110deg,#23442b,#132319)}
+.zc-thumb-hero small{font-size:6px;letter-spacing:1px;color:#c6d8c1}
+.zc-thumb-hero b{font-size:13px}
+.zc-thumb-hero span{width:45px;height:4px;border-radius:5px;background:#b9e87b}
+.zc-thumb-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:5px;margin-top:7px}
+.zc-thumb-stats i{height:17px;border-radius:5px;background:#ffffff13}
+.zc-thumb-lower{display:grid;grid-template-columns:1.4fr 1fr;gap:6px;margin-top:7px}
+.zc-thumb-chart,.zc-thumb-list{display:flex;align-items:end;gap:5px;height:27px;padding:4px;border-radius:5px;background:#ffffff0d}
+.zc-thumb-chart i{flex:1;height:35%;border-radius:3px 3px 0 0;background:#68d7a3}
+.zc-thumb-chart i:nth-child(2){height:60%}.zc-thumb-chart i:nth-child(3){height:44%}.zc-thumb-chart i:nth-child(4){height:80%}.zc-thumb-chart i:nth-child(5){height:68%}.zc-thumb-chart i:nth-child(6){height:94%}
+.zc-thumb-list{display:grid;align-content:center;gap:4px}.zc-thumb-list i{height:4px;border-radius:4px;background:#ffffff27}
+.zc-dash-thumb-2{border-color:#506333;background:#0e150b}.zc-dash-thumb-2 .zc-thumb-hero{background:linear-gradient(110deg,#465f1e,#1b2a13)}.zc-dash-thumb-2 .zc-thumb-hero span{background:#d8ff58}.zc-dash-thumb-2 .zc-thumb-chart i{background:#c3f53b}
+.zc-dash-thumb-3{border-radius:6px;border-color:#36516f;background:#0a1423}.zc-dash-thumb-3 .zc-thumb-side{background:#111f33}.zc-dash-thumb-3 .zc-thumb-hero{border-radius:4px;background:#1b344d}.zc-dash-thumb-3 .zc-thumb-hero span{background:#42d8cb}.zc-dash-thumb-3 .zc-thumb-chart i{background:#42d8cb}
+.zc-dash-thumb-4{border-color:#d4e3da;background:#f6faf7;color:#173b2b}.zc-dash-thumb-4 .zc-thumb-side{background:#e9f3ed;border-color:#d4e3da}.zc-dash-thumb-4 .zc-thumb-side i,.zc-dash-thumb-4 .zc-thumb-head i{background:#9bb4a4}.zc-dash-thumb-4 .zc-thumb-hero{background:#e7f3eb}.zc-dash-thumb-4 .zc-thumb-hero small{color:#527260}.zc-dash-thumb-4 .zc-thumb-hero span{background:#17885e}.zc-dash-thumb-4 .zc-thumb-stats i,.zc-dash-thumb-4 .zc-thumb-chart,.zc-dash-thumb-4 .zc-thumb-list{background:#e9f2ec}.zc-dash-thumb-4 .zc-thumb-chart i{background:#16865e}
+.zc-dash-thumb-5{border-color:#3b5077;background:#101a30;border-radius:18px;grid-template-columns:34px 1fr}.zc-dash-thumb-5 .zc-thumb-side{background:#172541;padding:8px 3px;gap:9px}.zc-dash-thumb-5 .zc-thumb-hero{border-radius:12px;background:linear-gradient(110deg,#2a456e,#172949)}.zc-dash-thumb-5 .zc-thumb-hero span{background:#65e9b7}.zc-dash-thumb-5 .zc-thumb-chart i{background:#65e9b7}
+.zc-dashboard-preview-overlay{position:fixed;z-index:99999;inset:0;display:grid;place-items:center;padding:20px;background:#02070bd9;backdrop-filter:blur(8px);animation:zcDashEnter .2s ease both}
+.zc-dashboard-preview-dialog{width:min(1040px,100%);max-height:92vh;overflow:auto;padding:20px;border:1px solid #3b5646;border-radius:20px;background:#0c1711;color:#effaf4;box-shadow:0 30px 90px #0009}
+.zc-preview-dialog-head{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-bottom:14px}
+.zc-preview-dialog-head h2{font-size:21px;margin:5px 0}
+.zc-preview-dialog-head .btn{font-size:20px;padding:4px 11px}
+.zc-dashboard-preview-frame{overflow:hidden;border:1px solid #294b36;border-radius:16px;background:#0b1710;color:#effaf4}
+.zc-preview-top{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:12px 16px;border-bottom:1px solid #ffffff17;background:#0e2117;font-size:10px;color:#b6caba}
+.zc-preview-top>div{display:flex;align-items:center;gap:8px;color:#effaf4;letter-spacing:1px}
+.zc-preview-logo{display:grid;place-items:center;width:23px;height:23px;border-radius:7px;background:#20c783;color:#062014;font-weight:950}
+.zc-preview-content{padding:20px}
+.zc-preview-heading{display:flex;justify-content:space-between;gap:12px;margin-bottom:14px}
+.zc-preview-heading small{font-size:8px;letter-spacing:1px;color:#a8cfb7}
+.zc-preview-heading h2{font-size:19px;margin:4px 0}
+.zc-preview-heading p{font-size:11px;color:#91aa9c;margin:0}
+.zc-preview-heading>span{align-self:start;font-size:9px;padding:5px 8px;border:1px solid #496450;border-radius:50px;color:#c8dfd0}
+.zc-preview-balance{padding:17px;border:1px solid #315b40;border-radius:14px;background:linear-gradient(120deg,#163924,#0d1f14)}
+.zc-preview-balance small,.zc-preview-balance span{display:block;font-size:8px;color:#b0c9b6}
+.zc-preview-balance strong{display:block;font-size:30px;letter-spacing:-1px;margin:6px 0}
+.zc-preview-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin:10px 0}
+.zc-preview-stats>div{display:grid;gap:5px;padding:11px;border:1px solid #2b4834;border-radius:10px;background:#112219}
+.zc-preview-stats small{font-size:8px;color:#a5b9a9}.zc-preview-stats b{font-size:15px}
+.zc-preview-bottom{display:grid;grid-template-columns:1.4fr 1fr;gap:10px}
+.zc-preview-chart,.zc-preview-activity{padding:13px;border:1px solid #2b4834;border-radius:10px;background:#101f15}
+.zc-preview-chart b,.zc-preview-activity b{font-size:10px}
+.zc-preview-chart svg{display:block;width:100%;height:76px;margin-top:8px;color:#8be0af}
+.zc-preview-chart small{font-size:8px;color:#91aa9c}
+.zc-preview-activity{display:grid;align-content:start;gap:10px}.zc-preview-activity i{height:9px;border-radius:5px;background:#ffffff18}
+.zc-preview-actions{display:flex;gap:9px;flex-wrap:wrap;margin-top:12px}
+.zc-preview-actions span{padding:8px 11px;border:1px solid #365844;border-radius:8px;background:#14291b;font-size:9px}
+.zc-preview-dialog-foot{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-top:15px}
+.zc-preview-dialog-foot p{max-width:620px;font-size:11px;line-height:1.6}
+.zc-preview-dialog-foot .btn{white-space:nowrap}
+.zc-dashboard-preview-frame[data-zc-dashboard-style="2"]{border-color:#566b2b;background:#0d140a}
+.zc-dashboard-preview-frame[data-zc-dashboard-style="2"] .zc-preview-top{background:#111b0d}
+.zc-dashboard-preview-frame[data-zc-dashboard-style="2"] .zc-preview-logo{background:#c3f53b;color:#19230b}
+.zc-dashboard-preview-frame[data-zc-dashboard-style="2"] .zc-preview-balance{background:linear-gradient(120deg,#31471c,#151f10);border-color:#5b7131}
+.zc-dashboard-preview-frame[data-zc-dashboard-style="2"] .zc-preview-stats>div,.zc-dashboard-preview-frame[data-zc-dashboard-style="2"] .zc-preview-chart,.zc-dashboard-preview-frame[data-zc-dashboard-style="2"] .zc-preview-activity{background:#141e12;border-color:#3c4e2c}
+.zc-dashboard-preview-frame[data-zc-dashboard-style="2"] .zc-preview-chart svg{color:#c3f53b}
+.zc-dashboard-preview-frame[data-zc-dashboard-style="3"]{border-radius:6px;border-color:#2b4867;background:#091523}
+.zc-dashboard-preview-frame[data-zc-dashboard-style="3"] .zc-preview-top{background:#101e30}
+.zc-dashboard-preview-frame[data-zc-dashboard-style="3"] .zc-preview-logo{background:#42d8cb;color:#081c25}
+.zc-dashboard-preview-frame[data-zc-dashboard-style="3"] .zc-preview-balance{background:linear-gradient(120deg,#1b3853,#11243a);border-color:#2f5b73;border-radius:7px}
+.zc-dashboard-preview-frame[data-zc-dashboard-style="3"] .zc-preview-stats>div,.zc-dashboard-preview-frame[data-zc-dashboard-style="3"] .zc-preview-chart,.zc-dashboard-preview-frame[data-zc-dashboard-style="3"] .zc-preview-activity{background:#122239;border-color:#2d4867;border-radius:6px}
+.zc-dashboard-preview-frame[data-zc-dashboard-style="3"] .zc-preview-chart svg{color:#42d8cb}
+.zc-dashboard-preview-frame[data-zc-dashboard-style="4"]{background:#f4f8f5;color:#17382b;border-color:#d8e7dd}
+.zc-dashboard-preview-frame[data-zc-dashboard-style="4"] .zc-preview-top{background:#fff;color:#61766a;border-color:#d8e7dd}
+.zc-dashboard-preview-frame[data-zc-dashboard-style="4"] .zc-preview-top>div{color:#17382b}
+.zc-dashboard-preview-frame[data-zc-dashboard-style="4"] .zc-preview-logo{background:#16865e;color:white}
+.zc-dashboard-preview-frame[data-zc-dashboard-style="4"] .zc-preview-heading small,.zc-dashboard-preview-frame[data-zc-dashboard-style="4"] .zc-preview-heading p,.zc-dashboard-preview-frame[data-zc-dashboard-style="4"] .zc-preview-balance small,.zc-dashboard-preview-frame[data-zc-dashboard-style="4"] .zc-preview-balance span,.zc-dashboard-preview-frame[data-zc-dashboard-style="4"] .zc-preview-stats small,.zc-dashboard-preview-frame[data-zc-dashboard-style="4"] .zc-preview-chart small{color:#657a6e}
+.zc-dashboard-preview-frame[data-zc-dashboard-style="4"] .zc-preview-heading>span{border-color:#d4e4da;color:#4d6a59}
+.zc-dashboard-preview-frame[data-zc-dashboard-style="4"] .zc-preview-balance{background:linear-gradient(120deg,#e1f1e7,#f7fbf8);border-color:#d0e2d6;color:#17382b}
+.zc-dashboard-preview-frame[data-zc-dashboard-style="4"] .zc-preview-stats>div,.zc-dashboard-preview-frame[data-zc-dashboard-style="4"] .zc-preview-chart,.zc-dashboard-preview-frame[data-zc-dashboard-style="4"] .zc-preview-activity{background:#fff;border-color:#dce9e0;color:#17382b}
+.zc-dashboard-preview-frame[data-zc-dashboard-style="4"] .zc-preview-chart svg{color:#16865e}
+.zc-dashboard-preview-frame[data-zc-dashboard-style="5"]{border-radius:24px;border-color:#374d72;background:#101a30}
+.zc-dashboard-preview-frame[data-zc-dashboard-style="5"] .zc-preview-top{background:#172541}
+.zc-dashboard-preview-frame[data-zc-dashboard-style="5"] .zc-preview-logo{background:#65e9b7;color:#08251e}
+.zc-dashboard-preview-frame[data-zc-dashboard-style="5"] .zc-preview-balance{background:linear-gradient(120deg,#2a456e,#172949);border-color:#425b81;border-radius:20px}
+.zc-dashboard-preview-frame[data-zc-dashboard-style="5"] .zc-preview-stats>div,.zc-dashboard-preview-frame[data-zc-dashboard-style="5"] .zc-preview-chart,.zc-dashboard-preview-frame[data-zc-dashboard-style="5"] .zc-preview-activity{background:#182744;border-color:#394f73;border-radius:16px}
+.zc-dashboard-preview-frame[data-zc-dashboard-style="5"] .zc-preview-chart svg{color:#65e9b7}
+@media(max-width:900px){
+ #application[data-zc-dashboard-style="2"] .zc-alt-two-col,
+ #application[data-zc-dashboard-style="3"] .zc-terminal-market-grid,
+ #application[data-zc-dashboard-style="4"] .zc-alt-two-col{grid-template-columns:1fr}
+ #application[data-zc-dashboard-style="3"] .zc-terminal-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}
+ #application[data-zc-dashboard-style="2"] .content,
+ #application[data-zc-dashboard-style="3"] .content,
+ #application[data-zc-dashboard-style="4"] .content,
+ #application[data-zc-dashboard-style="5"] .content{padding:20px 16px}
+}
+@media(max-width:650px){
+ .zc-dashboard-style-grid{grid-template-columns:1fr}
+ .zc-dash-thumb{height:120px}
+ .zc-studio-head{display:grid}
+ .zc-studio-active{justify-self:start}
+ .zc-dashboard-style-actions .btn{min-width:0}
+ .zc-preview-content{padding:12px}
+ .zc-preview-dialog-foot{align-items:stretch;flex-direction:column}
+ .zc-preview-dialog-foot .btn{width:100%}
+ .zc-preview-stats{grid-template-columns:1fr}
+ .zc-preview-bottom{grid-template-columns:1fr}
+ .zc-preview-heading{flex-direction:column}
+ .zc-dashboard-preview-dialog{padding:12px;max-height:95vh}
+ .zc-alt-stat-grid,.zc-terminal-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .zc-alt-two-col{grid-template-columns:1fr}
+ .zc-finflex-balance{padding:21px;min-height:0}
+ .zc-finflex-balance-main strong,.zc-mobile-balance strong{font-size:32px}
+ .zc-finflex-balance-actions{width:100%}
+ .zc-finflex-balance-actions .zc-dash-quick-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}
+ .zc-dash-date{display:none}
+ .zc-minimal-heading{align-items:flex-start}
+ .zc-minimal-heading .zc-dash-quick-actions{width:100%;display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}
+ .zc-minimal-balance{padding:20px}
+ .zc-minimal-balance-mark{width:48px;height:48px;border-radius:14px}
+ .zc-mobile-balance{padding:19px}
+ .zc-mobile-stat-grid .app-stat{padding:13px}
+ .zc-mobile-stat-grid .app-stat strong{font-size:19px}
+ .zc-terminal-action-row .zc-dash-quick-actions{width:100%;display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}
+ .zc-dashboard-preview-overlay{padding:8px}
+}
+@media(prefers-reduced-motion:reduce){
+ #application[data-zc-dashboard-style] #app-content .zc-alt-dashboard,
+ #application[data-zc-dashboard-style] #app-content .app-stat{animation:none!important;transition:none!important}
+ .zc-dashboard-style-card{transition:none!important}
+ .zc-dashboard-preview-overlay{animation:none!important}
+}
+</style></head><body><script>try{var __zcT=localStorage.getItem('zentrachain-theme')||'blue';document.body.setAttribute('data-zc-theme',__zcT)}catch(__zcE){}</script><div class="zc-particle-field" aria-hidden="true"></div>
 <div id="public">
 <header class="wrap topbar"><div class="brand"><div class="logo zc-brand-mark"><svg viewBox="0 0 40 40" width="27" height="27" aria-hidden="true" focusable="false"><defs><linearGradient id="zcLogoGrad" x1="4" y1="4" x2="36" y2="36" gradientUnits="userSpaceOnUse"><stop style="stop-color:var(--mint)"/><stop offset=".48" style="stop-color:var(--green)"/><stop offset="1" style="stop-color:var(--green)"/></linearGradient></defs><path d="M20 2.8 35.2 11.4v17.2L20 37.2 4.8 28.6V11.4L20 2.8Z" fill="none" stroke="url(#zcLogoGrad)" stroke-width="2.2"/><path d="M12 13.1h16L15.4 26.9H28" fill="none" stroke="url(#zcLogoGrad)" stroke-width="4.1" stroke-linecap="round" stroke-linejoin="round"/><circle cx="28.1" cy="13.1" r="2.1" style="fill:var(--mint)"/><circle cx="12" cy="26.9" r="2.1" style="fill:var(--green)"/></svg></div>ZENTRACHAIN </div><nav class="nav"><a href="#network">Network</a><a href="#how">How it works</a><a href="#markets">Markets</a><a href="#faq">FAQs</a><a href="#risk">Risk</a></nav><div id="public-account-actions" style="display:flex;gap:9px"><button class="btn ghost" id="public-login-button" onclick="showAuth('login')">Log in</button><button class="btn primary" id="public-signup-button" onclick="showAuth('signup')">Create account</button><button class="btn primary hidden" id="public-dashboard-button" onclick="zcGoDashboard()">Dashboard</button></div></header>
 <div class="ticker" id="ticker"><div class="wrap" style="display:flex;gap:28px"><span>Loading live market prices…</span></div></div>
@@ -1104,13 +1453,135 @@ async function zcTickStart(){
 }function authMsg(s,bad){$('auth-message').textContent=s;$('auth-message').classList.remove('hidden');$('auth-message').classList.toggle('error',bad);const r=$('auth-resend');if(r)r.classList.toggle('hidden',!(/confirm/i.test(String(s||''))))}
 async function resendVerification(){const email=($('auth-email')?.value||'').trim().toLowerCase();if(!email)return toast('Enter your email above first.',true);try{const {error}=await db.auth.resend({type:'signup',email,options:{emailRedirectTo:window.location.origin+'/'}});if(error)throw error;toast('Verification email sent - check your inbox.')}catch(e){toast(e.message||'Could not resend the email.',true)}}
 let sessionLoadPromise=null;
+
+/* ZentraChain global customer dashboard system. Style 1 deliberately keeps the original dashboard renderer. */
+let zcDashboardStyle = 1;
+const zcDashboardCatalog = [
+ {id:1,name:'Original ZentraChain',desc:'Your existing dashboard, preserved exactly as it is.',features:'Original layout · Original cards · Original navigation'},
+ {id:2,name:'FinFlex',desc:'A modern lime-accented wealth overview with clear balance cards.',features:'Balance hero · Quick actions · Plan and market widgets'},
+ {id:3,name:'Trading Terminal',desc:'A focused crypto-terminal layout with charts and portfolio panels.',features:'Market-first layout · Compact statistics · Active plans'},
+ {id:4,name:'Minimal Premium',desc:'A clean, spacious light dashboard for a calmer account experience.',features:'Light interface · Spacious cards · Simplified overview'},
+ {id:5,name:'Mobile App',desc:'A compact, touch-friendly interface with prominent account actions.',features:'Mobile-first layout · Quick shortcuts · Stacked account cards'}
+];
+function zcApplyDashboardStyle(){
+ const app=$('application');
+ if(!app)return;
+ if(page==='admin'||!currentUser){app.removeAttribute('data-zc-dashboard-style');return}
+ app.setAttribute('data-zc-dashboard-style',String([1,2,3,4,5].includes(Number(zcDashboardStyle))?Number(zcDashboardStyle):1));
+}
+async function zcLoadDashboardStyle(){
+ try{
+  const r=await db.from('site_settings').select('numeric_value').eq('setting_key','user_dashboard_style').maybeSingle();
+  if(r.error)throw r.error;
+  const n=Math.round(Number(r.data&&r.data.numeric_value||1));
+  zcDashboardStyle=[1,2,3,4,5].includes(n)?n:1;
+ }catch(e){
+  console.warn('Dashboard style setting unavailable; using the original dashboard.',e&&e.message||e);
+  zcDashboardStyle=1;
+ }
+ zcApplyDashboardStyle();
+ return zcDashboardStyle;
+}
+function zcDashboardStat(label,value,caption,icon){
+ return '<article class="app-stat zc-alt-stat"><div class="zc-alt-stat-top"><small>'+esc(label)+'</small><span class="zc-alt-stat-icon" aria-hidden="true">'+(icon||'◈')+'</span></div><strong>'+value+'</strong><span class="stat-foot">'+caption+'</span></article>';
+}
+function zcDashboardQuickActions(){
+ return '<div class="zc-dash-quick-actions"><button class="btn primary" type="button" onclick="navigate(&quot;deposits&quot;)"><span aria-hidden="true">＋</span> Deposit</button><button class="btn" type="button" onclick="navigate(&quot;withdrawals&quot;)"><span aria-hidden="true">↑</span> Withdraw</button><button class="btn" type="button" onclick="navigate(&quot;investments&quot;)"><span aria-hidden="true">◈</span> Active plans</button><button class="btn" type="button" onclick="navigate(&quot;activity&quot;)"><span aria-hidden="true">▤</span> Transactions</button></div>';
+}
+function zcDashboardChartPanel(){
+ return '<section class="market-panel zc-alt-market-chart"><div class="market-panel-head"><div><div class="eyebrow">PUBLIC MARKET DATA</div><h3 style="margin-top:5px">Market overview</h3></div><select id="home-chart-select" class="market-chart-select" onchange="loadAssetChart(&quot;home-chart&quot;,this.value)"><option value="BTCUSDT">Bitcoin · BTC</option><option value="ETHUSDT">Ethereum · ETH</option><option value="SOLUSDT">Solana · SOL</option><option value="BNBUSDT">BNB</option><option value="XRPUSDT">XRP</option><option value="ADAUSDT">Cardano · ADA</option></select></div><div id="home-chart" class="market-chart-box"><div class="muted">Loading market chart…</div></div><p class="muted zc-alt-disclaimer">Public spot-market data is informational. It is not a record of trades or personal investment performance.</p></section>';
+}
+function zcDashboardWatchPanel(){
+ return '<section class="market-panel zc-alt-market-watch"><div class="market-panel-head"><h3>Market watch</h3><span class="live-pill"><i></i><small class="muted">Public feed</small></span></div><div id="home-market-list" class="market-mini-list">'+marketRows()+'</div><button class="btn" type="button" style="width:100%;margin-top:14px" onclick="navigate(&quot;markets&quot;)">Explore markets →</button></section>';
+}
+function zcDashboardReferralPanel(){
+ return '<section class="card panel zc-alt-referrals" id="zc-referral-card"><div class="app-hero-row"><div><div class="eyebrow">REFERRALS</div><h3 style="margin:5px 0">Invite friends</h3><p class="muted" style="margin:0">Share your personal link and track referral rewards.</p></div></div><div class="field" style="margin-top:12px"><label>Your referral link</label><div class="zc-alt-referral-link"><input id="zc-ref-link" readonly value=""><button class="btn" type="button" onclick="zcCopyReferral()">Copy</button></div></div><div class="stats zc-alt-referral-stats"><div class="card stat"><small>My referrals</small><strong id="zc-ref-count">0</strong></div><div class="card stat"><small>Rewards earned</small><strong id="zc-ref-earned">$0.00</strong></div></div><div id="zc-ref-list"><p class="muted">Loading invited members…</p></div></section>';
+}
+function zcDashboardRecentPanel(){
+ return '<section class="card panel zc-alt-recent"><div class="app-hero-row"><div><div class="eyebrow">ACCOUNT ACTIVITY</div><h3 style="margin:5px 0">Recent transactions</h3></div><button class="btn" type="button" onclick="navigate(&quot;activity&quot;)">View all</button></div><div class="zc-recent-activity" id="zc-recent-activity"><div class="empty">Loading activity…</div></div></section>';
+}
+function zcDashboardActivePlansPanel(){
+ const active=investmentRows().filter(x=>x.status==='active'&&!x.matured);
+ return '<section class="card panel zc-alt-active-plans"><div class="app-hero-row"><div><div class="eyebrow">YOUR PORTFOLIO</div><h3 style="margin:5px 0">Active investment plans</h3><p class="muted" style="margin:0">'+active.length+' active '+(active.length===1?'plan':'plans')+'</p></div><button class="btn" type="button" onclick="navigate(&quot;investments&quot;)">View plans</button></div><div class="zc-alt-plan-list">'+(active.length?active.map(invCardHTML).join(''):emptyPlanCardHTML())+'</div></section>';
+}
+function zcRenderAltDashboard(styleId){
+ const c=$('app-content');
+ if(!c)return;
+ const name=esc(profile.full_name||currentUser.email.split('@')[0]);
+ const accountBalance=money(balance());
+ const deposit=money(uninvestedDepositTotal());
+ const available=money(availableFundsUnlocked());
+ const investment=money(activeInvestTotal());
+ const bonus=money(bonusTotal());
+ const profit=zcLiveProfitUsd(pendingPlanProfit());
+ const withdrawals=money(withdrawnTotal());
+ const actions=zcDashboardQuickActions();
+ const chart=zcDashboardChartPanel();
+ const watch=zcDashboardWatchPanel();
+ const plans=zcDashboardActivePlansPanel();
+ const referrals=zcDashboardReferralPanel();
+ const recent=zcDashboardRecentPanel();
+ let markup='';
+ if(styleId===2){
+  markup='<div class="zc-alt-dashboard zc-finflex-dashboard"><div class="zc-alt-heading"><div><div class="eyebrow">PERSONAL ASSET SPACE</div><h1>Welcome back, '+name+'</h1><p>Your account balances, investment plans and market overview.</p></div><span class="zc-dash-date">'+new Date().toLocaleDateString(undefined,{weekday:'short',day:'numeric',month:'short',year:'numeric'})+'</span></div><section class="zc-finflex-balance"><div class="zc-finflex-balance-main"><small>ACCOUNT BALANCE</small><strong>'+accountBalance+'</strong><span>Ledger-based account total</span></div><div class="zc-finflex-balance-actions">'+actions+'</div><div class="zc-finflex-orbit" aria-hidden="true"></div></section><div class="zc-alt-stat-grid zc-finflex-stat-grid">'+zcDashboardStat('Deposit balance',deposit,'Not yet in a plan','↓')+zcDashboardStat('Available funds',available,'Ready to use','↗')+zcDashboardStat('Investment balance',investment,'In active plans','◈')+zcDashboardStat('Trading profit',profit,'Accrued plan profit','⌁')+zcDashboardStat('Bonus balance',bonus,'Referral rewards','✦')+zcDashboardStat('Total withdrawals',withdrawals,'Completed payouts','↑')+'</div><div class="zc-alt-section-heading"><div><div class="eyebrow">PORTFOLIO</div><h2>Your investments</h2></div></div>'+plans+'<div class="zc-alt-two-col">'+chart+watch+'</div><div class="zc-alt-two-col">'+recent+referrals+'</div></div>';
+ }else if(styleId===3){
+  markup='<div class="zc-alt-dashboard zc-terminal-dashboard"><div class="zc-terminal-heading"><div><div class="eyebrow">ZENTRACHAIN / TERMINAL</div><h1>Portfolio terminal</h1><p class="muted">Welcome, '+name+'. Market data and account ledger in one workspace.</p></div><div class="zc-terminal-status"><i></i> ACCOUNT ONLINE</div></div><div class="zc-terminal-metrics">'+zcDashboardStat('Account balance',accountBalance,'Ledger total','◈')+zcDashboardStat('Available funds',available,'Ready to use','↗')+zcDashboardStat('Investment balance',investment,'Active plans','▦')+zcDashboardStat('Accrued profit',profit,'Plan accrual only','⌁')+'</div><div class="zc-terminal-market-grid">'+chart+watch+'</div><div class="zc-terminal-action-row">'+actions+'</div>'+plans+'<div class="zc-alt-two-col">'+recent+referrals+'</div><div class="zc-terminal-footnote">Market prices are public reference data. They do not execute trades or change your account ledger.</div></div>';
+ }else if(styleId===4){
+  markup='<div class="zc-alt-dashboard zc-minimal-dashboard"><div class="zc-minimal-heading"><div><div class="eyebrow">ACCOUNT OVERVIEW</div><h1>Your account, at a glance.</h1><p>Welcome back, '+name+'. Here is your latest account summary.</p></div>'+actions+'</div><section class="zc-minimal-balance"><div><small>TOTAL LEDGER BALANCE</small><strong>'+accountBalance+'</strong><p>Based on recorded account entries.</p></div><div class="zc-minimal-balance-mark" aria-hidden="true">Z</div></section><div class="zc-alt-stat-grid zc-minimal-stat-grid">'+zcDashboardStat('Deposit balance',deposit,'Not yet invested','↓')+zcDashboardStat('Available funds',available,'Available to use','↗')+zcDashboardStat('Investment balance',investment,'In active plans','◈')+zcDashboardStat('Bonus balance',bonus,'Referral rewards','✦')+zcDashboardStat('Trading profit',profit,'Accrued plan profit','⌁')+zcDashboardStat('Total withdrawals',withdrawals,'Completed payouts','↑')+'</div>'+plans+'<div class="zc-alt-two-col">'+chart+watch+'</div><div class="zc-alt-two-col">'+recent+referrals+'</div></div>';
+ }else{
+  markup='<div class="zc-alt-dashboard zc-mobile-dashboard"><div class="zc-mobile-welcome"><div><div class="eyebrow">YOUR ZENTRACHAIN</div><h1>Hello, '+name+'</h1><p>Here is your account overview.</p></div><span class="zc-mobile-avatar" aria-hidden="true">'+(name.trim().charAt(0)||'Z').toUpperCase()+'</span></div><section class="zc-mobile-balance"><div class="zc-mobile-balance-top"><span>ACCOUNT BALANCE</span><span class="zc-mobile-live"><i></i> LIVE</span></div><strong>'+accountBalance+'</strong><small>Ledger-based account total</small>'+actions+'</section><div class="zc-alt-stat-grid zc-mobile-stat-grid">'+zcDashboardStat('Available funds',available,'Ready to use','↗')+zcDashboardStat('Deposit balance',deposit,'Not yet invested','↓')+zcDashboardStat('Investment balance',investment,'In active plans','◈')+zcDashboardStat('Accrued profit',profit,'Plan accrual only','⌁')+'</div><div class="zc-mobile-section-head"><h2>Quick overview</h2><button class="btn" type="button" onclick="navigate(&quot;activity&quot;)">Activity</button></div>'+plans+'<div class="zc-mobile-market-grid">'+chart+watch+'</div>'+recent+referrals+'</div>';
+ }
+ c.innerHTML=markup;
+ try{const s=$('home-chart-select');loadAssetChart('home-chart',s?s.value:'BTCUSDT')}catch(e){console.warn('Dashboard chart unavailable:',e)}
+ try{loadReferralList()}catch(e){console.warn('Dashboard referrals unavailable:',e)}
+ try{renderRecentActivity()}catch(e){console.warn('Dashboard activity unavailable:',e)}
+ if(window.lucide&&window.lucide.createIcons)try{window.lucide.createIcons({root:c})}catch(e){}
+}
+function zcDashboardThumbHTML(id){
+ const bars=id===3?'<i></i><i></i><i></i><i></i><i></i><i></i>':'<i></i><i></i><i></i><i></i>';
+ return '<div class="zc-dash-thumb zc-dash-thumb-'+id+'"><div class="zc-thumb-side"><b>Z</b><i></i><i></i><i></i><i></i></div><div class="zc-thumb-main"><div class="zc-thumb-head"><i></i><i></i></div><div class="zc-thumb-hero"><small>ACCOUNT BALANCE</small><b>$12,450.00</b><span></span></div><div class="zc-thumb-stats"><i></i><i></i><i></i></div><div class="zc-thumb-lower"><div class="zc-thumb-chart">'+bars+'</div><div class="zc-thumb-list"><i></i><i></i><i></i></div></div></div></div>';
+}
+function zcDashboardStudioHTML(){
+ return '<section class="card panel zc-dashboard-studio" id="zc-dashboard-studio"><div class="zc-studio-head"><div><div class="eyebrow">GLOBAL CUSTOMER EXPERIENCE</div><h3 style="margin:5px 0">Dashboard Studio</h3><p class="muted" style="margin:0">Choose the dashboard design every customer sees. Each design also restyles customer pages while keeping the same account data and actions.</p></div><span class="zc-studio-active">Active: '+esc((zcDashboardCatalog.find(x=>x.id===zcDashboardStyle)||zcDashboardCatalog[0]).name)+'</span></div><div class="zc-dashboard-style-grid">'+zcDashboardCatalog.map(x=>'<article class="zc-dashboard-style-card'+(x.id===zcDashboardStyle?' is-active':'')+'" data-style="'+x.id+'"><div class="zc-dashboard-style-preview">'+zcDashboardThumbHTML(x.id)+(x.id===zcDashboardStyle?'<span class="zc-current-style-pill">Currently active</span>':'')+'</div><div class="zc-dashboard-style-info"><div class="zc-dashboard-style-title"><b>'+x.id+'. '+esc(x.name)+'</b>'+(x.id===1?'<span class="zc-original-pill">Original</span>':'')+'</div><p>'+esc(x.desc)+'</p><small>'+esc(x.features)+'</small><div class="zc-dashboard-style-actions"><button type="button" class="btn" onclick="zcPreviewDashboard('+x.id+')">Preview</button><button type="button" class="btn '+(x.id===zcDashboardStyle?'':'primary')+'" '+(x.id===zcDashboardStyle?'disabled':'')+' onclick="zcActivateDashboardStyle('+x.id+')">'+(x.id===zcDashboardStyle?'Active':'Activate')+'</button></div></div></article>').join('')+'</div><div class="zc-studio-note"><b>Shared account engine:</b> balances, deposits, withdrawals, plans, referrals and transaction records are not duplicated or reset when a design changes. Dashboard 1 remains the original layout and can be reactivated at any time.</div></section>';
+}
+function zcDashboardPreviewBody(id){
+ const item=zcDashboardCatalog.find(x=>x.id===id)||zcDashboardCatalog[0];
+ return '<div class="zc-dashboard-preview-frame zc-preview-skin-'+id+'" data-zc-dashboard-style="'+id+'"><div class="zc-preview-top"><div><span class="zc-preview-logo">Z</span><b>ZENTRACHAIN</b></div><span>Customer preview</span></div><div class="zc-preview-content"><div class="zc-preview-heading"><div><small>ACCOUNT OVERVIEW</small><h2>'+esc(item.name)+'</h2><p>'+esc(item.desc)+'</p></div><span>Preview only</span></div><div class="zc-preview-balance"><small>ACCOUNT BALANCE · SAMPLE VALUE</small><strong>$12,450.00</strong><span>Sample preview data · no live account information</span></div><div class="zc-preview-stats"><div><small>Available funds</small><b>$3,200.00</b></div><div><small>Deposit balance</small><b>$1,750.00</b></div><div><small>Investment balance</small><b>$7,500.00</b></div></div><div class="zc-preview-bottom"><div class="zc-preview-chart"><b>Market overview</b><svg viewBox="0 0 320 88" preserveAspectRatio="none" aria-hidden="true"><path d="M0 72 L35 63 L62 68 L95 42 L125 50 L154 30 L185 43 L220 18 L250 31 L286 10 L320 17" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg><small>Illustrative market chart</small></div><div class="zc-preview-activity"><b>Recent activity</b><i></i><i></i><i></i></div></div><div class="zc-preview-actions"><span>＋ Deposit</span><span>↑ Withdraw</span><span>◈ Plans</span></div></div></div>';
+}
+function zcPreviewDashboard(id){
+ const n=Number(id);
+ if(![1,2,3,4,5].includes(n))return;
+ zcCloseDashboardPreview();
+ const item=zcDashboardCatalog.find(x=>x.id===n);
+ document.body.insertAdjacentHTML('beforeend','<div class="zc-dashboard-preview-overlay" id="zc-dashboard-preview-overlay" role="dialog" aria-modal="true" aria-label="Dashboard design preview" onclick="if(event.target===this)zcCloseDashboardPreview()"><section class="zc-dashboard-preview-dialog"><div class="zc-preview-dialog-head"><div><div class="eyebrow">DASHBOARD DESIGN PREVIEW</div><h2>'+esc(item.name)+'</h2></div><button type="button" class="btn" aria-label="Close preview" onclick="zcCloseDashboardPreview()">×</button></div>'+zcDashboardPreviewBody(n)+'<div class="zc-preview-dialog-foot"><p class="muted">This is a visual preview with sample values. Activating this design applies its style across all customer pages and continues to use each customer account’s real data.</p><button type="button" class="btn primary" onclick="zcActivateDashboardStyle('+n+');zcCloseDashboardPreview()">Activate this design</button></div></section></div>');
+}
+function zcCloseDashboardPreview(){
+ const modal=$('zc-dashboard-preview-overlay');
+ if(modal)modal.remove();
+}
+async function zcActivateDashboardStyle(id){
+ const n=Number(id);
+ if(![1,2,3,4,5].includes(n))return toast('Choose a valid dashboard design.',true);
+ if(!currentUser||!profile||profile.role!=='admin')return toast('Administrator access required.',true);
+ if(n===zcDashboardStyle){toast('This dashboard design is already active.');return}
+ const item=zcDashboardCatalog.find(x=>x.id===n);
+ if(!confirm('Activate '+item.name+' for all ZentraChain customers? You can switch back to Dashboard 1 or another design at any time.'))return;
+ const {error}=await db.from('site_settings').upsert({setting_key:'user_dashboard_style',numeric_value:n,updated_by:currentUser.id},{onConflict:'setting_key'});
+ if(error){console.error('Dashboard style update failed:',error);return toast('Dashboard design was not changed: '+(error.message||'Please try again.'),true)}
+ zcDashboardStyle=n;
+ zcApplyDashboardStyle();
+ toast(item.name+' is now the active customer dashboard.');
+ if(page==='admin')await refreshAdmin();
+}
+
 async function loadSession(){if(sessionLoadPromise)return sessionLoadPromise;sessionLoadPromise=(async()=>{const {data:{user},error:userError}=await db.auth.getUser();if(userError)throw userError;if(!user){showPublic();return}currentUser=user;const p=await db.from('profiles').select('*').eq('id',user.id).maybeSingle();if(p.error)throw p.error;if(!p.data){showPublic();showAuth('login');return authMsg('Your account profile is not ready yet. Please contact support.',true)}profile=p.data;
 if(profile.banned_reason){await db.auth.signOut();showPublic();showAuth('login');return authMsg('Account restricted: '+profile.banned_reason,true)}
+await zcLoadDashboardStyle();
 try{const m=(location.search||'').match(/[?&]ref=([A-Za-z0-9]{4,16})/);let linked=null;try{linked=localStorage.getItem('zc-ref-linked')}catch(e){}if(m&&linked!=='1'){const lk=await db.rpc('link_referral',{p_code:m[1]});if(!lk.error){try{localStorage.setItem('zc-ref-linked','1')}catch(e){}toast('Referral linked. Welcome!')}}}catch(e){}
 try{const cp=(location.search||'').match(/[?&]claim=([A-Za-z0-9]{6,20})/);if(cp){const cr=await db.rpc('claim_email_bonus',{p_code:cp[1]});if(cr.error)toast(cr.error.message||'Bonus could not be claimed.',true);else{toast('Bonus claimed! '+money(cr.data)+' added to your balance.');try{history.replaceState(null,'',location.pathname)}catch(e){}}}}catch(e){}
   showApp();const communityNav=$('zc-community-nav');if(communityNav){communityNav.classList.remove('zc-community-joined');db.from('community_members').select('user_id').eq('user_id',user.id).maybeSingle().then(({data})=>{if(data)communityNav.classList.add('zc-community-joined')}).catch(()=>{})}await refreshData();startRealtimeAlerts();navigate('overview')})().catch(err=>{console.error('Session initialization failed:',err);toast('Could not load your account: '+(err?.message||'Please try again.'),true)}).finally(()=>{sessionLoadPromise=null});return sessionLoadPromise}
-function showPublic(){$('public').classList.remove('hidden');$('application').classList.add('hidden');currentUser=null;profile=null}
-function showApp(){$('public').classList.add('hidden');$('application').classList.remove('hidden');$('hello').textContent='Welcome, '+(profile.full_name||currentUser.email.split('@')[0]);$('email-label').textContent=currentUser.email;if(typeof zcApplyAvatar==='function')zcApplyAvatar();if(typeof zcStartProfitTicker==='function')zcStartProfitTicker();const adminNav=$('admin-nav');if(adminNav)adminNav.classList.toggle('hidden',profile.role!=='admin');const plansNav=$('admin-plans-nav');if(plansNav)plansNav.classList.toggle('hidden',profile.role!=='admin');const roleLabel=$('role-label');if(roleLabel)roleLabel.classList.toggle('hidden',profile.role!=='admin');}
+function showPublic(){$('public').classList.remove('hidden');$('application').classList.add('hidden');$('application').removeAttribute('data-zc-dashboard-style');currentUser=null;profile=null}
+function showApp(){$('public').classList.add('hidden');$('application').classList.remove('hidden');zcApplyDashboardStyle();$('hello').textContent='Welcome, '+(profile.full_name||currentUser.email.split('@')[0]);$('email-label').textContent=currentUser.email;if(typeof zcApplyAvatar==='function')zcApplyAvatar();if(typeof zcStartProfitTicker==='function')zcStartProfitTicker();const adminNav=$('admin-nav');if(adminNav)adminNav.classList.toggle('hidden',profile.role!=='admin');const plansNav=$('admin-plans-nav');if(plansNav)plansNav.classList.toggle('hidden',profile.role!=='admin');const roleLabel=$('role-label');if(roleLabel)roleLabel.classList.toggle('hidden',profile.role!=='admin');}
 async function refreshData(){
  const uid=currentUser&&currentUser.id;
  if(!uid){ledger=[];deposits=[];withdrawals=[];reports=[];referrals=[];investments=[];return}
@@ -1155,7 +1626,7 @@ function depositBalanceUnlocked(){
 function uninvestedDepositTotal(){return depositBalanceUnlocked()}
 function availableUnlocked(){return Math.max(0,balance()-reserved()-legacyLockedTotal())}
 function availableFundsUnlocked(){return Math.max(0,availableUnlocked()-depositBalanceUnlocked())}
-function toggleDrawer(){const drawer=$('app-drawer'),scrim=$('drawer-scrim');if(!drawer||!scrim)return;if(typeof zcInitThemeUI==='function')zcInitThemeUI();const opening=!drawer.classList.contains('open');drawer.classList.toggle('open',opening);scrim.classList.toggle('show',opening);document.body.classList.toggle('zc-drawer-open',opening);}function closeDrawer(){const drawer=$('app-drawer'),scrim=$('drawer-scrim');if(drawer)drawer.classList.remove('open');if(scrim)scrim.classList.remove('show');document.body.classList.remove('zc-drawer-open')}function navigate(p){if(!p)return;if(p==='admin'&&profile?.role!=='admin'){toast('Administrator access required.',true);closeDrawer();return}const c=$('app-content');try{page=p;document.querySelectorAll('.side-nav button').forEach(b=>b.classList.toggle('active',b.dataset.page===p));closeDrawer();if(p==='calculator'){renderCalculatorPage();return}if(c)c.innerHTML='<div class="card panel" style="min-height:90px;display:flex;align-items:center"><span class="muted">Opening '+esc(p==='deposits'?'deposit':p==='withdrawals'?'withdrawal':p)+'…</span></div>';if(p==='deposits'){renderDepositPage();return}if(p==='withdrawals'){renderWithdrawalPage();return}if(p==='investments'){renderInvestmentsPage();return}renderPage();if(p==='overview'&&typeof loadReferralList==='function')loadReferralList()}catch(err){console.error('Navigation failed:',err);if(c)c.innerHTML='<section class="card panel"><h3>Unable to open this section</h3><p class="muted">'+esc(err?.message||'A page error occurred. Please try again.')+'</p><button class="btn primary" onclick="navigate(\'overview\')">Back to overview</button></section>';toast('Could not open this section: '+(err?.message||'Please try again.'),true)}}
+function toggleDrawer(){const drawer=$('app-drawer'),scrim=$('drawer-scrim');if(!drawer||!scrim)return;if(typeof zcInitThemeUI==='function')zcInitThemeUI();const opening=!drawer.classList.contains('open');drawer.classList.toggle('open',opening);scrim.classList.toggle('show',opening);document.body.classList.toggle('zc-drawer-open',opening);}function closeDrawer(){const drawer=$('app-drawer'),scrim=$('drawer-scrim');if(drawer)drawer.classList.remove('open');if(scrim)scrim.classList.remove('show');document.body.classList.remove('zc-drawer-open')}function navigate(p){if(!p)return;if(p==='admin'&&profile?.role!=='admin'){toast('Administrator access required.',true);closeDrawer();return}const c=$('app-content');try{page=p;zcApplyDashboardStyle();document.querySelectorAll('.side-nav button').forEach(b=>b.classList.toggle('active',b.dataset.page===p));closeDrawer();if(p==='calculator'){renderCalculatorPage();return}if(c)c.innerHTML='<div class="card panel" style="min-height:90px;display:flex;align-items:center"><span class="muted">Opening '+esc(p==='deposits'?'deposit':p==='withdrawals'?'withdrawal':p)+'…</span></div>';if(p==='deposits'){renderDepositPage();return}if(p==='withdrawals'){renderWithdrawalPage();return}if(p==='investments'){renderInvestmentsPage();return}renderPage();if(p==='overview'&&typeof loadReferralList==='function')loadReferralList()}catch(err){console.error('Navigation failed:',err);if(c)c.innerHTML='<section class="card panel"><h3>Unable to open this section</h3><p class="muted">'+esc(err?.message||'A page error occurred. Please try again.')+'</p><button class="btn primary" onclick="navigate(\'overview\')">Back to overview</button></section>';toast('Could not open this section: '+(err?.message||'Please try again.'),true)}}
 
 async function renderDepositPage(){
  const c=$('app-content');
@@ -1291,7 +1762,7 @@ function zcCalcUpdate(){
  }
 }
 
-function renderPage(){try{zcStartProfitTicker()}catch(e){}const c=$('app-content');const bal=balance();if(page==='overview'){c.innerHTML='<section class="app-hero"><div class="app-hero-row"><div><div class="eyebrow">PERSONAL ASSET SPACE</div><h1>Welcome back, '+esc(profile.full_name||currentUser.email.split('@')[0])+'</h1><p>Your account activity, balances and public crypto markets in one place. Market prices are informational and are not your personal trading performance.</p></div><div class="app-quick-actions"><button class="btn primary" onclick="navigate(\'deposits\')">＋ Deposit</button><button class="btn" onclick="navigate(\'withdrawals\')">↑ Withdraw</button></div></div></section><div class="app-stats"><div class="app-stat"><small>Deposit balance</small><strong>'+money(uninvestedDepositTotal())+'</strong><span class="stat-foot">Not yet in a plan</span></div><div class="app-stat"><small>Investment Balance</small><strong>'+money(activeInvestTotal())+'</strong><span class="stat-foot">Locked in running plans</span></div><div class="app-stat"><small>Available funds</small><strong>'+money(availableFundsUnlocked())+'</strong><span class="stat-foot">Ready to invest or withdraw</span></div><div class="app-stat"><small>Bonus balance</small><strong>'+money(bonusTotal())+'</strong><span class="stat-foot">Referral rewards</span></div><div class="app-stat"><small>Trading Profit</small><strong id="zc-profit-live">'+zcLiveProfitUsd(pendingPlanProfit())+'</strong><span class="stat-foot">Counts each second until plans complete</span></div><div class="app-stat"><small>Total withdrawal</small><strong>'+money(withdrawnTotal())+'</strong><span class="stat-foot">Completed payouts</span></div></div>'+(function(){const active=investmentRows().filter(x=>x.status==='active'&&!x.matured);return '<div id="zc-dashboard-active-plans" style="margin-bottom:14px">'+(active.length?active.map(invCardHTML).join(''):emptyPlanCardHTML())+'</div>'})()+'<section class="card panel" id="zc-referral-card"><div class="app-hero-row"><div><div class="eyebrow">REFERRALS</div><h3 style="margin:5px 0">Invite friends</h3><p class="muted" style="margin:0">Share your link. When an invited member\'s first deposit is credited, you earn a referral bonus percentage of it — added straight to your Bonus balance.</p></div></div><div class="field" style="margin-top:12px"><label>Your referral link</label><div style="display:flex;gap:8px"><input id="zc-ref-link" readonly value="" style="flex:1"><button class="btn" type="button" onclick="zcCopyReferral()">Copy</button></div></div><div class="stats"><div class="card stat"><small>My referrals</small><strong id="zc-ref-count">0</strong></div><div class="card stat"><small>Rewards earned</small><strong id="zc-ref-earned">$0.00</strong></div></div><div id="zc-ref-list"><p class="muted">Loading invited members…</p></div></section><section class="card panel" style="margin-top:14px"><div class="app-hero-row"><div><div class="eyebrow">HISTORY</div><h3 style="margin:5px 0">Recent account activity</h3></div><button class="btn" onclick="navigate(\'activity\')">View all</button></div><div class="zc-recent-activity" id="zc-recent-activity"><div class="empty">Loading activity…</div></div></section><div class="app-grid"><section class="market-panel"><div class="market-panel-head"><div><div class="eyebrow">LIVE PUBLIC MARKET DATA</div><h3 style="margin-top:5px">Market pulse</h3></div><select id="home-chart-select" class="market-chart-select" onchange="loadAssetChart(\'home-chart\',this.value)"><option value="BTCUSDT">Bitcoin · BTC</option><option value="ETHUSDT">Ethereum · ETH</option><option value="SOLUSDT">Solana · SOL</option><option value="BNBUSDT">BNB</option><option value="XRPUSDT">XRP</option><option value="ADAUSDT">Cardano · ADA</option></select></div><div id="home-chart" class="market-chart-box"><div class="muted">Loading market chart…</div></div><div class="muted" style="font-size:11px;margin-top:10px">Public exchange spot data · Not an execution statement or investment performance report.</div></section><section class="market-panel"><div class="market-panel-head"><h3>Market watch</h3><span class="live-pill"><i></i><small class="muted">Feed</small></span></div><div id="home-market-list" class="market-mini-list">'+marketRows()+'</div><button class="btn" style="width:100%;margin-top:14px" onclick="navigate(\'markets\')">Explore markets →</button></section></div><div class="app-grid" style="margin-top:16px"><section class="card panel"><h3>Recent account activity</h3>'+ledgerTable(ledger.slice(0,6))+'</section><section class="card panel"><h3>How your account works</h3><div class="flow-diagram"><div class="flow-node"><b>Deposit</b><small>Choose supported network</small></div><span class="flow-arrow">›</span><div class="flow-node"><b>Verify</b><small>On-chain confirmation</small></div><span class="flow-arrow">›</span><div class="flow-node"><b>Ledger</b><small>Recorded account entry</small></div></div><p class="muted" style="line-height:1.65;font-size:12px;margin-top:14px">Account balances change only when a verified transaction is recorded in the ledger. Public market prices do not change your balance.</p></section></div>' ;loadAssetChart('home-chart',$('home-chart-select').value);loadReferralList();renderRecentActivity();return}
+function renderPage(){try{zcStartProfitTicker()}catch(e){}const c=$('app-content');const bal=balance();if(page==='overview'&&Number(zcDashboardStyle)!==1){return zcRenderAltDashboard(Number(zcDashboardStyle))}if(page==='overview'){c.innerHTML='<section class="app-hero"><div class="app-hero-row"><div><div class="eyebrow">PERSONAL ASSET SPACE</div><h1>Welcome back, '+esc(profile.full_name||currentUser.email.split('@')[0])+'</h1><p>Your account activity, balances and public crypto markets in one place. Market prices are informational and are not your personal trading performance.</p></div><div class="app-quick-actions"><button class="btn primary" onclick="navigate(\'deposits\')">＋ Deposit</button><button class="btn" onclick="navigate(\'withdrawals\')">↑ Withdraw</button></div></div></section><div class="app-stats"><div class="app-stat"><small>Deposit balance</small><strong>'+money(uninvestedDepositTotal())+'</strong><span class="stat-foot">Not yet in a plan</span></div><div class="app-stat"><small>Investment Balance</small><strong>'+money(activeInvestTotal())+'</strong><span class="stat-foot">Locked in running plans</span></div><div class="app-stat"><small>Available funds</small><strong>'+money(availableFundsUnlocked())+'</strong><span class="stat-foot">Ready to invest or withdraw</span></div><div class="app-stat"><small>Bonus balance</small><strong>'+money(bonusTotal())+'</strong><span class="stat-foot">Referral rewards</span></div><div class="app-stat"><small>Trading Profit</small><strong id="zc-profit-live">'+zcLiveProfitUsd(pendingPlanProfit())+'</strong><span class="stat-foot">Counts each second until plans complete</span></div><div class="app-stat"><small>Total withdrawal</small><strong>'+money(withdrawnTotal())+'</strong><span class="stat-foot">Completed payouts</span></div></div>'+(function(){const active=investmentRows().filter(x=>x.status==='active'&&!x.matured);return '<div id="zc-dashboard-active-plans" style="margin-bottom:14px">'+(active.length?active.map(invCardHTML).join(''):emptyPlanCardHTML())+'</div>'})()+'<section class="card panel" id="zc-referral-card"><div class="app-hero-row"><div><div class="eyebrow">REFERRALS</div><h3 style="margin:5px 0">Invite friends</h3><p class="muted" style="margin:0">Share your link. When an invited member\'s first deposit is credited, you earn a referral bonus percentage of it — added straight to your Bonus balance.</p></div></div><div class="field" style="margin-top:12px"><label>Your referral link</label><div style="display:flex;gap:8px"><input id="zc-ref-link" readonly value="" style="flex:1"><button class="btn" type="button" onclick="zcCopyReferral()">Copy</button></div></div><div class="stats"><div class="card stat"><small>My referrals</small><strong id="zc-ref-count">0</strong></div><div class="card stat"><small>Rewards earned</small><strong id="zc-ref-earned">$0.00</strong></div></div><div id="zc-ref-list"><p class="muted">Loading invited members…</p></div></section><section class="card panel" style="margin-top:14px"><div class="app-hero-row"><div><div class="eyebrow">HISTORY</div><h3 style="margin:5px 0">Recent account activity</h3></div><button class="btn" onclick="navigate(\'activity\')">View all</button></div><div class="zc-recent-activity" id="zc-recent-activity"><div class="empty">Loading activity…</div></div></section><div class="app-grid"><section class="market-panel"><div class="market-panel-head"><div><div class="eyebrow">LIVE PUBLIC MARKET DATA</div><h3 style="margin-top:5px">Market pulse</h3></div><select id="home-chart-select" class="market-chart-select" onchange="loadAssetChart(\'home-chart\',this.value)"><option value="BTCUSDT">Bitcoin · BTC</option><option value="ETHUSDT">Ethereum · ETH</option><option value="SOLUSDT">Solana · SOL</option><option value="BNBUSDT">BNB</option><option value="XRPUSDT">XRP</option><option value="ADAUSDT">Cardano · ADA</option></select></div><div id="home-chart" class="market-chart-box"><div class="muted">Loading market chart…</div></div><div class="muted" style="font-size:11px;margin-top:10px">Public exchange spot data · Not an execution statement or investment performance report.</div></section><section class="market-panel"><div class="market-panel-head"><h3>Market watch</h3><span class="live-pill"><i></i><small class="muted">Feed</small></span></div><div id="home-market-list" class="market-mini-list">'+marketRows()+'</div><button class="btn" style="width:100%;margin-top:14px" onclick="navigate(\'markets\')">Explore markets →</button></section></div><div class="app-grid" style="margin-top:16px"><section class="card panel"><h3>Recent account activity</h3>'+ledgerTable(ledger.slice(0,6))+'</section><section class="card panel"><h3>How your account works</h3><div class="flow-diagram"><div class="flow-node"><b>Deposit</b><small>Choose supported network</small></div><span class="flow-arrow">›</span><div class="flow-node"><b>Verify</b><small>On-chain confirmation</small></div><span class="flow-arrow">›</span><div class="flow-node"><b>Ledger</b><small>Recorded account entry</small></div></div><p class="muted" style="line-height:1.65;font-size:12px;margin-top:14px">Account balances change only when a verified transaction is recorded in the ledger. Public market prices do not change your balance.</p></section></div>' ;loadAssetChart('home-chart',$('home-chart-select').value);loadReferralList();renderRecentActivity();return}
 if(page==='referrals'){
  c.innerHTML='<div class="page-title"><div><div class="eyebrow">INVITE &amp; EARN</div><h1>Referrals</h1><p class="muted">Share your personal referral link, track invited members and see the rewards earned.</p></div><button type="button" class="btn" onclick="navigate(\'overview\')">Back to Dashboard</button></div><section class="card panel" id="zc-referral-card"><div class="app-hero-row"><div><div class="eyebrow">REFERRALS</div><h3 style="margin:5px 0">Invite friends</h3><p class="muted" style="margin:0">Share your link. When an invited member\'s first deposit is credited, you earn a referral bonus percentage of it — added straight to your Bonus balance.</p></div></div><div class="field" style="margin-top:12px"><label>Your referral link</label><div style="display:flex;gap:8px"><input id="zc-ref-link" readonly value="" style="flex:1"><button class="btn" type="button" onclick="zcCopyReferral()">Copy</button></div></div><div class="stats"><div class="card stat"><small>My referrals</small><strong id="zc-ref-count">0</strong></div><div class="card stat"><small>Rewards earned</small><strong id="zc-ref-earned">$0.00</strong></div></div><div id="zc-ref-list"><p class="muted">Loading invited members…</p></div></section>';
  loadReferralList();
@@ -1651,7 +2122,7 @@ async function loadReferralList(){try{
 }catch(err){const box=$('zc-ref-list');if(box)box.innerHTML='<p class="muted">Could not load referrals.</p>'}}
 async function saveProfile(){const {error}=await db.from('profiles').update({full_name:$('profile-name').value.trim(),updated_at:new Date().toISOString()}).eq('id',currentUser.id);if(error)return toast(error.message,true);profile.full_name=$('profile-name').value.trim();toast('Profile updated');showApp()}
 async function refreshAndRender(){await refreshData();renderPage();toast('Account data refreshed')}
-async function renderAdmin(){const c=$('app-content');c.innerHTML='<div class="page-title"><div><div class="eyebrow">Restricted workspace</div><h1>Administrator console</h1></div><button class="btn" onclick="refreshAdmin()">↻ Refresh</button></div><div class="notice warn" style="margin-bottom:18px">Administrative actions must reflect independently verified deposits and completed on-chain payouts. Never approve a deposit from a screenshot alone. Never mark a withdrawal paid before sending it.</div><section class="card panel" style="margin-bottom:18px"><div class="gf-plan-admin-hero"><div><div class="eyebrow">PLAN CONTROL</div><h3 style="margin:5px 0">Create and manage website plans</h3><p class="muted" style="margin:0">Create Plan 1, upload its logo, edit every detail and control publication.</p></div><button class="btn primary" type="button" onclick="gfOpenPlans()">Open Investment Plans →</button></div></section><div class="stats"><div class="card stat"><small>Registered profiles</small><strong>'+profiles.length+'</strong></div><div class="card stat"><small>Deposit queue</small><strong>'+adminDeposits.filter(x=>['pending','under_review'].includes(x.status)).length+'</strong></div><div class="card stat"><small>Withdrawal queue</small><strong>'+adminWithdrawals.filter(x=>['pending','under_review','approved'].includes(x.status)).length+'</strong></div><div class="card stat"><small>Ledger entries</small><strong>'+adminLedger.length+'</strong></div></div><div class="card panel"><h3>Deposit verification queue</h3>'+adminDepositTable()+'</div><div class="card panel"><h3>Withdrawal queue</h3>'+adminWithdrawalTable()+'</div><div class="card panel"><h3>User accounts</h3>'+adminProfilesTable()+'</div><div class="card panel"><h3>Published trading reports</h3>'+reportsTable()+'</div>'}
+async function renderAdmin(){const c=$('app-content');c.innerHTML='<div class="page-title"><div><div class="eyebrow">Restricted workspace</div><h1>Administrator console</h1></div><button class="btn" onclick="refreshAdmin()">↻ Refresh</button></div><div class="notice warn" style="margin-bottom:18px">Administrative actions must reflect independently verified deposits and completed on-chain payouts. Never approve a deposit from a screenshot alone. Never mark a withdrawal paid before sending it.</div><section class="card panel" style="margin-bottom:18px"><div class="gf-plan-admin-hero"><div><div class="eyebrow">PLAN CONTROL</div><h3 style="margin:5px 0">Create and manage website plans</h3><p class="muted" style="margin:0">Create Plan 1, upload its logo, edit every detail and control publication.</p></div><button class="btn primary" type="button" onclick="gfOpenPlans()">Open Investment Plans →</button></div></section>'+zcDashboardStudioHTML()+'<div class="stats"><div class="card stat"><small>Registered profiles</small><strong>'+profiles.length+'</strong></div><div class="card stat"><small>Deposit queue</small><strong>'+adminDeposits.filter(x=>['pending','under_review'].includes(x.status)).length+'</strong></div><div class="card stat"><small>Withdrawal queue</small><strong>'+adminWithdrawals.filter(x=>['pending','under_review','approved'].includes(x.status)).length+'</strong></div><div class="card stat"><small>Ledger entries</small><strong>'+adminLedger.length+'</strong></div></div><div class="card panel"><h3>Deposit verification queue</h3>'+adminDepositTable()+'</div><div class="card panel"><h3>Withdrawal queue</h3>'+adminWithdrawalTable()+'</div><div class="card panel"><h3>User accounts</h3>'+adminProfilesTable()+'</div><div class="card panel"><h3>Published trading reports</h3>'+reportsTable()+'</div>'}
 async function refreshAdmin(){await refreshData();await loadAdminData();renderAdmin();toast('Admin data refreshed')}
 async function loadAdminData(){
  const [p,d,w,l]=await Promise.all([
