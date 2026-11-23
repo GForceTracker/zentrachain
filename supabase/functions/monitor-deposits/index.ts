@@ -371,31 +371,44 @@ Deno.serve(async (req: Request) => {
       if (!pendingRows.some(p => p.id === row.id)) pendingRows.push(row);
     }
 
-    // 3. Credit confirmed transfers to the deposit balance.
-    const credited: Array<{ user_id: string; amount_usd: number; asset: string; network: string; tx_hash: string }> = [];
+    // 3. Credit confirmed transfers through one database transaction.
+    // The RPC deduplicates by blockchain_deposit_id, reuses a matching manual
+    // deposit request where possible, and purchases only the plan linked to
+    // the member's active plan-deposit intent when the credited USD is in range.
+    const credited: Array<{ user_id: string; amount_usd: number; asset: string; network: string; tx_hash: string; auto_purchase_status?: string }> = [];
     for (const row of pendingRows) {
       const asset = String(row.asset_code || "").toUpperCase(), network = String(row.network_code || "");
       const price = prices[asset];
       if (!Number.isFinite(price) || price <= 0) continue; // stays in backlog until a price is available
       const usd = Math.round(Number(row.amount) * price * 1e6) / 1e6;
       if (!Number.isFinite(usd) || usd <= 0) continue;
-      const drInsert = await rest("deposit_requests", {
-        method: "POST", headers: { Prefer: "return=representation" },
-        body: JSON.stringify({ user_id: row.user_id, amount: usd, asset, network, tx_hash: row.tx_hash, status: "credited", admin_note: "Automatic blockchain deposit credit" }),
+      const processedRes = await rest("rpc/process_confirmed_monitored_deposit", {
+        method: "POST",
+        body: JSON.stringify({ p_blockchain_deposit_id: row.id, p_amount_usd: usd }),
       });
-      if (!drInsert.ok) { console.warn("deposit_requests insert failed", await drInsert.text()); continue; }
-      const dr = (await drInsert.json()) as Array<{ id: string }>;
-      const ledgerInsert = await rest("ledger_entries", {
-        method: "POST", headers: { Prefer: "return=representation" },
-        body: JSON.stringify({
-          user_id: row.user_id, amount: usd, entry_type: "deposit",
-          description: `Blockchain deposit confirmed — ${Number(row.amount)} ${asset} (${network})`,
-          reference_type: "deposit_request", reference_id: dr?.[0]?.id ?? null,
-        }),
+      if (!processedRes.ok) {
+        console.warn("confirmed deposit processing failed", await processedRes.text());
+        continue;
+      }
+      const processed = await processedRes.json() as {
+        ok?: boolean;
+        already_credited?: boolean;
+        user_id?: string;
+        amount_usd?: number;
+        auto_purchase?: { status?: string };
+      };
+      if (processed?.ok !== true) {
+        console.warn("confirmed deposit RPC returned an unexpected response", processed);
+        continue;
+      }
+      credited.push({
+        user_id: String(row.user_id),
+        amount_usd: Number(processed.amount_usd ?? usd),
+        asset,
+        network,
+        tx_hash: String(row.tx_hash ?? ""),
+        auto_purchase_status: processed.auto_purchase?.status || (processed.already_credited ? "already_credited" : "not_requested"),
       });
-      if (!ledgerInsert.ok) { console.warn("ledger insert failed", await ledgerInsert.text()); continue; }
-      await rest(`blockchain_deposits?id=eq.${row.id}`, { method: "PATCH", body: JSON.stringify({ deposit_status: "credited", credited_at: new Date().toISOString() }) });
-      credited.push({ user_id: String(row.user_id), amount_usd: usd, asset, network, tx_hash: String(row.tx_hash ?? "") });
     }
 
     const mine = requesterId ? credited.filter(c => c.user_id === requesterId) : credited;
