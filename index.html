@@ -1440,7 +1440,7 @@ function zcTxDetailField(label,value,mono){
 function zcViewTransaction(kind,id){
  const transaction=txFeedItems().find(r=>r.kind===String(kind)&&r.id===String(id));
  if(!transaction){toast('Transaction details could not be found. Refresh your account and try again.',true);return}
- const record=transaction.record||{},user=currentUser||{},account=profile||{};
+ const record=transaction.record||{};
  const asset=String(record.asset||record.currency||'USDT');
  const amountText=(transaction.amt>=0?'+':'−')+fmt(Math.abs(transaction.amt))+' '+asset;
  let description=String(record.description||'');
@@ -1457,18 +1457,12 @@ function zcViewTransaction(kind,id){
   zcTxDetailField('Ledger category',transaction.kind==='ledger'?zcCustomerLedgerType(record):''),
   zcTxDetailField('Description',description),
   zcTxDetailField('Review note',record.admin_note),
-  zcTxDetailField('Reference type',record.reference_type),
+  zcTxDetailField('Reference type',String(record.reference_type||'').replace(/^admin[_-]?/i,'').replace(/\badmin\b/gi,'').replace(/[_-]+/g,' ').replace(/\s+/g,' ').trim()),
   zcTxDetailField('Transaction ID',record.id,true)
  ].filter(Boolean).join('');
- const userDetails=[
-  zcTxDetailField('Full name',account.full_name||user.user_metadata?.full_name||'Not provided'),
-  zcTxDetailField('Email address',user.email||'Not available'),
-  zcTxDetailField('Account ID',record.user_id||user.id||'Not available',true),
-  zcTxDetailField('Account role',account.role||'Member')
- ].join('');
  let modal=document.getElementById('zc-tx-detail-modal');
  if(!modal){modal=document.createElement('div');modal.id='zc-tx-detail-modal';modal.className='zc-tx-detail-modal';document.body.appendChild(modal)}
- modal.innerHTML='<section class="zc-tx-detail-dialog" role="dialog" aria-modal="true" aria-labelledby="zc-tx-detail-title"><header class="zc-tx-detail-head"><div><div class="eyebrow">TRANSACTION RECEIPT</div><h3 id="zc-tx-detail-title">Transaction details</h3></div><button type="button" class="btn ghost zc-tx-detail-close" aria-label="Close" onclick="zcCloseTransaction()">×</button></header><div class="zc-tx-detail-amount '+(transaction.amt>=0?'pos':'neg')+'">'+esc(amountText)+'</div><section class="zc-tx-detail-section"><div class="eyebrow">TRANSACTION INFORMATION</div><div class="zc-tx-detail-grid">'+(details||'<div class="muted">No additional transaction information is available.</div>')+'</div></section><section class="zc-tx-detail-section"><div class="eyebrow">ACCOUNT INFORMATION</div><div class="zc-tx-detail-grid">'+userDetails+'</div></section><button type="button" class="btn primary zc-tx-detail-done" onclick="zcCloseTransaction()">Close</button></section>';
+ modal.innerHTML='<section class="zc-tx-detail-dialog" role="dialog" aria-modal="true" aria-labelledby="zc-tx-detail-title"><header class="zc-tx-detail-head"><div><div class="eyebrow">TRANSACTION RECEIPT</div><h3 id="zc-tx-detail-title">Transaction details</h3></div><button type="button" class="btn ghost zc-tx-detail-close" aria-label="Close" onclick="zcCloseTransaction()">×</button></header><div class="zc-tx-detail-amount '+(transaction.amt>=0?'pos':'neg')+'">'+esc(amountText)+'</div><section class="zc-tx-detail-section"><div class="eyebrow">TRANSACTION INFORMATION</div><div class="zc-tx-detail-grid">'+(details||'<div class="muted">No additional transaction information is available.</div>')+'</div></section><button type="button" class="btn primary zc-tx-detail-done" onclick="zcCloseTransaction()">Close</button></section>';
  modal.hidden=false;
  document.body.style.overflow='hidden';
  const close=modal.querySelector('.zc-tx-detail-close');if(close)close.focus();
