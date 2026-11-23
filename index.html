@@ -6801,6 +6801,11 @@ function showCommunityMessageMenu(message,eventX,eventY){
  const actions=[
   ['Copy message',()=>copyCommunityMessage(messageText)],
   ['Reply',()=>setReply(message.id)],
+  ['Translate to My language',()=>{
+   const p=el('zc-community-message-text-'+message.id);
+   if(p)p.textContent=messageText;
+   translateCommunityMessage(message.id,messageText);
+  }],
   ['Show original',()=>{
    const p=el('zc-community-message-text-'+message.id);
    if(p){p.textContent=messageText;p.title='Original message';}
