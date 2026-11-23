@@ -1419,7 +1419,7 @@ function renderRecentActivity(){
  if(!items.length){box.innerHTML='<div class="empty">No activity yet — your deposits, withdrawals and plan updates will appear here.</div>';return}
  box.innerHTML=items.map(r=>{
   const pos=r.amt>=0;
-  return '<article class="zc-tx-row"><div class="zc-tx-icon '+(pos?'in':'out')+'">'+(pos?'↓':'↑')+'</div><div class="zc-tx-main"><div class="zc-tx-main-top"><strong>'+esc(r.title)+'</strong></div><div class="zc-tx-sub">'+r.sub+'</div>'+(r.ref?'<div class="zc-tx-hash">'+esc(r.ref)+'</div>':'')+'</div><div class="zc-tx-right"><div class="zc-tx-amount '+(pos?'pos':'neg')+'">'+(pos?'+':'−')+fmt(Math.abs(r.amt))+' USDT</div><div class="zc-tx-time">'+new Date(r.t).toLocaleString()+'</div>'+zcTxViewButton(r)+'</div></article>';
+  return '<article class="zc-tx-row"><div class="zc-tx-icon '+(pos?'in':'out')+'">'+(pos?'↓':'↑')+'</div><div class="zc-tx-main"><div class="zc-tx-main-top"><strong>'+esc(r.title)+'</strong></div><div class="zc-tx-sub">'+r.sub+'</div>'+(r.ref?'<div class="zc-tx-hash">'+esc(r.ref)+'</div>':'')+'</div><div class="zc-tx-right"><div class="zc-tx-amount '+(pos?'pos':'neg')+'">'+(pos?'+':'−')+fmt(Math.abs(r.amt))+' USDT</div><div class="zc-tx-time-row"><div class="zc-tx-time">'+new Date(r.t).toLocaleString()+'</div>'+zcTxViewButton(r)+'</div>+'</div></article>';
  }).join('');
 }
 function renderTxFeed(){
@@ -1428,7 +1428,7 @@ function renderTxFeed(){
  if(!items.length){box.innerHTML='<div class="empty">Nothing here yet.</div>';return}
  box.innerHTML=items.slice(0,200).map(r=>{
   const pos=r.amt>=0;
-  return '<article class="zc-tx-row"><div class="zc-tx-icon '+(pos?'in':'out')+'">'+(pos?'↓':'↑')+'</div><div class="zc-tx-main"><div class="zc-tx-main-top"><strong>'+esc(r.title)+'</strong></div><div class="zc-tx-sub">'+r.sub+'</div>'+(r.ref?'<div class="zc-tx-hash">'+esc(r.ref)+'</div>':'')+'</div><div class="zc-tx-right"><div class="zc-tx-amount '+(pos?'pos':'neg')+'">'+(pos?'+':'−')+fmt(Math.abs(r.amt))+' USDT</div><div class="zc-tx-time">'+new Date(r.t).toLocaleString()+'</div>'+zcTxViewButton(r)+'</div></article>';
+  return '<article class="zc-tx-row"><div class="zc-tx-icon '+(pos?'in':'out')+'">'+(pos?'↓':'↑')+'</div><div class="zc-tx-main"><div class="zc-tx-main-top"><strong>'+esc(r.title)+'</strong></div><div class="zc-tx-sub">'+r.sub+'</div>'+(r.ref?'<div class="zc-tx-hash">'+esc(r.ref)+'</div>':'')+'</div><div class="zc-tx-right"><div class="zc-tx-amount '+(pos?'pos':'neg')+'">'+(pos?'+':'−')+fmt(Math.abs(r.amt))+' USDT</div><div class="zc-tx-time-row"><div class="zc-tx-time">'+new Date(r.t).toLocaleString()+'</div>'+zcTxViewButton(r)+'</div>+'</div></article>';
  }).join('');
  document.querySelectorAll('.zc-tx-filter').forEach(b=>b.classList.toggle('active',b.dataset.txf===zcTxFilter));
 }
@@ -5023,7 +5023,9 @@ body #app-content #zc-deposit-options .deposit-asset-option.selected>.btn{
 .zc-tx-amount.pos{color:var(--green)}
 .zc-tx-amount.neg{color:var(--red,#ff7474)}
 .zc-tx-time{font-size:11px;color:var(--muted);margin-top:3px}
-.zc-tx-view{display:inline-flex!important;align-items:center;justify-content:center;margin-top:8px!important;padding:6px 10px!important;font-size:11px!important;line-height:1.2!important;white-space:nowrap!important}
+.zc-tx-time-row{display:flex!important;align-items:center!important;justify-content:space-between!important;gap:10px!important;width:100%!important;min-width:0!important;margin-top:3px!important}
+.zc-tx-time-row .zc-tx-time{margin-top:0!important;white-space:nowrap!important;flex:0 1 auto!important;min-width:0!important}
+.zc-tx-view{display:inline-flex!important;align-items:center;justify-content:center;flex:0 0 auto!important;margin:0 0 0 auto!important;padding:6px 10px!important;font-size:11px!important;line-height:1.2!important;white-space:nowrap!important}
 .zc-tx-detail-modal{position:fixed;inset:0;z-index:100500;display:grid;place-items:center;padding:16px;background:rgba(2,9,18,.78);backdrop-filter:blur(7px);-webkit-backdrop-filter:blur(7px);overflow-y:auto}
 .zc-tx-detail-modal[hidden]{display:none!important}
 .zc-tx-detail-dialog{width:min(680px,100%);max-height:min(88vh,900px);overflow:auto;padding:22px;border:1px solid var(--line);border-radius:20px;background:var(--panel);box-shadow:0 24px 80px rgba(0,0,0,.48);color:var(--text)}
