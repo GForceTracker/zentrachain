@@ -1411,7 +1411,25 @@ html body .modal-head .brand{white-space:nowrap!important;min-width:0!important}
 </footer>
 </div>
 <div id="application" class="hidden"><div class="app"><div id="drawer-scrim" class="drawer-scrim" onclick="closeDrawer()"></div><aside class="side" id="app-drawer"><button type="button" class="zc-drawer-close" aria-label="Close navigation" onclick="closeDrawer()">×</button><div class="brand"><div class="logo zc-brand-mark"><svg viewBox="0 0 40 40" width="27" height="27" aria-hidden="true" focusable="false"><defs><linearGradient id="zcLogoGrad" x1="4" y1="4" x2="36" y2="36" gradientUnits="userSpaceOnUse"><stop style="stop-color:var(--mint)"/><stop offset=".48" style="stop-color:var(--green)"/><stop offset="1" style="stop-color:var(--green)"/></linearGradient></defs><path d="M20 2.8 35.2 11.4v17.2L20 37.2 4.8 28.6V11.4L20 2.8Z" fill="none" stroke="url(#zcLogoGrad)" stroke-width="2.2"/><path d="M12 13.1h16L15.4 26.9H28" fill="none" stroke="url(#zcLogoGrad)" stroke-width="4.1" stroke-linecap="round" stroke-linejoin="round"/><circle cx="28.1" cy="13.1" r="2.1" style="fill:var(--mint)"/><circle cx="12" cy="26.9" r="2.1" style="fill:var(--green)"/></svg></div>ZENTRACHAIN</div><nav class="side-nav" id="side-nav"><button type="button" data-page="public-home" onclick="zcGoLanding()" aria-label="Public Home"><span class="zc-home-nav-icon" aria-hidden="true"><i data-lucide="house"></i></span>Home</button><button class="active" data-page="overview" onclick="navigate('overview')" aria-label="Dashboard"><span class="zc-home-nav-icon" aria-hidden="true"><i data-lucide="layout-dashboard"></i></span>Dashboard</button><button data-page="deposits" onclick="navigate('deposits')"><span>↓</span>Deposits</button><button data-page="withdrawals" onclick="navigate('withdrawals')"><span>↑</span>Withdraw</button><button id="plans-nav" data-page="plans" onclick="navigate('plans')"><span>◈</span>Trading Plans</button><button data-page="calculator" onclick="navigate('calculator')"><span>∑</span>Calculator</button><button data-page="markets" onclick="navigate('markets')"><span>⌁</span>Markets</button><button data-page="investments" onclick="navigate('investments')"><span>◎</span>Active Plan</button><button data-page="activity" onclick="navigate('activity')"><span>▤</span>Transactions</button><button type="button" data-page="referrals" id="zc-referrals-nav" onclick="zcOpenReferrals()" aria-label="Referrals"><span class="zc-home-nav-icon" aria-hidden="true"><i data-lucide="users"></i></span>Referrals</button><button type="button" id="zc-community-nav" class="zc-community-nav-link" onclick="zcOpenCommunityChat()" aria-label="Open group chat"><span class="zc-community-nav-icon" aria-hidden="true"><i data-lucide="messages-square"></i></span><span>Group Chat</span><i class="zc-community-nav-pulse" aria-hidden="true"></i></button><button data-page="admin" id="admin-nav" class="hidden" onclick="navigate('admin')"><span>⚙</span>Admin</button><button type="button" data-page="support" onclick="zcOpenSupportPage()" aria-label="Customer support"><span class="zc-home-nav-icon" aria-hidden="true"><i data-lucide="headset"></i></span>Customer Support</button></nav><div class="side-foot">Secure account portal<br><span class="green">●</span> Session protected by Supabase</div></aside><div class="main"><header class="appbar"><div class="appbar-left"><button class="btn menu-trigger" aria-label="Open navigation" onclick="toggleDrawer()">☰</button><div><b id="hello">Welcome</b><div class="muted" style="font-size:11px" id="email-label"></div></div></div><div class="appbar-actions"><button class="btn alert-trigger zc-bell-trigger" aria-label="Notifications" title="Notifications" onclick="openAlerts()"><svg viewBox="0 0 24 24" width="19" height="19" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9"/><path d="M10 21h4"/></svg><span id="alert-count" class="alert-count hidden">0</span></button><span id="role-label" class="admin-tag hidden">ADMIN</span><div class="zc-user-menu-wrap" id="zc-user-menu"><button type="button" class="zc-user-menu-trigger" id="zc-user-menu-trigger" aria-label="Profile menu" aria-haspopup="true" aria-expanded="false" onclick="zcToggleUserMenu()"><span class="zc-avatar-circle" aria-hidden="true"><svg viewBox="0 0 24 24" role="presentation" aria-hidden="true" focusable="false"><circle cx="12" cy="8" r="3.2"></circle><path d="M4.7 20c.3-3.5 3.1-6.1 7.3-6.1s7 2.6 7.3 6.1"></path></svg></span><span class="zc-user-menu-chevron" aria-hidden="true"></span></button><div class="zc-user-menu-panel hidden" id="zc-user-menu-panel" role="menu"><div class="zc-user-menu-identity"><b id="zc-user-menu-name">Account</b><small id="zc-user-menu-email"></small></div><button type="button" class="zc-user-menu-logout" role="menuitem" style="color:var(--mint)" onclick="zcCloseUserMenu();navigate('profile')"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9c.66.29 1.1.87 1.51 1H21a2 2 0 1 1 0 4h-.09c-.64.13-1.22.55-1.51 1Z"/></svg><span>Settings</span></button><button type="button" class="zc-user-menu-logout" role="menuitem" onclick="zcCloseUserMenu();signOut()"><svg viewBox="0 0 20 20" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3H4.8A1.8 1.8 0 0 0 3 4.8v10.4A1.8 1.8 0 0 0 4.8 17H8"/><path d="M11 6.5 14.5 10 11 13.5M6.5 10h8"/></svg><span>Logout</span></button></div></div></div></header><main class="content" id="app-content"></main></div></div></div>
-<div id="auth-modal" class="modal-bg hidden"><div class="modal"><div class="modal-head"><div class="brand"><div class="logo zc-brand-mark"><svg viewBox="0 0 40 40" width="27" height="27" aria-hidden="true" focusable="false"><defs><linearGradient id="zcLogoGrad" x1="4" y1="4" x2="36" y2="36" gradientUnits="userSpaceOnUse"><stop style="stop-color:var(--mint)"/><stop offset=".48" style="stop-color:var(--green)"/><stop offset="1" style="stop-color:var(--green)"/></linearGradient></defs><path d="M20 2.8 35.2 11.4v17.2L20 37.2 4.8 28.6V11.4L20 2.8Z" fill="none" stroke="url(#zcLogoGrad)" stroke-width="2.2"/><path d="M12 13.1h16L15.4 26.9H28" fill="none" stroke="url(#zcLogoGrad)" stroke-width="4.1" stroke-linecap="round" stroke-linejoin="round"/><circle cx="28.1" cy="13.1" r="2.1" style="fill:var(--mint)"/><circle cx="12" cy="26.9" r="2.1" style="fill:var(--green)"/></svg></div><span id="auth-title">Welcome back</span></div><button class="x" onclick="hideAuth()">×</button></div><div id="auth-message" class="notice hidden" style="margin-bottom:14px"></div><form class="form" id="auth-form" onsubmit="submitAuth(event)"><div class="field hidden" id="name-field"><label>Full name</label><input id="auth-name" autocomplete="name" placeholder="Your full name"></div><div class="field"><label>Email address</label><input id="auth-email" type="email" autocomplete="email" required placeholder="you@example.com"></div><div class="field"><label>Password</label><div class="zc-pass-wrap"><input id="auth-password" type="password" minlength="8" autocomplete="current-password" required placeholder="At least 8 characters"><button type="button" class="zc-pass-eye" onclick="zcTogglePassword()" aria-label="Show password"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg></button></div></div><div class="field" id="zc-captcha-field"><div id="zc-tickbox" class="zc-tickbox" role="checkbox" aria-checked="false" tabindex="0" onclick="zcTickStart()"><span class="zc-tick-box-ui"><span class="zc-tick-mark" id="zc-tick-mark"></span></span><span class="zc-tick-label">I'm not a robot</span><span class="zc-tick-state" id="zc-tick-state"></span></div></div></div><button class="btn primary" id="auth-submit" type="submit">Log in</button><button class="btn ghost hidden" type="button" id="auth-resend" onclick="resendVerification()" style="margin-top:10px">Resend verification email</button>
+<div id="auth-modal" class="modal-bg hidden"><div class="modal"><div class="modal-head"><div class="brand"><div class="logo zc-brand-mark"><svg viewBox="0 0 40 40" width="27" height="27" aria-hidden="true" focusable="false"><defs><linearGradient id="zcLogoGrad" x1="4" y1="4" x2="36" y2="36" gradientUnits="userSpaceOnUse"><stop style="stop-color:var(--mint)"/><stop offset=".48" style="stop-color:var(--green)"/><stop offset="1" style="stop-color:var(--green)"/></linearGradient></defs><path d="M20 2.8 35.2 11.4v17.2L20 37.2 4.8 28.6V11.4L20 2.8Z" fill="none" stroke="url(#zcLogoGrad)" stroke-width="2.2"/><path d="M12 13.1h16L15.4 26.9H28" fill="none" stroke="url(#zcLogoGrad)" stroke-width="4.1" stroke-linecap="round" stroke-linejoin="round"/><circle cx="28.1" cy="13.1" r="2.1" style="fill:var(--mint)"/><circle cx="12" cy="26.9" r="2.1" style="fill:var(--green)"/></svg></div><span id="auth-title">Welcome back</span></div><button class="x" onclick="hideAuth()">×</button></div><div id="auth-message" class="notice hidden" style="margin-bottom:14px"></div><form class="form" id="auth-form" onsubmit="submitAuth(event)"><div class="field hidden" id="name-field"><label>Full name</label><input id="auth-name" autocomplete="name" placeholder="Your full name"></div><div class="field"><label>Email address</label><input id="auth-email" type="email" autocomplete="email" required placeholder="you@example.com"></div><div class="field"><label>Password</label><div class="zc-pass-wrap"><input id="auth-password" type="password" minlength="8" autocomplete="current-password" required placeholder="At least 8 characters"><button type="button" class="zc-pass-eye" onclick="zcTogglePassword()" aria-label="Show password"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg></button></div></div><div class="field" id="zc-captcha-field">
+  <div id="zc-tickbox" class="zc-tickbox" role="checkbox" aria-checked="false" tabindex="0" onclick="zcTickStart()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();zcTickStart()}">
+    <span class="zc-tick-box-ui"><span class="zc-tick-mark" id="zc-tick-mark"></span></span>
+    <span class="zc-tick-label">I'm not a robot</span>
+    <span class="zc-tick-state" id="zc-tick-state"></span>
+  </div>
+  <div id="zc-captcha-challenge" class="hidden" role="group" aria-label="Human verification challenge">
+    <div class="zc-captcha-head">
+      <div><b>Security check</b><small>Type the six characters shown in the image.</small></div>
+      <button type="button" class="zc-captcha-refresh" aria-label="Get a new challenge" onclick="zcTickStart()">↻</button>
+    </div>
+    <div class="zc-captcha-image-frame"><img id="zc-captcha-image" width="256" height="88" alt="CAPTCHA challenge image"></div>
+    <div class="zc-captcha-answer-row">
+      <input id="zc-captcha-answer" type="text" maxlength="6" autocomplete="off" autocapitalize="characters" spellcheck="false" inputmode="text" placeholder="Enter the six characters" aria-label="Enter the CAPTCHA characters" onkeydown="if(event.key==='Enter'){event.preventDefault();zcTickVerify()}">
+      <button id="zc-captcha-verify" type="button" class="btn primary" onclick="zcTickVerify()">Verify</button>
+    </div>
+    <p id="zc-captcha-feedback" role="status" aria-live="polite"></p>
+  </div>
+</div></div><button class="btn primary" id="auth-submit" type="submit">Log in</button><button class="btn ghost hidden" type="button" id="auth-resend" onclick="resendVerification()" style="margin-top:10px">Resend verification email</button>
 <button class="btn ghost" type="button" onclick="toggleAuthMode()" id="auth-switch">Create an account</button></form></div></div>
 <div id="toast" class="toast hidden" role="status" aria-live="polite" aria-atomic="true"></div><div id="transaction-modal" class="transaction-modal hidden" onclick="if(event.target===this)closeAlerts()"><div class="transaction-card"><div class="alert-symbol">↗</div><div class="eyebrow">ACCOUNT NOTIFICATION</div><h3 id="transaction-alert-title">Transaction update</h3><p id="transaction-alert-message">Your account has a new transaction update.</p><button class="btn primary" style="width:100%" onclick="closeAlerts()">Got it</button></div></div>
 <script>
@@ -1432,29 +1450,100 @@ async function submitAuth(e){e.preventDefault();const email=$('auth-email').valu
 if(authMode==='signup'&&zcTick.state!=='verified')return authMsg('Tap the verification box first.',true);const submit=$('auth-submit');if(submit){submit.disabled=true;submit.textContent=authMode==='signup'?'Creating account…':'Signing in…'}try{let r;if(authMode==='signup'){
  if(zcTick.state!=='verified')return authMsg('Tap the verification box first.',true);
  const base=(window.ZC_ENV&&window.ZC_ENV.SUPABASE_URL)||'';
- const sr=await fetch(base+'/functions/v1/member-signup',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:email,password:password,full_name:$('auth-name')?.value||'',challenge_id:zcTick.id,nonce:zcTick.nonce})});
+ const sr=await fetch(base+'/functions/v1/member-signup',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:email,password:password,full_name:$('auth-name')?.value||'',challenge_id:zcTick.id})});
  const sd=await sr.json().catch(()=>({}));
  if(!sr.ok||!sd.ok)return authMsg(sd.error||'Signup failed. Please try again.',true);
  r=await db.auth.signInWithPassword({email,password});if(r.error)return authMsg(r.error.message,true);
 }else{r=await db.auth.signInWithPassword({email,password});if(r.error)return authMsg(r.error.message,true)}hideAuth();await loadSession();if(window.zcCommunityAfterAuth)await window.zcCommunityAfterAuth()}catch(err){authMsg(err?.message||'Sign-in could not be completed. Please try again.',true)}finally{if(submit){submit.disabled=false;submit.textContent=authMode==='signup'?'Create account':'Log in'}}}
-let zcTick={state:'idle',id:'',nonce:''};
-function zcTickReset(){zcTick={state:'idle',id:'',nonce:''};const box=$('zc-tickbox');if(!box)return;box.classList.remove('verified','verifying');box.setAttribute('aria-checked','false');const mk=$('zc-tick-mark');if(mk)mk.textContent='';const st=$('zc-tick-state');if(st)st.textContent=''}
-async function zcSha256(sx){const d=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(sx));return Array.from(new Uint8Array(d),b=>b.toString(16).padStart(2,'0')).join('')}
+let zcTick={state:'idle',id:''};
+function zcTickReset(){
+ zcTick={state:'idle',id:''};
+ const box=$('zc-tickbox');
+ if(box){box.classList.remove('verified','verifying');box.setAttribute('aria-checked','false')}
+ const mark=$('zc-tick-mark');if(mark)mark.textContent='';
+ const state=$('zc-tick-state');if(state)state.textContent='';
+ const challenge=$('zc-captcha-challenge');if(challenge)challenge.classList.add('hidden');
+ const image=$('zc-captcha-image');if(image)image.removeAttribute('src');
+ const answer=$('zc-captcha-answer');if(answer)answer.value='';
+ const feedback=$('zc-captcha-feedback');if(feedback)feedback.textContent='';
+ const verify=$('zc-captcha-verify');if(verify){verify.disabled=false;verify.textContent='Verify'}
+}
 async function zcTickStart(){
- if(zcTick.state==='verifying')return;
- const box=$('zc-tickbox');if(!box)return;
- zcTick.state='verifying';box.classList.add('verifying');const st=$('zc-tick-state');if(st)st.textContent='Verifying...';
+ if(zcTick.state==='loading'||zcTick.state==='verified')return;
+ const box=$('zc-tickbox'),challenge=$('zc-captcha-challenge'),state=$('zc-tick-state');
+ if(!box||!challenge)return;
+ zcTick.state='loading';
+ box.classList.add('verifying');
+ if(state)state.textContent='Loading challenge…';
+ const feedback=$('zc-captcha-feedback');if(feedback)feedback.textContent='';
  try{
-  const base=(window.ZC_ENV&&window.ZC_ENV.SUPABASE_URL)||'';
-  const r=await fetch(base+'/functions/v1/captcha-challenge',{method:'POST',headers:{'Content-Type':'application/json'},body:'{}'});
-  const d=await r.json();if(!r.ok||!d.id)throw new Error(d.error||'Challenge failed');
-  const zeros='0'.repeat(Number(d.difficulty)||3);let n=0,found=-1;
-  while(n<400000){const h=await zcSha256(d.salt+n);if(h.startsWith(zeros)){found=n;break}n++}
-  if(found<0)throw new Error('Verification failed');
-  zcTick.id=d.id;zcTick.nonce=String(found);zcTick.state='verified';
-  box.classList.remove('verifying');box.classList.add('verified');box.setAttribute('aria-checked','true');const mk=$('zc-tick-mark');if(mk)mk.textContent='\u2713';if(st)st.textContent='Verified';
- }catch(e){zcTick.state='idle';box.classList.remove('verifying');if(st)st.textContent='';toast(e.message||'Captcha failed - tap the box again.',true)}
-}function authMsg(s,bad){$('auth-message').textContent=s;$('auth-message').classList.remove('hidden');$('auth-message').classList.toggle('error',bad);const r=$('auth-resend');if(r)r.classList.toggle('hidden',!(/confirm/i.test(String(s||''))))}
+  const base=(window.ZC_ENV&&window.ZC_ENV.SUPABASE_URL)||SUPABASE_URL||'';
+  const response=await fetch(base+'/functions/v1/captcha-challenge',{method:'POST',headers:{'Content-Type':'application/json'},body:'{}',cache:'no-store'});
+  const data=await response.json().catch(()=>({}));
+  if(!response.ok||!data.id||!data.svg)throw new Error(data.error||'Could not load the CAPTCHA. Please try again.');
+  zcTick.id=data.id;
+  zcTick.state='challenge';
+  const image=$('zc-captcha-image');
+  if(image)image.src='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(data.svg);
+  const answer=$('zc-captcha-answer');if(answer)answer.value='';
+  challenge.classList.remove('hidden');
+  if(state)state.textContent='Solve the challenge';
+  box.setAttribute('aria-checked','false');
+  if(answer)setTimeout(()=>answer.focus({preventScroll:true}),80);
+ }catch(error){
+  zcTick.state='idle';
+  if(feedback)feedback.textContent=error?.message||'The CAPTCHA could not be loaded.';
+  if(state)state.textContent='Try again';
+  toast(error?.message||'Could not load the CAPTCHA. Please try again.',true);
+ }finally{
+  box.classList.remove('verifying');
+ }
+}
+async function zcTickVerify(){
+ if(zcTick.state!=='challenge'||!zcTick.id)return zcTickStart();
+ const answer=String($('zc-captcha-answer')?.value||'').trim().toUpperCase();
+ const feedback=$('zc-captcha-feedback'),button=$('zc-captcha-verify'),box=$('zc-tickbox'),state=$('zc-tick-state');
+ if(!/^[A-HJ-NP-Z2-9]{6}$/.test(answer)){
+  if(feedback)feedback.textContent='Enter all six characters shown in the image.';
+  $('zc-captcha-answer')?.focus({preventScroll:true});
+  return;
+ }
+ zcTick.state='checking';
+ if(button){button.disabled=true;button.textContent='Checking…'}
+ if(feedback)feedback.textContent='Checking your answer…';
+ try{
+  const base=(window.ZC_ENV&&window.ZC_ENV.SUPABASE_URL)||SUPABASE_URL||'';
+  const response=await fetch(base+'/functions/v1/captcha-verify',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id:zcTick.id,answer}),cache:'no-store'});
+  const data=await response.json().catch(()=>({}));
+  if(!response.ok||!data.ok){
+   const message=data.error||'That answer was not accepted.';
+   if(response.status===400||response.status===409){
+    zcTick.state='idle';zcTick.id='';
+    await zcTickStart();
+    if(feedback)feedback.textContent=message+' A new challenge is ready.';
+   }else{
+    zcTick.state='challenge';
+    if(feedback)feedback.textContent=message;
+   }
+   return;
+  }
+  zcTick.state='verified';
+  box.classList.remove('verifying');
+  box.classList.add('verified');
+  box.setAttribute('aria-checked','true');
+  const mark=$('zc-tick-mark');if(mark)mark.textContent='✓';
+  if(state)state.textContent='Verified';
+  challenge=$('zc-captcha-challenge');if(challenge)challenge.classList.add('hidden');
+  const input=$('zc-captcha-answer');if(input)input.value='';
+  if(feedback)feedback.textContent='';
+ }catch(error){
+  zcTick.state='challenge';
+  if(feedback)feedback.textContent=error?.message||'Could not verify the answer. Please retry.';
+ }finally{
+  if(button&&zcTick.state!=='verified'){button.disabled=false;button.textContent='Verify'}
+ }
+}
+function authMsg(s,bad){$('auth-message').textContent=s;$('auth-message').classList.remove('hidden');$('auth-message').classList.toggle('error',bad);const r=$('auth-resend');if(r)r.classList.toggle('hidden',!(/confirm/i.test(String(s||''))))}
 async function resendVerification(){const email=($('auth-email')?.value||'').trim().toLowerCase();if(!email)return toast('Enter your email above first.',true);try{const {error}=await db.auth.resend({type:'signup',email,options:{emailRedirectTo:window.location.origin+'/'}});if(error)throw error;toast('Verification email sent - check your inbox.')}catch(e){toast(e.message||'Could not resend the email.',true)}}
 let sessionLoadPromise=null;
 
@@ -7840,6 +7929,39 @@ body.zc-community-chat-open{overflow:hidden!important;overscroll-behavior:none}
   if(!rafId)rafId=raf(chooseVisible);
  }
 
+ async function continueFromVisitorPlan(card){
+  const planId=card?.getAttribute('data-gf-plan-id')||'';
+  try{
+   const auth=await db.auth.getSession();
+   if(auth.error)throw auth.error;
+   const session=auth.data?.session;
+   if(!session?.user){showAuth('signup');return}
+   if(typeof loadSession==='function')await loadSession();
+   if(!currentUser||currentUser.id!==session.user.id||!profile){
+    showAuth('login');
+    authMsg('Your existing session could not be opened. Please log in again.',true);
+    return;
+   }
+   showApp();
+   navigate('plans');
+   if(planId){
+    const until=Date.now()+8000;
+    while(Date.now()<until){
+     const target=Array.from(document.querySelectorAll('#dash-cards [data-gf-plan-id]')).find(item=>item.getAttribute('data-gf-plan-id')===planId);
+     if(target){
+      target.classList.add('zc-plan-from-visitor');
+      target.scrollIntoView({behavior:'smooth',block:'center'});
+      setTimeout(()=>target.classList.remove('zc-plan-from-visitor'),3500);
+      break;
+     }
+     await new Promise(resolve=>setTimeout(resolve,100));
+    }
+   }
+  }catch(error){
+   console.error('Visitor plan navigation failed:',error);
+   toast('Your trading plans could not be opened. Please refresh and try again.',true);
+  }
+ }
  function activateFromEvent(event){
   var target=event.target;
   if(!target||!target.closest)return;
@@ -7853,8 +7975,8 @@ body.zc-community-chat-open{overflow:hidden!important;overscroll-behavior:none}
   event.stopPropagation();
   if(event.stopImmediatePropagation)event.stopImmediatePropagation();
 
-  // The primary CTA continues to open account creation after highlighting.
-  if(button&&typeof window.showAuth==='function')window.showAuth('signup');
+  // Signed-in members go to dashboard plans; visitors still see account creation.
+  if(button)continueFromVisitorPlan(card);
  }
 
  function activateFromKeyboard(event){
@@ -7867,7 +7989,7 @@ body.zc-community-chat-open{overflow:hidden!important;overscroll-behavior:none}
   event.stopPropagation();
   if(event.stopImmediatePropagation)event.stopImmediatePropagation();
   paint(card);
-  if(target.closest(CARD_SELECTOR+' '+BUTTON_SELECTOR)&&typeof window.showAuth==='function')window.showAuth('signup');
+  if(target.closest(CARD_SELECTOR+' '+BUTTON_SELECTOR))continueFromVisitorPlan(card);
  }
 
  function bind(){
@@ -9818,9 +9940,18 @@ box-sizing:border-box!important;display:inline-flex!important;align-items:center
 </style>
 
 <style id="zc-captcha-challenge-css">
-#zc-captcha-challenge{margin-top:8px}
-#zc-captcha-svg svg{display:block;border-radius:8px}
-#zc-captcha-answer{margin-top:8px}
+#zc-captcha-challenge{margin-top:11px;padding:13px;border:1px solid var(--line);border-radius:13px;background:var(--panel2);max-width:390px}
+#zc-captcha-challenge .zc-captcha-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:10px}
+#zc-captcha-challenge .zc-captcha-head b{display:block;color:var(--text);font-size:13px}
+#zc-captcha-challenge .zc-captcha-head small{display:block;color:var(--muted);font-size:11px;line-height:1.5;margin-top:3px}
+#zc-captcha-challenge .zc-captcha-refresh{width:36px;height:36px;flex:0 0 36px;border:1px solid var(--line);border-radius:10px;background:var(--panel);color:var(--mint);font-size:22px;line-height:1}
+#zc-captcha-challenge .zc-captcha-image-frame{display:flex;align-items:center;justify-content:center;padding:6px;border:1px solid var(--line);border-radius:11px;background:#e5f0e9}
+#zc-captcha-image{display:block;width:100%;max-width:256px;height:auto;aspect-ratio:256/88;object-fit:contain;border-radius:7px}
+#zc-captcha-challenge .zc-captcha-answer-row{display:flex;gap:8px;margin-top:10px}
+#zc-captcha-answer{flex:1;min-width:0;width:100%;min-height:42px;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:var(--panel);color:var(--text);font-size:16px;letter-spacing:2px;text-transform:uppercase}
+#zc-captcha-verify{min-width:88px;padding:9px 13px}
+#zc-captcha-feedback{min-height:16px;margin:7px 0 0;color:var(--muted);font-size:11px;line-height:1.45}
+@media(max-width:480px){#zc-captcha-challenge .zc-captcha-answer-row{flex-direction:column}#zc-captcha-verify{width:100%}}
 </style>
 
 <style id="zc-deposit-status-banners-v1">
@@ -10261,4 +10392,8 @@ body[data-zc-theme] #application .zc-studio-note b {
 }
 /* End dashboard active-theme bridge. */
 
+</style>
+
+<style id="zc-plan-from-visitor-highlight-v1">
+#dash-cards>.zc-plan-from-visitor{outline:2px solid var(--green)!important;outline-offset:4px!important;box-shadow:0 0 0 5px color-mix(in srgb,var(--green) 18%,transparent),0 22px 58px rgba(0,0,0,.34)!important}
 </style>
