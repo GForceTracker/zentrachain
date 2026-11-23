@@ -1451,7 +1451,7 @@ html body .modal-head .brand{white-space:nowrap!important;min-width:0!important}
 const SUPABASE_URL=(window.ZC_ENV&&window.ZC_ENV.SUPABASE_URL)||'https://ltowdrhwebaitbrrupks.supabase.co';
 const SUPABASE_KEY=(window.ZC_ENV&&window.ZC_ENV.SUPABASE_KEY)||'sb_publishable_mLgEtnFl6FnOzbykh6tWPw_14T_c8nS';
 const db=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY,{auth:{flowType:'implicit',detectSessionInUrl:true}});
-let currentUser=null, profile=null, authMode='login', page='overview', ledger=[], deposits=[], withdrawals=[], reports=[], profiles=[], referrals=[], investments=[], adminDeposits=[], adminWithdrawals=[], adminLedger=[];
+let currentUser=null, profile=null, authMode='login', page='overview', ledger=[], deposits=[], withdrawals=[], reports=[], profiles=[], referrals=[], investments=[], adminDeposits=[], adminWithdrawals=[], adminLedger=[], adminWithdrawalAlerts=[];
 const $=id=>document.getElementById(id);
 const fmt=n=>new Intl.NumberFormat('en-US',{minimumFractionDigits:2,maximumFractionDigits:2}).format(Number(n||0));
 const date=s=>s?new Date(s).toLocaleString():'—';
@@ -1797,7 +1797,7 @@ function showPublic(){$('public').classList.remove('hidden');$('application').cl
 function showApp(){$('public').classList.add('hidden');$('application').classList.remove('hidden');zcApplyDashboardStyle();$('hello').textContent='Welcome, '+(profile.full_name||currentUser.email.split('@')[0]);$('email-label').textContent=currentUser.email;if(typeof zcApplyAvatar==='function')zcApplyAvatar();if(typeof zcStartProfitTicker==='function')zcStartProfitTicker();const adminNav=$('admin-nav');if(adminNav)adminNav.classList.toggle('hidden',profile.role!=='admin');const plansNav=$('admin-plans-nav');if(plansNav)plansNav.classList.toggle('hidden',profile.role!=='admin');const roleLabel=$('role-label');if(roleLabel)roleLabel.classList.toggle('hidden',profile.role!=='admin');}
 async function refreshData(){
  const uid=currentUser&&currentUser.id;
- if(!uid){ledger=[];deposits=[];withdrawals=[];reports=[];referrals=[];investments=[];return}
+ if(!uid){ledger=[];deposits=[];withdrawals=[];reports=[];referrals=[];investments=[];adminWithdrawalAlerts=[];return}
  try{await db.rpc('zc_settle_gforce_investments')}catch(e){console.warn('Investment settlement unavailable:',e?.message||e)}
  const [l,d,w,r,rf,iv]=await Promise.all([
   db.from('ledger_entries').select('*').eq('user_id',uid).order('created_at',{ascending:false}),
@@ -1810,6 +1810,11 @@ async function refreshData(){
  if(l.error)toast(l.error.message,true);
  ledger=l.data||[];deposits=d.error?[]:(d.data||[]);withdrawals=w.error?[]:(w.data||[]);
  reports=r.data||[];referrals=rf.error?[]:(rf.data||[]);investments=iv.error?[]:(iv.data||[]);
+ if(profile?.role==='admin'){
+  const pending=await db.from('withdrawal_requests').select('id,user_id,amount,asset,network,status,created_at')
+   .in('status',['pending','under_review']).order('created_at',{ascending:false}).limit(100);
+  adminWithdrawalAlerts=pending.error?[]:(pending.data||[]);
+ }else adminWithdrawalAlerts=[];
  if(typeof window.zcRefreshCardFundingLabels==='function')window.zcRefreshCardFundingLabels();
 }
 function balance(){return (ledger||[]).reduce((s,x)=>s+Number(x.amount||0),0)}
@@ -1885,8 +1890,18 @@ async function renderDepositPage(){
  }
 }
 function renderWithdrawalPage(){
- const c=$('app-content'),available=availableUnlocked();if(!c)return;
- c.innerHTML='<div class="page-title"><div><div class="eyebrow">Payouts</div><h1>Withdraw funds</h1></div></div><div class="stats"><div class="card stat"><small>Deposit balance</small><strong>'+money(depositTotal())+'</strong></div><div class="card stat"><small>Available balance</small><strong>'+money(available)+'</strong></div></div><div class="notice" style="margin-bottom:16px">A withdrawal request is not a completed payment. Requests are reviewed, and status changes to Paid only after the transfer is made and its real transaction hash is recorded.</div><div class="card panel"><h3>New withdrawal request</h3><form class="form" style="max-width:620px" onsubmit="submitWithdrawal(event)"><div class="field"><label>Amount (USDT)</label><input id="wd-amount" type="number" min=".01" step=".01" max="'+Math.max(0,available)+'" required placeholder="Amount"></div><div class="field"><label>Network</label><select id="wd-network"><option>TRC20</option><option>ERC20</option><option>BEP20</option></select></div><div class="field"><label>Destination wallet address</label><input id="wd-address" required minlength="20" maxlength="150" placeholder="Your wallet address"></div><button class="btn primary" '+(available<=0?'disabled':'')+'>Submit withdrawal request</button></form></div><div class="card panel" style="margin-top:16px"><h3>Withdrawal history</h3>'+requestsTable(withdrawals,'withdrawal')+'</div>';
+ const c=$('app-content'),available=availableFundsUnlocked(),deposit=depositBalanceUnlocked();if(!c)return;
+ const canWithdraw=available>0;
+ c.innerHTML='<div class="page-title"><div><div class="eyebrow">Payouts</div><h1>Withdraw funds</h1><p class="muted">Withdrawals can only use Available Funds. Deposit Balance is not withdrawable.</p></div></div>'+
+ '<div class="stats"><div class="card stat"><small>Deposit Balance · Not withdrawable</small><strong>'+money(deposit)+'</strong></div><div class="card stat"><small>Available Funds · Withdrawable</small><strong>'+money(available)+'</strong></div></div>'+
+ '<div class="notice" style="margin-bottom:16px">When you submit a withdrawal, the amount is reserved from Available Funds immediately and stays Pending until an administrator decides. Declined requests return to Available Funds. Voided requests are not refunded.</div>'+
+ '<div class="card panel"><h3>New withdrawal request</h3><form class="form" style="max-width:620px" onsubmit="submitWithdrawal(event)">'+
+ '<div class="field"><label for="wd-amount">Amount (USDT)</label><input id="wd-amount" type="number" min=".01" step=".01" max="'+Math.max(0,available).toFixed(2)+'" inputmode="decimal" required placeholder="Amount"></div>'+
+ '<div class="field"><label for="wd-network">Network</label><select id="wd-network" required><option value="TRC20">TRC20</option><option value="ERC20">ERC20</option><option value="BEP20">BEP20</option></select></div>'+
+ '<div class="field"><label for="wd-address">Destination wallet address</label><input id="wd-address" required minlength="20" maxlength="150" autocomplete="off" autocapitalize="none" spellcheck="false" placeholder="Your wallet address"></div>'+
+ '<button class="btn primary" type="submit" '+(canWithdraw?'':'disabled')+'>Submit withdrawal request</button></form>'+
+ (canWithdraw?'':'<p class="notice warn" style="margin-top:12px">Insufficient funds. You have no Available Funds to withdraw.</p>')+
+ '</div><div class="card panel" style="margin-top:16px"><h3>Withdrawal history</h3>'+requestsTable(withdrawals,'withdrawal')+'</div>';
 }
 
 let zcCalcPlanId=null;
@@ -2091,7 +2106,15 @@ async function zcSetDefaultAddress(id){try{await db.from('saved_withdrawal_addre
 if(page==='admin'){renderAdmin();return}}
 function esc(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
 function ledgerTable(rows){if(!rows.length)return '<div class="empty">No ledger entries recorded yet.</div>';return '<div class="table-wrap"><table><thead><tr><th>Date</th><th>Type</th><th>Description</th><th>Amount</th></tr></thead><tbody>'+rows.map(x=>'<tr><td>'+date(x.created_at)+'</td><td>'+esc(zcCustomerLedgerType(x))+'</td><td>'+esc(zcCustomerLedgerTitle(x))+'</td><td class="'+(Number(x.amount)>=0?'green':'red')+'">'+(Number(x.amount)>0?'+':'')+fmt(x.amount)+' USDT</td></tr>').join('')+'</tbody></table></div>'}
-function requestsTable(rows,type){if(!rows.length)return '<div class="empty">No '+type+' requests yet.</div>';return '<div class="table-wrap"><table><thead><tr><th>Created</th><th>Amount</th><th>Network</th><th>Status</th><th>Reference</th></tr></thead><tbody>'+rows.map(x=>'<tr><td>'+date(x.created_at)+'</td><td>'+fmt(x.amount)+' USDT</td><td>'+esc(x.network)+'</td><td><span class="pill '+(x.status==='pending'?'pending':x.status==='rejected'?'rejected':'')+'">'+esc(x.status)+'</span></td><td>'+esc(type==='deposit'?(x.tx_hash||'—'):(x.tx_hash||x.destination_address))+'</td></tr>').join('')+'</tbody></table></div>'}
+function requestsTable(rows,type){
+ if(!rows.length)return '<div class="empty">No '+type+' requests yet.</div>';
+ return '<div class="table-wrap"><table><thead><tr><th>Created</th><th>Amount</th><th>Network</th><th>Status</th><th>Reference</th></tr></thead><tbody>'+rows.map(x=>{
+  const status=String(x.status||'pending').toLowerCase();
+  const cls=['pending','under_review','approved'].includes(status)?'pending':(['declined','rejected'].includes(status)?'rejected':(status==='paid'?'good':''));
+  const label=status==='voided'?'Voided':(status==='declined'?'Declined':(status==='paid'?'Paid':status.replace(/_/g,' ')));
+  return '<tr><td>'+date(x.created_at)+'</td><td>'+fmt(x.amount)+' USDT</td><td>'+esc(x.network)+'</td><td><span class="pill '+cls+'">'+esc(label)+'</span></td><td>'+esc(type==='deposit'?(x.tx_hash||'—'):(x.tx_hash||x.destination_address))+'</td></tr>';
+ }).join('')+'</tbody></table></div>';
+}
 let zcTxFilter='all',zcTradeSimTimer=null,zcTradeChartTimer=null;
 function invCardHTML(x){
  const pct=Math.round((x.progress||0)*100);
@@ -2406,7 +2429,32 @@ async function submitDeposit(e){
  await refreshData();
  navigate('deposits');
 }
-async function submitWithdrawal(e){e.preventDefault();const {data,error}=await db.rpc('request_gforce_withdrawal',{p_amount:Number($('wd-amount').value),p_network:$('wd-network').value,p_destination:$('wd-address').value.trim()});if(error)return toast(error.message,true);if(n&&address&&typeof zcSaveUsedAddress==='function')zcSaveUsedAddress(n,address);toast('Withdrawal request submitted: '+data);await refreshData();navigate('withdrawals')}
+async function submitWithdrawal(e){
+ e.preventDefault();
+ const amount=Number($('wd-amount')?.value);
+ const network=String($('wd-network')?.value||'');
+ const destination=String($('wd-address')?.value||'').trim();
+ const available=availableFundsUnlocked();
+ if(!Number.isFinite(amount)||amount<=0)return toast('Enter a valid withdrawal amount.',true);
+ if(amount>available+0.00000001)return toast('Insufficient funds. Withdrawals can only use Available Funds. Available: '+money(available),true);
+ if(!network||!destination)return toast('Enter your network and destination wallet address.',true);
+ const submit=e.submitter||$('app-content')?.querySelector('button[type="submit"]');
+ if(submit){submit.disabled=true;submit.textContent='Submitting…'}
+ try{
+  const {data,error}=await db.rpc('request_gforce_withdrawal',{p_amount:amount,p_network:network,p_destination:destination});
+  if(error){
+   if(/insufficient available funds|insufficient funds/i.test(error.message||'')){
+    return toast('Insufficient funds. Withdrawals can only use Available Funds. Available: '+money(availableFundsUnlocked()),true);
+   }
+   return toast(error.message,true);
+  }
+  toast('Withdrawal request submitted. '+money(amount)+' is now reserved from Available Funds and is Pending admin review.');
+  await refreshData();
+  navigate('withdrawals');
+ }finally{
+  if(submit){submit.disabled=false;submit.textContent='Submit withdrawal request'}
+ }
+}
 function zcOpenReferrals(){navigate('referrals')}
 function zcReferralLink(){const code=(profile&&profile.referral_code)||'';return code?location.origin+location.pathname+'?ref='+code:''}
 function zcCopyReferral(){const v=zcReferralLink();if(!v)return toast('Referral link is not ready yet.',true);const done=()=>toast('Referral link copied.');if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(v).then(done,()=>toast('Copy failed. Long-press the link to copy.',true))}else{const i=$('zc-ref-link');if(i){i.select();try{document.execCommand('copy');done();return}catch(e){}}toast('Copy failed. Long-press the link to copy.',true)}}
@@ -2452,7 +2500,16 @@ async function loadAdminData(){
  profiles=p.data||[];adminDeposits=d.data||[];adminWithdrawals=w.data||[];adminLedger=l.data||[];
 }
 function adminDepositTable(){const rows=adminDeposits.filter(x=>['pending','under_review'].includes(x.status));if(!rows.length)return '<div class="empty">No deposit requests awaiting review.</div>';return '<div class="table-wrap"><table><thead><tr><th>User</th><th>Amount</th><th>Network</th><th>Transaction hash</th><th>Actions</th></tr></thead><tbody>'+rows.map(x=>'<tr><td>'+esc(x.user_id.slice(0,8))+'</td><td>'+fmt(x.amount)+'</td><td>'+esc(x.network)+'</td><td>'+esc(x.tx_hash||'—')+'</td><td><button class="btn primary" onclick="reviewDeposit(\''+x.id+'\',true)">Verify & credit</button> <button class="btn danger" onclick="reviewDeposit(\''+x.id+'\',false)">Reject</button></td></tr>').join('')+'</tbody></table></div>'}
-function adminWithdrawalTable(){const rows=adminWithdrawals.filter(x=>['pending','under_review','approved'].includes(x.status));if(!rows.length)return '<div class="empty">No withdrawal requests awaiting payout.</div>';return '<div class="table-wrap"><table><thead><tr><th>User</th><th>Amount</th><th>Network</th><th>Destination</th><th>Actions</th></tr></thead><tbody>'+rows.map(x=>'<tr><td>'+esc(x.user_id.slice(0,8))+'</td><td>'+fmt(x.amount)+'</td><td>'+esc(x.network)+'</td><td>'+esc(x.destination_address)+'</td><td><button class="btn primary" onclick="payWithdrawal(\''+x.id+'\')">Record payout</button></td></tr>').join('')+'</tbody></table></div>'}
+function adminWithdrawalTable(){
+ const rows=adminWithdrawals.filter(x=>['pending','under_review','approved'].includes(x.status));
+ if(!rows.length)return '<div class="empty">No withdrawal requests awaiting review.</div>';
+ return '<div class="table-wrap"><table><thead><tr><th>User</th><th>Amount</th><th>Network</th><th>Destination</th><th>Actions</th></tr></thead><tbody>'+rows.map(x=>
+  '<tr><td>'+esc(x.user_id.slice(0,8))+'</td><td>'+fmt(x.amount)+'</td><td>'+esc(x.network)+'</td><td style="max-width:210px;overflow-wrap:anywhere">'+esc(x.destination_address)+'</td><td style="white-space:nowrap">'+
+  '<button class="btn primary" onclick="payWithdrawal(\''+x.id+'\')">Approve</button> '+
+  '<button class="btn danger" onclick="declineWithdrawal(\''+x.id+'\')">Decline</button> '+
+  '<button class="btn" onclick="ignoreWithdrawal(\''+x.id+'\')">Ignore</button></td></tr>'
+ ).join('')+'</tbody></table></div>';
+}
 function adminProfilesTable(){if(!profiles.length)return '<div class="empty">No user profiles found.</div>';return '<div class="table-wrap"><table><thead><tr><th>Name</th><th>Email</th><th>Role</th><th>Created</th></tr></thead><tbody>'+profiles.map(x=>'<tr><td>'+esc(x.full_name||'—')+'</td><td>'+esc(x.email)+'</td><td>'+esc(x.role)+'</td><td>'+date(x.created_at)+'</td></tr>').join('')+'</tbody></table></div>'}
 function reportsTable(){if(!reports.length)return '<div class="empty">No trading reports published. Do not add performance claims until reconciled to source records.</div>';return '<div class="table-wrap"><table><thead><tr><th>Report</th><th>Period</th><th>Net P&L</th><th>Drawdown</th><th>Verified</th></tr></thead><tbody>'+reports.map(x=>'<tr><td>'+esc(x.title)+'</td><td>'+esc(x.period_start)+' – '+esc(x.period_end)+'</td><td>'+fmt(x.net_pnl)+'</td><td>'+fmt(x.max_drawdown)+'%</td><td>'+ (x.verified?'Yes':'No')+'</td></tr>').join('')+'</tbody></table></div>'}
 async function reviewDeposit(id,approve){const note=prompt(approve?'Verification note (describe how the on-chain transfer was checked):':'Reason for rejection:');if(note===null)return;if(approve&&!note.trim())return toast('Add a verification note before crediting.',true);const {error}=await db.rpc('admin_review_gforce_deposit',{p_request_id:id,p_approve:approve,p_note:note});if(error)return toast(error.message,true);toast(approve?'Deposit verified and ledger credited.':'Deposit request rejected.');await refreshAdmin()}
@@ -2465,20 +2522,43 @@ async function payWithdrawal(id){
   req=lookup.data;
  }
  if(!req)return toast('Withdrawal request not found.',true);
- const hash=prompt('Paste the real blockchain transaction hash for the completed payout:');
- if(!hash)return;
+ const hash=prompt('Approve this withdrawal only after payment has actually been sent. Paste the real blockchain transaction hash:');
+ if(!hash||!hash.trim())return;
  toast('Verifying transaction on-chain…');
- let v=null;
+ let verification=null;
  try{
-  const r=await fetch(SUPABASE_URL+'/functions/v1/verify-payout',{method:'POST',headers:{apikey:SUPABASE_KEY,Authorization:'Bearer '+SUPABASE_KEY,'Content-Type':'application/json'},body:JSON.stringify({asset:req.asset||'USDT',network:req.network||'TRC20',tx_hash:hash.trim()})});
-  v=await r.json();
- }catch(e){return toast('Verification service unreachable. Payout NOT recorded — try again.',true)}
- if(!v||v.verified!==true)return toast('On-chain verification failed: '+((v&&(v.note||v.status))||'transaction not found')+'. Payout NOT recorded.',true);
- const note=prompt('Verified on-chain ('+(v.confirmations==null?'confirmed':v.confirmations+' confirmations')+'). Optional payout note:');
+  const response=await fetch(SUPABASE_URL+'/functions/v1/verify-payout',{
+   method:'POST',
+   headers:{apikey:SUPABASE_KEY,Authorization:'Bearer '+SUPABASE_KEY,'Content-Type':'application/json'},
+   body:JSON.stringify({asset:req.asset||'USDT',network:req.network||'TRC20',tx_hash:hash.trim()})
+  });
+  verification=await response.json();
+ }catch(error){return toast('Verification service unreachable. Withdrawal was NOT approved.',true)}
+ if(!verification||verification.verified!==true)return toast('On-chain verification failed: '+((verification&&(verification.note||verification.status))||'transaction not found')+'. Withdrawal was NOT approved.',true);
+ const note=prompt('On-chain payment verified ('+(verification.confirmations==null?'confirmed':verification.confirmations+' confirmations')+'). Optional admin note:');
  if(note===null)return;
  const {error}=await db.rpc('admin_pay_gforce_withdrawal',{p_request_id:id,p_tx_hash:hash.trim(),p_note:note||null});
  if(error)return toast(error.message,true);
- toast('Payout verified on-chain and recorded.');
+ toast('Withdrawal approved and marked Paid after on-chain verification.');
+ await refreshAdmin();
+}
+async function declineWithdrawal(id){
+ if(!admin())return toast('Administrator access required.',true);
+ const note=prompt('Optional reason for declining this withdrawal. The reserved amount will be returned to Available Funds:');
+ if(note===null)return;
+ const {error}=await db.rpc('admin_decline_gforce_withdrawal',{p_request_id:id,p_note:note||null});
+ if(error)return toast(error.message,true);
+ toast('Withdrawal declined. The reserved amount is available again.');
+ await refreshAdmin();
+}
+async function ignoreWithdrawal(id){
+ if(!admin())return toast('Administrator access required.',true);
+ if(!confirm('Ignore and void this withdrawal? The amount will be permanently consumed and will NOT be returned to Available Funds.'))return;
+ const note=prompt('Optional note for this voided withdrawal:');
+ if(note===null)return;
+ const {error}=await db.rpc('admin_ignore_gforce_withdrawal',{p_request_id:id,p_note:note||null});
+ if(error)return toast(error.message,true);
+ toast('Withdrawal voided. The amount has not been returned to the customer.');
  await refreshAdmin();
 }
 async function signOut(){await db.auth.signOut();showPublic()}
@@ -2605,7 +2685,42 @@ function updateAlertBadge(){const el=$('alert-count');if(!el)return;el.textConte
 function openAlerts(){alertUnread=0;updateAlertBadge();const el=$('transaction-modal');if(el)el.classList.remove('hidden')}
 function closeAlerts(){$('transaction-modal')?.classList.add('hidden')}
 function showTransactionAlert(title,message){const titleEl=$('transaction-alert-title'),msgEl=$('transaction-alert-message');if(!titleEl||!msgEl)return;titleEl.textContent=title;msgEl.textContent=message;$('transaction-modal').classList.remove('hidden');alertUnread++;updateAlertBadge();toast(title)}
-function startRealtimeAlerts(){if(alertChannel)db.removeChannel(alertChannel);if(!currentUser)return;const uid=currentUser.id;alertChannel=db.channel('account-alerts-'+uid).on('postgres_changes',{event:'*',schema:'public',table:'deposit_requests',filter:'user_id=eq.'+uid},p=>{const st=String(p&&p.new&&p.new.status||'');if(st==='credited'){refreshData().then(()=>{if(page==='deposits'||page==='activity')renderPage()});return}showTransactionAlert('Deposit update','Your deposit request has a new update. Check Activity for the latest status.');refreshData().then(()=>{if(page==='deposits'||page==='activity')renderPage()})}).on('postgres_changes',{event:'*',schema:'public',table:'withdrawal_requests',filter:'user_id=eq.'+uid},p=>{showTransactionAlert('Withdrawal update','Your withdrawal request has a new update. Check Activity for the latest status.');refreshData().then(()=>{if(page==='withdrawals'||page==='activity')renderPage()})}).on('postgres_changes',{event:'INSERT',schema:'public',table:'ledger_entries',filter:'user_id=eq.'+uid},p=>{const isDeposit=!!(p&&p.new)&&String(p.new.entry_type||'')==='deposit';if(isDeposit)zcNotifyDeposit(p.new);else showTransactionAlert('Account ledger updated','A new entry has been recorded in your account ledger. Review your transaction history.');refreshData().then(()=>{if(page==='deposits'&&!document.getElementById('generated-wallet-address'))window.renderDepositPage();else if(page==='overview'||page==='portfolio'||page==='activity')renderPage()})}).subscribe()}
+function startRealtimeAlerts(){
+ if(alertChannel)db.removeChannel(alertChannel);
+ if(!currentUser)return;
+ const uid=currentUser.id;
+ alertChannel=db.channel('account-alerts-'+uid);
+ alertChannel
+  .on('postgres_changes',{event:'*',schema:'public',table:'deposit_requests',filter:'user_id=eq.'+uid},p=>{
+   const st=String(p&&p.new&&p.new.status||'');
+   if(st==='credited'){refreshData().then(()=>{if(page==='deposits'||page==='activity')renderPage()});return}
+   showTransactionAlert('Deposit update','Your deposit request has a new update. Check Activity for the latest status.');
+   refreshData().then(()=>{if(page==='deposits'||page==='activity')renderPage()});
+  })
+  .on('postgres_changes',{event:'*',schema:'public',table:'withdrawal_requests',filter:'user_id=eq.'+uid},p=>{
+   showTransactionAlert('Withdrawal update','Your withdrawal request has a new update. Check Activity for the latest status.');
+   refreshData().then(()=>{if(page==='withdrawals'||page==='activity')renderPage()});
+  })
+  .on('postgres_changes',{event:'INSERT',schema:'public',table:'ledger_entries',filter:'user_id=eq.'+uid},p=>{
+   const isDeposit=!!(p&&p.new)&&String(p.new.entry_type||'')==='deposit';
+   if(isDeposit)zcNotifyDeposit(p.new);
+   else showTransactionAlert('Account ledger updated','A new entry has been recorded in your account ledger. Review your transaction history.');
+   refreshData().then(()=>{
+    if(page==='deposits'&&!document.getElementById('generated-wallet-address'))window.renderDepositPage();
+    else if(page==='overview'||page==='portfolio'||page==='activity')renderPage();
+   });
+  });
+ if(profile?.role==='admin'){
+  alertChannel.on('postgres_changes',{event:'INSERT',schema:'public',table:'withdrawal_requests'},p=>{
+   if(!p||!p.new||!['pending','under_review'].includes(p.new.status))return;
+   showTransactionAlert('New withdrawal request','A customer has requested '+money(p.new.amount)+' USDT. Review it in Admin Access → Withdrawal Requests.');
+   refreshData().then(()=>{
+    if(page==='admin'&&typeof window.zcOpenAdminSection==='function')window.zcOpenAdminSection('withdrawal-requests');
+   });
+  });
+ }
+ alertChannel.subscribe();
+}
 function zcNotifyDeposit(entry){
  const amount=Number(entry&&entry.amount||0);
  const key=String(entry&&entry.id||'');
@@ -3087,6 +3202,13 @@ html body .zc-motion-reveal{transition:opacity .62s ease,transform .62s cubic-be
   const rows=[];
   (deposits||[]).filter(x=>!uid||x.user_id===uid).forEach(x=>rows.push({kind:'deposit',id:x.id,title:'Deposit '+String(x.status||'update').replace(/_/g,' '),detail:(Number(x.amount)||0).toLocaleString('en-US',{maximumFractionDigits:6})+' '+(x.asset||'asset')+' · '+String(x.status||'Updated').replace(/_/g,' '),at:x.reviewed_at||x.created_at}));
   (withdrawals||[]).filter(x=>!uid||x.user_id===uid).forEach(x=>rows.push({kind:'withdrawal',id:x.id,title:'Withdrawal '+String(x.status||'update').replace(/_/g,' '),detail:(Number(x.amount)||0).toLocaleString('en-US',{maximumFractionDigits:6})+' '+(x.asset||'asset')+' · '+String(x.status||'Updated').replace(/_/g,' '),at:x.reviewed_at||x.created_at}));
+  if(profile?.role==='admin'){
+   (adminWithdrawalAlerts||[]).forEach(x=>rows.push({
+    kind:'admin-withdrawal',id:x.id,title:'New withdrawal request',
+    detail:fmtUSD(x.amount)+' USDT · '+(x.network||'Network pending')+' · Customer '+String(x.user_id||'').slice(0,8),
+    at:x.created_at
+   }));
+  }
   (ledger||[]).filter(x=>!uid||x.user_id===uid).forEach(x=>{
    const amount=Number(x.amount)||0;
    const description=String(x.description||'');
@@ -3094,7 +3216,7 @@ html body .zc-motion-reveal{transition:opacity .62s ease,transform .62s cubic-be
    const adminAdjustment=reference.startsWith('admin_')||/administrator|admin added|admin credited|credited by admin/i.test(description);
    rows.push({kind:'ledger',id:x.id,title:adminAdjustment?'Balance updated':'Account activity recorded',detail:amount.toLocaleString('en-US',{maximumFractionDigits:6})+' '+(x.asset||'USDT'),at:x.created_at});
   });
-  return rows.filter(x=>x.at).sort((a,b)=>new Date(b.at)-new Date(a.at)).slice(0,30);
+  return rows.filter(x=>x.at).sort((a,b)=>new Date(b.at)-new Date(a.at)).slice(0,50);
  }
  function zcUnread(){return zcNotifications().filter(x=>new Date(x.at).getTime()>zcReadAt()).length}
  window.updateAlertBadge=function(){const el=$('alert-count');if(!el)return;const n=zcUnread();el.textContent=n>9?'9+':String(n);el.classList.toggle('hidden',n===0)};
@@ -3102,7 +3224,7 @@ html body .zc-motion-reveal{transition:opacity .62s ease,transform .62s cubic-be
   const card=document.querySelector('#transaction-modal .transaction-card');if(!card)return;
   const items=zcNotifications();
   try{localStorage.setItem(readKey(),String(Date.now()))}catch(e){}
-  card.innerHTML='<div class="zc-notice-head"><div><div class="eyebrow">ACCOUNT NOTIFICATIONS</div><h3>Notifications</h3></div><button class="x" aria-label="Close notifications" onclick="closeAlerts()">×</button></div><div class="zc-notice-list">'+(items.length?items.map((x,i)=>'<article class="zc-notice-item" style="animation-delay:'+Math.min(i*35,350)+'ms"><div class="zc-notice-icon">'+(x.kind==='deposit'?'↓':x.kind==='withdrawal'?'↑':'↗')+'</div><div class="zc-notice-copy"><b>'+esc(x.title)+'</b><p>'+esc(x.detail)+'</p><time>'+esc(date(x.at))+'</time></div></article>').join(''):'<div class="zc-notice-empty">You’re all caught up. New deposit and withdrawal updates will appear here.</div>')+'</div><button class="btn primary" style="width:100%;margin-top:12px" onclick="closeAlerts()">Done</button>';
+  card.innerHTML='<div class="zc-notice-head"><div><div class="eyebrow">'+(profile?.role==='admin'?'ADMIN ALERTS':'ACCOUNT NOTIFICATIONS')+'</div><h3>Notifications</h3></div><button class="x" aria-label="Close notifications" onclick="closeAlerts()">×</button></div><div class="zc-notice-list">'+(items.length?items.map((x,i)=>'<article class="zc-notice-item" style="animation-delay:'+Math.min(i*35,350)+'ms"><div class="zc-notice-icon">'+(x.kind==='deposit'?'↓':x.kind==='withdrawal'?'↑':x.kind==='admin-withdrawal'?'⇧':'↗')+'</div><div class="zc-notice-copy"><b>'+esc(x.title)+'</b><p>'+esc(x.detail)+'</p><time>'+esc(date(x.at))+'</time>'+(x.kind==='admin-withdrawal'&&profile?.role==='admin'?'<button type="button" class="btn" style="margin-top:8px" onclick="closeAlerts();window.zcOpenAdminSection(&quot;withdrawal-requests&quot;)">Review withdrawal</button>':'')+'</div></article>').join(''):'<div class="zc-notice-empty">You’re all caught up. New deposit and withdrawal updates will appear here.</div>')+'</div><button class="btn primary" style="width:100%;margin-top:12px" onclick="closeAlerts()">Done</button>';
   updateAlertBadge();$('transaction-modal').classList.remove('hidden');
  };
  window.closeAlerts=function(){$('transaction-modal')?.classList.add('hidden')};
@@ -4503,21 +4625,28 @@ body[data-zc-theme] #app-content #wd-network-cards::-webkit-scrollbar-thumb{back
  };
  async function requestsPage(kind){
   const deposit=kind==='deposit',title=deposit?'Deposit Requests':'Withdrawal Requests',table=deposit?'deposit_requests':'withdrawal_requests';
-  const root=$('app-content');root.innerHTML=head(title,deposit?'Review incoming deposit submissions. Verify transactions independently before crediting an account.':'Review withdrawal requests. Record a payout only after the transfer is completed and its transaction hash is available.')+'<section class="card panel"><div id="zc-admin-requests-table" class="table-wrap zc-admin-mobile-table">Loading requests…</div></section>';
+  const root=$('app-content');
+  root.innerHTML=head(title,deposit?'Review incoming deposit submissions. Verify transactions independently before crediting an account.':'Review withdrawal requests. Approve only after on-chain payment verification. Decline releases the reserved Available Funds. Ignore voids the request and does not refund it.')+'<section class="card panel"><div id="zc-admin-requests-table" class="table-wrap zc-admin-mobile-table">Loading requests…</div></section>';
   const cols=deposit?'id,user_id,amount,asset,network,tx_hash,status,created_at,admin_note':'id,user_id,amount,asset,network,destination_address,tx_hash,status,created_at,admin_note';
   const {data,error}=await db.from(table).select(cols).order('created_at',{ascending:false});if(error)throw error;
   const profilesResult=await db.from('profiles').select('id,full_name,email');const users=Object.fromEntries((profilesResult.data||[]).map(x=>[x.id,x]));
   const rows=data||[];
-  const box=$('zc-admin-requests-table');
-  if(!box)return;
+  const box=$('zc-admin-requests-table');if(!box)return;
   if(!rows.length){box.innerHTML='<div class="empty">No '+title.toLowerCase()+' found.</div>';return}
   box.innerHTML='<table><thead><tr><th>Customer</th><th>Amount</th><th>Network</th><th>Reference / Destination</th><th>Status</th><th>Date</th><th>Action</th></tr></thead><tbody>'+rows.map(x=>{
    const u=users[x.user_id]||{},ref=deposit?(x.tx_hash||'Not supplied'):(x.destination_address||'—');
    const pending=['pending','under_review','approved'].includes(x.status);
-   const action=deposit?(pending?'<button class="btn primary" onclick="reviewDeposit(\''+x.id+'\',true)">Verify</button> <button class="btn danger" onclick="reviewDeposit(\''+x.id+'\',false)">Reject</button>':'—'):(pending?'<button class="btn primary" onclick="payWithdrawal(\''+x.id+'\')">Record payout</button>':'—');
-   return '<tr><td><b>'+safe(u.full_name||'Customer')+'</b><small style="display:block;color:var(--muted)">'+safe(u.email||x.user_id)+'</small></td><td>'+fmtUSD(x.amount)+'</td><td>'+safe(x.asset||'USDT')+' · '+safe(x.network||'—')+'</td><td style="max-width:220px;overflow-wrap:anywhere">'+safe(ref)+'</td><td><span class="zc-admin-status '+(x.status==='paid'||x.status==='approved'?'good':pending?'warn':'')+'">'+safe(x.status)+'</span></td><td>'+safe(x.created_at?new Date(x.created_at).toLocaleString():'—')+'</td><td>'+action+'</td></tr>';
+   const action=deposit
+    ?(pending?'<button class="btn primary" onclick="reviewDeposit(\''+x.id+'\',true)">Verify</button> <button class="btn danger" onclick="reviewDeposit(\''+x.id+'\',false)">Reject</button>':'—')
+    :(pending
+      ?'<button class="btn primary" onclick="payWithdrawal(\''+x.id+'\')">Approve</button> <button class="btn danger" onclick="declineWithdrawal(\''+x.id+'\')">Decline</button> <button class="btn" onclick="ignoreWithdrawal(\''+x.id+'\')">Ignore</button>'
+      :'—');
+   const statusClass=x.status==='paid'?'good':(pending?'warn':(['declined','rejected'].includes(x.status)?'':''));
+   const statusLabel=x.status==='voided'?'Voided':(x.status==='declined'?'Declined':(x.status==='paid'?'Paid':String(x.status||'').replace(/_/g,' ')));
+   return '<tr><td><b>'+safe(u.full_name||'Customer')+'</b><small style="display:block;color:var(--muted)">'+safe(u.email||x.user_id)+'</small></td><td>'+fmtUSD(x.amount)+'</td><td>'+safe(x.asset||'USDT')+' · '+safe(x.network||'—')+'</td><td style="max-width:220px;overflow-wrap:anywhere">'+safe(ref)+'</td><td><span class="zc-admin-status '+statusClass+'">'+safe(statusLabel)+'</span></td><td>'+safe(x.created_at?new Date(x.created_at).toLocaleString():'—')+'</td><td>'+action+'</td></tr>';
   }).join('')+'</tbody></table>';
  }
+ 
  async function networksPage(){
   const root=$('app-content');root.innerHTML=head('Wallet Networks','Review the configured asset and blockchain networks available to the wallet interface.')+'<section class="card panel"><div class="notice warn">Network status here reflects the database configuration only. Do not enable customer funding until wallet-address generation, monitoring, confirmations and ledger crediting have all been tested end to end.</div><div class="table-wrap zc-admin-mobile-table" id="zc-admin-network-table">Loading networks…</div></section>';
   const {data,error}=await db.from('crypto_asset_networks').select('id,asset_code,network_code,asset_name,network_name,is_enabled,contract_address,decimals').order('asset_code');if(error)throw error;
@@ -8309,6 +8438,10 @@ body.zc-community-chat-open{overflow:hidden!important;overscroll-behavior:none}
  #application[data-zc-dashboard-style="5"] #app-content .zc-mobile-live i{opacity:1!important;transform:none!important}
  #application[data-zc-dashboard-style="5"] #app-content .zc-mobile-live i::after{display:none}
 }
+</style>
+<style id="zc-withdrawal-review-status-v1">
+#app-content .pill.good{color:var(--green);border-color:color-mix(in srgb,var(--green) 45%,var(--line));background:color-mix(in srgb,var(--green) 12%,var(--panel))}
+#app-content .pill.rejected{color:var(--red);border-color:color-mix(in srgb,var(--red) 38%,var(--line));background:color-mix(in srgb,var(--red) 10%,var(--panel))}
 </style>
 </html>
 
