@@ -4776,7 +4776,7 @@ body[data-zc-theme] #app-content #wd-network-cards::-webkit-scrollbar-thumb{back
   if(window.zcWalletData&&!force)return window.zcWalletData;
   const [n1,b1,t1,p1,l1,w1]=await Promise.all([
    db.from('crypto_asset_networks').select('id,asset_code,network_code,asset_name,network_name,is_enabled').order('asset_code'),
-   db.from('blockchain_deposits').select('id,user_id,asset_code,network_code,tx_hash,amount,deposit_status,credited_at,created_at').in('deposit_status',['credited','confirmed']).order('created_at',{ascending:false}).limit(2000),
+   db.from('blockchain_deposits').select('id,user_id,asset_code,network_code,tx_hash,amount,deposit_status,credited_at,detected_at,chain_timestamp').in('deposit_status',['credited','confirmed']).order('detected_at',{ascending:false}).limit(2000),
    db.from('treasury_withdrawals').select('*').order('created_at',{ascending:false}).limit(300),
    db.from('profiles').select('id,full_name,email'),
    db.from('ledger_entries').select('user_id,amount,entry_type,reference_type'),
@@ -4790,7 +4790,7 @@ body[data-zc-theme] #app-content #wd-network-cards::-webkit-scrollbar-thumb{back
   // Only on-chain detected deposits (scanned from each member's wallet) count here.
   const deps=(b1.error?[]:(b1.data||[])).map(function(x){
    const coin=Number(x.amount||0),rate=priceOf(x.asset_code),usd=Math.round(coin*rate*100)/100;
-   return {id:x.id,user_id:x.user_id,amount:usd,coin_amount:coin,asset:x.asset_code,network:x.network_code,status:'approved',created_at:x.credited_at||x.created_at,tx_hash:x.tx_hash,onchain:true,deposit_status:x.deposit_status};
+   return {id:x.id,user_id:x.user_id,amount:usd,coin_amount:coin,asset:x.asset_code,network:x.network_code,status:'approved',created_at:x.credited_at||x.detected_at||x.chain_timestamp,tx_hash:x.tx_hash,onchain:true,deposit_status:x.deposit_status};
   }).filter(function(x){return x.amount>0});
   const approvedDeps={};
   deps.forEach(function(x){if(Number(x.amount||0)>0)approvedDeps[x.user_id]=(approvedDeps[x.user_id]||0)+Number(x.amount||0)});
