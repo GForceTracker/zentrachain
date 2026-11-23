@@ -7349,7 +7349,128 @@ body[data-zc-dashboard-style="5"] #public .zc-footer{padding-bottom:110px}
  .zc-preview-dashboard-grid>.zc-preview-balance,.zc-preview-dashboard-grid>.zc-preview-chart{grid-column:1/-1}
  .zc-preview-summary{grid-column:1/-1;grid-template-columns:repeat(3,1fr)}
  .zc-preview-summary>div{padding:7px}.zc-preview-summary small,.zc-preview-summary b{font-size:8px}
-}</style></body>
+}</style><style id="zc-dashboard-mobile-grid-hotfix-v1">
+/* Mobile and tablet grid correction: prevent desktop FinFlex columns from squeezing account cards. */
+@media (max-width: 900px) {
+  #application[data-zc-dashboard-style="2"] #app-content .zc-finflex-grid {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    gap: 12px !important;
+    align-items: stretch !important;
+  }
+  #application[data-zc-dashboard-style="2"] #app-content .zc-finflex-grid > * {
+    grid-column: 1 / -1 !important;
+    grid-row: auto !important;
+    width: auto !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+  }
+  #application[data-zc-dashboard-style="2"] #app-content .zc-finflex-total-card {
+    min-height: 176px !important;
+    padding: 20px !important;
+    overflow: hidden !important;
+  }
+  #application[data-zc-dashboard-style="2"] #app-content .zc-finflex-total-card > strong {
+    display: block !important;
+    max-width: 100% !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    font-size: clamp(28px, 8vw, 46px) !important;
+    letter-spacing: -1.4px !important;
+  }
+  #application[data-zc-dashboard-style="2"] #app-content .zc-finflex-total-foot {
+    flex-wrap: wrap !important;
+  }
+  #application[data-zc-dashboard-style="2"] #app-content .zc-finflex-side-stats {
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    grid-template-rows: auto !important;
+    gap: 10px !important;
+  }
+  #application[data-zc-dashboard-style="2"] #app-content .zc-finflex-side-stats > * {
+    grid-column: auto !important;
+    grid-row: auto !important;
+    min-width: 0 !important;
+    width: auto !important;
+  }
+  #application[data-zc-dashboard-style="2"] #app-content .zc-finflex-mini-card {
+    min-height: 116px !important;
+    padding: 14px !important;
+    overflow-wrap: anywhere !important;
+  }
+  #application[data-zc-dashboard-style="2"] #app-content .zc-finflex-mini-card > b {
+    font-size: clamp(16px, 4.8vw, 23px) !important;
+    overflow-wrap: anywhere !important;
+  }
+  #application[data-zc-dashboard-style="2"] #app-content .zc-finflex-income-card {
+    min-width: 0 !important;
+    width: auto !important;
+  }
+  #application[data-zc-dashboard-style="2"] #app-content .zc-finflex-main-flow,
+  #application[data-zc-dashboard-style="2"] #app-content .zc-finflex-main-allocation,
+  #application[data-zc-dashboard-style="2"] #app-content .zc-finflex-main-transactions,
+  #application[data-zc-dashboard-style="2"] #app-content .zc-finflex-main-plans,
+  #application[data-zc-dashboard-style="2"] #app-content .zc-finflex-main-market,
+  #application[data-zc-dashboard-style="2"] #app-content .zc-finflex-main-maturity,
+  #application[data-zc-dashboard-style="2"] #app-content .zc-finflex-main-chart,
+  #application[data-zc-dashboard-style="2"] #app-content .zc-finflex-main-referrals {
+    grid-column: 1 / -1 !important;
+    grid-row: auto !important;
+    min-width: 0 !important;
+    width: auto !important;
+    max-width: 100% !important;
+  }
+  #application[data-zc-dashboard-style="2"] #app-content .zc-finflex-card,
+  #application[data-zc-dashboard-style="2"] #app-content .zc-finflex-main-market .market-panel,
+  #application[data-zc-dashboard-style="2"] #app-content .zc-finflex-main-chart .market-panel {
+    min-width: 0 !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+  }
+  #application[data-zc-dashboard-style="2"] #app-content .zc-dash-quick-actions {
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    width: 100% !important;
+    gap: 8px !important;
+  }
+  #application[data-zc-dashboard-style="2"] #app-content .zc-dash-quick-actions .btn {
+    min-width: 0 !important;
+    justify-content: center !important;
+    white-space: normal !important;
+  }
+
+  #application[data-zc-dashboard-style="3"] #app-content .zc-terminal-workspace,
+  #application[data-zc-dashboard-style="4"] #app-content .zc-minimal-layout {
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+  #application[data-zc-dashboard-style="3"] #app-content .zc-terminal-main,
+  #application[data-zc-dashboard-style="3"] #app-content .zc-terminal-side,
+  #application[data-zc-dashboard-style="4"] #app-content .zc-minimal-main,
+  #application[data-zc-dashboard-style="4"] #app-content .zc-minimal-side {
+    min-width: 0 !important;
+    width: 100% !important;
+  }
+}
+
+@media (max-width: 480px) {
+  #application[data-zc-dashboard-style="2"] #app-content .zc-finflex-side-stats {
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+  #application[data-zc-dashboard-style="2"] #app-content .zc-finflex-mini-card {
+    min-height: 104px !important;
+  }
+  #application[data-zc-dashboard-style="2"] #app-content .zc-finflex-total-card {
+    padding: 18px !important;
+  }
+  #application[data-zc-dashboard-style="2"] #app-content .zc-finflex-total-card > strong {
+    font-size: clamp(26px, 8vw, 38px) !important;
+  }
+}
+</style></body>
 
 <style id="zc-visitor-plan-card-height-reduction-v1">
 /* Visitor page only: set plan card artwork height to 150px. */
