@@ -1457,6 +1457,21 @@ const fmt=n=>new Intl.NumberFormat('en-US',{minimumFractionDigits:2,maximumFract
 const date=s=>s?new Date(s).toLocaleString():'—';
 function toast(msg,bad=false){const el=$('toast');if(!el)return;el.textContent=String(msg??'');el.classList.remove('hidden','zc-toast-success','zc-toast-error');el.classList.add(bad?'zc-toast-error':'zc-toast-success');el.setAttribute('role',bad?'alert':'status');el.setAttribute('aria-live',bad?'assertive':'polite');if(window.__zcToastTimer)clearTimeout(window.__zcToastTimer);window.__zcToastTimer=setTimeout(()=>{el.classList.add('hidden');el.classList.remove('zc-toast-success','zc-toast-error')},4200)}
 function money(n){return '$'+fmt(n)}
+function zcWithdrawalStatusLabel(status,customerView=false){
+ const s=String(status||'pending').toLowerCase();
+ if(s==='paid')return customerView?'Successful':'Approved';
+ if(s==='voided')return 'Ignored';
+ if(s==='declined')return 'Declined';
+ if(s==='rejected')return 'Rejected';
+ if(s==='under_review')return 'Under review';
+ if(s==='pending')return 'Pending';
+ if(s==='approved')return 'Approved';
+ return s.replace(/_/g,' ');
+}
+async function zcRefreshWithdrawalReview(){
+ if(typeof window.zcOpenAdminSection==='function')return await window.zcOpenAdminSection('withdrawal-requests');
+ return await refreshAdmin();
+}
 // Shared admin-role guard for administrator action handlers.
 function admin(){return typeof profile!=='undefined'&&profile?.role==='admin'}
 function showAuth(mode){authMode=mode;$('auth-modal').classList.remove('hidden');$('auth-form').classList.remove('hidden');$('auth-message').classList.add('hidden');renderAuthMode()}
@@ -2113,7 +2128,7 @@ function requestsTable(rows,type){
  return '<div class="table-wrap"><table><thead><tr><th>Created</th><th>Amount</th><th>Network</th><th>Status</th><th>Reference</th></tr></thead><tbody>'+rows.map(x=>{
   const status=String(x.status||'pending').toLowerCase();
   const cls=['pending','under_review','approved'].includes(status)?'pending':(['declined','rejected'].includes(status)?'rejected':(status==='paid'?'good':''));
-  const label=status==='voided'?'Voided':(status==='declined'?'Declined':(status==='paid'?'Paid':status.replace(/_/g,' ')));
+  const label=type==='withdrawal'?zcWithdrawalStatusLabel(status,true):(status==='voided'?'Voided':(status==='declined'?'Declined':(status==='paid'?'Paid':status.replace(/_/g,' '))));
   return '<tr><td>'+date(x.created_at)+'</td><td>'+fmt(x.amount)+' USDT</td><td>'+esc(x.network)+'</td><td><span class="pill '+cls+'">'+esc(label)+'</span></td><td>'+esc(type==='deposit'?(x.tx_hash||'—'):(x.tx_hash||x.destination_address))+'</td></tr>';
  }).join('')+'</tbody></table></div>';
 }
@@ -2207,7 +2222,8 @@ function txFeedItems(){
  }
  for(const w of (withdrawals||[])){
   const id=String(w.id||'');
-  rows.push({id:id,record:w,t:new Date(w.created_at).getTime(),kind:'withdrawal',title:'Withdrawal sent',amt:-Math.abs(Number(w.amount||0)),sub:esc((w.asset||'USDT')+' · '+w.network)+' · '+esc(w.status||''),ref:w.tx_hash?('TX '+String(w.tx_hash).slice(0,12)+'…'):esc(String(w.destination_address||'')).slice(0,26)});
+  const statusLabel=zcWithdrawalStatusLabel(w.status,true);
+  rows.push({id:id,record:w,t:new Date(w.created_at).getTime(),kind:'withdrawal',title:'Withdrawal '+statusLabel.toLowerCase(),amt:-Math.abs(Number(w.amount||0)),sub:esc((w.asset||'USDT')+' · '+w.network)+' · '+esc(statusLabel),ref:w.tx_hash?('TX '+String(w.tx_hash).slice(0,12)+'…'):esc(String(w.destination_address||'')).slice(0,26)});
  }
  for(const l of (ledger||[])){
   const id=String(l.id||''),a=Number(l.amount||0);
@@ -2506,10 +2522,7 @@ function adminWithdrawalTable(){
  const rows=adminWithdrawals.filter(x=>['pending','under_review','approved'].includes(x.status));
  if(!rows.length)return '<div class="empty">No withdrawal requests awaiting review.</div>';
  return '<div class="table-wrap"><table><thead><tr><th>User</th><th>Amount</th><th>Network</th><th>Destination</th><th>Actions</th></tr></thead><tbody>'+rows.map(x=>
-  '<tr><td>'+esc(x.user_id.slice(0,8))+'</td><td>'+fmt(x.amount)+'</td><td>'+esc(x.network)+'</td><td style="max-width:210px;overflow-wrap:anywhere">'+esc(x.destination_address)+'</td><td style="white-space:nowrap">'+
-  '<button class="btn primary" onclick="payWithdrawal(\''+x.id+'\')">Approve</button> '+
-  '<button class="btn danger" onclick="declineWithdrawal(\''+x.id+'\')">Decline</button> '+
-  '<button class="btn" onclick="ignoreWithdrawal(\''+x.id+'\')">Ignore</button></td></tr>'
+  '<tr><td>'+esc(x.user_id.slice(0,8))+'</td><td>'+fmt(x.amount)+'</td><td>'+esc(x.network)+'</td><td style="max-width:210px;overflow-wrap:anywhere">'+esc(x.destination_address)+'</td><td><div style="min-width:210px"><input type="text" id="zc-withdrawal-hash-'+x.id+'" placeholder="Payout transaction hash" aria-label="Payout transaction hash" autocomplete="off" autocapitalize="off" spellcheck="false" style="display:block;width:100%;max-width:230px;margin:0 0 6px"><button class="btn primary" onclick="payWithdrawal(&quot;'+x.id+'&quot;)">Approve</button> <button class="btn danger" onclick="declineWithdrawal(&quot;'+x.id+'&quot;)">Decline</button> <button class="btn" onclick="ignoreWithdrawal(&quot;'+x.id+'&quot;)">Ignore</button></div></td></tr>'
  ).join('')+'</tbody></table></div>';
 }
 function adminProfilesTable(){if(!profiles.length)return '<div class="empty">No user profiles found.</div>';return '<div class="table-wrap"><table><thead><tr><th>Name</th><th>Email</th><th>Role</th><th>Created</th></tr></thead><tbody>'+profiles.map(x=>'<tr><td>'+esc(x.full_name||'—')+'</td><td>'+esc(x.email)+'</td><td>'+esc(x.role)+'</td><td>'+date(x.created_at)+'</td></tr>').join('')+'</tbody></table></div>'}
@@ -2517,51 +2530,42 @@ function reportsTable(){if(!reports.length)return '<div class="empty">No trading
 async function reviewDeposit(id,approve){const note=prompt(approve?'Verification note (describe how the on-chain transfer was checked):':'Reason for rejection:');if(note===null)return;if(approve&&!note.trim())return toast('Add a verification note before crediting.',true);const {error}=await db.rpc('admin_review_gforce_deposit',{p_request_id:id,p_approve:approve,p_note:note});if(error)return toast(error.message,true);toast(approve?'Deposit verified and ledger credited.':'Deposit request rejected.');await refreshAdmin()}
 async function payWithdrawal(id){
  if(!admin())return toast('Administrator access required.',true);
- let req=(adminWithdrawals||[]).find(x=>x.id===id);
- if(!req){
-  const lookup=await db.from('withdrawal_requests').select('asset,network').eq('id',id).maybeSingle();
-  if(lookup.error)return toast(lookup.error.message,true);
-  req=lookup.data;
- }
+ const lookup=await db.from('withdrawal_requests').select('asset,network,status').eq('id',id).maybeSingle();
+ if(lookup.error)return toast(lookup.error.message,true);
+ const req=lookup.data;
  if(!req)return toast('Withdrawal request not found.',true);
- const hash=prompt('Approve this withdrawal only after payment has actually been sent. Paste the real blockchain transaction hash:');
- if(!hash||!hash.trim())return;
+ const field=$('zc-withdrawal-hash-'+id);
+ const hash=String(field&&field.value||'').trim();
+ if(!hash)return toast('Enter the real payout transaction hash in the field beside Approve.',true);
+ if(!/^[A-Za-z0-9]{20,150}$/.test(hash))return toast('Enter a valid blockchain transaction hash.',true);
  toast('Verifying transaction on-chain…');
  let verification=null;
  try{
   const response=await fetch(SUPABASE_URL+'/functions/v1/verify-payout',{
    method:'POST',
    headers:{apikey:SUPABASE_KEY,Authorization:'Bearer '+SUPABASE_KEY,'Content-Type':'application/json'},
-   body:JSON.stringify({asset:req.asset||'USDT',network:req.network||'TRC20',tx_hash:hash.trim()})
+   body:JSON.stringify({asset:req.asset||'USDT',network:req.network||'TRC20',tx_hash:hash})
   });
   verification=await response.json();
  }catch(error){return toast('Verification service unreachable. Withdrawal was NOT approved.',true)}
  if(!verification||verification.verified!==true)return toast('On-chain verification failed: '+((verification&&(verification.note||verification.status))||'transaction not found')+'. Withdrawal was NOT approved.',true);
- const note=prompt('On-chain payment verified ('+(verification.confirmations==null?'confirmed':verification.confirmations+' confirmations')+'). Optional admin note:');
- if(note===null)return;
- const {error}=await db.rpc('admin_pay_gforce_withdrawal',{p_request_id:id,p_tx_hash:hash.trim(),p_note:note||null});
+ const {error}=await db.rpc('admin_pay_gforce_withdrawal',{p_request_id:id,p_tx_hash:hash,p_note:null});
  if(error)return toast(error.message,true);
- toast('Withdrawal approved and marked Paid after on-chain verification.');
- await refreshAdmin();
+ toast('Withdrawal successful. Status updated to Approved.');
+ await zcRefreshWithdrawalReview();
 }
 async function declineWithdrawal(id){
  if(!admin())return toast('Administrator access required.',true);
- const note=prompt('Optional reason for declining this withdrawal. The reserved amount will be returned to Available Funds:');
- if(note===null)return;
- const {error}=await db.rpc('admin_decline_gforce_withdrawal',{p_request_id:id,p_note:note||null});
+ const {error}=await db.rpc('admin_decline_gforce_withdrawal',{p_request_id:id,p_note:null});
  if(error)return toast(error.message,true);
- toast('Withdrawal declined. The reserved amount is available again.');
- await refreshAdmin();
+ toast('Withdrawal declined. Status updated to Declined.');
+ await zcRefreshWithdrawalReview();
 }
 async function ignoreWithdrawal(id){
  if(!admin())return toast('Administrator access required.',true);
- if(!confirm('Ignore and void this withdrawal? The amount will be permanently consumed and will NOT be returned to Available Funds.'))return;
- const note=prompt('Optional note for this voided withdrawal:');
- if(note===null)return;
- const {error}=await db.rpc('admin_ignore_gforce_withdrawal',{p_request_id:id,p_note:note||null});
+ const {error}=await db.rpc('admin_ignore_gforce_withdrawal',{p_request_id:id,p_note:null});
  if(error)return toast(error.message,true);
- toast('Withdrawal voided. The amount has not been returned to the customer.');
- await refreshAdmin();
+ await zcRefreshWithdrawalReview();
 }
 async function signOut(){await db.auth.signOut();showPublic()}
 function marketRows(){return marketCoins.map(c=>{const x=prices[c.id];return '<div style="display:flex;justify-content:space-between;padding:12px 0;border-bottom:1px solid #ffffff12"><span><b>'+c.symbol+'</b> <span class="muted">'+c.name+'</span></span><span>'+ (x?'$'+fmt(x.usd):'—')+'</span><span class="'+(x&&x.usd_24h_change>=0?'green':'red')+'">'+(x?(x.usd_24h_change>=0?'+':'')+Number(x.usd_24h_change).toFixed(2)+'%':'')+'</span></div>'}).join('')}
@@ -2700,7 +2704,11 @@ function startRealtimeAlerts(){
    refreshData().then(()=>{if(page==='deposits'||page==='activity')renderPage()});
   })
   .on('postgres_changes',{event:'*',schema:'public',table:'withdrawal_requests',filter:'user_id=eq.'+uid},p=>{
-   showTransactionAlert('Withdrawal update','Your withdrawal request has a new update. Check Activity for the latest status.');
+   const status=String(p&&p.new&&p.new.status||'').toLowerCase();
+   if(status==='voided'){refreshData().then(()=>{if(page==='withdrawals'||page==='activity')renderPage()});return}
+   if(status==='paid')showTransactionAlert('Withdrawal successful','Your withdrawal has been paid successfully. Check Activity for the transaction record.');
+   else if(status==='declined')showTransactionAlert('Withdrawal declined','Your withdrawal request was declined. The reserved amount has been returned to your Available Funds.');
+   else showTransactionAlert('Withdrawal update','Your withdrawal request has a new update. Check Activity for the latest status.');
    refreshData().then(()=>{if(page==='withdrawals'||page==='activity')renderPage()});
   })
   .on('postgres_changes',{event:'INSERT',schema:'public',table:'ledger_entries',filter:'user_id=eq.'+uid},p=>{
@@ -3205,7 +3213,7 @@ html body .zc-motion-reveal{transition:opacity .62s ease,transform .62s cubic-be
   const uid=currentUser?.id;
   const rows=[];
   (deposits||[]).filter(x=>!uid||x.user_id===uid).forEach(x=>rows.push({kind:'deposit',id:x.id,title:'Deposit '+String(x.status||'update').replace(/_/g,' '),detail:(Number(x.amount)||0).toLocaleString('en-US',{maximumFractionDigits:6})+' '+(x.asset||'asset')+' · '+String(x.status||'Updated').replace(/_/g,' '),at:x.reviewed_at||x.created_at}));
-  (withdrawals||[]).filter(x=>!uid||x.user_id===uid).forEach(x=>rows.push({kind:'withdrawal',id:x.id,title:'Withdrawal '+String(x.status||'update').replace(/_/g,' '),detail:(Number(x.amount)||0).toLocaleString('en-US',{maximumFractionDigits:6})+' '+(x.asset||'asset')+' · '+String(x.status||'Updated').replace(/_/g,' '),at:x.reviewed_at||x.created_at}));
+  (withdrawals||[]).filter(x=>!uid||x.user_id===uid).forEach(x=>{const label=zcWithdrawalStatusLabel(x.status,true);rows.push({kind:'withdrawal',id:x.id,title:'Withdrawal '+label.toLowerCase(),detail:(Number(x.amount)||0).toLocaleString('en-US',{maximumFractionDigits:6})+' '+(x.asset||'asset')+' · '+label,at:x.reviewed_at||x.created_at})});
   if(profile?.role==='admin'){
    (adminWithdrawalAlerts||[]).forEach(x=>rows.push({
     kind:'admin-withdrawal',id:x.id,title:'New withdrawal request',
@@ -4643,10 +4651,10 @@ body[data-zc-theme] #app-content #wd-network-cards::-webkit-scrollbar-thumb{back
    const action=deposit
     ?(pending?'<button class="btn primary" onclick="reviewDeposit(\''+x.id+'\',true)">Verify</button> <button class="btn danger" onclick="reviewDeposit(\''+x.id+'\',false)">Reject</button>':'—')
     :(pending
-      ?'<button class="btn primary" onclick="payWithdrawal(\''+x.id+'\')">Approve</button> <button class="btn danger" onclick="declineWithdrawal(\''+x.id+'\')">Decline</button> <button class="btn" onclick="ignoreWithdrawal(\''+x.id+'\')">Ignore</button>'
+      ?'<div style="min-width:210px"><input type="text" id="zc-withdrawal-hash-'+x.id+'" placeholder="Payout transaction hash" aria-label="Payout transaction hash" autocomplete="off" autocapitalize="off" spellcheck="false" style="display:block;width:100%;max-width:230px;margin:0 0 6px"><button class="btn primary" onclick="payWithdrawal(&quot;'+x.id+'&quot;)">Approve</button> <button class="btn danger" onclick="declineWithdrawal(&quot;'+x.id+'&quot;)">Decline</button> <button class="btn" onclick="ignoreWithdrawal(&quot;'+x.id+'&quot;)">Ignore</button></div>'
       :'—');
    const statusClass=x.status==='paid'?'good':(pending?'warn':(['declined','rejected'].includes(x.status)?'':''));
-   const statusLabel=x.status==='voided'?'Voided':(x.status==='declined'?'Declined':(x.status==='paid'?'Paid':String(x.status||'').replace(/_/g,' ')));
+   const statusLabel=zcWithdrawalStatusLabel(x.status,false);
    return '<tr><td><b>'+safe(u.full_name||'Customer')+'</b><small style="display:block;color:var(--muted)">'+safe(u.email||x.user_id)+'</small></td><td>'+fmtUSD(x.amount)+'</td><td>'+safe(x.asset||'USDT')+' · '+safe(x.network||'—')+'</td><td style="max-width:220px;overflow-wrap:anywhere">'+safe(ref)+'</td><td><span class="zc-admin-status '+statusClass+'">'+safe(statusLabel)+'</span></td><td>'+safe(x.created_at?new Date(x.created_at).toLocaleString():'—')+'</td><td>'+action+'</td></tr>';
   }).join('')+'</tbody></table>';
  }
