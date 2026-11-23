@@ -6509,9 +6509,25 @@ function renderMessages(urls){
   if(m.body||m.deleted_at){const p=document.createElement('p');p.textContent=m.deleted_at?'This message was removed by an administrator.':m.body;if(!m.deleted_at){p.className='zc-community-message-text';p.title='Tap to translate. Press and hold for copy and reply options.';p.onclick=()=>{if(!(window.getSelection&&window.getSelection().toString()))translateCommunityMessage(m.id,m.body)};p.style.userSelect='text';p.style.webkitUserSelect='text'}box.append(p);const translation=document.createElement('div');translation.className='zc-community-translation hidden';translation.id='zc-community-translation-'+m.id;box.append(translation)}
   if(!m.deleted_at){const actions=document.createElement('div');actions.className='msg-actions';const reply=document.createElement('button');reply.type='button';reply.textContent='Reply';reply.onclick=()=>setReply(m.id);actions.append(reply);const translate=document.createElement('button');translate.type='button';translate.textContent='Translate';translate.onclick=()=>translateCommunityMessage(m.id,m.body||'');actions.append(translate);if(profile?.role==='admin'){const remove=document.createElement('button');remove.type='button';remove.textContent='Remove message';remove.onclick=()=>removeMessage(m.id);actions.append(remove)}box.append(actions)}
   box.addEventListener('contextmenu',event=>{if(m.deleted_at)return;event.preventDefault();showCommunityMessageMenu(m,event.clientX,event.clientY)});
-  let touchStart=null;
-  box.addEventListener('touchstart',event=>{const t=event.touches&&event.touches[0];if(t)touchStart={x:t.clientX,y:t.clientY}},{passive:true});
-  box.addEventListener('touchend',event=>{if(!touchStart)return;const t=event.changedTouches&&event.changedTouches[0];if(t){const dx=t.clientX-touchStart.x,dy=t.clientY-touchStart.y;if(Math.abs(dx)>68&&Math.abs(dy)<48&&!m.deleted_at){setReply(m.id);event.preventDefault()}}touchStart=null},{passive:false});
+  let touchStart=null,longPressTimer=null,longPressFired=false;
+  box.addEventListener('touchstart',event=>{
+   const t=event.touches&&event.touches[0];if(!t)return;
+   touchStart={x:t.clientX,y:t.clientY};longPressFired=false;
+   clearTimeout(longPressTimer);
+   longPressTimer=setTimeout(()=>{if(!m.deleted_at&&touchStart){longPressFired=true;showCommunityMessageMenu(m,t.clientX,t.clientY);touchStart=null}longPressTimer=null},560);
+  },{passive:true});
+  box.addEventListener('touchmove',event=>{
+   if(!touchStart)return;const t=event.touches&&event.touches[0];
+   if(t&&(Math.abs(t.clientX-touchStart.x)>12||Math.abs(t.clientY-touchStart.y)>12)){clearTimeout(longPressTimer);longPressTimer=null}
+  },{passive:true});
+  box.addEventListener('touchend',event=>{
+   clearTimeout(longPressTimer);longPressTimer=null;
+   if(!touchStart)return;
+   const t=event.changedTouches&&event.changedTouches[0];
+   if(t){const dx=t.clientX-touchStart.x,dy=t.clientY-touchStart.y;if(Math.abs(dx)>68&&Math.abs(dy)<48&&!m.deleted_at&&!longPressFired){setReply(m.id);event.preventDefault()}}
+   touchStart=null;
+  },{passive:false});
+  box.addEventListener('touchcancel',()=>{clearTimeout(longPressTimer);longPressTimer=null;touchStart=null},{passive:true});
   messages.append(box);
  });
  if(atBottom)messages.scrollTop=messages.scrollHeight;
@@ -6769,13 +6785,13 @@ async function saveCommunitySettings(){
  if(profile?.role!=='admin')return;
  const save=el('zc-community-rules-save'),words=el('zc-community-banned-words'),links=el('zc-community-block-links');
  if(!words||!links)return;
- const bannedWords=[...new Set(words.value.split(/[\\n,;]+/).map(x=>x.trim().toLowerCase()).filter(Boolean))];
+ const bannedWords=[...new Set(words.value.split(/[\n,;]+/).map(x=>x.trim().toLowerCase()).filter(Boolean))];
  if(bannedWords.some(x=>x.length>60))return toast('Each banned word or phrase must be 60 characters or less.',true);
  if(save){save.disabled=true;save.textContent='Saving…'}
  try{
   const result=await db.from('community_settings').update({banned_words:bannedWords,block_links:!!links.checked,updated_by:currentUser.id,updated_at:new Date().toISOString()}).eq('id',1).select('id,banned_words,block_links').single();
   if(result.error)throw result.error;
-  words.value=(result.data.banned_words||[]).join('\\n');
+  words.value=(result.data.banned_words||[]).join('\n');
   links.checked=!!result.data.block_links;
   toast('Community message rules saved. They now apply to new messages.');
  }catch(error){toast('Could not save community rules: '+(error?.message||'Please try again.'),true)}
