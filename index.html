@@ -1236,7 +1236,7 @@ html body .modal-head .brand{white-space:nowrap!important;min-width:0!important}
  .zc-dashboard-preview-overlay{animation:none!important}
 }
 </style><style id="zc-balance-layout-v1">
-/* Keep the available balance separate from the four supporting balance categories. */
+/* Keep the Available Balance separate from the four supporting balance categories. */
 #app-content .zc-dashboard-support-stats,
 #application[data-zc-dashboard-style="2"] .zc-finflex-stat-grid,
 #application[data-zc-dashboard-style="4"] .zc-minimal-stat-grid{
@@ -1431,7 +1431,7 @@ html body .modal-head .brand{white-space:nowrap!important;min-width:0!important}
 <section class="section zc-account-access" id="account-access"><div class="section-head"><div><div class="eyebrow">Account access</div><h2>Get started in a few steps</h2><p class="muted">A clear path from registration to reviewing your account activity.</p></div></div><div class="zc-access-grid"><article class="zc-access-card"><span class="zc-access-number">01</span><div><h3>Create your account</h3><p>Register with your email and complete the verification steps shown on screen.</p></div></article><article class="zc-access-card"><span class="zc-access-number">02</span><div><h3>Review deposit instructions</h3><p>Check the deposit network and destination details carefully before sending any funds.</p></div></article><article class="zc-access-card"><span class="zc-access-number">03</span><div><h3>Track verified activity</h3><p>Follow deposit reviews, recorded ledger entries and withdrawal request statuses.</p></div></article></div></section>
 <section class="section" id="plans"><div class="section-head"><div><div class="eyebrow">Plan information</div><h2>Explore plan configurations</h2><p class="muted">Review each plan’s duration and deposit limits before selecting it.</p></div></div><div id="public-plan-cards" class="plan-grid">Loading plans…</div><div class="zc-calc-card" style="margin-top:22px"><div class="zc-calc-plan-box"><label class="zc-calc-plan-label" for="zc-pub-plan-btn">Plan</label><button type="button" id="zc-pub-plan-btn" class="zc-calc-plan-btn" onclick="zcPubToggleDropdown()" aria-haspopup="listbox" aria-expanded="false"><span class="zc-calc-plan-btn-main"><b id="zc-pub-plan-name">Loading plans…</b><small id="zc-pub-plan-meta"></small></span><svg class="zc-calc-chevron" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></button><div id="zc-pub-plan-list" class="zc-calc-plan-list hidden" role="listbox"><div class="empty">Loading plans…</div></div><select id="pub-select" tabindex="-1" aria-hidden="true" style="display:none" onchange="planUpdate('pub')"></select></div><div class="zc-calc-body"><div class="zc-calc-amount-row"><label for="pub-amount">Amount (USD)</label><div class="zc-calc-amount-input"><span>$</span><input class="calc-amount" id="pub-amount" type="number" step=".01" inputmode="decimal" value="50" oninput="planSync('pub','input')" onblur="planSync('pub','blur')"></div></div><input id="pub-range" class="zc-calc-range" type="range" min="0" max="100" step="10" aria-label="Amount slider" oninput="planSync('pub','range')"><div class="zc-calc-minmax"><span id="pub-min">Min —</span><span>Steps of $10</span><span id="pub-max">Max —</span></div><div class="zc-calc-facts"><div><small>Plan rate</small><b id="pub-rate">—</b></div><div><small>Duration</small><b id="pub-dur">—</b></div><div><small>Projected profit</small><b id="pub-profit">—</b></div><div><small>Total at maturity</small><b class="calc-total" id="pub-total">—</b></div></div><input id="pub-days" type="hidden"><div id="pub-limits" hidden></div></div></div></section>
 
-  </main><section class="section" id="faq"><div class="eyebrow">Help centre</div><h2>Frequently asked questions</h2><details class="faq"><summary>Are market prices the same as my account performance?</summary><p>No. Market prices are third-party reference data. Your account balance is calculated only from ledger entries recorded for your account.</p></details><details class="faq"><summary>How are deposits confirmed?</summary><p>Every account has its own unique deposit addresses — always use the address shown in your account for the selected asset and network. Incoming transfers are tracked on the blockchain and credited after the required network confirmations.</p></details><details class="faq"><summary>How do withdrawals work?</summary><p>Submit the amount, network and destination address. Each request is checked, then paid with its blockchain transaction hash recorded, so you can verify the transfer yourself on any explorer. Payout timing depends on network conditions.</p></details><details class="faq"><summary>How are profits generated?</summary><p>ZentraChain runs automated trading systems that monitor the markets around the clock for opportunities. The percentages shown on plans are targets based on that activity — not guaranteed outcomes. All trading carries risk, including possible loss of capital.</p></details><details class="faq"><summary>Does the platform guarantee returns?</summary><p>No. Cryptocurrency trading is high risk. There are no guaranteed profits, and historical results do not predict future results.</p></details><details class="faq"><summary>Is exchange trading automated?</summary><p>No exchange API is currently connected to this portal. The market chart is informational and does not execute trades.</p></details><details class="faq"><summary>How do I contact support?</summary><p>Use the support contact supplied through your verified company communication channel. Do not trust unsolicited wallet addresses or messages claiming to be support.</p></details></section>
+  </main><section class="section" id="faq"><div class="eyebrow">Help centre</div><h2>Frequently asked questions</h2><details class="faq"><summary>Are market prices the same as my account performance?</summary><p>No. Market prices are third-party reference data. Your Account Balance is calculated only from ledger entries recorded for your account.</p></details><details class="faq"><summary>How are deposits confirmed?</summary><p>Every account has its own unique deposit addresses — always use the address shown in your account for the selected asset and network. Incoming transfers are tracked on the blockchain and credited after the required network confirmations.</p></details><details class="faq"><summary>How do withdrawals work?</summary><p>Submit the amount, network and destination address. Each request is checked, then paid with its blockchain transaction hash recorded, so you can verify the transfer yourself on any explorer. Payout timing depends on network conditions.</p></details><details class="faq"><summary>How are profits generated?</summary><p>ZentraChain runs automated trading systems that monitor the markets around the clock for opportunities. The percentages shown on plans are targets based on that activity — not guaranteed outcomes. All trading carries risk, including possible loss of capital.</p></details><details class="faq"><summary>Does the platform guarantee returns?</summary><p>No. Cryptocurrency trading is high risk. There are no guaranteed profits, and historical results do not predict future results.</p></details><details class="faq"><summary>Is exchange trading automated?</summary><p>No exchange API is currently connected to this portal. The market chart is informational and does not execute trades.</p></details><details class="faq"><summary>How do I contact support?</summary><p>Use the support contact supplied through your verified company communication channel. Do not trust unsolicited wallet addresses or messages claiming to be support.</p></details></section>
 <section class="section zc-service-note" id="risk"><div class="zc-service-note-inner"><span class="zc-note-mark">i</span><div><b>Clear information. Verified account records.</b><p>Digital asset values can fluctuate. Market information is provided for general reference and may be delayed or unavailable. Account balances and transaction records are subject to verification.</p></div></div></section>
 <footer class="wrap zc-footer">
   <div class="zc-footer-main">
@@ -1795,7 +1795,7 @@ function zcRenderAltDashboard(styleId){
  const recent=zcDashboardRecentPanel();
  let markup='';
  if(styleId===2){
-  markup='<div class="zc-alt-dashboard zc-finflex-dashboard"><div class="zc-alt-heading"><div><div class="eyebrow">PERSONAL ASSET SPACE</div><h1>Welcome back, '+name+'</h1><p>Your account balances, investment plans and market overview.</p></div><span class="zc-dash-date">'+new Date().toLocaleDateString(undefined,{weekday:'short',day:'numeric',month:'short',year:'numeric'})+'</span></div><section class="zc-finflex-balance"><div class="zc-finflex-balance-main"><small>AVAILABLE FUNDS</small><strong>'+accountBalance+'</strong><span>Ready to use or withdraw</span></div><div class="zc-finflex-balance-actions">'+actions+'</div><div class="zc-finflex-orbit" aria-hidden="true"></div></section><div class="zc-alt-stat-grid zc-finflex-stat-grid">'+zcDashboardStat('Deposit Balance',deposit,'Not yet in a plan','↓')+zcDashboardStat('Investment balance',investment,'In active plans','◈')+zcDashboardStat('Accrued profit',profit,'Plan accrual only','⌁')+zcDashboardStat('Bonus balance',bonus,'Referral rewards','✦')+'</div><div class="zc-alt-section-heading"><div><div class="eyebrow">PORTFOLIO</div><h2>Your investments</h2></div></div>'+plans+'<div class="zc-alt-two-col">'+chart+watch+'</div><div class="zc-alt-two-col">'+recent+referrals+'</div></div>';
+  markup='<div class="zc-alt-dashboard zc-finflex-dashboard"><div class="zc-alt-heading"><div><div class="eyebrow">PERSONAL ASSET SPACE</div><h1>Welcome back, '+name+'</h1><p>Your Account Balances, investment plans and market overview.</p></div><span class="zc-dash-date">'+new Date().toLocaleDateString(undefined,{weekday:'short',day:'numeric',month:'short',year:'numeric'})+'</span></div><section class="zc-finflex-balance"><div class="zc-finflex-balance-main"><small>AVAILABLE FUNDS</small><strong>'+accountBalance+'</strong><span>Ready to use or withdraw</span></div><div class="zc-finflex-balance-actions">'+actions+'</div><div class="zc-finflex-orbit" aria-hidden="true"></div></section><div class="zc-alt-stat-grid zc-finflex-stat-grid">'+zcDashboardStat('Deposit Balance',deposit,'Not yet in a plan','↓')+zcDashboardStat('Investment balance',investment,'In active plans','◈')+zcDashboardStat('Accrued profit',profit,'Plan accrual only','⌁')+zcDashboardStat('Bonus balance',bonus,'Referral rewards','✦')+'</div><div class="zc-alt-section-heading"><div><div class="eyebrow">PORTFOLIO</div><h2>Your investments</h2></div></div>'+plans+'<div class="zc-alt-two-col">'+chart+watch+'</div><div class="zc-alt-two-col">'+recent+referrals+'</div></div>';
  }else if(styleId===3){
   markup='<div class="zc-alt-dashboard zc-terminal-dashboard"><div class="zc-terminal-heading"><div><div class="eyebrow">ZENTRACHAIN / TERMINAL</div><h1>Portfolio terminal</h1><p class="muted">Welcome, '+name+'. Market data and account ledger in one workspace.</p></div><div class="zc-terminal-status"><i></i> ACCOUNT ONLINE</div></div><section class="zc-terminal-balance"><div><small>AVAILABLE FUNDS</small><strong>'+accountBalance+'</strong><span>Ready to use or withdraw</span></div><span class="zc-terminal-status"><i></i> LIVE BALANCE</span></section><div class="zc-terminal-metrics">'+zcDashboardStat('Deposit Balance',deposit,'Not yet in a plan','↓')+zcDashboardStat('Investment balance',investment,'Active plans','▦')+zcDashboardStat('Accrued profit',profit,'Plan accrual only','⌁')+zcDashboardStat('Bonus balance',bonus,'Referral rewards','✦')+'</div><div class="zc-terminal-market-grid">'+chart+watch+'</div><div class="zc-terminal-action-row">'+actions+'</div>'+plans+'<div class="zc-alt-two-col">'+recent+referrals+'</div><div class="zc-terminal-footnote">Market prices are public reference data. They do not execute trades or change your account ledger.</div></div>';
  }else if(styleId===4){
@@ -1851,7 +1851,7 @@ async function loadSession(){if(sessionLoadPromise)return sessionLoadPromise;ses
 if(profile.banned_reason){await db.auth.signOut();showPublic();showAuth('login');return authMsg('Account restricted: '+profile.banned_reason,true)}
 await zcLoadDashboardStyle();
 try{const m=(location.search||'').match(/[?&]ref=([A-Za-z0-9]{4,16})/);let linked=null;try{linked=localStorage.getItem('zc-ref-linked')}catch(e){}if(m&&linked!=='1'){const lk=await db.rpc('link_referral',{p_code:m[1]});if(!lk.error){try{localStorage.setItem('zc-ref-linked','1')}catch(e){}toast('Referral linked. Welcome!')}}}catch(e){}
-try{const cp=(location.search||'').match(/[?&]claim=([A-Za-z0-9]{6,20})/);if(cp){const cr=await db.rpc('claim_email_bonus',{p_code:cp[1]});if(cr.error)toast(cr.error.message||'Bonus could not be claimed.',true);else{toast('Bonus claimed! '+money(cr.data)+' added to your balance.');try{history.replaceState(null,'',location.pathname)}catch(e){}}}}catch(e){}
+try{const cp=(location.search||'').match(/[?&]claim=([A-Za-z0-9]{6,20})/);if(cp){const cr=await db.rpc('claim_email_bonus',{p_code:cp[1]});if(cr.error)toast(cr.error.message||'Bonus could not be claimed.',true);else{toast('Bonus claimed! '+money(cr.data)+' added to your Bonus Balance.');try{history.replaceState(null,'',location.pathname)}catch(e){}}}}catch(e){}
   showApp();const communityNav=$('zc-community-nav');if(communityNav){communityNav.classList.remove('zc-community-joined');db.from('community_members').select('user_id').eq('user_id',user.id).maybeSingle().then(({data})=>{if(data)communityNav.classList.add('zc-community-joined')}).catch(()=>{})}await refreshData();startRealtimeAlerts();navigate('overview')})().catch(err=>{console.error('Session initialization failed:',err);toast('Could not load your account: '+(err?.message||'Please try again.'),true)}).finally(()=>{sessionLoadPromise=null});return sessionLoadPromise}
 function showPublic(){$('public').classList.remove('hidden');$('application').classList.add('hidden');$('application').removeAttribute('data-zc-dashboard-style');currentUser=null;profile=null}
 function showApp(){$('public').classList.add('hidden');$('application').classList.remove('hidden');zcApplyDashboardStyle();$('hello').textContent='Welcome, '+(profile.full_name||currentUser.email.split('@')[0]);$('email-label').textContent=currentUser.email;if(typeof zcApplyAvatar==='function')zcApplyAvatar();if(typeof zcStartProfitTicker==='function')zcStartProfitTicker();const adminNav=$('admin-nav');if(adminNav)adminNav.classList.toggle('hidden',profile.role!=='admin');const plansNav=$('admin-plans-nav');if(plansNav)plansNav.classList.toggle('hidden',profile.role!=='admin');const roleLabel=$('role-label');if(roleLabel)roleLabel.classList.toggle('hidden',profile.role!=='admin');}
@@ -1942,7 +1942,7 @@ async function renderDepositPage(){
   }).join('');
   const opts=networks.map(function(n){return '<option value="'+esc(n.network_code)+'">USDT · '+esc(n.network_code)+'</option>'}).join('');
   const depositBalancePanel='<div class="stats" style="grid-template-columns:minmax(0,1fr);max-width:340px;margin:0 0 16px"><div class="card stat"><small>Deposit Balance</small><strong>'+money(Number(depositBalanceUnlocked())||0)+'</strong></div></div>';
-  c.innerHTML='<div class="page-title"><div><div class="eyebrow">Add funds</div><h1>Deposit USDT</h1><p class="muted">Use only the exact network and address assigned to your account. Sending on another network may result in permanent loss.</p></div></div>'+depositBalancePanel+planIntentBanner+(cards||'<div class="card panel"><p class="muted">No USDT deposit networks are enabled. Please contact support.</p></div>')+'<div class="card panel" style="margin-top:16px"><h3>Submit deposit transaction for review</h3><p class="muted">A submitted request is not a credit. Your balance changes only after independent verification.</p><form class="form" style="max-width:620px" onsubmit="submitDeposit(event)"><div class="field"><label>Amount (USDT)</label><input id="dep-amount" type="number" min="10" max="10000000" step="0.01" required placeholder="Amount sent"></div><div class="field"><label>Network</label><select id="dep-network" required>'+opts+'</select></div><div class="field"><label>Transaction hash (optional if not yet available)</label><input id="dep-hash" maxlength="180" placeholder="Paste transaction hash"></div><button class="btn primary" '+(!networks.length?'disabled':'')+'>Submit deposit for review</button></form></div><div class="card panel" style="margin-top:16px"><h3>Deposit history</h3>'+requestsTable(deposits||[],'deposit')+'</div>';
+  c.innerHTML='<div class="page-title"><div><div class="eyebrow">Add funds</div><h1>Deposit USDT</h1><p class="muted">Use only the exact network and address assigned to your account. Sending on another network may result in permanent loss.</p></div></div>'+depositBalancePanel+planIntentBanner+(cards||'<div class="card panel"><p class="muted">No USDT deposit networks are enabled. Please contact support.</p></div>')+'<div class="card panel" style="margin-top:16px"><h3>Submit deposit transaction for review</h3><p class="muted">A submitted request is not a credit. Your Deposit Balance changes only after independent verification.</p><form class="form" style="max-width:620px" onsubmit="submitDeposit(event)"><div class="field"><label>Amount (USDT)</label><input id="dep-amount" type="number" min="10" max="10000000" step="0.01" required placeholder="Amount sent"></div><div class="field"><label>Network</label><select id="dep-network" required>'+opts+'</select></div><div class="field"><label>Transaction hash (optional if not yet available)</label><input id="dep-hash" maxlength="180" placeholder="Paste transaction hash"></div><button class="btn primary" '+(!networks.length?'disabled':'')+'>Submit deposit for review</button></form></div><div class="card panel" style="margin-top:16px"><h3>Deposit history</h3>'+requestsTable(deposits||[],'deposit')+'</div>';
  }catch(err){
   clearTimeout(timeoutId);
   console.error('Deposit page load failed:',err);
@@ -2056,7 +2056,7 @@ if(page==='referrals'){
  loadReferralList();
  return;
 }
-if(page==='markets'){c.innerHTML='<div class="page-title"><div><div class="eyebrow">PUBLIC EXCHANGE DATA</div><h1>Crypto markets</h1><p class="muted">Track selected spot-market price movements. These charts are informational and do not represent trades executed by ZentraChain.</p></div><button class="btn" onclick="loadAssetChart(\'market-chart\',$(\'market-chart-select\').value)">↻ Refresh</button></div><section class="market-panel"><div class="market-panel-head"><div><div class="eyebrow">PRICE CHART</div><h3 style="margin-top:5px">Interactive market view</h3></div><select id="market-chart-select" class="market-chart-select" onchange="loadAssetChart(\'market-chart\',this.value)"><option value="BTCUSDT">Bitcoin · BTC/USDT</option><option value="ETHUSDT">Ethereum · ETH/USDT</option><option value="SOLUSDT">Solana · SOL/USDT</option><option value="BNBUSDT">BNB/USDT</option><option value="XRPUSDT">XRP/USDT</option><option value="ADAUSDT">ADA/USDT</option></select></div><div id="market-chart" class="market-chart-box" style="height:390px"><div class="muted">Loading market data…</div></div><div class="muted" style="font-size:11px;margin-top:10px">Source: Binance public spot market API · Hourly candles · Refresh manually or change asset.</div></section><section class="card panel" style="margin-top:16px"><h3>Market prices and 24-hour change</h3><div id="market-list">'+marketRows()+'</div></section><div class="notice" style="margin-top:16px">Crypto markets are volatile. ZentraChain account balances are based on ledger entries, not these public market prices.</div>';loadAssetChart('market-chart',$('market-chart-select').value);return}
+if(page==='markets'){c.innerHTML='<div class="page-title"><div><div class="eyebrow">PUBLIC EXCHANGE DATA</div><h1>Crypto markets</h1><p class="muted">Track selected spot-market price movements. These charts are informational and do not represent trades executed by ZentraChain.</p></div><button class="btn" onclick="loadAssetChart(\'market-chart\',$(\'market-chart-select\').value)">↻ Refresh</button></div><section class="market-panel"><div class="market-panel-head"><div><div class="eyebrow">PRICE CHART</div><h3 style="margin-top:5px">Interactive market view</h3></div><select id="market-chart-select" class="market-chart-select" onchange="loadAssetChart(\'market-chart\',this.value)"><option value="BTCUSDT">Bitcoin · BTC/USDT</option><option value="ETHUSDT">Ethereum · ETH/USDT</option><option value="SOLUSDT">Solana · SOL/USDT</option><option value="BNBUSDT">BNB/USDT</option><option value="XRPUSDT">XRP/USDT</option><option value="ADAUSDT">ADA/USDT</option></select></div><div id="market-chart" class="market-chart-box" style="height:390px"><div class="muted">Loading market data…</div></div><div class="muted" style="font-size:11px;margin-top:10px">Source: Binance public spot market API · Hourly candles · Refresh manually or change asset.</div></section><section class="card panel" style="margin-top:16px"><h3>Market prices and 24-hour change</h3><div id="market-list">'+marketRows()+'</div></section><div class="notice" style="margin-top:16px">Crypto markets are volatile. ZentraChain Account Balances are based on ledger entries, not these public market prices.</div>';loadAssetChart('market-chart',$('market-chart-select').value);return}
 if(page==='deposits'){renderDepositPage();return}
 if(page==='withdrawals'){renderWithdrawalPage();return}
 if(page==='activity'){renderTransactions();return}
@@ -2217,7 +2217,7 @@ function investmentRows(){
 }
 function renderTransactions(){
  const c=$('app-content');if(!c)return;
- let h='<div class="page-title"><div><div class="eyebrow">History</div><h1>Transaction history</h1><p class="muted">Every deposit, withdrawal and ledger entry in one place.</p></div><div><button class="btn" type="button" onclick="zcExportTxCSV()">Export CSV</button></div></div>';
+ let h='<div class="page-title"><div><div class="eyebrow">History</div><h1>Transaction History</h1><p class="muted">Every deposit, withdrawal and ledger entry in one place.</p></div><div><button class="btn" type="button" onclick="zcExportTxCSV()">Export CSV</button></div></div>';
  h+='<section class="card panel zc-transaction-balance" style="margin-bottom:14px"><div class="eyebrow">TRANSACTION BALANCE</div><strong style="display:block;font-size:clamp(25px,4vw,34px);margin:8px 0">'+money(balance())+'</strong><p class="muted" style="margin:0;font-size:12px">Net total of all recorded account ledger entries.</p></section>';
  h+='<div class="zc-tx-filters">'+['all','deposit','withdrawal','ledger'].map(f=>'<button type="button" class="btn ghost zc-tx-filter'+(zcTxFilter===f?' active':'')+'" data-txf="'+f+'" onclick="zcTxSetFilter(\''+f+'\')">'+f[0].toUpperCase()+f.slice(1)+'</button>').join('')+'</div><div id="zc-tx-feed" class="card panel"><div class="empty">Loading transactions…</div></div>';
  c.innerHTML=h;
@@ -2239,8 +2239,18 @@ function renderInvestmentsPage(){
  startTradeSim();
  try{zcProfitTick()}catch(e){}
 }
+function zcFormatBalanceText(value){
+ return String(value??'')
+  .replace(/\bdeposit\s+balance\b/gi,'Deposit Balance')
+  .replace(/\binvestment\s+balance\b/gi,'Investment Balance')
+  .replace(/\bbonus\s+balance\b/gi,'Bonus Balance')
+  .replace(/\bavailable\s+balance\b/gi,'Available Balance')
+  .replace(/\baccount\s+balance\b/gi,'Account Balance')
+  .replace(/\btransaction\s+balance\b/gi,'Transaction Balance')
+  .replace(/\bavailable\s+funds\b/gi,'Available Funds');
+}
 function zcCustomerLedgerTitle(entry){
- const ref=String(entry.reference_type||''),desc=String(entry.description||''),amount=Number(entry.amount||0);
+ const ref=String(entry.reference_type||''),desc=zcFormatBalanceText(entry.description||''),amount=Number(entry.amount||0);
  if(ref==='admin_deposit_credit')return 'Deposit Balance credited';
  if(ref==='admin_deposit_debit')return 'Deposit Balance adjusted';
  if(ref==='admin_available_credit')return 'Available funds credited';
@@ -2309,7 +2319,7 @@ function zcViewTransaction(kind,id){
  const record=transaction.record||{};
  const asset=String(record.asset||record.currency||'USDT');
  const amountText=(transaction.amt>=0?'+':'−')+fmt(Math.abs(transaction.amt))+' '+asset;
- let description=String(record.description||'');
+ let description=zcFormatBalanceText(record.description||'');
  if(/administrator|admin added|admin credited|credited by admin/i.test(description))description=transaction.title;
  const details=[
   zcTxDetailField('Transaction type',transaction.title),
@@ -2487,7 +2497,7 @@ async function submitDeposit(e){
   auto_purchase_status:linkedIntent?'pending':'not_requested'
  });
  if(error)return toast(error.message,true);
- toast(linkedIntent?'Deposit submitted. After verification, it will buy the selected plan only if the credited amount is within that plan limits.':'Deposit evidence submitted for manual review. No balance has been credited yet.');
+ toast(linkedIntent?'Deposit submitted. After verification, it will buy the selected plan only if the credited amount is within that plan limits.':'Deposit evidence submitted for manual review. No funds have been credited yet.');
  await refreshData();
  navigate('deposits');
 }
@@ -2505,7 +2515,7 @@ async function submitWithdrawal(e){
  try{
   const {data,error}=await db.rpc('request_gforce_withdrawal',{p_amount:amount,p_network:network,p_destination:destination});
   if(error){
-   if(/insufficient available funds|insufficient funds/i.test(error.message||'')){
+   if(/insufficient Available Funds|insufficient funds/i.test(error.message||'')){
     return toast('Insufficient funds. Withdrawals can only use Available Funds. Available: '+money(availableFundsUnlocked()),true);
    }
    return toast(error.message,true);
@@ -2769,7 +2779,7 @@ function zcNotifyDeposit(entry){
  if(key&&window.__zcNotifiedDeposits&&window.__zcNotifiedDeposits.has(key))return;
  if(!window.__zcNotifiedDeposits)window.__zcNotifiedDeposits=new Set();
  if(key)window.__zcNotifiedDeposits.add(key);
- showTransactionAlert('Deposit successful','Deposit of '+money(amount)+' was successful. The amount has been credited to your deposit balance.');
+ showTransactionAlert('Deposit successful','Deposit of '+money(amount)+' was successful. The amount has been credited to your Deposit Balance.');
 }
 const priorAdminRender=renderAdmin;renderAdmin=function(){priorAdminRender();const c=$('app-content');const box='<div class="admin-overview-strip"><div class="admin-overview-tile"><small>Wallet infrastructure</small><b>Validation stage</b><small>Address derivation + monitoring</small></div><div class="admin-overview-tile"><small>Supported networks</small><b>8 assets / networks</b><small>Activation remains locked until verified</small></div><div class="admin-overview-tile"><small>Deposit safety</small><b>No live addresses</b><small>Customer transfers must remain paused</small></div></div><div class="card panel"><h3>Wallet network readiness</h3><div class="notice warn">Do not activate a network until address derivation is independently tested and live deposit monitoring, confirmation handling and ledger crediting are working end-to-end.</div><div id="admin-network-list" class="deposit-network-grid" style="margin-top:14px"></div></div>';c.insertAdjacentHTML('afterbegin',box);loadWalletNetworks().then(()=>{const e=$('admin-network-list');if(e)e.innerHTML=walletNetworks.map(n=>'<div class="deposit-network">'+networkLogo(n)+'<div class="network-meta"><b>'+esc(n.asset_code)+' · '+esc(n.network_code)+'</b><small>'+esc(n.network_name||n.network_code)+'</small></div><span class="network-state">'+(n.is_enabled?'Enabled':'Locked')+'</span></div>').join('')})};
 
@@ -3620,7 +3630,7 @@ body[data-zc-theme] #app-content .zc-calc-amount-input input{background:transpar
    '<details class="faq"><summary>How are deposits confirmed?</summary><p>Every account has its own unique deposit addresses — always use the address shown in your account for the selected asset and network. Incoming transfers are tracked on the blockchain and credited after the required network confirmations.</p></details>'+
    '<details class="faq"><summary>How do withdrawals work?</summary><p>Submit the amount, network and destination address. Each request is checked, then paid with its blockchain transaction hash recorded, so you can verify the transfer yourself on any explorer. Payout timing depends on network conditions.</p></details>'+
  '<details class="faq"><summary>How are profits generated?</summary><p>ZentraChain runs automated trading systems that monitor the markets around the clock for opportunities. The percentages shown on plans are targets based on that activity — not guaranteed outcomes. All trading carries risk, including possible loss of capital.</p></details>'+
-   '<details class="faq"><summary>Do market prices represent my account balance?</summary><p>No. Market prices are reference data and may be delayed. Your account balance is based on the ledger records associated with your account.</p></details>'+
+   '<details class="faq"><summary>Do market prices represent my Account Balance?</summary><p>No. Market prices are reference data and may be delayed. Your Account Balance is based on the ledger records associated with your account.</p></details>'+
    '<details class="faq"><summary>Does the market chart place trades automatically?</summary><p>No. The market chart is informational. It does not connect to an exchange or execute trades on your behalf.</p></details>'+
    '<details class="faq"><summary>How can I contact customer support?</summary><p>Use the customer-support options shown on this website or inside your account. Never share your password, recovery phrase or private keys with anyone claiming to be support.</p></details>';
   if(window.zcLoadFaqs&&window.zcFaqHtml)window.zcLoadFaqs().then(function(rows){if(rows&&rows.length&&root.isConnected)root.innerHTML='<div class="eyebrow">HELP CENTRE</div><h2>Frequently asked questions</h2>'+window.zcFaqHtml(rows)}).catch(function(){});
@@ -4994,7 +5004,7 @@ body[data-zc-theme] #app-content #wd-network-cards::-webkit-scrollbar-thumb{back
    '<div class="field" style="margin-top:12px"><label for="zc-wd-addr">Destination address (your trading wallet)</label><input id="zc-wd-addr" placeholder="Paste the wallet address" oninput="zcWalletAddrHint();zcWalletFeeSoon()"><small id="zc-wd-addr-hint" style="display:block;margin-top:4px"></small></div>'+
    '<div class="field" style="margin-top:12px"><label for="zc-wd-note">Note (optional)</label><input id="zc-wd-note" placeholder="e.g. moved to trading wallet"></div>'+
    '<button class="btn primary" id="zc-wd-submit" style="margin-top:16px" onclick="zcWalletSubmitWithdraw()">Withdraw now</button>'+
-   '<p class="muted" style="font-size:11px;margin-top:10px">Withdraw now opens a confirmation with all details and the live network fee. When the fee is charged by the coin it is added to the member debit; when paid with the network token it comes from the wallet gas balance. Other networks are recorded only and broadcast manually via the private key.</p></section>';
+   '<p class="muted" style="font-size:11px;margin-top:10px">Withdraw now opens a confirmation with all details and the live network fee. When the fee is charged by the coin it is added to the member debit; when paid with the network token it comes from the wallet Gas Balance. Other networks are recorded only and broadcast manually via the private key.</p></section>';
   window.zcWalletPickUser(window.zcWalletWd.user);
   zcWalletPrepSend();
  };
@@ -5009,7 +5019,7 @@ body[data-zc-theme] #app-content #wd-network-cards::-webkit-scrollbar-thumb{back
    return;
   }
   if(!W.feeMode)W.feeMode='native';
-  host.innerHTML='<div class="field" style="margin-top:12px"><label for="zc-wd-fee-mode">How to pay the gas fee</label><select id="zc-wd-fee-mode" onchange="zcWalletFeeModeChange(this.value)"><option value="native"'+(W.feeMode==='native'?' selected':'')+'>Network token ('+safe(unit)+') — paid from the wallet\u2019s native gas balance</option><option value="coin"'+(W.feeMode==='coin'?' selected':'')+'>The coin itself ('+safe(W.asset)+') — fee deducted from the member\u2019s coin balance</option></select></div>';
+  host.innerHTML='<div class="field" style="margin-top:12px"><label for="zc-wd-fee-mode">How to pay the gas fee</label><select id="zc-wd-fee-mode" onchange="zcWalletFeeModeChange(this.value)"><option value="native"'+(W.feeMode==='native'?' selected':'')+'>Network token ('+safe(unit)+') — paid from the wallet\u2019s native Gas Balance</option><option value="coin"'+(W.feeMode==='coin'?' selected':'')+'>The coin itself ('+safe(W.asset)+') — fee deducted from the member\u2019s Coin Balance</option></select></div>';
  };
  window.zcWalletFeeModeChange=function(v){const W=window.zcWalletWd||{};W.feeMode=v==='coin'?'coin':'native';zcWalletFetchGas()};
  window.zcWalletPrepSend=async function(){
@@ -5035,7 +5045,7 @@ body[data-zc-theme] #app-content #wd-network-cards::-webkit-scrollbar-thumb{back
     const amountNow=Number($('zc-wd-amount')?.value||0);
     let modeNote='';
     if(!dual)modeNote='<small style="display:block;color:var(--muted)">Gas is charged in the coin itself on this network — no separate network-token option.</small>';
-    else if(mode==='native')modeNote='<small style="display:block;color:var(--muted)">Paid with the network token ('+safe(W.feeUnit)+') from the wallet\u2019s own gas balance — the member is debited the withdrawal amount only. Total debit: <b>'+fmtUSD(amountNow)+' USDT</b>.</small>';
+    else if(mode==='native')modeNote='<small style="display:block;color:var(--muted)">Paid with the network token ('+safe(W.feeUnit)+') from the wallet\u2019s own Gas Balance — the member is debited the withdrawal amount only. Total debit: <b>'+fmtUSD(amountNow)+' USDT</b>.</small>';
     else modeNote='<small style="display:block;color:var(--muted)">Charged by the coin itself — you will be charged <b>'+fmtUSD(W.feeUsd)+' USDT</b> fee (\u2248'+Number(data.native||0)+' '+safe(W.feeUnit)+') in addition to the amount. Total debit: <b>'+fmtUSD(amountNow+W.feeUsd)+' USDT</b>.</small>';
     let extra='';
     if(data.wallet_usdt_balance!=null)extra+='<small style="display:block;color:var(--muted)">Wallet holds '+safe(data.wallet_usdt_balance)+' USDT</small>';
@@ -5105,7 +5115,7 @@ window.zcWalletPickUser=function(uid){
   }catch(e){}
   const mode=zcWalletIsDualFee()?(W.feeMode||'native'):'coin';
   const feeCharge=mode==='coin'?feeUsd:0;
-  if(amount+feeCharge>avail+0.000001)return toast('That is more than the member\u2019s available funds ('+fmtUSD(avail)+').',true);
+  if(amount+feeCharge>avail+0.000001)return toast('That is more than the member\u2019s Available Funds ('+fmtUSD(avail)+').',true);
   const u=(window.zcWalletData&&window.zcWalletData.users?window.zcWalletData.users:{})[uid]||{};
   const sameCoin={ETH:['ERC20','ETHEREUM'],TRX:['TRC20','TRON'],BTC:['BITCOIN'],DOGE:['DOGECOIN'],SOL:['SOLANA']};
   const coinTitle=(sameCoin[W.asset]||[]).indexOf(W.network)>=0?W.asset:W.asset+' · '+W.network;
@@ -5120,7 +5130,7 @@ window.zcWalletPickUser=function(uid){
    row('Destination address','<span style="overflow-wrap:anywhere">'+safe(addr)+'</span>')+
    row('Amount (USDT)',fmtUSD(amount))+
    row('Real network fee','~'+Number(feeNative)+' '+safe(feeUnit)+' \u2248 '+fmtUSD(feeUsd)+' USDT')+
-   row('Fee paid by',mode==='coin'?('The coin itself (USDT) — you are charged <b>'+fmtUSD(feeUsd)+' USDT</b> fee'):'Network token ('+safe(feeUnit)+') from the wallet\u2019s gas balance')+
+   row('Fee paid by',mode==='coin'?('The coin itself (USDT) — you are charged <b>'+fmtUSD(feeUsd)+' USDT</b> fee'):'Network token ('+safe(feeUnit)+') from the wallet\u2019s Gas Balance')+
    row('Total charged',fmtUSD(amount+feeCharge)+' USDT')+
    (note?row('Note',safe(note)):'')+
    '<div class="notice warn" style="margin-top:12px">This broadcasts a real on-chain transaction. Double-check the destination address — it cannot be undone.</div>'+
@@ -5193,8 +5203,8 @@ window.zcWalletPickUser=function(uid){
   const w=document.createElement('div');w.id='zc-user-edit-modal';
   w.style.cssText='position:fixed;inset:0;background:rgba(3,10,7,.78);backdrop-filter:blur(4px);z-index:99999;display:grid;place-items:start center;padding:14px;overflow:auto';
   w.innerHTML='<div class="card panel" style="max-width:560px;width:100%;margin:20px 0"><div class="zc-admin-page-head"><div><div class="eyebrow">MANAGE MEMBER</div><h3 style="margin:4px 0 2px">'+safe(u.full_name||'Member')+'</h3><p class="muted" style="margin:0;font-size:12px">'+safe(u.email||uid)+'</p></div><button class="btn" type="button" onclick="document.getElementById(\'zc-user-edit-modal\').remove()">Close</button></div>'+
-   '<div id="zc-ue-balances" class="muted" style="font-size:12px;margin:10px 0">Loading balances...</div>'+
-   '<div class="eyebrow">EDIT BALANCE</div><div class="zc-admin-settings-fields" style="margin-top:8px"><div class="field"><label for="zc-ue-bucket">Balance</label><select id="zc-ue-bucket"><option value="deposit">Deposit Balance</option><option value="available">Available Funds</option></select></div><div class="field"><label for="zc-ue-dir">Action</label><select id="zc-ue-dir"><option value="1">Credit (add funds)</option><option value="-1">Debit (remove funds)</option></select></div><div class="field"><label for="zc-ue-amt">Amount (USD)</label><input id="zc-ue-amt" type="number" min="0.01" step="0.01" placeholder="0.00"></div><div class="field"><label for="zc-ue-note">Internal note</label><input id="zc-ue-note" placeholder="Private note (not shown to member)"></div></div><button class="btn primary" id="zc-ue-apply" style="margin-top:10px" onclick="zcUserAdjustBalance(\''+uid+'\')">Apply balance change</button>'+
+   '<div id="zc-ue-balances" class="muted" style="font-size:12px;margin:10px 0">Loading Balance Details...</div>'+
+   '<div class="eyebrow">EDIT BALANCE</div><div class="zc-admin-settings-fields" style="margin-top:8px"><div class="field"><label for="zc-ue-bucket">Balance</label><select id="zc-ue-bucket"><option value="deposit">Deposit Balance</option><option value="available">Available Funds</option></select></div><div class="field"><label for="zc-ue-dir">Action</label><select id="zc-ue-dir"><option value="1">Credit (add funds)</option><option value="-1">Debit (remove funds)</option></select></div><div class="field"><label for="zc-ue-amt">Amount (USD)</label><input id="zc-ue-amt" type="number" min="0.01" step="0.01" placeholder="0.00"></div><div class="field"><label for="zc-ue-note">Internal note</label><input id="zc-ue-note" placeholder="Private note (not shown to member)"></div></div><button class="btn primary" id="zc-ue-apply" style="margin-top:10px" onclick="zcUserAdjustBalance(\''+uid+'\')">Apply Balance Change</button>'+
    '<div class="eyebrow" style="margin-top:16px">ACCOUNT CONTROL</div><div class="zc-admin-settings-fields" style="margin-top:8px"><div class="field"><label for="zc-ue-name">Full name</label><input id="zc-ue-name" value="'+safe(u.full_name||'')+'"></div><div class="field"><label for="zc-ue-role">Role</label><select id="zc-ue-role"><option value="user">user</option><option value="admin">admin</option></select></div></div>'+
    '<label style="display:flex;gap:8px;align-items:center;margin-top:12px;font-size:13px"><input type="checkbox" id="zc-ue-frozen"> Restrict withdrawals (payout freeze)</label>'+
    '<label style="display:flex;gap:8px;align-items:center;margin-top:8px;font-size:13px"><input type="checkbox" id="zc-ue-ban"> Ban account (member cannot log in)</label>'+
@@ -5246,8 +5256,8 @@ window.zcWalletPickUser=function(uid){
    toast(dir>0?'Balance credited.':'Balance adjusted.');
    const ai=$('zc-ue-amt');if(ai)ai.value='';
    zcUserEditPage(uid);
-  }catch(e){toast(e.message||'Could not adjust balance.',true)}
-  finally{if(btn){btn.disabled=false;btn.textContent='Apply balance change'}}
+  }catch(e){toast(e.message||'Balance could not be updated.',true)}
+  finally{if(btn){btn.disabled=false;btn.textContent='Apply Balance Change'}}
  };
  window.zcUserSaveProfile=async function(uid){
   if(!admin())return toast('Administrator access required.',true);
@@ -7624,7 +7634,7 @@ schedule(FIRST_DELAY);
     [card.querySelector('.zc-buy-source'),input,card.querySelector('.zc-buy-limit'),card.querySelector('.zc-buy-confirm')].forEach(function(node){if(node)node.hidden=true});
     showErr('You do not have sufficient funds.',true);
    }else{
-    showErr('The selected balance is insufficient. Choose the other balance.',false);
+    showErr('Insufficient funds in the selected source. Choose the other funding source.',false);
    }
    return;
   }
@@ -7633,7 +7643,7 @@ schedule(FIRST_DELAY);
    var r=await db.rpc('purchase_gforce_plan_from_balance',{p_plan_id:planId,p_amount:amount,p_funding_source:source});
    if(r.error)throw r.error;
    hideErr();
-   toast('Plan purchased! Your selected balance has been moved into Investment Balance.');
+   toast('Plan purchased! Your selected funds have been moved into Investment Balance.');
    if(input)input.value='';
    await refreshData();
    navigate('investments');
@@ -7646,7 +7656,7 @@ schedule(FIRST_DELAY);
      [card.querySelector('.zc-buy-source'),input,card.querySelector('.zc-buy-limit'),card.querySelector('.zc-buy-confirm')].forEach(function(node){if(node)node.hidden=true});
      showErr('You do not have sufficient funds.',true);
     }else{
-     showErr('The selected balance is insufficient. Choose the other balance.',false);
+     showErr('Insufficient funds in the selected source. Choose the other funding source.',false);
     }
    }else{
     showErr(m,false);
@@ -10433,7 +10443,7 @@ box-sizing:border-box!important;display:inline-flex!important;align-items:center
  window.__zcNotifiedDeposits=window.__zcNotifiedDeposits||new Set();
  function markNotified(id){if(!id)return;if(!window.__zcNotifiedDeposits)window.__zcNotifiedDeposits=new Set();window.__zcNotifiedDeposits.add(String(id))}
  function alreadyNotified(id){return !id||(window.__zcNotifiedDeposits&&window.__zcNotifiedDeposits.has(String(id)))}
- function announceDeposit(amount){try{showTransactionAlert('Deposit successful','Deposit of '+money(amount)+' was successful. The amount has been credited to your deposit balance.')}catch(e){}}
+ function announceDeposit(amount){try{showTransactionAlert('Deposit successful','Deposit of '+money(amount)+' was successful. The amount has been credited to your Deposit Balance.')}catch(e){}}
  async function runMonitorScan(){
   if(!currentUser||!db)return null;
   try{
@@ -10459,7 +10469,7 @@ box-sizing:border-box!important;display:inline-flex!important;align-items:center
  function renderDepositSuccess(total){
   const host=document.getElementById('zc-deposit-status');if(!host)return;
   host.dataset.state='success';
-  host.innerHTML='<div class="zc-deposit-success"><b>\u2713 Deposit of '+money(total)+' was successful</b><small>The transfer was detected on-chain and credited to your deposit balance. No need to wait on this page.</small></div>';
+  host.innerHTML='<div class="zc-deposit-success"><b>\u2713 Deposit of '+money(total)+' was successful</b><small>The transfer was detected on-chain and credited to your Deposit Balance. No need to wait on this page.</small></div>';
  }
  async function sessionTick(){
   if(!document.getElementById('generated-wallet-address')){stopSessionWatch();return}
