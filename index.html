@@ -12059,48 +12059,43 @@ body.zc-transition-lock{overflow:hidden!important}
 </script>
 
 <style id="zc-bitcoin-theme-responsive-v1">
-/* Theme-colored 3D Bitcoin emblem: luminous enamel finish, with a true vertical-axis turn. */
+/* A standalone theme-colored Bitcoin glyph with a globe-like vertical-axis 3D rotation. */
 .zc-mobile-bitcoin-emblem{
  position:relative;display:grid;place-items:center;flex:0 0 58px;width:58px;height:58px;
- perspective:440px;perspective-origin:50% 50%;isolation:isolate;overflow:visible
+ perspective:460px;perspective-origin:50% 50%;isolation:isolate;overflow:visible;
+ background:transparent!important;border:0!important;border-radius:0!important;box-shadow:none!important
 }
-.zc-mobile-bitcoin-emblem:before{
- content:"";position:absolute;inset:7px;border:1px solid color-mix(in srgb,var(--green,#20c783) 44%,var(--mint,#9be8c5) 56%);
- border-radius:50%;background:radial-gradient(circle,color-mix(in srgb,var(--green,#20c783) 13%,transparent),transparent 72%);
- box-shadow:0 0 0 5px color-mix(in srgb,var(--green,#20c783) 7%,transparent),0 0 22px color-mix(in srgb,var(--green,#20c783) 24%,transparent);
- pointer-events:none
-}
+/* Remove the old circular halo: the glyph sits directly on the dashboard theme background. */
+.zc-mobile-bitcoin-emblem:before{content:none!important;display:none!important}
 .zc-bitcoin-coin{
- position:relative;width:50px;height:50px;border-radius:50%;transform-style:preserve-3d;
- animation:zcBitcoinGlobeRotation 11s linear infinite;will-change:transform;
- filter:drop-shadow(0 5px 5px color-mix(in srgb,var(--panel2,#102b20) 55%,transparent)) drop-shadow(0 0 9px color-mix(in srgb,var(--green,#20c783) 48%,transparent))
+ position:relative;display:block;width:50px;height:54px;border:0;border-radius:0;background:transparent;
+ transform-style:preserve-3d;animation:zcBitcoinGlobeRotation 11s linear infinite;will-change:transform;
+ filter:drop-shadow(0 2px 0 color-mix(in srgb,var(--panel2,#102b20) 72%,transparent)) drop-shadow(0 0 10px color-mix(in srgb,var(--green,#20c783) 42%,transparent))
 }
-.zc-bitcoin-coin-edge{
- position:absolute;inset:0;border:1px solid color-mix(in srgb,var(--mint,#9be8c5) 72%,white 28%);border-radius:50%;
- background:linear-gradient(100deg,color-mix(in srgb,var(--green,#20c783) 72%,var(--mint,#9be8c5) 28%),var(--mint,#9be8c5) 24%,var(--green,#20c783) 52%,color-mix(in srgb,var(--green,#20c783) 70%,var(--mint,#9be8c5) 30%) 78%,var(--mint,#9be8c5));
- box-shadow:inset 0 1px 2px rgba(255,255,255,.72),inset 0 -2px 3px color-mix(in srgb,var(--panel2,#102b20) 22%,transparent),0 0 0 1px color-mix(in srgb,var(--green,#20c783) 52%,transparent);
- transform:translateZ(0)
-}
+/* The previous circular coin plate is intentionally removed. */
+.zc-bitcoin-coin-edge{display:none!important}
 .zc-bitcoin-face{
- position:absolute;inset:3px;display:grid;place-items:center;border-radius:50%;
- border:1px solid color-mix(in srgb,var(--mint,#9be8c5) 82%,white 18%);
- background:
-  radial-gradient(ellipse at 27% 17%,rgba(255,255,255,.62) 0%,rgba(255,255,255,.18) 17%,transparent 36%),
-  linear-gradient(145deg,color-mix(in srgb,var(--mint,#9be8c5) 82%,white 18%) 0%,var(--green,#20c783) 49%,color-mix(in srgb,var(--green,#20c783) 82%,var(--panel2,#102b20) 18%) 100%);
- color:var(--text,#effaf4);font-family:Arial,Helvetica,sans-serif;font-size:29px;font-weight:900;line-height:1;
- text-shadow:0 1px 0 color-mix(in srgb,var(--panel2,#102b20) 48%,transparent),0 2px 0 color-mix(in srgb,var(--panel2,#102b20) 34%,transparent),0 3px 7px color-mix(in srgb,var(--panel2,#102b20) 25%,transparent);
- box-shadow:inset 0 2px 3px rgba(255,255,255,.44),inset 0 -3px 5px color-mix(in srgb,var(--panel2,#102b20) 22%,transparent),0 0 12px color-mix(in srgb,var(--green,#20c783) 16%,transparent);
+ position:absolute;inset:0;display:grid;place-items:center;
+ border:0!important;border-radius:0!important;background:transparent!important;box-shadow:none!important;
+ color:var(--green,#20c783)!important;-webkit-text-fill-color:var(--green,#20c783);
+ font-family:Arial,Helvetica,sans-serif;font-size:47px;font-weight:950;line-height:1;
+ letter-spacing:-.075em;
+ /* Layered theme-shaded extrusion gives the letter depth without drawing a coin or badge. */
+ text-shadow:
+  0 -1px 0 color-mix(in srgb,var(--mint,#9be8c5) 72%,white 28%),
+  0 1px 0 color-mix(in srgb,var(--green,#20c783) 78%,var(--panel2,#102b20) 22%),
+  1px 2px 0 color-mix(in srgb,var(--green,#20c783) 70%,var(--panel2,#102b20) 30%),
+  2px 3px 0 color-mix(in srgb,var(--green,#20c783) 60%,var(--panel2,#102b20) 40%),
+  3px 4px 0 color-mix(in srgb,var(--green,#20c783) 48%,var(--panel2,#102b20) 52%),
+  4px 5px 2px color-mix(in srgb,var(--panel2,#102b20) 86%,transparent),
+  0 0 13px color-mix(in srgb,var(--green,#20c783) 38%,transparent);
  backface-visibility:hidden;-webkit-backface-visibility:hidden
 }
-.zc-bitcoin-face-front{transform:translateZ(3px)}
-/* The rear face is independently oriented so its ₿ stays upright too. */
-.zc-bitcoin-face-back{transform:rotateY(180deg) translateZ(3px)}
-.zc-bitcoin-coin:after{
- content:"";position:absolute;z-index:3;top:6px;right:9px;width:16px;height:9px;border-radius:50%;
- background:linear-gradient(110deg,rgba(255,255,255,.72),rgba(255,255,255,.08));filter:blur(1.5px);
- transform:translateZ(4px) rotate(-28deg);pointer-events:none
-}
-/* Rotate around the coin's vertical pole only. No diagonal-axis tumble or glyph distortion. */
+.zc-bitcoin-face-front{transform:translateZ(1px)}
+/* A matching reverse glyph keeps the Bitcoin B upright throughout the full revolution. */
+.zc-bitcoin-face-back{transform:rotateY(180deg) translateZ(1px)}
+.zc-bitcoin-coin:after{content:none!important;display:none!important}
+/* Turn around the vertical pole only: no roll, pitch, or sideways tumble. */
 @keyframes zcBitcoinGlobeRotation{
  from{transform:rotateY(0deg)}
  to{transform:rotateY(360deg)}
