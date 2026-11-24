@@ -1,0 +1,1 @@
+-- The final tap state RPC includes the configured bonus taps per referral in the base migration for fresh installs.
