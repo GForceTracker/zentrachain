@@ -1557,7 +1557,7 @@ html body .modal-head .brand{white-space:nowrap!important;min-width:0!important}
         </div>
         <svg class="zc-pulse-svg" viewBox="0 0 960 570" role="img" aria-labelledby="zc-pulse-svg-title zc-pulse-svg-desc">
           <title id="zc-pulse-svg-title">Animated blockchain pulse</title>
-          <desc id="zc-pulse-svg-desc">Three transparent isometric blocks connected by glowing paths, with blue energy signals travelling from block to block.</desc>
+          <desc id="zc-pulse-svg-desc">Three transparent isometric blocks connected by glowing paths, with theme-colored energy signals travelling from block to block.</desc>
           <defs>
             <linearGradient id="zcPulseCubeTop" x1="0" y1="0" x2="1" y2="1">
               <stop offset="0" stop-color="#4b9fff" stop-opacity=".30"/>
@@ -12277,5 +12277,144 @@ body[data-zc-theme] #application #app-content .zc-calc-card input#zc-calc-range[
  border:5px solid var(--green)!important;
  box-shadow:0 0 0 2px color-mix(in srgb,var(--green) 18%,transparent),
             0 0 13px color-mix(in srgb,var(--green) 48%,transparent)!important;
+}
+</style>
+
+<style id="zc-theme-cohesion-blockchain-edgeglow-v1">
+/* The visitor running edge glow uses the selected palette on every theme. */
+body[data-zc-theme] #public .zc-visitor-edge-glow::after,
+body[data-zc-theme] #application #app-content .zc-stat-edge-glow::after,
+body[data-zc-theme] #application #app-content .zc-dashboard-support-stats>.app-stat::after{
+ background:
+  radial-gradient(ellipse at 17% 18%,color-mix(in srgb,var(--green) 27%,transparent),transparent 43%),
+  radial-gradient(ellipse at 84% 82%,color-mix(in srgb,var(--green) 20%,transparent),transparent 46%),
+  radial-gradient(ellipse at 58% 0%,color-mix(in srgb,var(--mint) 17%,transparent),transparent 38%)!important;
+}
+body[data-zc-theme] #public .zc-visitor-edge-glow::before,
+body[data-zc-theme] #public .hero-card.zc-market-edge-glow::after,
+body[data-zc-theme] #application #app-content .zc-stat-edge-glow::before,
+body[data-zc-theme] #application #app-content .zc-dashboard-support-stats>.app-stat::before{
+ background:conic-gradient(
+  from var(--zc-balance-edge-angle,0deg),
+  color-mix(in srgb,var(--green) 0%,transparent) 0deg,
+  color-mix(in srgb,var(--green) 0%,transparent) 248deg,
+  color-mix(in srgb,var(--green) 22%,transparent) 282deg,
+  color-mix(in srgb,var(--green) 94%,transparent) 305deg,
+  color-mix(in srgb,var(--mint) 98%,white 2%) 314deg,
+  color-mix(in srgb,var(--green) 42%,transparent) 329deg,
+  color-mix(in srgb,var(--green) 0%,transparent) 349deg,
+  color-mix(in srgb,var(--green) 0%,transparent) 360deg
+ )!important;
+ filter:drop-shadow(0 0 5px color-mix(in srgb,var(--green) 48%,transparent))!important;
+}
+
+/* Blockchain Technology: stage, grid, blocks, signal paths and labels all inherit the active theme. */
+body[data-zc-theme] #public .zc-blockchain-pulse .zc-pulse-only-heading{
+ color:var(--mint)!important;
+ text-shadow:0 0 16px color-mix(in srgb,var(--green) 36%,transparent);
+}
+body[data-zc-theme] #public .zc-blockchain-pulse .zc-pulse-stage{
+ border-color:color-mix(in srgb,var(--green) 46%,var(--line))!important;
+ background:
+  radial-gradient(ellipse at 50% 48%,color-mix(in srgb,var(--green) 19%,transparent),transparent 54%),
+  linear-gradient(145deg,var(--panel2),var(--bg) 62%,var(--panel))!important;
+ box-shadow:0 28px 80px color-mix(in srgb,var(--bg) 72%,#000 28%),
+  inset 0 1px 0 color-mix(in srgb,var(--mint) 22%,transparent),
+  0 0 38px color-mix(in srgb,var(--green) 18%,transparent)!important;
+}
+body[data-zc-theme] #public .zc-blockchain-pulse .zc-pulse-stage-inner{
+ background:
+  radial-gradient(ellipse at 8% 12%,color-mix(in srgb,var(--green) 15%,transparent),transparent 36%),
+  radial-gradient(ellipse at 92% 88%,color-mix(in srgb,var(--mint) 12%,transparent),transparent 40%)!important;
+}
+body[data-zc-theme] #public .zc-pulse-visual-meta,
+body[data-zc-theme] #public .zc-pulse-meta-title{color:var(--mint)!important}
+body[data-zc-theme] #public .zc-pulse-meta-note{color:var(--muted)!important}
+body[data-zc-theme] #public .zc-pulse-meta-title i{
+ background:var(--green)!important;
+ box-shadow:0 0 0 4px color-mix(in srgb,var(--green) 17%,transparent),
+  0 0 17px color-mix(in srgb,var(--green) 92%,transparent)!important;
+}
+body[data-zc-theme] #public .zc-pulse-particles circle{fill:var(--mint)!important}
+body[data-zc-theme] #public .zc-pulse-trace-base{
+ stroke:color-mix(in srgb,var(--green) 35%,var(--line))!important;
+}
+body[data-zc-theme] #public .zc-pulse-trace{
+ stroke:var(--green)!important;
+ filter:drop-shadow(0 0 3px var(--green)) drop-shadow(0 0 9px color-mix(in srgb,var(--green) 68%,transparent))!important;
+}
+body[data-zc-theme] #public .zc-pulse-circuit-branch{stroke:color-mix(in srgb,var(--mint) 55%,var(--line))!important}
+body[data-zc-theme] #public .zc-pulse-junction{fill:var(--mint)!important}
+body[data-zc-theme] #public .zc-pulse-orbit{stroke:color-mix(in srgb,var(--green) 42%,var(--line))!important}
+body[data-zc-theme] #public .zc-pulse-cube-top,
+body[data-zc-theme] #public .zc-pulse-cube-left,
+body[data-zc-theme] #public .zc-pulse-cube-right{stroke:var(--green)!important}
+body[data-zc-theme] #public .zc-pulse-cube-lines{stroke:var(--mint)!important;stroke-opacity:.36!important}
+body[data-zc-theme] #public .zc-pulse-cube-highlight{
+ stroke:var(--mint)!important;
+ filter:drop-shadow(0 0 3px var(--green)) drop-shadow(0 0 8px color-mix(in srgb,var(--green) 70%,transparent))!important;
+}
+body[data-zc-theme] #public .zc-pulse-cube-halo{fill:url(#zcPulseCore)!important}
+body[data-zc-theme] #public .zc-pulse-cube-core{fill:var(--mint)!important;stroke:var(--green)!important}
+body[data-zc-theme] #public .zc-pulse-cube-pin{fill:var(--text)!important}
+body[data-zc-theme] #public .zc-pulse-floating-nodes circle{
+ fill:var(--mint)!important;stroke:var(--green)!important;
+}
+body[data-zc-theme] #public .zc-pulse-block-labels span{
+ border-color:color-mix(in srgb,var(--green) 36%,var(--line))!important;
+ background:color-mix(in srgb,var(--panel) 84%,var(--bg))!important;
+ color:var(--muted)!important;
+}
+body[data-zc-theme] #public .zc-pulse-block-labels i{
+ background:var(--green)!important;
+ box-shadow:0 0 11px color-mix(in srgb,var(--green) 92%,transparent)!important;
+}
+/* SVG gradient definitions are restyled directly so the three block faces and cores recolor too. */
+body[data-zc-theme] #public #zcPulseCubeTop stop:first-child{stop-color:var(--mint)!important;stop-opacity:.34!important}
+body[data-zc-theme] #public #zcPulseCubeTop stop:last-child{stop-color:var(--green)!important;stop-opacity:.14!important}
+body[data-zc-theme] #public #zcPulseCubeLeft stop:first-child{stop-color:var(--green)!important;stop-opacity:.48!important}
+body[data-zc-theme] #public #zcPulseCubeLeft stop:last-child{stop-color:var(--panel2)!important;stop-opacity:.92!important}
+body[data-zc-theme] #public #zcPulseCubeRight stop:first-child{stop-color:var(--mint)!important;stop-opacity:.36!important}
+body[data-zc-theme] #public #zcPulseCubeRight stop:last-child{stop-color:var(--panel)!important;stop-opacity:.94!important}
+body[data-zc-theme] #public #zcPulseCore stop:first-child{stop-color:var(--text)!important}
+body[data-zc-theme] #public #zcPulseCore stop:nth-child(2){stop-color:var(--mint)!important}
+body[data-zc-theme] #public #zcPulseCore stop:last-child{stop-color:var(--green)!important;stop-opacity:0!important}
+body[data-zc-theme] #public #zcPulseGrid path{stroke:var(--green)!important;stroke-opacity:.12!important}
+
+/* Finish the remaining dashboard network/activity panels with the same palette tokens. */
+body[data-zc-theme] #application #app-content .deposit-network{
+ background:linear-gradient(145deg,var(--panel2),var(--panel))!important;
+ border-color:var(--line)!important;color:var(--text)!important;
+}
+body[data-zc-theme] #application #app-content .deposit-network .network-meta small,
+body[data-zc-theme] #application #app-content .flow-node small{color:var(--muted)!important}
+body[data-zc-theme] #application #app-content .deposit-step,
+body[data-zc-theme] #application #app-content .flow-diagram{
+ background:color-mix(in srgb,var(--panel2) 78%,var(--panel))!important;
+ border-color:var(--line)!important;color:var(--text)!important;
+}
+body[data-zc-theme] #application #app-content .deposit-step .step-num,
+body[data-zc-theme] #application #app-content .flow-node{
+ background:linear-gradient(145deg,color-mix(in srgb,var(--green) 18%,var(--panel2)),var(--panel))!important;
+ border-color:color-mix(in srgb,var(--green) 42%,var(--line))!important;
+ color:var(--mint)!important;
+}
+body[data-zc-theme] #application #app-content .flow-arrow,
+body[data-zc-theme] #application #app-content .activity-icon{
+ color:var(--mint)!important;
+}
+body[data-zc-theme] #application #app-content .activity-icon{
+ background:color-mix(in srgb,var(--green) 17%,var(--panel2))!important;
+ border:1px solid color-mix(in srgb,var(--green) 30%,var(--line))!important;
+}
+body[data-zc-theme] #application #app-content .market-mini-row{
+ background:color-mix(in srgb,var(--panel2) 82%,transparent)!important;
+ border-color:var(--line)!important;color:var(--text)!important;
+}
+body[data-zc-theme] #application #app-content .market-mini-row small{color:var(--muted)!important}
+body[data-zc-theme] #application .transaction-card .alert-symbol{
+ background:color-mix(in srgb,var(--green) 22%,var(--panel2))!important;
+ border:1px solid color-mix(in srgb,var(--green) 44%,var(--line))!important;
+ color:var(--mint)!important;
 }
 </style>
