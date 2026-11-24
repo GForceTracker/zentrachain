@@ -9142,6 +9142,28 @@ body[data-zc-theme] #app-content input.zc-calc-range::-moz-range-thumb{
 #app-content .pill.rejected{color:var(--red);border-color:color-mix(in srgb,var(--red) 38%,var(--line));background:color-mix(in srgb,var(--red) 10%,var(--panel))}
 #app-content .pill.ignored{color:var(--muted);border-color:var(--line);background:var(--panel2)}
 </style>
+
+<style id="zc-bitcoin-theme-solid-fill-v1">
+/* Keep the dashboard Bitcoin glyph on the selected dashboard accent color, not a white metallic gradient. */
+#application #app-content .zc-mobile-bitcoin-emblem .zc-bitcoin-face-front,
+body[data-zc-theme] #application #app-content .zc-mobile-bitcoin-emblem .zc-bitcoin-face-front{
+ color:var(--green,#20c783)!important;
+ -webkit-text-fill-color:var(--green,#20c783)!important;
+ background:transparent!important;
+ background-image:none!important;
+ -webkit-background-clip:border-box!important;
+ background-clip:border-box!important;
+ animation:none!important;
+ text-shadow:
+  0 -1px 0 color-mix(in srgb,var(--mint,#9be8c5) 78%,var(--green,#20c783) 22%),
+  0 1px 0 color-mix(in srgb,var(--green,#20c783) 84%,var(--panel2,#102b20) 16%),
+  1px 2px 0 color-mix(in srgb,var(--green,#20c783) 76%,var(--panel2,#102b20) 24%),
+  2px 3px 0 color-mix(in srgb,var(--green,#20c783) 68%,var(--panel2,#102b20) 32%),
+  3px 4px 0 color-mix(in srgb,var(--green,#20c783) 56%,var(--panel2,#102b20) 44%),
+  4px 5px 2px color-mix(in srgb,var(--panel2,#102b20) 86%,transparent),
+  0 0 13px color-mix(in srgb,var(--green,#20c783) 48%,transparent);
+}
+</style>
 </html>
 
 <style id="zc-plan-tap-only-demarcation-v6">
