@@ -42,7 +42,7 @@ window.zcTapCopyReferral=async()=>{const i=$('zc-tap-referral-link');if(!i||!i.v
 window.zcTapEarnSubmitWithdrawal=async e=>{if(e&&e.preventDefault)e.preventDefault();const amount=Number($('zc-tap-withdraw-amount').value),network=$('zc-tap-withdraw-network').value,address=$('zc-tap-withdraw-address').value.trim(),b=$('zc-tap-withdraw-submit');if(!amount||amount<=0){toast('Enter a valid amount.',true);return false}if(typeof zcValidateAddress==='function'&&!zcValidateAddress(network,address)){toast('Invalid '+network+' USDT address.',true);return false}b.disabled=true;b.textContent='Submitting…';try{const r=await db.rpc('tap_earn_request_withdrawal',{p_amount:amount,p_network:network,p_destination:address});if(r.error)throw r.error;toast('Tap withdrawal request submitted.');await renderTapEarn()}catch(x){toast(x.message||'Withdrawal request failed.',true);b.disabled=false;b.textContent='Request withdrawal'}return false};
 
 async function adminPage(){
- const c=$('app-content');if(!c)return;if(profile?.role!=='admin'){toast('Administrator access required.',true);return}
+ const c=$('app-content');if(!c)return;if(typeof profile==='undefined'||profile?.role!=='admin'){toast('Administrator access required.',true);return}
  c.innerHTML='<section class="card panel">Loading Tap To Earn settings…</section>';
  try{
   const r=await db.rpc('tap_earn_admin_state');if(r.error)throw r.error;const s=r.data.settings||{},rows=r.data.withdrawals||[];
