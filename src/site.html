@@ -3151,7 +3151,7 @@ body[data-zc-theme] #app-content #wd-network-cards::-webkit-scrollbar-thumb{back
   const invalid=validatePlanImage(file);
   if(invalid)return toast(invalid,true);
   const oldLogoPath=plan.logo_url||null,oldMaskPath=plan.logo_theme_mask_url||null,created=[];
-  let nextLogoPath=oldLogoPath,nextMaskPath=mode==='theme'?oldMaskPath:null;
+  let nextLogoPath=oldLogoPath,nextMaskPath=mode==='theme'&&!file?oldMaskPath:null;
   const button=tile.querySelector('button.btn');
   if(button){button.disabled=true;button.textContent='Saving…'}
   try{
@@ -3310,7 +3310,7 @@ body[data-zc-theme] #app-content #wd-network-cards::-webkit-scrollbar-thumb{back
   else{const result=await db.from('gforce_investment_plans').insert(row).select('*').single();saved=result.data;error=result.error}
   if(error)return toast(error.message,true);
   const savedId=saved.id,created=[];
-  let nextLogoPath=window.gfLogoRemoved?null:(oldPath||null),nextMaskPath=mode==='theme'&&!window.gfLogoRemoved?(oldMaskPath||null):null;
+  let nextLogoPath=window.gfLogoRemoved?null:(oldPath||null),nextMaskPath=mode==='theme'&&!window.gfLogoRemoved&&!file?(oldMaskPath||null):null;
   try{
    if(file){nextLogoPath=await uploadPlanLogoOriginal(savedId,file);created.push(nextLogoPath)}
    if(mode==='theme'&&nextLogoPath&&!nextMaskPath){
