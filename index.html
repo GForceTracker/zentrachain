@@ -1478,7 +1478,7 @@ html body .modal-head .brand{white-space:nowrap!important;min-width:0!important}
   var activeGroup=db.length?Math.min(db.length-1,Math.floor(current*db.length/items.length)):0;
   for(var j=0;j<db.length;j++)db[j].classList.toggle('on',j===activeGroup);
  }
- if(dots)dots.addEventListener('click',function(e){var b=e.target&&e.target.closest?e.target.closest('button[data-d]'):null;if(b){var total=stage.querySelectorAll('.zc-testi-item').length;var group=Number(b.getAttribute('data-d'));show(Math.floor(group*total/Math.max(1,dots.children.length)))}});
+ if(dots)dots.addEventListener('click',function(e){var b=e.target&&e.target.closest?e.target.closest('button[data-d]'):null;if(b){var total=stage.querySelectorAll('.zc-testi-item').length;var group=Number(b.getAttribute('data-d'));show(Math.ceil(group*total/Math.max(1,dots.children.length)))}});
  function feedNames(){
   var env=window.ZC_ENV||{};if(!env.SUPABASE_URL||!env.SUPABASE_KEY)return Promise.reject(new Error('env'));
   return fetch(env.SUPABASE_URL+'/rest/v1/rpc/get_public_chain_activity',{method:'POST',headers:{apikey:env.SUPABASE_KEY,Authorization:'Bearer '+env.SUPABASE_KEY,'Content-Type':'application/json'},body:JSON.stringify({p_limit:250})}).then(function(r){if(!r.ok)throw new Error('feed');return r.json()}).then(function(rows){
