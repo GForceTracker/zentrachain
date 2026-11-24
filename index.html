@@ -1458,14 +1458,14 @@ html body .modal-head .brand{white-space:nowrap!important;min-width:0!important}
  var cards=[],current=0,timer=null;
  function render(names){
   if(!stage||!dots)return;
-  cards=names.slice(0,30).map(function(n,i){
+  cards=names.slice(0,4).map(function(n,i){
    var c=COUNTRIES[(hash(n)+i)%COUNTRIES.length];
    var q=QUOTES[(hash(n)+i)%QUOTES.length];
    var stars=4+(hash(n+'s')%2);
    return '<article class="zc-testi-item" data-i="'+i+'"><div class="zc-testi-top"><span class="zc-testi-ava">'+initials(n)+'</span><div class="zc-testi-who"><span class="zc-testi-name">'+safe(n)+' <span class="zc-testi-flag">'+c[0]+'</span> <span class="zc-testi-country">'+c[1]+'</span></span><span class="zc-testi-stars">'+'\u2605\u2605\u2605\u2605'.substring(0,stars)+(stars<5?'\u2606':'\u2605')+'</span></div><span class="zc-testi-badge">\u2713 Verified</span></div><p class="zc-testi-quote">"'+safe(q[0])+'"</p><p class="zc-testi-body">'+safe(q[1])+'</p><span class="zc-testi-meta">Verified withdrawal \u00b7 member since '+(2024+i%3)+'</span></article>';
   }).join('');
   stage.innerHTML=cards;
-  dots.innerHTML=names.slice(0,30).map(function(_,i){return '<button type="button" aria-label="Testimonial '+(i+1)+'" data-d="'+i+'"></button>'}).join('');
+  dots.innerHTML=names.slice(0,4).map(function(_,i){return '<button type="button" aria-label="Testimonial '+(i+1)+'" data-d="'+i+'"></button>'}).join('');
   show(0);
   if(timer)clearInterval(timer);
   timer=setInterval(function(){if(!document.hidden)show((current+1)%Math.max(1,dots.children.length))},5200);
@@ -3745,7 +3745,7 @@ body[data-zc-theme] #app-content .zc-calc-amount-input input{background:transpar
 .zc-live-dot{width:9px;height:9px;border-radius:50%;background:var(--green);box-shadow:0 0 0 0 color-mix(in srgb,var(--green) 55%,transparent);animation:zcLivePulse 2s infinite}
 @keyframes zcLivePulse{0%{box-shadow:0 0 0 0 color-mix(in srgb,var(--green) 55%,transparent)}70%{box-shadow:0 0 0 9px transparent}100%{box-shadow:0 0 0 0 transparent}}
 .zc-testi-verified{margin-left:auto;display:inline-flex;align-items:center;gap:5px;font-size:10.5px;font-weight:800;color:var(--mint);border:1px solid color-mix(in srgb,var(--green) 45%,transparent);border-radius:99px;padding:3px 9px;background:color-mix(in srgb,var(--green) 10%,transparent)}
-.zc-testi-stage{min-height:262px;margin-top:12px}
+.zc-testi-stage{min-height:220px;margin-top:12px}
 .zc-testi-item{display:none;flex-direction:column;gap:10px;padding:14px;border:1px solid var(--line);border-radius:16px;background:var(--panel2)}
 .zc-testi-item.on{display:flex;animation:zcTestiIn .35s ease}
 @keyframes zcTestiIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
@@ -3760,7 +3760,7 @@ body[data-zc-theme] #app-content .zc-calc-amount-input input{background:transpar
 .zc-testi-quote{margin:0;font-size:15.5px;font-weight:850;color:var(--mint);line-height:1.4}
 .zc-testi-body{margin:0;font-size:12.8px;line-height:1.65;color:var(--text);opacity:.92;overflow-wrap:anywhere}
 .zc-testi-meta{font-size:10.5px;color:var(--muted)}
-.zc-testi-dots{display:flex;flex-wrap:wrap;gap:7px;justify-content:center;margin-top:14px}
+.zc-testi-dots{display:flex;flex-wrap:nowrap;gap:10px;justify-content:center;margin-top:8px}
 .zc-testi-dots button{width:9px;height:9px;border-radius:99px;border:0;background:var(--line);cursor:pointer;padding:0;transition:all .25s ease}
 .zc-testi-dots button.on{width:26px;background:#f7c948}
 .zc-countries-list{display:flex;flex-direction:column;gap:9px;margin-top:12px}
