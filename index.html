@@ -8687,6 +8687,80 @@ body.zc-community-chat-open{overflow:hidden!important;overscroll-behavior:none}
 
 
 
+
+<style id="zc-theme-calculator-and-bitcoin-pop-v1">
+/* Bring the fixed 3D Bitcoin glyph forward with a bright theme-colored metallic shimmer. */
+.zc-bitcoin-face-front{
+ color:var(--green,#20c783)!important;
+ -webkit-text-fill-color:transparent!important;
+ background:linear-gradient(112deg,
+   color-mix(in srgb,var(--green,#20c783) 72%,white 28%) 0%,
+   var(--mint,#9be8c5) 22%,
+   var(--green,#20c783) 42%,
+   color-mix(in srgb,var(--green,#20c783) 68%,white 32%) 52%,
+   var(--mint,#9be8c5) 62%,
+   var(--green,#20c783) 82%,
+   color-mix(in srgb,var(--green,#20c783) 72%,white 28%) 100%);
+ background-size:240% 100%;
+ background-position:0% 50%;
+ -webkit-background-clip:text!important;background-clip:text!important;
+ animation:zcBitcoinThemeShimmer 3.2s ease-in-out infinite;
+ text-shadow:
+  0 -1px 0 color-mix(in srgb,var(--mint,#9be8c5) 92%,white 8%),
+  0 1px 0 color-mix(in srgb,var(--green,#20c783) 84%,var(--panel2,#102b20) 16%),
+  1px 2px 0 color-mix(in srgb,var(--green,#20c783) 76%,var(--panel2,#102b20) 24%),
+  2px 3px 0 color-mix(in srgb,var(--green,#20c783) 68%,var(--panel2,#102b20) 32%),
+  3px 4px 0 color-mix(in srgb,var(--green,#20c783) 56%,var(--panel2,#102b20) 44%),
+  4px 5px 2px color-mix(in srgb,var(--panel2,#102b20) 82%,transparent),
+  0 0 10px color-mix(in srgb,var(--green,#20c783) 62%,transparent),
+  0 0 22px color-mix(in srgb,var(--green,#20c783) 44%,transparent);
+ filter:drop-shadow(0 0 5px color-mix(in srgb,var(--green,#20c783) 42%,transparent));
+}
+.zc-bitcoin-coin{filter:drop-shadow(0 0 9px color-mix(in srgb,var(--green,#20c783) 58%,transparent)) drop-shadow(0 0 20px color-mix(in srgb,var(--green,#20c783) 28%,transparent))!important}
+@keyframes zcBitcoinThemeShimmer{
+ 0%,100%{background-position:0% 50%;filter:brightness(1) saturate(1.08)}
+ 50%{background-position:100% 50%;filter:brightness(1.3) saturate(1.3)}
+}
+/* Dashboard calculator amount field and slider use the active theme, not fixed/dull colors. */
+body[data-zc-theme] #app-content .zc-calc-amount-input{
+ background:color-mix(in srgb,var(--panel2) 82%,var(--bg))!important;
+ border:1.5px solid color-mix(in srgb,var(--green) 76%,var(--line))!important;
+ box-shadow:0 0 0 1px color-mix(in srgb,var(--green) 15%,transparent),
+            0 0 16px color-mix(in srgb,var(--green) 12%,transparent),
+            inset 0 1px 0 color-mix(in srgb,var(--mint) 10%,transparent)!important;
+}
+body[data-zc-theme] #app-content .zc-calc-amount-input:focus-within{
+ border-color:var(--green)!important;
+ box-shadow:0 0 0 2px color-mix(in srgb,var(--green) 24%,transparent),
+            0 0 22px color-mix(in srgb,var(--green) 22%,transparent)!important;
+}
+body[data-zc-theme] #app-content .zc-calc-amount-input input{color:var(--text)!important;caret-color:var(--green)!important}
+body[data-zc-theme] #app-content input.zc-calc-range{
+ accent-color:var(--green)!important;
+}
+body[data-zc-theme] #app-content input.zc-calc-range::-webkit-slider-runnable-track{
+ background:linear-gradient(90deg,color-mix(in srgb,var(--green) 30%,var(--panel2)),var(--panel2))!important;
+ border:1px solid color-mix(in srgb,var(--green) 66%,var(--line))!important;
+ box-shadow:0 0 9px color-mix(in srgb,var(--green) 15%,transparent)!important;
+}
+body[data-zc-theme] #app-content input.zc-calc-range::-moz-range-track{
+ background:linear-gradient(90deg,color-mix(in srgb,var(--green) 30%,var(--panel2)),var(--panel2))!important;
+ border:1px solid color-mix(in srgb,var(--green) 66%,var(--line))!important;
+ box-shadow:0 0 9px color-mix(in srgb,var(--green) 15%,transparent)!important;
+}
+body[data-zc-theme] #app-content input.zc-calc-range::-webkit-slider-thumb{
+ background:var(--mint)!important;border:5px solid var(--green)!important;
+ box-shadow:0 0 0 2px color-mix(in srgb,var(--green) 18%,transparent),
+            0 0 13px color-mix(in srgb,var(--green) 48%,transparent)!important;
+}
+body[data-zc-theme] #app-content input.zc-calc-range::-moz-range-thumb{
+ background:var(--mint)!important;border:5px solid var(--green)!important;
+ box-shadow:0 0 0 2px color-mix(in srgb,var(--green) 18%,transparent),
+            0 0 13px color-mix(in srgb,var(--green) 48%,transparent)!important;
+}
+@media(prefers-reduced-motion:reduce){.zc-bitcoin-face-front{animation:none;background-position:50% 50%}}
+</style>
+
 </body>
 
 <style id="zc-visitor-plan-card-height-reduction-v1">
