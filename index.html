@@ -4810,7 +4810,7 @@ body[data-zc-theme] #app-content #wd-network-cards::-webkit-scrollbar-thumb{back
   const builtIn=/^data:image\/svg\+xml/i.test(String(p.logo_url||''));
   const logoMode=p.logo_color_mode==='theme'?'theme':'original';
   let art='';
-  if(url&&!builtIn&&logoMode==='theme'){
+  if(url&&logoMode==='theme'){
    art='<div class="gf-plan-artwork zc-plan-custom-art gf-plan-theme-tint" style="--gf-plan-theme-image:url(&quot;'+escapeValue(url)+'&quot;);background-image:url(&quot;/assets/plans/'+artworkSlug+'.svg&quot;)"></div>';
   }else if(url&&!builtIn){
    art='<div class="gf-plan-artwork zc-plan-custom-art"><img src="'+escapeValue(url)+'" alt="'+planName+' plan artwork" loading="eager" decoding="async" onerror="this.onerror=null;this.src=&quot;/assets/plans/'+artworkSlug+'.svg&quot;;this.classList.add(&quot;gf-plan-image-fallback&quot;)"></div>';
