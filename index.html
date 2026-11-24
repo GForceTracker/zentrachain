@@ -11966,7 +11966,7 @@ body.zc-transition-lock{overflow:hidden!important}
 (function(){
  if(window.__zcDashboardTransitionSplashV1)return;
  window.__zcDashboardTransitionSplashV1=true;
- const state={mode:'',startedAt:0,hideTimer:0,removeTimer:0};
+ const state={mode:'',startedAt:0,hideTimer:0,removeTimer:0,failsafeTimer:0};
  let root=null;
  function markup(mode){
   if(mode==='entry'){
@@ -11982,22 +11982,35 @@ body.zc-transition-lock{overflow:hidden!important}
  }
  function begin(mode){
   if(state.mode===mode&&root&&root.classList.contains('is-active'))return state.startedAt;
-  if(state.hideTimer)clearTimeout(state.hideTimer);if(state.removeTimer)clearTimeout(state.removeTimer);
-  state.hideTimer=0;state.removeTimer=0;state.mode=mode;state.startedAt=Date.now();
+  if(state.hideTimer)clearTimeout(state.hideTimer);
+  if(state.removeTimer)clearTimeout(state.removeTimer);
+  if(state.failsafeTimer)clearTimeout(state.failsafeTimer);
+  state.hideTimer=0;state.removeTimer=0;state.failsafeTimer=0;
+  state.mode=mode;state.startedAt=Date.now();
   const el=ensureRoot();el.dataset.mode=mode;el.innerHTML=markup(mode);el.classList.remove('is-leaving');el.classList.add('is-active');
-  document.body.classList.add('zc-transition-lock');return state.startedAt;
+  document.body.classList.add('zc-transition-lock');
+  // Absolute upper bound: network/session requests must never leave the overlay stuck.
+  state.failsafeTimer=setTimeout(function(){
+   if(state.mode===mode&&root&&root.classList.contains('is-active'))hideAfter(mode,0);
+  },5200);
+  return state.startedAt;
  }
  function hideAfter(mode,minDuration){
   if(state.mode!==mode)return;
-  if(state.hideTimer)clearTimeout(state.hideTimer);if(state.removeTimer)clearTimeout(state.removeTimer);
-  const wait=Math.max(0,(Number(minDuration)||1400)-(Date.now()-state.startedAt));
+  if(state.hideTimer)clearTimeout(state.hideTimer);
+  if(state.removeTimer)clearTimeout(state.removeTimer);
+  const requested=Number(minDuration);
+  const duration=Number.isFinite(requested)?Math.max(0,requested):1400;
+  const wait=Math.max(0,duration-(Date.now()-state.startedAt));
   state.hideTimer=setTimeout(function(){
    if(state.mode!==mode||!root)return;
    root.classList.add('is-leaving');
    state.removeTimer=setTimeout(function(){
     if(state.mode!==mode)return;
     root.classList.remove('is-active','is-leaving');root.removeAttribute('data-mode');root.innerHTML='';
-    document.body.classList.remove('zc-transition-lock');state.mode='';state.startedAt=0;state.hideTimer=0;state.removeTimer=0;
+    document.body.classList.remove('zc-transition-lock');
+    if(state.failsafeTimer)clearTimeout(state.failsafeTimer);
+    state.mode='';state.startedAt=0;state.hideTimer=0;state.removeTimer=0;state.failsafeTimer=0;
    },440);
   },wait);
  }
@@ -12006,17 +12019,21 @@ body.zc-transition-lock{overflow:hidden!important}
  const originalShowApp=window.showApp;
  if(typeof originalShowApp==='function')window.showApp=function(){
   if(state.mode!=='logout')begin('entry');
-  return originalShowApp.apply(this,arguments);
+  try{return originalShowApp.apply(this,arguments)}
+  finally{
+   // Dismiss after the dashboard shell is shown; do not wait for background data requests.
+   if(state.mode==='entry')hideAfter('entry',1900);
+  }
  };
  const originalLoadSession=window.loadSession;
  if(typeof originalLoadSession==='function')window.loadSession=async function(){
   try{return await originalLoadSession.apply(this,arguments)}
-  finally{if(state.mode==='entry')hideAfter('entry',1550)}
+  finally{if(state.mode==='entry')hideAfter('entry',1900)}
  };
  const originalGoDashboard=window.zcGoDashboard;
  if(typeof originalGoDashboard==='function')window.zcGoDashboard=function(){
   const result=originalGoDashboard.apply(this,arguments);
-  if(state.mode==='entry')hideAfter('entry',1550);
+  if(state.mode==='entry')hideAfter('entry',1900);
   return result;
  };
  const originalNavigate=window.navigate;
@@ -12025,7 +12042,7 @@ body.zc-transition-lock{overflow:hidden!important}
   if(shouldSplash)begin('entry');
   try{
    const result=originalNavigate.apply(this,arguments);
-   if(shouldSplash)hideAfter('entry',1550);
+   if(shouldSplash)hideAfter('entry',1900);
    return result;
   }catch(error){if(shouldSplash)hideAfter('entry',900);throw error}
  };
