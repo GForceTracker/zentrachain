@@ -1304,7 +1304,7 @@ html body .modal-head .brand{white-space:nowrap!important;min-width:0!important}
 
 <section class="section zc-worldmap" id="network">
   <div class="section-head"><div><div class="eyebrow">Global network</div><h2>One world. Every market.</h2><p class="muted">Live community presence across <b>33 regions</b> — watch the scope lock onto active locations.</p></div></div>
-  <div class="zc-map-shell">
+  <div class="zc-map-shell zc-visitor-edge-glow">
     <svg id="zc-world-svg" viewBox="0 0 720 360" role="img" aria-label="World map of community regions"><g id="zc-map-view"><g id="zc-map-dots"></g><g id="zc-map-arcs"></g><g id="zc-map-markers"></g><g id="zc-map-scope" class="zc-scope" transform="translate(-100,-100)"><circle class="zc-scope-ring spin" r="26" stroke-dasharray="10 6" cx="0" cy="0"/><circle class="zc-scope-ring" r="15" cx="0" cy="0"/><line class="zc-scope-cross" x1="-34" y1="0" x2="-18" y2="0"/><line class="zc-scope-cross" x1="18" y1="0" x2="34" y2="0"/><line class="zc-scope-cross" x1="0" y1="-34" x2="0" y2="-18"/><line class="zc-scope-cross" x1="0" y1="18" x2="0" y2="34"/><circle class="zc-scope-dot" r="2.6" cx="0" cy="0"/></g></g></svg>
     <div class="zc-map-legend"><span><i></i>Active region</span><span>◉ Telescope lock</span></div>
     <div class="zc-map-card" id="zc-map-card"><div class="eyebrow">Telescope · Now viewing</div><h3 id="zc-map-card-name">Scanning…</h3><p id="zc-map-card-meta">Locking onto community regions.</p><button class="btn" type="button" onclick="document.getElementById('zc-public-activity').scrollIntoView({behavior:'smooth'})">View live activity</button></div>
@@ -11470,6 +11470,23 @@ body[data-zc-theme] #application .zc-studio-note b {
   .hero-card.zc-market-edge-glow::after{
     animation:none!important;
     opacity:.42;
+  }
+}
+</style>
+
+<style id="zc-global-network-edge-glow-layout-v1">
+/* Preserve the Global Network map overlays above the shared visitor edge-glow layers. */
+#network .zc-map-shell.zc-visitor-edge-glow>.zc-map-legend{
+  position:absolute;
+  z-index:3;
+}
+#network .zc-map-shell.zc-visitor-edge-glow>.zc-map-card{
+  position:absolute;
+  z-index:3;
+}
+@media(max-width:640px){
+  #network .zc-map-shell.zc-visitor-edge-glow>.zc-map-card{
+    position:static!important;
   }
 }
 </style>
