@@ -2138,7 +2138,7 @@ function requestsTable(rows,type){
  if(!rows.length)return '<div class="empty">No '+type+' requests yet.</div>';
  return '<div class="table-wrap"><table><thead><tr><th>Created</th><th>Amount</th><th>Network</th><th>Status</th><th>Reference</th></tr></thead><tbody>'+rows.map(x=>{
   const status=String(x.status||'pending').toLowerCase();
-  const cls=['pending','under_review','approved'].includes(status)?'pending':(['declined','rejected'].includes(status)?'rejected':(status==='paid'?'good':''));
+  const cls=type==='withdrawal'?zcWithdrawalStatusClass(status):(['pending','under_review'].includes(status)?'pending':(['declined','rejected'].includes(status)?'rejected':(status==='paid'?'good':'')));
   const label=type==='withdrawal'?zcWithdrawalStatusLabel(status,true):(status==='voided'?'Voided':(status==='declined'?'Declined':(status==='paid'?'Paid':status.replace(/_/g,' '))));
   return '<tr><td>'+date(x.created_at)+'</td><td>'+fmt(x.amount)+' USDT</td><td>'+esc(x.network)+'</td><td><span class="pill '+cls+'">'+esc(label)+'</span></td><td>'+esc(type==='deposit'?(x.tx_hash||'—'):(x.payout_reference||x.destination_address))+'</td></tr>';
  }).join('')+'</tbody></table></div>';
@@ -8456,6 +8456,7 @@ body.zc-community-chat-open{overflow:hidden!important;overscroll-behavior:none}
 <style id="zc-withdrawal-review-status-v1">
 #app-content .pill.good{color:var(--green);border-color:color-mix(in srgb,var(--green) 45%,var(--line));background:color-mix(in srgb,var(--green) 12%,var(--panel))}
 #app-content .pill.rejected{color:var(--red);border-color:color-mix(in srgb,var(--red) 38%,var(--line));background:color-mix(in srgb,var(--red) 10%,var(--panel))}
+#app-content .pill.ignored{color:var(--muted);border-color:var(--line);background:var(--panel2)}
 </style>
 </html>
 
