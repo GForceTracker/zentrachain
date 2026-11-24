@@ -8694,89 +8694,7 @@ body.zc-community-chat-open{overflow:hidden!important;overscroll-behavior:none}
 }
 </style>
 
-<style id="zc-bitcoin-theme-responsive-v1">
-/* Compact, theme-matched 3D Bitcoin coin for the mobile dashboard welcome row. */
-.zc-mobile-bitcoin-emblem{
- position:relative;display:grid;place-items:center;flex:0 0 58px;width:58px;height:58px;
- perspective:320px;perspective-origin:50% 46%;isolation:isolate;overflow:visible
-}
-.zc-mobile-bitcoin-emblem:before{
- content:"";position:absolute;inset:9px;border:1px solid color-mix(in srgb,var(--green,#4c9fff) 28%,transparent);
- border-radius:50%;box-shadow:0 0 0 5px color-mix(in srgb,var(--green,#4c9fff) 6%,transparent),0 0 18px color-mix(in srgb,var(--green,#4c9fff) 12%,transparent);
- pointer-events:none
-}
-.zc-bitcoin-coin{
- position:relative;width:50px;height:50px;border-radius:50%;transform-style:preserve-3d;
- animation:zcBitcoinGlobeRotation 9s linear infinite;
- filter:drop-shadow(0 5px 5px rgba(0,0,0,.38)) drop-shadow(0 0 8px color-mix(in srgb,var(--green,#4c9fff) 38%,transparent))
-}
-.zc-bitcoin-coin-edge{
- position:absolute;inset:0;border:1px solid color-mix(in srgb,var(--mint,#b8d9ff) 82%,white 18%);border-radius:50%;
- background:linear-gradient(105deg,color-mix(in srgb,var(--green,#4c9fff) 48%,var(--bg,#071321)),var(--mint,#b8d9ff) 24%,var(--green,#4c9fff) 52%,color-mix(in srgb,var(--green,#4c9fff) 56%,var(--bg,#071321)) 82%,var(--mint,#b8d9ff));
- box-shadow:inset 0 1px 2px rgba(255,255,255,.7),inset 0 -3px 5px rgba(0,0,0,.32),0 0 0 1px color-mix(in srgb,var(--green,#4c9fff) 52%,transparent);
- transform:translateZ(0)
-}
-.zc-bitcoin-face{
- position:absolute;inset:4px;display:grid;place-items:center;border-radius:50%;
- border:1px solid color-mix(in srgb,var(--mint,#b8d9ff) 82%,white 18%);
- background:radial-gradient(circle at 29% 21%,color-mix(in srgb,var(--mint,#b8d9ff) 86%,white 14%) 0%,var(--green,#4c9fff) 46%,color-mix(in srgb,var(--green,#4c9fff) 58%,var(--bg,#071321)) 100%);
- color:var(--bg,#071321);font-family:Arial,Helvetica,sans-serif;font-size:29px;font-weight:900;line-height:1;
- text-shadow:0 1px 0 rgba(255,255,255,.35),0 -1px 0 rgba(0,0,0,.2);
- box-shadow:inset 0 2px 3px rgba(255,255,255,.34),inset 0 -4px 6px rgba(0,0,0,.25);
- backface-visibility:hidden;-webkit-backface-visibility:hidden
-}
-.zc-bitcoin-face-front{transform:translateZ(3px)}
-.zc-bitcoin-face-back{transform:rotateY(180deg) translateZ(3px)}
-.zc-bitcoin-coin:after{
- content:"";position:absolute;z-index:3;top:7px;right:10px;width:13px;height:7px;border-radius:50%;
- background:rgba(255,255,255,.66);filter:blur(2px);transform:translateZ(4px) rotate(-28deg);pointer-events:none
-}
-@keyframes zcBitcoinGlobeRotation{
- from{transform:rotate3d(.22,1,.08,0deg)}
- to{transform:rotate3d(.22,1,.08,360deg)}
-}
-/* Logout transition now uses the active ZentraChain theme tokens. */
-#zc-transition-splash[data-mode="logout"]{
- color:var(--text,#f2f8ff);
- background:radial-gradient(ellipse at 50% 48%,color-mix(in srgb,var(--green,#4c9fff) 20%,transparent),transparent 47%),
- linear-gradient(145deg,color-mix(in srgb,var(--bg,#071321) 94%,#000 6%),var(--panel2,#122d49) 50%,color-mix(in srgb,var(--bg,#071321) 94%,#000 6%))
-}
-#zc-transition-splash[data-mode="logout"] .zc-transition-particles i{
- background:var(--mint,#b8d9ff);box-shadow:0 0 12px color-mix(in srgb,var(--green,#4c9fff) 86%,transparent)
-}
-#zc-transition-splash[data-mode="logout"] .zc-transition-brand,
-#zc-transition-splash[data-mode="logout"] .zc-exit-status{color:var(--mint,#b8d9ff)}
-#zc-transition-splash[data-mode="logout"] .zc-transition-title{color:var(--text,#f2f8ff)}
-#zc-transition-splash[data-mode="logout"] .zc-transition-subtitle{color:var(--muted,#9bb2cc)}
-#zc-transition-splash[data-mode="logout"] .zc-transition-progress{
- background:color-mix(in srgb,var(--green,#4c9fff) 18%,transparent)
-}
-#zc-transition-splash[data-mode="logout"] .zc-transition-progress i{
- background:linear-gradient(90deg,transparent,var(--green,#4c9fff),var(--mint,#b8d9ff),transparent);
- box-shadow:0 0 12px color-mix(in srgb,var(--green,#4c9fff) 88%,transparent)
-}
-#zc-transition-splash[data-mode="logout"] .zc-exit-orbit{border-color:color-mix(in srgb,var(--green,#4c9fff) 58%,transparent)}
-#zc-transition-splash[data-mode="logout"] .zc-exit-orbit:before,
-#zc-transition-splash[data-mode="logout"] .zc-exit-orbit:after{
- background:var(--mint,#b8d9ff);box-shadow:0 0 14px color-mix(in srgb,var(--green,#4c9fff) 90%,transparent)
-}
-#zc-transition-splash[data-mode="logout"] .zc-exit-ring{
- border-color:color-mix(in srgb,var(--mint,#b8d9ff) 48%,transparent);
- box-shadow:0 0 32px color-mix(in srgb,var(--green,#4c9fff) 20%,transparent),inset 0 0 30px color-mix(in srgb,var(--green,#4c9fff) 13%,transparent)
-}
-#zc-transition-splash[data-mode="logout"] .zc-exit-symbol{
- border-color:color-mix(in srgb,var(--mint,#b8d9ff) 76%,var(--line,#24476b));
- background:linear-gradient(145deg,color-mix(in srgb,var(--green,#4c9fff) 30%,var(--panel2,#122d49)),var(--panel,#0d2034));
- box-shadow:0 0 34px color-mix(in srgb,var(--green,#4c9fff) 30%,transparent),inset 0 1px rgba(255,255,255,.12)
-}
-#zc-transition-splash[data-mode="logout"] .zc-exit-symbol svg{stroke:var(--text,#f2f8ff)}
-#zc-transition-splash[data-mode="logout"] .zc-exit-streams i{
- background:linear-gradient(90deg,transparent,color-mix(in srgb,var(--green,#4c9fff) 92%,white 8%),transparent)
-}
-@media(prefers-reduced-motion:reduce){
- .zc-bitcoin-coin{animation:none!important;transform:rotate3d(.22,1,.08,22deg)}
-}
-</style>
+
 
 </body>
 
@@ -12140,3 +12058,86 @@ body.zc-transition-lock{overflow:hidden!important}
 })();
 </script>
 
+<style id="zc-bitcoin-theme-responsive-v1">
+/* Compact, theme-matched 3D Bitcoin coin for the mobile dashboard welcome row. */
+.zc-mobile-bitcoin-emblem{
+ position:relative;display:grid;place-items:center;flex:0 0 58px;width:58px;height:58px;
+ perspective:320px;perspective-origin:50% 46%;isolation:isolate;overflow:visible
+}
+.zc-mobile-bitcoin-emblem:before{
+ content:"";position:absolute;inset:9px;border:1px solid color-mix(in srgb,var(--green,#4c9fff) 28%,transparent);
+ border-radius:50%;box-shadow:0 0 0 5px color-mix(in srgb,var(--green,#4c9fff) 6%,transparent),0 0 18px color-mix(in srgb,var(--green,#4c9fff) 12%,transparent);
+ pointer-events:none
+}
+.zc-bitcoin-coin{
+ position:relative;width:50px;height:50px;border-radius:50%;transform-style:preserve-3d;
+ animation:zcBitcoinGlobeRotation 9s linear infinite;
+ filter:drop-shadow(0 5px 5px rgba(0,0,0,.38)) drop-shadow(0 0 8px color-mix(in srgb,var(--green,#4c9fff) 38%,transparent))
+}
+.zc-bitcoin-coin-edge{
+ position:absolute;inset:0;border:1px solid color-mix(in srgb,var(--mint,#b8d9ff) 82%,white 18%);border-radius:50%;
+ background:linear-gradient(105deg,color-mix(in srgb,var(--green,#4c9fff) 48%,var(--bg,#071321)),var(--mint,#b8d9ff) 24%,var(--green,#4c9fff) 52%,color-mix(in srgb,var(--green,#4c9fff) 56%,var(--bg,#071321)) 82%,var(--mint,#b8d9ff));
+ box-shadow:inset 0 1px 2px rgba(255,255,255,.7),inset 0 -3px 5px rgba(0,0,0,.32),0 0 0 1px color-mix(in srgb,var(--green,#4c9fff) 52%,transparent);
+ transform:translateZ(0)
+}
+.zc-bitcoin-face{
+ position:absolute;inset:4px;display:grid;place-items:center;border-radius:50%;
+ border:1px solid color-mix(in srgb,var(--mint,#b8d9ff) 82%,white 18%);
+ background:radial-gradient(circle at 29% 21%,color-mix(in srgb,var(--mint,#b8d9ff) 86%,white 14%) 0%,var(--green,#4c9fff) 46%,color-mix(in srgb,var(--green,#4c9fff) 58%,var(--bg,#071321)) 100%);
+ color:var(--bg,#071321);font-family:Arial,Helvetica,sans-serif;font-size:29px;font-weight:900;line-height:1;
+ text-shadow:0 1px 0 rgba(255,255,255,.35),0 -1px 0 rgba(0,0,0,.2);
+ box-shadow:inset 0 2px 3px rgba(255,255,255,.34),inset 0 -4px 6px rgba(0,0,0,.25);
+ backface-visibility:hidden;-webkit-backface-visibility:hidden
+}
+.zc-bitcoin-face-front{transform:translateZ(3px)}
+.zc-bitcoin-face-back{transform:rotateY(180deg) translateZ(3px)}
+.zc-bitcoin-coin:after{
+ content:"";position:absolute;z-index:3;top:7px;right:10px;width:13px;height:7px;border-radius:50%;
+ background:rgba(255,255,255,.66);filter:blur(2px);transform:translateZ(4px) rotate(-28deg);pointer-events:none
+}
+@keyframes zcBitcoinGlobeRotation{
+ from{transform:rotate3d(.22,1,.08,0deg)}
+ to{transform:rotate3d(.22,1,.08,360deg)}
+}
+/* Logout transition now uses the active ZentraChain theme tokens. */
+#zc-transition-splash[data-mode="logout"]{
+ color:var(--text,#f2f8ff);
+ background:radial-gradient(ellipse at 50% 48%,color-mix(in srgb,var(--green,#4c9fff) 20%,transparent),transparent 47%),
+ linear-gradient(145deg,color-mix(in srgb,var(--bg,#071321) 94%,#000 6%),var(--panel2,#122d49) 50%,color-mix(in srgb,var(--bg,#071321) 94%,#000 6%))
+}
+#zc-transition-splash[data-mode="logout"] .zc-transition-particles i{
+ background:var(--mint,#b8d9ff);box-shadow:0 0 12px color-mix(in srgb,var(--green,#4c9fff) 86%,transparent)
+}
+#zc-transition-splash[data-mode="logout"] .zc-transition-brand,
+#zc-transition-splash[data-mode="logout"] .zc-exit-status{color:var(--mint,#b8d9ff)}
+#zc-transition-splash[data-mode="logout"] .zc-transition-title{color:var(--text,#f2f8ff)}
+#zc-transition-splash[data-mode="logout"] .zc-transition-subtitle{color:var(--muted,#9bb2cc)}
+#zc-transition-splash[data-mode="logout"] .zc-transition-progress{
+ background:color-mix(in srgb,var(--green,#4c9fff) 18%,transparent)
+}
+#zc-transition-splash[data-mode="logout"] .zc-transition-progress i{
+ background:linear-gradient(90deg,transparent,var(--green,#4c9fff),var(--mint,#b8d9ff),transparent);
+ box-shadow:0 0 12px color-mix(in srgb,var(--green,#4c9fff) 88%,transparent)
+}
+#zc-transition-splash[data-mode="logout"] .zc-exit-orbit{border-color:color-mix(in srgb,var(--green,#4c9fff) 58%,transparent)}
+#zc-transition-splash[data-mode="logout"] .zc-exit-orbit:before,
+#zc-transition-splash[data-mode="logout"] .zc-exit-orbit:after{
+ background:var(--mint,#b8d9ff);box-shadow:0 0 14px color-mix(in srgb,var(--green,#4c9fff) 90%,transparent)
+}
+#zc-transition-splash[data-mode="logout"] .zc-exit-ring{
+ border-color:color-mix(in srgb,var(--mint,#b8d9ff) 48%,transparent);
+ box-shadow:0 0 32px color-mix(in srgb,var(--green,#4c9fff) 20%,transparent),inset 0 0 30px color-mix(in srgb,var(--green,#4c9fff) 13%,transparent)
+}
+#zc-transition-splash[data-mode="logout"] .zc-exit-symbol{
+ border-color:color-mix(in srgb,var(--mint,#b8d9ff) 76%,var(--line,#24476b));
+ background:linear-gradient(145deg,color-mix(in srgb,var(--green,#4c9fff) 30%,var(--panel2,#122d49)),var(--panel,#0d2034));
+ box-shadow:0 0 34px color-mix(in srgb,var(--green,#4c9fff) 30%,transparent),inset 0 1px rgba(255,255,255,.12)
+}
+#zc-transition-splash[data-mode="logout"] .zc-exit-symbol svg{stroke:var(--text,#f2f8ff)}
+#zc-transition-splash[data-mode="logout"] .zc-exit-streams i{
+ background:linear-gradient(90deg,transparent,color-mix(in srgb,var(--green,#4c9fff) 92%,white 8%),transparent)
+}
+@media(prefers-reduced-motion:reduce){
+ .zc-bitcoin-coin{animation:none!important;transform:rotate3d(.22,1,.08,22deg)}
+}
+</style>
