@@ -3467,7 +3467,7 @@ body[data-zc-theme] #app-content #wd-network-cards::-webkit-scrollbar-thumb{back
   ['trading-reports','▤','Trading Reports','View performance reports and publication status'],
   ['activity-audit','◷','Activity & Audit','Review administrator activity records'],
   ['support-settings','✉','Support Settings','Set Telegram and WhatsApp contact links'],
-  ['tap-earn','⚡','Tap To Earn','Manage rewards and withdrawals']
+  ['tap-earn','⚡','Tap To Earn Settings','Enable rewards, edit limits and review withdrawals']
  ];
  const safe=v=>String(v??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
  const fmtUSD=v=>String.fromCharCode(36)+Number(v||0).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
@@ -3524,11 +3524,13 @@ body[data-zc-theme] #app-content #wd-network-cards::-webkit-scrollbar-thumb{back
  }
  async function dashboard(){
   const root=$('app-content');
-  root.innerHTML=head('Admin dashboard','Your administrator workspace. Open Admin Access in the sidebar to select one area at a time.')+
+  root.innerHTML=head('Admin dashboard','Your administrator workspace and quick access to every control.')+
    '<div class="stats zc-admin-stats"><div class="card stat"><small>Registered users</small><strong id="zc-admin-count-users">—</strong></div><div class="card stat"><small>Investment plans</small><strong id="zc-admin-count-plans">—</strong></div><div class="card stat"><small>Deposit requests</small><strong id="zc-admin-count-deposits">—</strong></div><div class="card stat"><small>Withdrawal requests</small><strong id="zc-admin-count-withdrawals">—</strong></div></div>'+
-   '<section class="card panel"><div class="eyebrow">ADMIN ACCESS</div><h2 style="margin:5px 0 8px">Manage ZentraChain</h2><p class="muted" style="margin:0">Choose a single section from the expanded Admin Access menu. Each section opens on its own page with a back arrow.</p></section>';
+   '<section class="card panel" style="margin-top:16px;border-color:color-mix(in srgb,var(--green) 35%,var(--line))"><div style="display:flex;align-items:center;justify-content:space-between;gap:18px;flex-wrap:wrap"><div style="min-width:0;flex:1"><div class="eyebrow">REWARD PROGRAM CONTROLS</div><h2 style="margin:5px 0 7px">Tap To Earn</h2><p class="muted" style="margin:0 0 10px;line-height:1.6">Enable or disable Tap To Earn and manage daily taps, reward per tap, referral bonuses and withdrawal requirements.</p><span id="zc-admin-tap-earn-status" class="zc-admin-status warn">Checking feature status…</span></div><button type="button" class="btn primary" onclick="zcOpenAdminSection(\'tap-earn\')">Open Tap To Earn settings</button></div></section>'+
+   '<section class="card panel" style="margin-top:16px"><div class="eyebrow">ADMIN ACCESS</div><h2 style="margin:5px 0 8px">Manage ZentraChain</h2><p class="muted" style="margin:0">Use the Admin Access menu in the sidebar to open the other administrator sections.</p></section>';
   const tasks=[['profiles','zc-admin-count-users'],['gforce_investment_plans','zc-admin-count-plans'],['deposit_requests','zc-admin-count-deposits'],['withdrawal_requests','zc-admin-count-withdrawals']];
   await Promise.all(tasks.map(async x=>{try{const n=await count(x[0]);const node=$(x[1]);if(node)node.textContent=n.toLocaleString()}catch(e){const node=$(x[1]);if(node)node.textContent='—'}}));
+  try{const tapState=await db.rpc('tap_earn_admin_state');if(tapState.error)throw tapState.error;const tapStatus=$('zc-admin-tap-earn-status');if(tapStatus){const enabled=!!tapState.data?.settings?.enabled;tapStatus.textContent=enabled?'Currently ENABLED for customers':'Currently DISABLED for customers';tapStatus.className='zc-admin-status '+(enabled?'good':'warn')}}catch(e){const tapStatus=$('zc-admin-tap-earn-status');if(tapStatus)tapStatus.textContent='Status unavailable — open settings to retry'};
  }
  async function loadSettings(keys){
   const {data,error}=await db.from('site_settings').select('setting_key,numeric_value').in('setting_key',keys);
