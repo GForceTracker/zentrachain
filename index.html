@@ -1441,7 +1441,7 @@ html body .modal-head .brand{white-space:nowrap!important;min-width:0!important}
 (function(){
  if(window.__zcVisitorTrustV1)return;window.__zcVisitorTrustV1=true;
  var safe=function(v){return String(v==null?'':v).replace(/[&<>"']/g,function(c){return({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c]})};
- var COUNTRIES=[['\uD83C\uDDFA\uD83C\uDDF8','United States'],['\uD83C\uDDF3\uD83C\uDDEC','Nigeria'],['\uD83C\uDDEF\uD83C\uDDF5','Japan'],['\uD83C\uDDE9\uD83C\uDDEA','Germany'],['\uD83C\uDDEE\uD83C\uDDF3','India'],['\uD83C\uDDE7\uD83C\uDDF7','Brazil'],['\uD83C\uDDEC\uD83C\uDDE7','United Kingdom'],['\uD83C\uDDFF\uD83C\uDDE6','South Africa']];
+ var COUNTRIES=[["🇺🇸","United States"],["🇮🇹","Italy"],["🇯🇵","Japan"],["🇩🇪","Germany"],["🇮🇳","India"],["🇧🇷","Brazil"],["🇬🇧","United Kingdom"],["🇿🇦","South Africa"],["🇫🇷","France"],["🇨🇦","Canada"],["🇦🇺","Australia"],["🇪🇸","Spain"],["🇳🇱","Netherlands"]];
  var QUOTES=[
   ['My withdrawals always arrive!','Requested on Friday, paid the same day with the transaction hash I could verify myself. This platform does exactly what it promises.'],
   ['Smooth from day one','Deposit was detected on-chain in minutes and my plan started automatically. Everything runs exactly as described.'],
@@ -1509,7 +1509,7 @@ html body .modal-head .brand{white-space:nowrap!important;min-width:0!important}
  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot,{once:true});else boot();
 
  // Active countries: animated moving bars.
- var COUNTRY_BARS=[['\uD83C\uDDFA\uD83C\uDDF8','United States',92],['\uD83C\uDDF3\uD83C\uDDEC','Nigeria',88],['\uD83C\uDDEF\uD83C\uDDF5','Japan',95],['\uD83C\uDDE9\uD83C\uDDEA','Germany',91],['\uD83C\uDDEE\uD83C\uDDF3','India',87],['\uD83C\uDDE7\uD83C\uDDF7','Brazil',84],['\uD83C\uDDEC\uD83C\uDDE7','United Kingdom',93],['\uD83C\uDDFF\uD83C\uDDE6','South Africa',86]];
+ var COUNTRY_BARS=[["🇺🇸","United States",92],["🇮🇹","Italy",88],["🇯🇵","Japan",95],["🇩🇪","Germany",91],["🇮🇳","India",87],["🇧🇷","Brazil",84],["🇬🇧","United Kingdom",93],["🇿🇦","South Africa",86],["🇫🇷","France",90],["🇨🇦","Canada",89],["🇦🇺","Australia",85],["🇪🇸","Spain",84],["🇳🇱","Netherlands",83]];
  var cList=document.getElementById('zc-countries-list'),cShown=false;
  function drawCountries(){
   if(!cList)return;
@@ -2024,7 +2024,7 @@ function zcRenderAltDashboard(styleId){
  }else if(styleId===4){
   markup='<div class="zc-alt-dashboard zc-minimal-dashboard"><div class="zc-minimal-heading"><div><div class="eyebrow">ACCOUNT OVERVIEW</div><h1>Your account, at a glance.</h1><p>Welcome back, '+name+'. Here is your latest account summary.</p></div>'+actions+'</div><section class="zc-minimal-balance"><div><small>Account Balance</small><strong>'+accountBalance+'</strong><p>Available Funds ready to use or withdraw.</p></div><div class="zc-minimal-balance-mark" aria-hidden="true">Z</div></section><div class="zc-alt-stat-grid zc-minimal-stat-grid">'+zcDashboardStat('Deposit Balance',deposit,'Not yet invested','↓')+zcDashboardStat('Investment Balance',investment,'In active plans','◈')+zcDashboardStat('Accrued profit',profit,'Accrued plan profit','⌁')+zcDashboardStat('Bonus Balance',bonus,'Referral rewards','✦')+'</div>'+plans+'<div class="zc-alt-two-col">'+chart+watch+'</div><div class="zc-alt-two-col">'+recent+referrals+'</div></div>';
  }else{
-  markup='<div class="zc-alt-dashboard zc-mobile-dashboard"><div class="zc-mobile-welcome"><div><div class="eyebrow">YOUR ZENTRACHAIN</div><h1>Hello, '+name+'</h1><p>Here is your account overview.</p></div><span class="zc-mobile-bitcoin-emblem" role="img" aria-label="Bitcoin emblem"><span class="zc-bitcoin-coin" aria-hidden="true"><span class="zc-bitcoin-coin-edge"></span><span class="zc-bitcoin-face zc-bitcoin-face-front">₿</span><span class="zc-bitcoin-face zc-bitcoin-face-back">₿</span></span></span></div><section class="zc-mobile-balance"><div class="zc-mobile-balance-top"><span>AVAILABLE FUNDS</span><span class="zc-mobile-live"><i></i> LIVE</span></div><strong>'+accountBalance+'</strong><small>Ready to use or withdraw</small>'+actions+'</section><div class="zc-alt-stat-grid zc-mobile-stat-grid">'+zcDashboardStat('Deposit Balance',deposit,'Not yet invested','↓')+zcDashboardStat('Investment Balance',investment,'In active plans','◈')+zcDashboardStat('Accrued Profit',profit,'Plan accrual only','⌁')+zcDashboardStat('Bonus Balance',bonus,'Referral rewards','✦')+'</div><div class="zc-mobile-section-head"><h2>Quick overview</h2><button class="btn" type="button" onclick="navigate(&quot;activity&quot;)">Activity</button></div>'+zcDashboardInsightsHTML()+plans+'<div class="zc-mobile-market-grid">'+chart+watch+'</div>'+recent+referrals+'</div>';
+  markup='<div class="zc-alt-dashboard zc-mobile-dashboard"><div class="zc-mobile-welcome"><div><div class="eyebrow">YOUR ZENTRACHAIN</div><h1>Hello, '+name+'</h1><p>Here is your account overview.</p></div><span class="zc-mobile-bitcoin-emblem" role="img" aria-label="Bitcoin emblem"><span class="zc-bitcoin-coin" aria-hidden="true"><span class="zc-bitcoin-face zc-bitcoin-face-front">₿</span></span></span></div><section class="zc-mobile-balance"><div class="zc-mobile-balance-top"><span>AVAILABLE FUNDS</span><span class="zc-mobile-live"><i></i> LIVE</span></div><strong>'+accountBalance+'</strong><small>Ready to use or withdraw</small>'+actions+'</section><div class="zc-alt-stat-grid zc-mobile-stat-grid">'+zcDashboardStat('Deposit Balance',deposit,'Not yet invested','↓')+zcDashboardStat('Investment Balance',investment,'In active plans','◈')+zcDashboardStat('Accrued Profit',profit,'Plan accrual only','⌁')+zcDashboardStat('Bonus Balance',bonus,'Referral rewards','✦')+'</div><div class="zc-mobile-section-head"><h2>Quick overview</h2><button class="btn" type="button" onclick="navigate(&quot;activity&quot;)">Activity</button></div>'+zcDashboardInsightsHTML()+plans+'<div class="zc-mobile-market-grid">'+chart+watch+'</div>'+recent+referrals+'</div>';
  }
  if(styleId!==5)markup=markup.replace(/<\/div>$/,zcDashboardInsightsHTML()+'</div>');
  c.innerHTML=markup;
@@ -2297,16 +2297,7 @@ function zcDashboardInsightsHTML(){
  }catch(e){console.warn('Dashboard insights could not be rendered:',e);return ''}
 }
 function zcGlobalNetworkData(){
- const rows=[
-  ['\uD83C\uDDFA\uD83C\uDDF8','United States',92],
-  ['\uD83C\uDDF3\uD83C\uDDEC','Nigeria',88],
-  ['\uD83C\uDDEF\uD83C\uDDF5','Japan',95],
-  ['\uD83C\uDDE9\uD83C\uDDEA','Germany',91],
-  ['\uD83C\uDDEE\uD83C\uDDF3','India',87],
-  ['\uD83C\uDDE7\uD83C\uDDF7','Brazil',84],
-  ['\uD83C\uDDEC\uD83C\uDDE7','United Kingdom',93],
-  ['\uD83C\uDDFF\uD83C\uDDE6','South Africa',86]
- ];
+ const rows=[["🇺🇸","United States",92],["🇮🇹","Italy",88],["🇯🇵","Japan",95],["🇩🇪","Germany",91],["🇮🇳","India",87],["🇧🇷","Brazil",84],["🇬🇧","United Kingdom",93],["🇿🇦","South Africa",86],["🇫🇷","France",90],["🇨🇦","Canada",89],["🇦🇺","Australia",85],["🇪🇸","Spain",84],["🇳🇱","Netherlands",83]];
  return {rows:rows,total:rows.length};
 }
 window.zcStartNetworkTick=function(){
@@ -2995,7 +2986,7 @@ function gfReset(){['gf-id','gf-name','gf-rate','gf-description'].forEach(x=>$(x
 async function gfDelete(id){if(profile?.role!=='admin'||!confirm('Delete this plan configuration?'))return;const {error}=await db.from('gforce_investment_plans').delete().eq('id',id);if(error)return toast(error.message,true);toast('Plan deleted.');await gfRefreshAdmin();}
 async function gfRefreshAdmin(){const rows=await gfAdminRows(),el=$('gf-plan-admin');if(el)el.outerHTML=gfAdminPanel(rows);await gfLoadPlans();}
 const baseAdmin=renderAdmin;renderAdmin=async function(){const rows=await gfAdminRows();await baseAdmin();$('app-content').insertAdjacentHTML('beforeend',gfAdminPanel(rows));};
-const basePage=renderPage;renderPage=function(){if(page==='plans'){const c=$('app-content');c.innerHTML='<div class="card panel"><p class="muted">Loading current plans…</p></div>';gfLoadPlans().then(()=>{c.innerHTML='<div class="page-title"><div><div class="eyebrow">Trading plans</div><h1>Trading plans</h1><p class="muted">Tap a plan to select it, then buy it right on the card.</p></div></div><div id="dash-cards" class="plan-grid"></div>';$('dash-cards').innerHTML=gfPlans.length?gfPlans.map(p=>gfCard(p,'dash')).join(''):'<div class="empty card">No active plans.</div>';if(window.lucide&&window.lucide.createIcons)window.lucide.createIcons({root:$('dash-cards')});if(typeof zcSyncDashCards==='function')zcSyncDashCards('dash','');}).catch(err=>{console.error('Plan page load failed:',err);const c=$('app-content');if(c)c.innerHTML='<div class="card panel"><h3>Plans are temporarily unavailable</h3><p class="muted">Please try again in a moment.</p><button class="btn primary" onclick="navigate(\'plans\')">Retry</button></div>';toast('Could not load plans: '+(err?.message||'Please try again.'),true)});return;}basePage();};
+const basePage=renderPage;renderPage=function(){if(page==='plans'){const c=$('app-content');c.innerHTML='<div class="card panel"><p class="muted">Loading current plans…</p></div>';gfLoadPlans().then(()=>{c.innerHTML='<div class="page-title"><div><div class="eyebrow">Trading plans</div><h1>Trading plans</h1><p class="muted">Tap Buy now to reveal the amount field. Tap the field to enter an amount.</p></div></div><div class="zc-plan-list-cue" role="note"><strong>'+gfPlans.length+' '+(gfPlans.length===1?'PLAN':'PLANS')+' AVAILABLE</strong><span>'+(gfPlans.length>1?'Scroll down — more plans are below':gfPlans.length===1?'Only one active plan is currently published':'No active plans are currently published')+' ↓</span></div><div id="dash-cards" class="plan-grid"></div>';$('dash-cards').innerHTML=gfPlans.length?gfPlans.map(p=>gfCard(p,'dash')).join(''):'<div class="empty card">No active plans.</div>';if(window.lucide&&window.lucide.createIcons)window.lucide.createIcons({root:$('dash-cards')});if(typeof zcSyncDashCards==='function')zcSyncDashCards('dash','');}).catch(err=>{console.error('Plan page load failed:',err);const c=$('app-content');if(c)c.innerHTML='<div class="card panel"><h3>Plans are temporarily unavailable</h3><p class="muted">Please try again in a moment.</p><button class="btn primary" onclick="navigate(\'plans\')">Retry</button></div>';toast('Could not load plans: '+(err?.message||'Please try again.'),true)});return;}basePage();};
 const baseShowApp=showApp;showApp=function(){baseShowApp();if(!$('plans-nav'))$('side-nav').insertAdjacentHTML('beforeend','');};
 gfLoadPlans();
 window.__zcVerifyLanding=/access_token=|[?&]code=|error_code=/.test(location.hash+' '+location.search);
@@ -7984,7 +7975,7 @@ schedule(FIRST_DELAY);
    }else{
     if(err)err.classList.add('hidden');
     if(depositButton)depositButton.style.display='none';
-    if(amountInput){amountInput.focus();if(amountInput.select)amountInput.select()}
+    /* Keep the amount field unfocused; the member taps it when ready to type. */
    }
   }
  };
@@ -12069,11 +12060,11 @@ body.zc-transition-lock{overflow:hidden!important}
 .zc-mobile-bitcoin-emblem:before{content:none!important;display:none!important}
 .zc-bitcoin-coin{
  position:relative;display:block;width:50px;height:54px;border:0;border-radius:0;background:transparent;
- transform-style:preserve-3d;animation:zcBitcoinGlobeRotation 11s linear infinite;will-change:transform;
+ transform-style:preserve-3d;animation:none!important;transform:rotateY(-14deg);will-change:auto;
  filter:drop-shadow(0 2px 0 color-mix(in srgb,var(--panel2,#102b20) 72%,transparent)) drop-shadow(0 0 10px color-mix(in srgb,var(--green,#20c783) 42%,transparent))
 }
 /* The previous circular coin plate is intentionally removed. */
-.zc-bitcoin-coin-edge{display:none!important}
+
 .zc-bitcoin-face{
  position:absolute;inset:0;display:grid;place-items:center;
  border:0!important;border-radius:0!important;background:transparent!important;box-shadow:none!important;
@@ -12092,14 +12083,11 @@ body.zc-transition-lock{overflow:hidden!important}
  backface-visibility:hidden;-webkit-backface-visibility:hidden
 }
 .zc-bitcoin-face-front{transform:translateZ(1px)}
-/* A matching reverse glyph keeps the Bitcoin B upright throughout the full revolution. */
-.zc-bitcoin-face-back{transform:rotateY(180deg) translateZ(1px)}
+/* This single Bitcoin glyph remains in a fixed 3D pose. */
+
 .zc-bitcoin-coin:after{content:none!important;display:none!important}
-/* Turn around the vertical pole only: no roll, pitch, or sideways tumble. */
-@keyframes zcBitcoinGlobeRotation{
- from{transform:rotateY(0deg)}
- to{transform:rotateY(360deg)}
-}
+/* Static pose: no keyframes or runtime rotation are applied. */
+/* The Bitcoin glyph is intentionally stationary; only its 3D depth remains. */
 /* Logout transition follows the active theme for its backdrop, rings, symbol and progress. */
 #zc-transition-splash[data-mode="logout"]{
  color:var(--text,#effaf4);
@@ -12141,6 +12129,22 @@ body.zc-transition-lock{overflow:hidden!important}
  background:linear-gradient(90deg,transparent,color-mix(in srgb,var(--green,#20c783) 92%,white 8%),transparent)
 }
 @media(prefers-reduced-motion:reduce){
- .zc-bitcoin-coin{animation:none!important;transform:rotateY(-24deg)}
+ .zc-bitcoin-coin{animation:none!important;transform:rotateY(-14deg)!important;will-change:auto}
+}
+</style>
+
+<style id="zc-plan-list-visibility-v1">
+.zc-plan-list-cue{
+ display:flex;align-items:center;justify-content:space-between;gap:12px;
+ width:100%;max-width:760px;margin:0 auto 13px;padding:11px 14px;
+ border:1px solid color-mix(in srgb,var(--green) 40%,var(--line));border-radius:13px;
+ background:linear-gradient(100deg,color-mix(in srgb,var(--green) 12%,var(--panel2)),var(--panel));
+ color:var(--muted);font-size:12px;font-weight:750;line-height:1.35
+}
+.zc-plan-list-cue strong{flex:0 0 auto;color:var(--mint);font-size:11px;letter-spacing:.07em}
+.zc-plan-list-cue span{min-width:0;text-align:right}
+@media(max-width:430px){
+ .zc-plan-list-cue{padding:10px 11px;gap:8px;font-size:10px}
+ .zc-plan-list-cue strong{font-size:10px}
 }
 </style>
