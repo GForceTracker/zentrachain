@@ -4629,12 +4629,12 @@ body[data-zc-theme] #app-content #wd-network-cards::-webkit-scrollbar-thumb{back
   const box=$('zc-admin-requests-table');if(!box)return;
   if(!rows.length){box.innerHTML='<div class="empty">No '+title.toLowerCase()+' found.</div>';return}
   box.innerHTML='<table><thead><tr><th>Customer</th><th>Amount</th><th>Network</th><th>Reference / Destination</th><th>Status</th><th>Date</th><th>Action</th></tr></thead><tbody>'+rows.map(x=>{
-   const u=users[x.user_id]||{},ref=deposit?(x.tx_hash||'Not supplied'):(x.destination_address||'—');
+   const u=users[x.user_id]||{},ref=deposit?(x.tx_hash||'Not supplied'):(x.payout_reference||x.destination_address||'—');
    const pending=['pending','under_review','approved'].includes(x.status);
    const action=deposit
     ?(pending?'<button class="btn primary" onclick="reviewDeposit(\''+x.id+'\',true)">Verify</button> <button class="btn danger" onclick="reviewDeposit(\''+x.id+'\',false)">Reject</button>':'—')
     :(pending
-      ?'<div style="min-width:210px"><input type="text" id="zc-withdrawal-hash-'+x.id+'" placeholder="Payout transaction hash" aria-label="Payout transaction hash" autocomplete="off" autocapitalize="off" spellcheck="false" style="display:block;width:100%;max-width:230px;margin:0 0 6px"><button class="btn primary" onclick="payWithdrawal(&quot;'+x.id+'&quot;)">Approve</button> <button class="btn danger" onclick="declineWithdrawal(&quot;'+x.id+'&quot;)">Decline</button> <button class="btn" onclick="ignoreWithdrawal(&quot;'+x.id+'&quot;)">Ignore</button></div>'
+      ?'<div style="min-width:210px"><button class="btn primary" onclick="payWithdrawal(&quot;'+x.id+'&quot;)">Approve</button> <button class="btn danger" onclick="declineWithdrawal(&quot;'+x.id+'&quot;)">Decline</button> <button class="btn" onclick="ignoreWithdrawal(&quot;'+x.id+'&quot;)">Ignore</button></div>'
       :'—');
    const statusClass=x.status==='paid'?'good':(pending?'warn':(['declined','rejected'].includes(x.status)?'':''));
    const statusLabel=zcWithdrawalStatusLabel(x.status,false);
