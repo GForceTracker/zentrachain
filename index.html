@@ -1441,7 +1441,7 @@ html body .modal-head .brand{white-space:nowrap!important;min-width:0!important}
 (function(){
  if(window.__zcVisitorTrustV1)return;window.__zcVisitorTrustV1=true;
  var safe=function(v){return String(v==null?'':v).replace(/[&<>"']/g,function(c){return({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c]})};
- var COUNTRIES=[['\uD83C\uDDFA\uD83C\uDDF8','United States'],['\uD83C\uDDF3\uD83C\uDDF1','Nigeria'],['\uD83C\uDDEF\uD83C\uDDF5','Japan'],['\uD83C\uDDE9\uD83C\uDDEA','Germany'],['\uD83C\uDDEE\uD83C\uDDF3','India'],['\uD83C\uDDE7\uD83C\uDDF7','Brazil'],['\uD83C\uDDEC\uD83C\uDDE7','United Kingdom'],['\uD83C\uDDFF\uD83C\uDDE6','South Africa']];
+ var COUNTRIES=[['\uD83C\uDDFA\uD83C\uDDF8','United States'],['\uD83C\uDDF3\uD83C\uDDEC','Nigeria'],['\uD83C\uDDEF\uD83C\uDDF5','Japan'],['\uD83C\uDDE9\uD83C\uDDEA','Germany'],['\uD83C\uDDEE\uD83C\uDDF3','India'],['\uD83C\uDDE7\uD83C\uDDF7','Brazil'],['\uD83C\uDDEC\uD83C\uDDE7','United Kingdom'],['\uD83C\uDDFF\uD83C\uDDE6','South Africa']];
  var QUOTES=[
   ['My withdrawals always arrive!','Requested on Friday, paid the same day with the transaction hash I could verify myself. This platform does exactly what it promises.'],
   ['Smooth from day one','Deposit was detected on-chain in minutes and my plan started automatically. Everything runs exactly as described.'],
@@ -1509,7 +1509,7 @@ html body .modal-head .brand{white-space:nowrap!important;min-width:0!important}
  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot,{once:true});else boot();
 
  // Active countries: animated moving bars.
- var COUNTRY_BARS=[['\uD83C\uDDFA\uD83C\uDDF8','United States',92],['\uD83C\uDDF3\uD83C\uDDF1','Nigeria',88],['\uD83C\uDDEF\uD83C\uDDF5','Japan',95],['\uD83C\uDDE9\uD83C\uDDEA','Germany',91],['\uD83C\uDDEE\uD83C\uDDF3','India',87],['\uD83C\uDDE7\uD83C\uDDF7','Brazil',84],['\uD83C\uDDEC\uD83C\uDDE7','United Kingdom',93],['\uD83C\uDDFF\uD83C\uDDE6','South Africa',86]];
+ var COUNTRY_BARS=[['\uD83C\uDDFA\uD83C\uDDF8','United States',92],['\uD83C\uDDF3\uD83C\uDDEC','Nigeria',88],['\uD83C\uDDEF\uD83C\uDDF5','Japan',95],['\uD83C\uDDE9\uD83C\uDDEA','Germany',91],['\uD83C\uDDEE\uD83C\uDDF3','India',87],['\uD83C\uDDE7\uD83C\uDDF7','Brazil',84],['\uD83C\uDDEC\uD83C\uDDE7','United Kingdom',93],['\uD83C\uDDFF\uD83C\uDDE6','South Africa',86]];
  var cList=document.getElementById('zc-countries-list'),cShown=false;
  function drawCountries(){
   if(!cList)return;
@@ -1864,7 +1864,7 @@ function zcCheckDashboardStyle(){
 setInterval(()=>{if(currentUser)zcCheckDashboardStyle()},60000);
 function zcDashboardStat(label,value,caption,icon){
  const liveId=(label==='Trading profit'||label==='Accrued profit'||label==='Accrued Profit')?' id="zc-profit-live"':'';
- return '<article class="app-stat zc-alt-stat"><div class="zc-alt-stat-top"><small>'+esc(label)+'</small><span class="zc-alt-stat-icon" aria-hidden="true">'+(icon||'◈')+'</span></div><strong'+liveId+'>'+value+'</strong><span class="stat-foot">'+caption+'</span></article>';
+ return '<article class="app-stat zc-alt-stat zc-stat-edge-glow"><div class="zc-alt-stat-top"><small>'+esc(label)+'</small><span class="zc-alt-stat-icon" aria-hidden="true">'+(icon||'◈')+'</span></div><strong'+liveId+'>'+value+'</strong><span class="stat-foot">'+caption+'</span></article>';
 }
 function zcDashboardQuickActions(){
  return '<div class="zc-dash-quick-actions"><button class="btn primary" type="button" onclick="navigate(&quot;deposits&quot;)"><span aria-hidden="true">＋</span> Deposit</button><button class="btn" type="button" onclick="navigate(&quot;withdrawals&quot;)"><span aria-hidden="true">↑</span> Withdraw</button><button class="btn" type="button" onclick="navigate(&quot;investments&quot;)"><span aria-hidden="true">◈</span> Active plans</button><button class="btn" type="button" onclick="navigate(&quot;activity&quot;)"><span aria-hidden="true">▤</span> Transactions</button></div>';
@@ -2185,7 +2185,7 @@ function zcDashboardInsightsHTML(){
 function zcGlobalNetworkData(){
  const rows=[
   ['\uD83C\uDDFA\uD83C\uDDF8','United States',92],
-  ['\uD83C\uDDF3\uD83C\uDDF1','Nigeria',88],
+  ['\uD83C\uDDF3\uD83C\uDDEC','Nigeria',88],
   ['\uD83C\uDDEF\uD83C\uDDF5','Japan',95],
   ['\uD83C\uDDE9\uD83C\uDDEA','Germany',91],
   ['\uD83C\uDDEE\uD83C\uDDF3','India',87],
@@ -8512,6 +8512,71 @@ body.zc-community-chat-open{overflow:hidden!important;overscroll-behavior:none}
   gap:8px!important;
   min-height:0!important;
   height:auto!important;
+}
+</style>
+<style id="zc-support-balance-edge-glow-v1">
+/* Give the four supporting balance cards the same running blue edge light as Available Funds. */
+#application #app-content .zc-stat-edge-glow,
+#application #app-content .zc-dashboard-support-stats>.app-stat{
+ position:relative!important;
+ isolation:isolate!important;
+ overflow:hidden!important;
+}
+#application #app-content .zc-stat-edge-glow::after,
+#application #app-content .zc-dashboard-support-stats>.app-stat::after{
+ content:"";
+ position:absolute;
+ inset:0;
+ z-index:0;
+ border-radius:inherit;
+ pointer-events:none;
+ background:
+  radial-gradient(ellipse at 17% 18%,rgba(72,153,255,.24),transparent 43%),
+  radial-gradient(ellipse at 84% 82%,rgba(36,112,224,.18),transparent 46%),
+  radial-gradient(ellipse at 58% 0%,rgba(101,184,255,.10),transparent 38%);
+ animation:zcBalanceAmbientLight 10s ease-in-out infinite alternate;
+}
+#application #app-content .zc-stat-edge-glow::before,
+#application #app-content .zc-dashboard-support-stats>.app-stat::before{
+ content:"";
+ position:absolute;
+ inset:0;
+ z-index:2;
+ padding:1.6px;
+ border-radius:inherit;
+ pointer-events:none;
+ background:conic-gradient(
+  from var(--zc-balance-edge-angle,0deg),
+  rgba(74,158,255,0) 0deg,
+  rgba(74,158,255,0) 248deg,
+  rgba(74,158,255,.18) 282deg,
+  rgba(75,157,255,.96) 305deg,
+  rgba(196,229,255,.98) 314deg,
+  rgba(74,158,255,.35) 329deg,
+  rgba(74,158,255,0) 349deg,
+  rgba(74,158,255,0) 360deg
+ );
+ -webkit-mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0);
+ -webkit-mask-composite:xor;
+ mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0);
+ mask-composite:exclude;
+ animation:zcBalanceEdgeSweep 6.2s linear infinite;
+ filter:drop-shadow(0 0 4px rgba(73,157,255,.34));
+}
+#application #app-content .zc-stat-edge-glow>*,
+#application #app-content .zc-dashboard-support-stats>.app-stat>*{
+ position:relative;
+ z-index:1;
+}
+@media(prefers-reduced-motion:reduce){
+ #application #app-content .zc-stat-edge-glow::after,
+ #application #app-content .zc-stat-edge-glow::before,
+ #application #app-content .zc-dashboard-support-stats>.app-stat::after,
+ #application #app-content .zc-dashboard-support-stats>.app-stat::before{
+  animation:none!important;
+ }
+ #application #app-content .zc-stat-edge-glow::before,
+ #application #app-content .zc-dashboard-support-stats>.app-stat::before{opacity:.42}
 }
 </style>
 </body>
