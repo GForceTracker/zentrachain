@@ -1390,15 +1390,15 @@ html body .modal-head .brand{white-space:nowrap!important;min-width:0!important}
 <section class="zc-milestones wrap" aria-label="ZentraChain platform milestones">
   <div class="zc-milestones-head"><div><div class="eyebrow">Growing with our community</div><h2>Built for the next milestone.</h2></div><span class="zc-monthly-tag"><i></i> Monthly milestone goals</span></div>
   <div class="zc-milestones-grid">
-    <article class="zc-milestone-card"><span class="zc-milestone-icon">◎</span><strong data-zc-count="100000" data-zc-prefix="" data-zc-suffix="+">100K+</strong><b>Members</b><small>Community milestone</small></article>
-    <article class="zc-milestone-card"><span class="zc-milestone-icon">↗</span><strong data-zc-count="2000000" data-zc-prefix="$" data-zc-suffix="+">$2M+</strong><b>Investment volume</b><small>Growth milestone</small></article>
-    <article class="zc-milestone-card"><span class="zc-milestone-icon">⇧</span><strong data-zc-count="10000000" data-zc-prefix="$" data-zc-suffix="+">$10M+</strong><b>Withdrawals</b><small>Transaction milestone</small></article>
+    <article class="zc-milestone-card zc-visitor-edge-glow"><span class="zc-milestone-icon">◎</span><strong data-zc-count="100000" data-zc-prefix="" data-zc-suffix="+">100K+</strong><b>Members</b><small>Community milestone</small></article>
+    <article class="zc-milestone-card zc-visitor-edge-glow"><span class="zc-milestone-icon">↗</span><strong data-zc-count="2000000" data-zc-prefix="$" data-zc-suffix="+">$2M+</strong><b>Investment volume</b><small>Growth milestone</small></article>
+    <article class="zc-milestone-card zc-visitor-edge-glow"><span class="zc-milestone-icon">⇧</span><strong data-zc-count="10000000" data-zc-prefix="$" data-zc-suffix="+">$10M+</strong><b>Withdrawals</b><small>Transaction milestone</small></article>
   </div>
   <p class="zc-milestones-note">Milestone goals are reviewed monthly and are not live account or transaction totals.</p>
 </section>
 <section class="section zc-public-activity" id="zc-public-activity">
   <div class="section-head zc-activity-heading"><div><h2>Block Activity</h2></div></div>
-  <div class="zc-activity-panel">
+  <div class="zc-activity-panel zc-visitor-edge-glow">
     <div class="zc-activity-demo-note"><span>LIVE FEED</span><i class="zc-activity-node" role="img" aria-label="Active network node"></i></div>
     <div class="zc-activity-live-note"><span class="zc-activity-live-dot"></span> Verified on-chain activity</div>
     <div class="zc-activity-list" id="zc-activity-list" aria-live="polite"><div class="zc-activity-empty">Loading activity…</div></div>
@@ -11363,5 +11363,64 @@ body[data-zc-theme] #application .zc-studio-note b {
  #zc-captcha-modal .zc-captcha-modal-card{max-width:460px!important}
  #zc-captcha-modal .zc-captcha-answer-row{grid-template-columns:1fr!important}
  #zc-captcha-modal #zc-captcha-verify{width:100%!important}
+}
+</style>
+
+<style id="zc-visitor-running-edge-glow-v1">
+/* Match the existing running blue edge glow on the requested visitor-page cards. */
+.zc-visitor-edge-glow{
+  position:relative!important;
+  isolation:isolate!important;
+  overflow:hidden!important;
+}
+.zc-visitor-edge-glow::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  z-index:0;
+  border-radius:inherit;
+  pointer-events:none;
+  background:
+    radial-gradient(ellipse at 17% 18%,rgba(72,153,255,.24),transparent 43%),
+    radial-gradient(ellipse at 84% 82%,rgba(36,112,224,.18),transparent 46%),
+    radial-gradient(ellipse at 58% 0%,rgba(101,184,255,.10),transparent 38%);
+  animation:zcBalanceAmbientLight 10s ease-in-out infinite alternate;
+}
+.zc-visitor-edge-glow::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  z-index:2;
+  padding:1.6px;
+  border-radius:inherit;
+  pointer-events:none;
+  background:conic-gradient(
+    from var(--zc-balance-edge-angle,0deg),
+    rgba(74,158,255,0) 0deg,
+    rgba(74,158,255,0) 248deg,
+    rgba(74,158,255,.18) 282deg,
+    rgba(75,157,255,.96) 305deg,
+    rgba(196,229,255,.98) 314deg,
+    rgba(74,158,255,.35) 329deg,
+    rgba(74,158,255,0) 349deg,
+    rgba(74,158,255,0) 360deg
+  );
+  -webkit-mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0);
+  -webkit-mask-composite:xor;
+  mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0);
+  mask-composite:exclude;
+  animation:zcBalanceEdgeSweep 6.2s linear infinite;
+  filter:drop-shadow(0 0 4px rgba(73,157,255,.34));
+}
+.zc-visitor-edge-glow>*{
+  position:relative;
+  z-index:1;
+}
+@media(prefers-reduced-motion:reduce){
+  .zc-visitor-edge-glow::after,
+  .zc-visitor-edge-glow::before{
+    animation:none!important;
+  }
+  .zc-visitor-edge-glow::before{opacity:.42}
 }
 </style>
