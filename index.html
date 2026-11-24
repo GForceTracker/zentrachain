@@ -2505,6 +2505,35 @@ function renderTransactions(){
  c.innerHTML=h;
  renderTxFeed();
 }
+function zcActivePlanBlockchainCardHTML(){
+ const source=document.querySelector('#public .zc-blockchain-pulse');
+ if(!source)return '';
+ const copy=source.cloneNode(true);
+ const idMap=new Map();
+ const idElements=[copy].concat(Array.from(copy.querySelectorAll('[id]')));
+ idElements.forEach(el=>{
+  if(!el.id)return;
+  const oldId=el.id;
+  const newId=el===copy?'zc-blockchain-pulse-active-plans':'zcPlanCopy-'+oldId;
+  idMap.set(oldId,newId);
+  el.id=newId;
+ });
+ copy.classList.add('zc-active-plan-blockchain-copy');
+ const refNodes=[copy].concat(Array.from(copy.querySelectorAll('*')));
+ refNodes.forEach(el=>{
+  Array.from(el.attributes||[]).forEach(attr=>{
+   let value=attr.value;
+   value=value.replace(/url\(#([^)]+)\)/g,(match,id)=>idMap.has(id)?'url(#'+idMap.get(id)+')':match);
+   if(attr.name==='href'||attr.name==='xlink:href'){
+    value=value.replace(/^#(.+)$/,(match,id)=>idMap.has(id)?'#'+idMap.get(id):match);
+   }else if(attr.name==='aria-labelledby'||attr.name==='aria-describedby'){
+    value=value.split(/\s+/).map(id=>idMap.get(id)||id).join(' ');
+   }
+   if(value!==attr.value)el.setAttribute(attr.name,value);
+  });
+ });
+ return copy.outerHTML;
+}
 function renderInvestmentsPage(){
  const c=$('app-content');if(!c)return;
  const invs=investmentRows().filter(x=>x.status==='active'&&!x.matured);
@@ -2517,6 +2546,7 @@ function renderInvestmentsPage(){
  }
  h+='<section class="card panel" style="margin-top:18px"><div class="app-hero-row"><div><div class="eyebrow">LIVE PLAN ACTIVITY</div><h3 style="margin:5px 0">Live earnings chart</h3></div><div style="text-align:right"><b id="zc-trade-accrued" class="zc-tx-amount pos">+'+zcSmartUsd(accruedProfitTotal())+'</b><div><small class="muted" id="zc-trade-rate"></small></div><div><small class="muted" id="zc-trade-target"></small></div></div></div><div class="zc-trade-chart" id="zc-trade-chart"><div class="empty">Loading live chart…</div></div></section>';
  h+='<div id="zc-accrual-stream" class="zc-accrual-stream"></div>';
+ h+=zcActivePlanBlockchainCardHTML();
  c.innerHTML=h;
  startTradeSim();
  try{zcProfitTick()}catch(e){}
@@ -11919,6 +11949,327 @@ body[data-zc-theme] #application .zc-studio-note b {
   }
 }
 </style>
+<style id="zc-active-plans-blockchain-pulse-copy-v1">
+/* Reuse the visitor Blockchain Technology artwork inside the active-plans page. */
+#application #app-content .zc-blockchain-pulse{
+  position:relative;
+  padding-top:48px;
+  padding-bottom:54px;
+}
+#application #app-content .zc-blockchain-pulse>.wrap{max-width:1240px}
+#application #app-content .zc-blockchain-pulse .section-head{margin-bottom:22px}
+#application #app-content .zc-blockchain-pulse .section-head p{
+  max-width:680px;
+  margin:9px 0 0;
+  line-height:1.7;
+}
+#application #app-content .zc-pulse-stage{
+  position:relative;
+  overflow:hidden;
+  border:1px solid rgba(85,158,226,.30);
+  border-radius:26px;
+  background:
+    radial-gradient(ellipse at 50% 48%,rgba(32,112,190,.20),transparent 52%),
+    linear-gradient(145deg,rgba(15,43,70,.96),rgba(5,17,31,.98));
+  box-shadow:0 28px 80px rgba(0,0,0,.30),inset 0 1px 0 rgba(211,236,255,.08);
+}
+#application #app-content .zc-pulse-stage-inner{
+  position:relative;
+  padding:clamp(15px,2.8vw,28px);
+  border-radius:inherit;
+  background:
+    radial-gradient(ellipse at 8% 12%,rgba(60,147,235,.09),transparent 36%),
+    radial-gradient(ellipse at 92% 88%,rgba(38,110,195,.10),transparent 40%);
+}
+#application #app-content .zc-pulse-visual-meta{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  flex-wrap:wrap;
+  min-height:22px;
+  color:#a9c7e8;
+  font-size:10px;
+  font-weight:850;
+  letter-spacing:.17em;
+}
+#application #app-content .zc-pulse-meta-title{display:inline-flex;align-items:center;gap:9px;color:#c5e2ff}
+#application #app-content .zc-pulse-meta-title i{
+  width:8px;height:8px;flex:0 0 8px;border-radius:50%;
+  background:#56adff;
+  box-shadow:0 0 0 4px rgba(74,158,255,.12),0 0 15px rgba(74,158,255,.95);
+  animation:zcBlockchainPulseBeacon 1.9s ease-in-out infinite;
+}
+#application #app-content .zc-pulse-meta-note{color:#789abb;font-size:9px;letter-spacing:.13em}
+#application #app-content .zc-pulse-svg{
+  display:block;
+  width:100%;
+  height:auto;
+  margin:4px 0 0;
+  overflow:visible;
+}
+#application #app-content .zc-pulse-particles circle{
+  fill:#75bdff;
+  opacity:.24;
+  transform-box:fill-box;
+  transform-origin:center;
+  animation:zcBlockchainPulseParticle 4.8s ease-in-out infinite;
+}
+#application #app-content .zc-pulse-particles circle:nth-child(2n){animation-delay:-1.3s}
+#application #app-content .zc-pulse-particles circle:nth-child(3n){animation-delay:-2.7s}
+#application #app-content .zc-pulse-trace-base{
+  stroke:rgba(76,147,214,.33);
+  stroke-width:3;
+  stroke-linecap:round;
+}
+#application #app-content .zc-pulse-trace{
+  stroke:#62b5ff;
+  stroke-width:3.5;
+  stroke-linecap:round;
+  stroke-dasharray:8 30;
+  filter:url(#zcPlanCopy-zcPulseGlow);
+  animation:zcBlockchainPulseSignal 2.7s linear infinite;
+}
+#application #app-content .zc-pulse-trace-delay{animation-delay:-1.35s}
+#application #app-content .zc-pulse-circuit-branch{
+  stroke:rgba(94,171,237,.40);
+  stroke-width:2;
+  stroke-dasharray:3 9;
+  stroke-linecap:round;
+}
+#application #app-content .zc-pulse-junction{
+  fill:#9bd3ff;
+  filter:url(#zcPlanCopy-zcPulseGlow);
+  animation:zcBlockchainPulseBeacon 2.4s ease-in-out infinite;
+}
+#application #app-content .zc-pulse-orbit{
+  fill:none;
+  stroke:rgba(79,161,235,.30);
+  stroke-width:1.5;
+  stroke-dasharray:5 13;
+  transform-box:fill-box;
+  transform-origin:center;
+  animation:zcBlockchainPulseOrbit 18s linear infinite;
+}
+#application #app-content .zc-pulse-orbit-b{animation-direction:reverse;animation-duration:22s}
+#application #app-content .zc-pulse-cube-float{
+  transform-box:fill-box;
+  transform-origin:center;
+  animation:zcBlockchainPulseFloat 5.6s ease-in-out infinite;
+}
+#application #app-content .zc-pulse-cube-float-b{animation-delay:-1.8s;animation-duration:6.4s}
+#application #app-content .zc-pulse-cube-float-c{animation-delay:-3.1s;animation-duration:5.9s}
+#application #app-content .zc-pulse-cube-top{
+  fill:url(#zcPlanCopy-zcPulseCubeTop);
+  stroke:#79bdff;
+  stroke-opacity:.85;
+  stroke-width:2;
+  stroke-linejoin:round;
+}
+#application #app-content .zc-pulse-cube-left{
+  fill:url(#zcPlanCopy-zcPulseCubeLeft);
+  stroke:#4e99db;
+  stroke-opacity:.78;
+  stroke-width:2;
+  stroke-linejoin:round;
+}
+#application #app-content .zc-pulse-cube-right{
+  fill:url(#zcPlanCopy-zcPulseCubeRight);
+  stroke:#65aeef;
+  stroke-opacity:.76;
+  stroke-width:2;
+  stroke-linejoin:round;
+}
+#application #app-content .zc-pulse-cube-lines{
+  fill:none;
+  stroke:#8bcaff;
+  stroke-opacity:.30;
+  stroke-width:1.3;
+}
+#application #app-content .zc-pulse-cube-highlight{
+  fill:none;
+  stroke:#c4e5ff;
+  stroke-opacity:.72;
+  stroke-width:2;
+  stroke-linecap:round;
+  filter:url(#zcPlanCopy-zcPulseGlow);
+}
+#application #app-content .zc-pulse-cube-halo{
+  fill:url(#zcPlanCopy-zcPulseCore);
+  opacity:.75;
+  transform-box:fill-box;
+  transform-origin:center;
+  animation:zcBlockchainPulseCore 2.7s ease-in-out infinite;
+}
+#application #app-content .zc-pulse-cube-core{
+  fill:#c8e9ff;
+  stroke:#66b4ff;
+  stroke-width:2;
+  filter:url(#zcPlanCopy-zcPulseGlow);
+  transform-box:fill-box;
+  transform-origin:center;
+  animation:zcBlockchainPulseCore 2.7s ease-in-out infinite;
+}
+#application #app-content .zc-pulse-cube-pin{
+  fill:#e6f5ff;
+  filter:url(#zcPlanCopy-zcPulseGlow);
+}
+#application #app-content .zc-pulse-floating-nodes circle{
+  fill:#a9d8ff;
+  stroke:#3f9eff;
+  stroke-width:2;
+  transform-box:fill-box;
+  transform-origin:center;
+  animation:zcBlockchainPulseBeacon 2.1s ease-in-out infinite;
+}
+#application #app-content .zc-pulse-floating-nodes circle:nth-child(even){animation-delay:-1s}
+#application #app-content .zc-pulse-block-labels{
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:12px;
+  margin:0 5% 3px;
+}
+#application #app-content .zc-pulse-block-labels span{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:9px;
+  padding:10px 8px;
+  border:1px solid rgba(91,157,215,.24);
+  border-radius:12px;
+  background:rgba(8,26,45,.62);
+  color:#a9c9e9;
+  font-size:10px;
+  font-weight:850;
+  letter-spacing:.16em;
+}
+#application #app-content .zc-pulse-block-labels i{
+  width:6px;height:6px;flex:0 0 6px;border-radius:50%;
+  background:#57aaff;
+  box-shadow:0 0 10px rgba(87,170,255,.9);
+}
+@keyframes zcBlockchainPulseSignal{
+  from{stroke-dashoffset:0}
+  to{stroke-dashoffset:-152}
+}
+@keyframes zcBlockchainPulseFloat{
+  0%,100%{transform:translateY(0)}
+  50%{transform:translateY(-10px)}
+}
+@keyframes zcBlockchainPulseCore{
+  0%,100%{opacity:.68;transform:scale(.84)}
+  50%{opacity:1;transform:scale(1.12)}
+}
+@keyframes zcBlockchainPulseBeacon{
+  0%,100%{opacity:.72;transform:scale(.88)}
+  50%{opacity:1;transform:scale(1.18)}
+}
+@keyframes zcBlockchainPulseOrbit{
+  to{transform:rotate(360deg)}
+}
+@keyframes zcBlockchainPulseParticle{
+  0%,100%{opacity:.16;transform:translateY(0) scale(.8)}
+  50%{opacity:.68;transform:translateY(-9px) scale(1.18)}
+}
+@media(max-width:640px){
+  #application #app-content .zc-blockchain-pulse{padding-top:34px;padding-bottom:40px}
+  #application #app-content .zc-pulse-stage{border-radius:19px}
+  #application #app-content .zc-pulse-stage-inner{padding:13px 10px 12px}
+  #application #app-content .zc-pulse-visual-meta{font-size:8px;letter-spacing:.12em}
+  #application #app-content .zc-pulse-meta-note{font-size:7px;letter-spacing:.08em}
+  #application #app-content .zc-pulse-svg{width:112%;max-width:none;margin-left:-6%}
+  #application #app-content .zc-pulse-block-labels{gap:6px;margin:0 1% 2px}
+  #application #app-content .zc-pulse-block-labels span{gap:5px;padding:9px 3px;font-size:8px;letter-spacing:.10em;border-radius:9px}
+}
+@media(prefers-reduced-motion:reduce){
+  #application #app-content .zc-pulse-meta-title i,
+  #application #app-content .zc-pulse-particles circle,
+  #application #app-content .zc-pulse-trace,
+  #application #app-content .zc-pulse-junction,
+  #application #app-content .zc-pulse-orbit,
+  #application #app-content .zc-pulse-cube-float,
+  #application #app-content .zc-pulse-cube-halo,
+  #application #app-content .zc-pulse-cube-core,
+  #application #app-content .zc-pulse-floating-nodes circle{
+    animation:none!important;
+  }
+}
+/* Blockchain Technology: stage, grid, blocks, signal paths and labels all inherit the active theme. */
+body[data-zc-theme] #application #app-content .zc-blockchain-pulse .zc-pulse-only-heading{
+ color:var(--mint)!important;
+ text-shadow:0 0 16px color-mix(in srgb,var(--green) 36%,transparent);
+}
+body[data-zc-theme] #application #app-content .zc-blockchain-pulse .zc-pulse-stage{
+ border-color:color-mix(in srgb,var(--green) 46%,var(--line))!important;
+ background:
+  radial-gradient(ellipse at 50% 48%,color-mix(in srgb,var(--green) 19%,transparent),transparent 54%),
+  linear-gradient(145deg,var(--panel2),var(--bg) 62%,var(--panel))!important;
+ box-shadow:0 28px 80px color-mix(in srgb,var(--bg) 72%,#000 28%),
+  inset 0 1px 0 color-mix(in srgb,var(--mint) 22%,transparent),
+  0 0 38px color-mix(in srgb,var(--green) 18%,transparent)!important;
+}
+body[data-zc-theme] #application #app-content .zc-blockchain-pulse .zc-pulse-stage-inner{
+ background:
+  radial-gradient(ellipse at 8% 12%,color-mix(in srgb,var(--green) 15%,transparent),transparent 36%),
+  radial-gradient(ellipse at 92% 88%,color-mix(in srgb,var(--mint) 12%,transparent),transparent 40%)!important;
+}
+body[data-zc-theme] #application #app-content .zc-pulse-visual-meta,
+body[data-zc-theme] #application #app-content .zc-pulse-meta-title{color:var(--mint)!important}
+body[data-zc-theme] #application #app-content .zc-pulse-meta-note{color:var(--muted)!important}
+body[data-zc-theme] #application #app-content .zc-pulse-meta-title i{
+ background:var(--green)!important;
+ box-shadow:0 0 0 4px color-mix(in srgb,var(--green) 17%,transparent),
+  0 0 17px color-mix(in srgb,var(--green) 92%,transparent)!important;
+}
+body[data-zc-theme] #application #app-content .zc-pulse-particles circle{fill:var(--mint)!important}
+body[data-zc-theme] #application #app-content .zc-pulse-trace-base{
+ stroke:color-mix(in srgb,var(--green) 35%,var(--line))!important;
+}
+body[data-zc-theme] #application #app-content .zc-pulse-trace{
+ stroke:var(--green)!important;
+ filter:drop-shadow(0 0 3px var(--green)) drop-shadow(0 0 9px color-mix(in srgb,var(--green) 68%,transparent))!important;
+}
+body[data-zc-theme] #application #app-content .zc-pulse-circuit-branch{stroke:color-mix(in srgb,var(--mint) 55%,var(--line))!important}
+body[data-zc-theme] #application #app-content .zc-pulse-junction{fill:var(--mint)!important}
+body[data-zc-theme] #application #app-content .zc-pulse-orbit{stroke:color-mix(in srgb,var(--green) 42%,var(--line))!important}
+body[data-zc-theme] #application #app-content .zc-pulse-cube-top,
+body[data-zc-theme] #application #app-content .zc-pulse-cube-left,
+body[data-zc-theme] #application #app-content .zc-pulse-cube-right{stroke:var(--green)!important}
+body[data-zc-theme] #application #app-content .zc-pulse-cube-lines{stroke:var(--mint)!important;stroke-opacity:.36!important}
+body[data-zc-theme] #application #app-content .zc-pulse-cube-highlight{
+ stroke:var(--mint)!important;
+ filter:drop-shadow(0 0 3px var(--green)) drop-shadow(0 0 8px color-mix(in srgb,var(--green) 70%,transparent))!important;
+}
+body[data-zc-theme] #application #app-content .zc-pulse-cube-halo{fill:url(#zcPlanCopy-zcPulseCore)!important}
+body[data-zc-theme] #application #app-content .zc-pulse-cube-core{fill:var(--mint)!important;stroke:var(--green)!important}
+body[data-zc-theme] #application #app-content .zc-pulse-cube-pin{fill:var(--text)!important}
+body[data-zc-theme] #application #app-content .zc-pulse-floating-nodes circle{
+ fill:var(--mint)!important;stroke:var(--green)!important;
+}
+body[data-zc-theme] #application #app-content .zc-pulse-block-labels span{
+ border-color:color-mix(in srgb,var(--green) 36%,var(--line))!important;
+ background:color-mix(in srgb,var(--panel) 84%,var(--bg))!important;
+ color:var(--muted)!important;
+}
+body[data-zc-theme] #application #app-content .zc-pulse-block-labels i{
+ background:var(--green)!important;
+ box-shadow:0 0 11px color-mix(in srgb,var(--green) 92%,transparent)!important;
+}
+/* SVG gradient definitions are restyled directly so the three block faces and cores recolor too. */
+body[data-zc-theme] #application #app-content #zcPlanCopy-zcPulseCubeTop stop:first-child{stop-color:var(--mint)!important;stop-opacity:.34!important}
+body[data-zc-theme] #application #app-content #zcPlanCopy-zcPulseCubeTop stop:last-child{stop-color:var(--green)!important;stop-opacity:.14!important}
+body[data-zc-theme] #application #app-content #zcPlanCopy-zcPulseCubeLeft stop:first-child{stop-color:var(--green)!important;stop-opacity:.48!important}
+body[data-zc-theme] #application #app-content #zcPlanCopy-zcPulseCubeLeft stop:last-child{stop-color:var(--panel2)!important;stop-opacity:.92!important}
+body[data-zc-theme] #application #app-content #zcPlanCopy-zcPulseCubeRight stop:first-child{stop-color:var(--mint)!important;stop-opacity:.36!important}
+body[data-zc-theme] #application #app-content #zcPlanCopy-zcPulseCubeRight stop:last-child{stop-color:var(--panel)!important;stop-opacity:.94!important}
+body[data-zc-theme] #application #app-content #zcPlanCopy-zcPulseCore stop:first-child{stop-color:var(--text)!important}
+body[data-zc-theme] #application #app-content #zcPlanCopy-zcPulseCore stop:nth-child(2){stop-color:var(--mint)!important}
+body[data-zc-theme] #application #app-content #zcPlanCopy-zcPulseCore stop:last-child{stop-color:var(--green)!important;stop-opacity:0!important}
+body[data-zc-theme] #application #app-content #zcPlanCopy-zcPulseGrid path{stroke:var(--green)!important;stroke-opacity:.12!important}
+
+
+</style>
+
 
 <style id="zc-dashboard-transition-splash-v1">
 #public .zc-blockchain-pulse .zc-pulse-only-heading{
