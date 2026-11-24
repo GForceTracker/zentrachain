@@ -2027,7 +2027,7 @@ function zcRenderAltDashboard(styleId){
  }else if(styleId===4){
   markup='<div class="zc-alt-dashboard zc-minimal-dashboard"><div class="zc-minimal-heading"><div><div class="eyebrow">ACCOUNT OVERVIEW</div><h1>Your account, at a glance.</h1><p>Welcome back, '+name+'. Here is your latest account summary.</p></div>'+actions+'</div><section class="zc-minimal-balance"><div><small>Account Balance</small><strong>'+accountBalance+'</strong><p>Available Funds ready to use or withdraw.</p></div><div class="zc-minimal-balance-mark" aria-hidden="true">Z</div></section><div class="zc-alt-stat-grid zc-minimal-stat-grid">'+zcDashboardStat('Deposit Balance',deposit,'Not yet invested','↓')+zcDashboardStat('Investment Balance',investment,'In active plans','◈')+zcDashboardStat('Accrued profit',profit,'Accrued plan profit','⌁')+zcDashboardStat('Bonus Balance',bonus,'Referral rewards','✦')+'</div>'+plans+recent+zcHowAccountWorksHTML()+'<div class="zc-alt-two-col">'+chart+watch+'</div>'+referrals+'</div>';
  }else{
-  markup='<div class="zc-alt-dashboard zc-mobile-dashboard"><div class="zc-mobile-welcome"><div><div class="eyebrow">YOUR ZENTRACHAIN</div><h1>Hello, '+name+'</h1><p>Here is your account overview.</p></div><span class="zc-mobile-bitcoin-emblem" role="img" aria-label="Bitcoin emblem"><span class="zc-bitcoin-coin" aria-hidden="true"><span class="zc-bitcoin-face zc-bitcoin-face-front">₿</span></span><svg class="zc-bitcoin-crack-layer" viewBox="0 0 100 100" aria-hidden="true" focusable="false"><path class="zc-bitcoin-crack-line zc-bitcoin-crack-main" d="M52 8 L43 25 L55 34 L41 50 L54 60 L46 82"/><path class="zc-bitcoin-crack-line zc-bitcoin-crack-branch" d="M43 25 L30 20 L35 31 L22 38"/><path class="zc-bitcoin-crack-line zc-bitcoin-crack-branch zc-bitcoin-crack-delay-a" d="M55 34 L69 24 L64 39 L79 45"/><path class="zc-bitcoin-crack-line zc-bitcoin-crack-branch zc-bitcoin-crack-delay-b" d="M41 50 L25 57 L36 65 L22 77"/><path class="zc-bitcoin-crack-line zc-bitcoin-crack-branch zc-bitcoin-crack-delay-c" d="M54 60 L68 66 L61 77 L76 84"/><path class="zc-bitcoin-crack-line zc-bitcoin-crack-fine" d="M43 39 L34 45 L42 52 M55 47 L66 53 L57 59"/><circle class="zc-bitcoin-crack-flash" cx="51" cy="49" r="5"/></svg></span></div><section class="zc-mobile-balance"><div class="zc-mobile-balance-top"><span>AVAILABLE FUNDS</span><span class="zc-mobile-live"><i></i> LIVE</span></div><strong>'+accountBalance+'</strong><small>Ready to use or withdraw</small>'+actions+'</section><div class="zc-alt-stat-grid zc-mobile-stat-grid">'+zcDashboardStat('Deposit Balance',deposit,'Not yet invested','↓')+zcDashboardStat('Investment Balance',investment,'In active plans','◈')+zcDashboardStat('Accrued Profit',profit,'Plan accrual only','⌁')+zcDashboardStat('Bonus Balance',bonus,'Referral rewards','✦')+'</div><div class="zc-mobile-section-head"><h2>Quick overview</h2><button class="btn" type="button" onclick="navigate(&quot;activity&quot;)">Activity</button></div>'+zcDashboardInsightsHTML()+plans+recent+zcHowAccountWorksHTML()+'<div class="zc-mobile-market-grid">'+chart+watch+'</div>'+referrals+'</div>';
+  markup='<div class="zc-alt-dashboard zc-mobile-dashboard"><div class="zc-mobile-welcome"><div><div class="eyebrow">YOUR ZENTRACHAIN</div><h1>Hello, '+name+'</h1><p>Here is your account overview.</p></div><span class="zc-mobile-bitcoin-emblem" role="img" aria-label="Bitcoin emblem"><span class="zc-bitcoin-coin" aria-hidden="true"><span class="zc-bitcoin-face zc-bitcoin-face-front">₿</span><span class="zc-bitcoin-shards" aria-hidden="true"><span class="zc-bitcoin-shard zc-bitcoin-shard-a">₿</span><span class="zc-bitcoin-shard zc-bitcoin-shard-b">₿</span><span class="zc-bitcoin-shard zc-bitcoin-shard-c">₿</span><span class="zc-bitcoin-shard zc-bitcoin-shard-d">₿</span><span class="zc-bitcoin-shard zc-bitcoin-shard-e">₿</span></span></span><svg class="zc-bitcoin-crack-layer" viewBox="0 0 100 100" aria-hidden="true" focusable="false"><path class="zc-bitcoin-crack-line zc-bitcoin-crack-main" d="M52 3 L43 18 L55 28 L42 40 L55 52 L43 64 L56 77 L49 97"/><path class="zc-bitcoin-crack-line zc-bitcoin-crack-branch" d="M44 25 L30 20 L15 16"/><path class="zc-bitcoin-crack-line zc-bitcoin-crack-branch zc-bitcoin-crack-delay-a" d="M56 27 L71 19 L85 15"/><path class="zc-bitcoin-crack-line zc-bitcoin-crack-branch zc-bitcoin-crack-delay-b" d="M56 49 L75 45 L97 53"/><path class="zc-bitcoin-crack-line zc-bitcoin-crack-branch zc-bitcoin-crack-delay-c" d="M43 62 L27 72 L14 84"/><path class="zc-bitcoin-crack-line zc-bitcoin-crack-branch" d="M55 70 L72 79 L85 84"/><path class="zc-bitcoin-crack-line zc-bitcoin-crack-branch zc-bitcoin-crack-delay-b" d="M57 57 L76 64 L96 91"/><circle class="zc-bitcoin-crack-flash" cx="51" cy="49" r="5"/></svg></span></div><section class="zc-mobile-balance"><div class="zc-mobile-balance-top"><span>AVAILABLE FUNDS</span><span class="zc-mobile-live"><i></i> LIVE</span></div><strong>'+accountBalance+'</strong><small>Ready to use or withdraw</small>'+actions+'</section><div class="zc-alt-stat-grid zc-mobile-stat-grid">'+zcDashboardStat('Deposit Balance',deposit,'Not yet invested','↓')+zcDashboardStat('Investment Balance',investment,'In active plans','◈')+zcDashboardStat('Accrued Profit',profit,'Plan accrual only','⌁')+zcDashboardStat('Bonus Balance',bonus,'Referral rewards','✦')+'</div><div class="zc-mobile-section-head"><h2>Quick overview</h2><button class="btn" type="button" onclick="navigate(&quot;activity&quot;)">Activity</button></div>'+zcDashboardInsightsHTML()+plans+recent+zcHowAccountWorksHTML()+'<div class="zc-mobile-market-grid">'+chart+watch+'</div>'+referrals+'</div>';
  }
  if(styleId!==5)markup=markup.replace(/<\/div>$/,zcDashboardInsightsHTML()+'</div>');
  c.innerHTML=markup;
@@ -13088,7 +13088,7 @@ body[data-zc-theme] #application #app-content .zc-mobile-bitcoin-emblem .zc-bitc
  font-weight:950!important;
  line-height:1!important;
  letter-spacing:-.075em!important;
- opacity:1!important;
+ opacity:1;
  color:var(--green,#20c783)!important;
  -webkit-text-fill-color:transparent!important;
  -webkit-text-stroke:.7px color-mix(in srgb,var(--mint,#9be8c5) 86%,white 14%)!important;
@@ -13105,17 +13105,73 @@ body[data-zc-theme] #application #app-content .zc-mobile-bitcoin-emblem .zc-bitc
  text-shadow:
   0 1px 0 color-mix(in srgb,var(--green,#20c783) 72%,var(--panel2,#102b20) 28%),
   0 0 5px color-mix(in srgb,var(--mint,#9be8c5) 24%,transparent)!important;
+ transform-box:fill-box!important;
+ transform-origin:center!important;
+ animation:zcBitcoinFaceShatter 5s cubic-bezier(.2,.7,.2,1) infinite!important;
 }
-/* Lightning is drawn only in this clipped inner layer; it cannot cross the ring border. */
+/* The lightning reaches the inside edge of the ring without crossing its border. */
+#application #app-content .zc-mobile-bitcoin-emblem .zc-bitcoin-shards{
+ position:absolute!important;
+ inset:0!important;
+ z-index:5!important;
+ pointer-events:none!important;
+}
+#application #app-content .zc-mobile-bitcoin-emblem .zc-bitcoin-shard{
+ position:absolute!important;
+ inset:0!important;
+ display:grid!important;
+ place-items:center!important;
+ font-family:Arial,Helvetica,sans-serif!important;
+ font-size:29px!important;
+ font-weight:950!important;
+ line-height:1!important;
+ letter-spacing:-.075em!important;
+ color:var(--green,#20c783)!important;
+ -webkit-text-fill-color:transparent!important;
+ -webkit-text-stroke:.7px color-mix(in srgb,var(--mint,#9be8c5) 86%,white 14%)!important;
+ background:linear-gradient(145deg,
+  color-mix(in srgb,var(--text,#effaf4) 76%,var(--mint,#9be8c5) 24%) 0%,
+  var(--mint,#9be8c5) 23%,
+  var(--green,#20c783) 58%,
+  color-mix(in srgb,var(--green,#20c783) 58%,var(--panel2,#102b20) 42%) 100%)!important;
+ -webkit-background-clip:text!important;
+ background-clip:text!important;
+ background-repeat:no-repeat!important;
+ opacity:0!important;
+ transform:translate3d(0,0,2px) rotate(0deg)!important;
+ filter:drop-shadow(0 0 3px color-mix(in srgb,var(--green,#20c783) 40%,transparent))!important;
+ animation:zcBitcoinShardBurst 5s cubic-bezier(.2,.7,.2,1) infinite!important;
+}
+#application #app-content .zc-mobile-bitcoin-emblem .zc-bitcoin-shard-a{clip-path:polygon(14% 0,72% 0,55% 37%,18% 44%,0 28%)!important;--burst-x:-7px;--burst-y:-8px;--burst-r:-17deg}
+#application #app-content .zc-mobile-bitcoin-emblem .zc-bitcoin-shard-b{clip-path:polygon(72% 0,100% 8%,100% 53%,55% 45%,55% 37%)!important;--burst-x:8px;--burst-y:-6px;--burst-r:18deg}
+#application #app-content .zc-mobile-bitcoin-emblem .zc-bitcoin-shard-c{clip-path:polygon(55% 45%,100% 53%,100% 100%,58% 100%,43% 64%)!important;--burst-x:8px;--burst-y:8px;--burst-r:14deg}
+#application #app-content .zc-mobile-bitcoin-emblem .zc-bitcoin-shard-d{clip-path:polygon(0 28%,18% 44%,43% 64%,58% 100%,0 100%)!important;--burst-x:-8px;--burst-y:8px;--burst-r:-15deg}
+#application #app-content .zc-mobile-bitcoin-emblem .zc-bitcoin-shard-e{clip-path:polygon(18% 44%,55% 37%,55% 45%,43% 64%)!important;--burst-x:1px;--burst-y:-1px;--burst-r:28deg}
+@keyframes zcBitcoinFaceShatter{
+ 0%,59%,100%{opacity:1;filter:drop-shadow(0 0 3px color-mix(in srgb,var(--green,#20c783) 28%,transparent))}
+ 62%{opacity:.55}
+ 66%,88%{opacity:0;filter:drop-shadow(0 0 9px var(--mint,#9be8c5))}
+ 93%{opacity:.55}
+ 97%{opacity:1}
+}
+@keyframes zcBitcoinShardBurst{
+ 0%,60%,100%{opacity:0;transform:translate3d(0,0,2px) rotate(0deg)}
+ 63%{opacity:1;transform:translate3d(0,0,2px) rotate(0deg)}
+ 70%,80%{opacity:1;transform:translate3d(var(--burst-x),var(--burst-y),12px) rotate(var(--burst-r))}
+ 86%{opacity:1;transform:translate3d(calc(var(--burst-x) * .48),calc(var(--burst-y) * .48),7px) rotate(calc(var(--burst-r) * .48))}
+ 92%{opacity:.8;transform:translate3d(0,0,2px) rotate(0deg)}
+ 96%{opacity:0;transform:translate3d(0,0,2px) rotate(0deg)}
+}
+/* Inner-rim lightning bolts terminate just inside the ring at the top, sides and lower arc. */
 #application #app-content .zc-mobile-bitcoin-emblem .zc-bitcoin-crack-layer{
  position:absolute!important;
- inset:7px!important;
- z-index:3!important;
+ inset:2px!important;
+ z-index:6!important;
  display:block!important;
- width:calc(100% - 14px)!important;
- height:calc(100% - 14px)!important;
+ width:calc(100% - 4px)!important;
+ height:calc(100% - 4px)!important;
  overflow:hidden!important;
- clip-path:circle(48% at 50% 50%)!important;
+ clip-path:circle(49% at 50% 50%)!important;
  pointer-events:none!important;
  opacity:1!important;
 }
@@ -13150,17 +13206,18 @@ body[data-zc-theme] #application #app-content .zc-mobile-bitcoin-emblem .zc-bitc
  animation:zcBitcoinCrackFlash 5s ease-in-out infinite!important;
 }
 @keyframes zcBitcoinCrackRepair{
- 0%,65%,100%{opacity:0;stroke-dasharray:0 220}
- 68%{opacity:.95;stroke-dasharray:0 220}
- 77%{opacity:1;stroke-dasharray:220 220}
- 83%{opacity:1;stroke-dasharray:220 220}
+ 0%,56%,100%{opacity:0;stroke-dasharray:0 220}
+ 60%{opacity:.5;stroke-dasharray:0 220}
+ 65%{opacity:1;stroke-dasharray:220 220}
+ 73%{opacity:1;stroke-dasharray:220 220}
+ 84%{opacity:.9;stroke-dasharray:220 220}
  94%{opacity:0;stroke-dasharray:0 220}
 }
 @keyframes zcBitcoinCrackFlash{
- 0%,66%,100%{opacity:0;transform:scale(.3)}
- 69%{opacity:1;transform:scale(1.25)}
- 76%{opacity:.75;transform:scale(.8)}
- 88%,94%{opacity:0;transform:scale(.2)}
+ 0%,57%,100%{opacity:0;transform:scale(.3)}
+ 62%{opacity:1;transform:scale(1.25)}
+ 70%{opacity:.75;transform:scale(.8)}
+ 84%,94%{opacity:0;transform:scale(.2)}
 }
 @keyframes zcBitcoinRingEdgeRun{
  to{transform:rotate(360deg)}
