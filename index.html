@@ -4651,7 +4651,7 @@ body[data-zc-theme] #app-content #wd-network-cards::-webkit-scrollbar-thumb{back
    const ref=deposit?(x.tx_hash||'Not supplied'):(x.payout_reference||x.destination_address||'—');
    const actionable=deposit?['pending','under_review'].includes(String(x.status||'').toLowerCase()):zcWithdrawalIsActionable(x.status);
    const action=deposit
-    ?(actionable?'<button class="btn primary" onclick="reviewDeposit(\\''+x.id+'\\',true)">Verify</button> <button class="btn danger" onclick="reviewDeposit(\\''+x.id+'\\',false)">Reject</button>':'—')
+    ?(actionable?'<button class="btn primary" onclick="reviewDeposit(\''+x.id+'\',true)">Verify</button> <button class="btn danger" onclick="reviewDeposit(\''+x.id+'\',false)">Reject</button>':'—')
     :(actionable
       ?'<div style="min-width:210px"><button class="btn primary" onclick="payWithdrawal(&quot;'+x.id+'&quot;)">Approve</button> <button class="btn danger" onclick="declineWithdrawal(&quot;'+x.id+'&quot;)">Decline</button> <button class="btn" onclick="ignoreWithdrawal(&quot;'+x.id+'&quot;)">Ignore</button></div>'
       :'—');
