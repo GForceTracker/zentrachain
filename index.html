@@ -1468,6 +1468,17 @@ function zcWithdrawalStatusLabel(status,customerView=false){
  if(s==='approved')return 'Approved';
  return s.replace(/_/g,' ');
 }
+function zcWithdrawalIsActionable(status){
+ return ['pending','under_review'].includes(String(status||'').toLowerCase());
+}
+function zcWithdrawalStatusClass(status){
+ const s=String(status||'pending').toLowerCase();
+ if(['approved','paid'].includes(s))return 'good';
+ if(['pending','under_review'].includes(s))return 'warn';
+ if(['declined','rejected'].includes(s))return 'rejected';
+ if(s==='voided')return 'ignored';
+ return '';
+}
 async function zcRefreshWithdrawalReview(){
  if(typeof window.zcOpenAdminSection==='function')return await window.zcOpenAdminSection('withdrawal-requests');
  return await refreshAdmin();
@@ -2519,11 +2530,15 @@ async function loadAdminData(){
 }
 function adminDepositTable(){const rows=adminDeposits.filter(x=>['pending','under_review'].includes(x.status));if(!rows.length)return '<div class="empty">No deposit requests awaiting review.</div>';return '<div class="table-wrap"><table><thead><tr><th>User</th><th>Amount</th><th>Network</th><th>Transaction hash</th><th>Actions</th></tr></thead><tbody>'+rows.map(x=>'<tr><td>'+esc(x.user_id.slice(0,8))+'</td><td>'+fmt(x.amount)+'</td><td>'+esc(x.network)+'</td><td>'+esc(x.tx_hash||'—')+'</td><td><button class="btn primary" onclick="reviewDeposit(\''+x.id+'\',true)">Verify & credit</button> <button class="btn danger" onclick="reviewDeposit(\''+x.id+'\',false)">Reject</button></td></tr>').join('')+'</tbody></table></div>'}
 function adminWithdrawalTable(){
- const rows=adminWithdrawals.filter(x=>['pending','under_review','approved'].includes(x.status));
- if(!rows.length)return '<div class="empty">No withdrawal requests awaiting review.</div>';
- return '<div class="table-wrap"><table><thead><tr><th>User</th><th>Amount</th><th>Network</th><th>Destination</th><th>Actions</th></tr></thead><tbody>'+rows.map(x=>
-  '<tr><td>'+esc(x.user_id.slice(0,8))+'</td><td>'+fmt(x.amount)+'</td><td>'+esc(x.network)+'</td><td style="max-width:210px;overflow-wrap:anywhere">'+esc(x.destination_address)+'</td><td><div style="min-width:210px"><button class="btn primary" onclick="payWithdrawal(&quot;'+x.id+'&quot;)">Approve</button> <button class="btn danger" onclick="declineWithdrawal(&quot;'+x.id+'&quot;)">Decline</button> <button class="btn" onclick="ignoreWithdrawal(&quot;'+x.id+'&quot;)">Ignore</button></div></td></tr>'
- ).join('')+'</tbody></table></div>';
+ const rows=adminWithdrawals;
+ if(!rows.length)return '<div class="empty">No withdrawal requests found.</div>';
+ return '<div class="table-wrap"><table><thead><tr><th>User</th><th>Amount</th><th>Network</th><th>Destination / Reference</th><th>Status</th><th>Action</th></tr></thead><tbody>'+rows.map(x=>{
+  const actionable=zcWithdrawalIsActionable(x.status);
+  const action=actionable
+   ?'<div style="min-width:210px"><button class="btn primary" onclick="payWithdrawal(&quot;'+x.id+'&quot;)">Approve</button> <button class="btn danger" onclick="declineWithdrawal(&quot;'+x.id+'&quot;)">Decline</button> <button class="btn" onclick="ignoreWithdrawal(&quot;'+x.id+'&quot;)">Ignore</button></div>'
+   :'—';
+  return '<tr><td>'+esc(x.user_id.slice(0,8))+'</td><td>'+fmt(x.amount)+'</td><td>'+esc(x.network)+'</td><td style="max-width:210px;overflow-wrap:anywhere">'+esc(x.payout_reference||x.destination_address||'—')+'</td><td><span class="zc-admin-status '+zcWithdrawalStatusClass(x.status)+'">'+esc(zcWithdrawalStatusLabel(x.status,false))+'</span></td><td>'+action+'</td></tr>';
+ }).join('')+'</tbody></table></div>';
 }
 function adminProfilesTable(){if(!profiles.length)return '<div class="empty">No user profiles found.</div>';return '<div class="table-wrap"><table><thead><tr><th>Name</th><th>Email</th><th>Role</th><th>Created</th></tr></thead><tbody>'+profiles.map(x=>'<tr><td>'+esc(x.full_name||'—')+'</td><td>'+esc(x.email)+'</td><td>'+esc(x.role)+'</td><td>'+date(x.created_at)+'</td></tr>').join('')+'</tbody></table></div>'}
 function reportsTable(){if(!reports.length)return '<div class="empty">No trading reports published. Do not add performance claims until reconciled to source records.</div>';return '<div class="table-wrap"><table><thead><tr><th>Report</th><th>Period</th><th>Net P&L</th><th>Drawdown</th><th>Verified</th></tr></thead><tbody>'+reports.map(x=>'<tr><td>'+esc(x.title)+'</td><td>'+esc(x.period_start)+' – '+esc(x.period_end)+'</td><td>'+fmt(x.net_pnl)+'</td><td>'+fmt(x.max_drawdown)+'%</td><td>'+ (x.verified?'Yes':'No')+'</td></tr>').join('')+'</tbody></table></div>'}
@@ -2548,6 +2563,7 @@ async function ignoreWithdrawal(id){
  if(!admin())return toast('Administrator access required.',true);
  const {error}=await db.rpc('admin_ignore_gforce_withdrawal',{p_request_id:id,p_note:null});
  if(error)return toast(error.message,true);
+ toast('Withdrawal ignored. Status updated to Ignored.');
  await zcRefreshWithdrawalReview();
 }
 async function signOut(){await db.auth.signOut();showPublic()}
@@ -4460,6 +4476,8 @@ body[data-zc-theme] #app-content #wd-network-cards::-webkit-scrollbar-thumb{back
 #app-content .zc-admin-status{display:inline-flex;align-items:center;padding:5px 9px;border-radius:30px;background:var(--panel2);font-size:11px;font-weight:800}
 #app-content .zc-admin-status.good{color:#38c88b}
 #app-content .zc-admin-status.warn{color:#e6ad4a}
+#app-content .zc-admin-status.rejected{color:#ff8585;background:color-mix(in srgb,var(--red) 12%,var(--panel))}
+#app-content .zc-admin-status.ignored{color:var(--muted);background:var(--panel2)}
 #app-content .zc-admin-mobile-table{overflow-x:auto}
 #app-content .zc-admin-mobile-table table{min-width:620px;width:100%}
 @media(max-width:560px){
@@ -4621,23 +4639,24 @@ body[data-zc-theme] #app-content #wd-network-cards::-webkit-scrollbar-thumb{back
  async function requestsPage(kind){
   const deposit=kind==='deposit',title=deposit?'Deposit Requests':'Withdrawal Requests',table=deposit?'deposit_requests':'withdrawal_requests';
   const root=$('app-content');
-  root.innerHTML=head(title,deposit?'Review incoming deposit submissions. Verify transactions independently before crediting an account.':'Review withdrawal requests. Approve only after on-chain payment verification. Decline releases the reserved Available Funds. Ignore voids the request and does not refund it.')+'<section class="card panel"><div id="zc-admin-requests-table" class="table-wrap zc-admin-mobile-table">Loading requests…</div></section>';
-  const cols=deposit?'id,user_id,amount,asset,network,tx_hash,status,created_at,admin_note':'id,user_id,amount,asset,network,destination_address,tx_hash,status,created_at,admin_note';
+  root.innerHTML=head(title,deposit?'Review incoming deposit submissions. Verify transactions independently before crediting an account.':'Review withdrawal requests. Approve, decline or ignore each request once. Completed requests remain visible with one final status badge.')+'<section class="card panel"><div id="zc-admin-requests-table" class="table-wrap zc-admin-mobile-table">Loading requests…</div></section>';
+  const cols=deposit?'id,user_id,amount,asset,network,tx_hash,status,created_at,admin_note':'id,user_id,amount,asset,network,destination_address,payout_reference,tx_hash,status,created_at,admin_note';
   const {data,error}=await db.from(table).select(cols).order('created_at',{ascending:false});if(error)throw error;
   const profilesResult=await db.from('profiles').select('id,full_name,email');const users=Object.fromEntries((profilesResult.data||[]).map(x=>[x.id,x]));
   const rows=data||[];
   const box=$('zc-admin-requests-table');if(!box)return;
   if(!rows.length){box.innerHTML='<div class="empty">No '+title.toLowerCase()+' found.</div>';return}
   box.innerHTML='<table><thead><tr><th>Customer</th><th>Amount</th><th>Network</th><th>Reference / Destination</th><th>Status</th><th>Date</th><th>Action</th></tr></thead><tbody>'+rows.map(x=>{
-   const u=users[x.user_id]||{},ref=deposit?(x.tx_hash||'Not supplied'):(x.payout_reference||x.destination_address||'—');
-   const pending=['pending','under_review','approved'].includes(x.status);
+   const u=users[x.user_id]||{};
+   const ref=deposit?(x.tx_hash||'Not supplied'):(x.payout_reference||x.destination_address||'—');
+   const actionable=deposit?['pending','under_review'].includes(String(x.status||'').toLowerCase()):zcWithdrawalIsActionable(x.status);
    const action=deposit
-    ?(pending?'<button class="btn primary" onclick="reviewDeposit(\''+x.id+'\',true)">Verify</button> <button class="btn danger" onclick="reviewDeposit(\''+x.id+'\',false)">Reject</button>':'—')
-    :(pending
+    ?(actionable?'<button class="btn primary" onclick="reviewDeposit(\\''+x.id+'\\',true)">Verify</button> <button class="btn danger" onclick="reviewDeposit(\\''+x.id+'\\',false)">Reject</button>':'—')
+    :(actionable
       ?'<div style="min-width:210px"><button class="btn primary" onclick="payWithdrawal(&quot;'+x.id+'&quot;)">Approve</button> <button class="btn danger" onclick="declineWithdrawal(&quot;'+x.id+'&quot;)">Decline</button> <button class="btn" onclick="ignoreWithdrawal(&quot;'+x.id+'&quot;)">Ignore</button></div>'
       :'—');
-   const statusClass=x.status==='paid'?'good':(pending?'warn':(['declined','rejected'].includes(x.status)?'':''));
-   const statusLabel=zcWithdrawalStatusLabel(x.status,false);
+   const statusClass=deposit?(actionable?'warn':(['rejected','declined'].includes(String(x.status||'').toLowerCase())?'rejected':'')):zcWithdrawalStatusClass(x.status);
+   const statusLabel=deposit?String(x.status||'pending').replace(/_/g,' '):zcWithdrawalStatusLabel(x.status,false);
    return '<tr><td><b>'+safe(u.full_name||'Customer')+'</b><small style="display:block;color:var(--muted)">'+safe(u.email||x.user_id)+'</small></td><td>'+fmtUSD(x.amount)+'</td><td>'+safe(x.asset||'USDT')+' · '+safe(x.network||'—')+'</td><td style="max-width:220px;overflow-wrap:anywhere">'+safe(ref)+'</td><td><span class="zc-admin-status '+statusClass+'">'+safe(statusLabel)+'</span></td><td>'+safe(x.created_at?new Date(x.created_at).toLocaleString():'—')+'</td><td>'+action+'</td></tr>';
   }).join('')+'</tbody></table>';
  }
