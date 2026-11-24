@@ -89,23 +89,42 @@ Deno.serve(async (req: Request) => {
     const newestHuman = [...recent].reverse().find(m => m.sender_id !== null && !m.deleted_at && m.body);
     const freshHuman = newestHuman && (Date.now() - Date.parse(newestHuman.created_at ?? "") < 180000);
 
-    const posted: Array<{ author: string; body: string; ai: boolean }> = [];
-    const turnCount = 1 + Math.floor(Math.random() * 2); // 1-2 personas speak per turn
+    const sleep = (ms: number) => new Promise(r => setTimeout(r, ms));
+    const posted: Array<{ author: string; body: string; reply: boolean; ai: boolean }> = [];
+    const turnCount = 4 + Math.floor(Math.random() * 5); // 4-8 personas per turn
     const used = new Set<number>();
+    let lastMessageId: string | null = null;
+    let lastAuthor: string | null = null;
     for (let i = 0; i < turnCount; i++) {
       let idx = Math.floor(Math.random() * PERSONAS.length);
       while (used.has(idx)) idx = (idx + 1) % PERSONAS.length;
       used.add(idx);
       const who = PERSONAS[idx];
-      const replying = i === 0 && !!freshHuman && !!newestHuman;
-      let text = await deepseekMessage(who, transcript, replying);
+      // Show the typing indicator, wait a natural moment, then post.
+      await rest("community_typing", {
+        method: "POST", headers: { Prefer: "resolution=merge-duplicates" },
+        body: JSON.stringify({ name: who, until: new Date(Date.now() + 9000).toISOString() })
+      });
+      await sleep(900 + Math.floor(Math.random() * 1200));
+      const transcribed = transcript + (posted.length ? "\n" + posted.map(p => "[bot] " + p.author + ": " + p.body.slice(0, 140)).join("\n") : "");
+      const replyToPeer = i > 0 && lastMessageId && Math.random() < 0.45; // personas reply to each other
+      const replying = (i === 0 && !!freshHuman && !!newestHuman) || replyToPeer;
+      let text = await deepseekMessage(who, transcribed, replying);
       let ai = true;
       if (!text) { text = FALLBACK[Math.floor(Math.random() * FALLBACK.length)]; ai = false; }
+      const replyTo = i === 0 && freshHuman && newestHuman ? newestHuman.id : (replyToPeer && lastMessageId ? lastMessageId : null);
       const ins = await rest("community_messages", {
         method: "POST", headers: { Prefer: "return=representation" },
-        body: JSON.stringify({ sender_id: null, author_name: who, body: text, reply_to: replying && newestHuman ? newestHuman.id : null })
+        body: JSON.stringify({ sender_id: null, author_name: who, body: text, reply_to: replyTo })
       });
-      if (ins.ok) posted.push({ author: who, body: text, ai });
+      await rest(`community_typing?name=eq.${encodeURIComponent(who)}`, { method: "DELETE" });
+      if (ins.ok) {
+        const rows = await ins.json() as Array<{ id: string }>;
+        lastMessageId = rows[0]?.id ?? null;
+        lastAuthor = who;
+        posted.push({ author: who, body: text, reply: !!replyTo, ai });
+      }
+      await sleep(400 + Math.floor(Math.random() * 500));
     }
     return response({ ok: true, posted, group_size: GROUP_SIZE, deepseek_configured: !!DEEPSEEK_API_KEY });
   } catch (e) {
