@@ -1428,7 +1428,7 @@ html body .modal-head .brand{white-space:nowrap!important;min-width:0!important}
 
 
 
-<section class="section reveal zc-active-countries-section" id="active-countries">
+<section class="section zc-active-countries-section" id="active-countries">
   <div class="section-head">
     <div><div class="eyebrow">GLOBAL REACH</div><h2 style="margin-top:5px">Active countries</h2><p class="muted">Explore the countries represented across the ZentraChain community.</p></div>
   </div>
@@ -8473,6 +8473,46 @@ body.zc-community-chat-open{overflow:hidden!important;overscroll-behavior:none}
 .zc-active-countries-section .zc-countries-card{max-width:980px;margin:0 auto;padding:16px;border-radius:18px}
 .zc-active-countries-section .zc-countries-list{margin-top:0}
 @media(max-width:640px){.zc-active-countries-section .zc-countries-card{padding:12px}}
+</style>
+<style id="zc-dashboard-and-countries-height-fix-v1">
+/* Keep the dashboard insight cards at their natural content height. */
+.zc-dashboard-insights{
+  align-items:start!important;
+  grid-auto-rows:min-content!important;
+}
+.zc-dashboard-insights>.card,
+.zc-dashboard-insights .zc-health-card,
+.zc-dashboard-insights .zc-network-card{
+  align-self:start!important;
+  height:auto!important;
+  min-height:0!important;
+  max-height:none!important;
+}
+/* Make the visitor countries section visible and remove excess vertical padding. */
+#active-countries.zc-active-countries-section{
+  display:block!important;
+  min-height:0!important;
+  height:auto!important;
+  padding:26px 0 22px!important;
+  opacity:1!important;
+  transform:none!important;
+  visibility:visible!important;
+}
+#active-countries.zc-active-countries-section .section-head{
+  margin-bottom:12px!important;
+}
+#active-countries.zc-active-countries-section .zc-countries-card{
+  height:auto!important;
+  min-height:0!important;
+  padding:14px!important;
+}
+#active-countries.zc-active-countries-section #zc-countries-list{
+  display:flex!important;
+  flex-direction:column!important;
+  gap:8px!important;
+  min-height:0!important;
+  height:auto!important;
+}
 </style>
 </body>
 
