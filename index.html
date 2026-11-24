@@ -1542,13 +1542,11 @@ html body .modal-head .brand{white-space:nowrap!important;min-width:0!important}
 
   </main><section class="section" id="faq"><div class="eyebrow">Help centre</div><h2>Frequently asked questions</h2><details class="faq"><summary>Are market prices the same as my account performance?</summary><p>No. Market prices are third-party reference data. Your Account Balance is calculated only from ledger entries recorded for your account.</p></details><details class="faq"><summary>How are deposits confirmed?</summary><p>Every account has its own unique deposit addresses — always use the address shown in your account for the selected asset and network. Incoming transfers are tracked on the blockchain and credited after the required network confirmations.</p></details><details class="faq"><summary>How do withdrawals work?</summary><p>Submit the amount, network and destination address. Each request is checked, then paid with its blockchain transaction hash recorded, so you can verify the transfer yourself on any explorer. Payout timing depends on network conditions.</p></details><details class="faq"><summary>How are profits generated?</summary><p>ZentraChain runs automated trading systems that monitor the markets around the clock for opportunities. The percentages shown on plans are targets based on that activity — not guaranteed outcomes. All trading carries risk, including possible loss of capital.</p></details><details class="faq"><summary>Does the platform guarantee returns?</summary><p>No. Cryptocurrency trading is high risk. There are no guaranteed profits, and historical results do not predict future results.</p></details><details class="faq"><summary>Is exchange trading automated?</summary><p>No exchange API is currently connected to this portal. The market chart is informational and does not execute trades.</p></details><details class="faq"><summary>How do I contact support?</summary><p>Use the support contact supplied through your verified company communication channel. Do not trust unsolicited wallet addresses or messages claiming to be support.</p></details></section>
 
-<section class="section zc-blockchain-pulse" id="zc-blockchain-pulse" aria-labelledby="zc-blockchain-pulse-title">
+<section class="section zc-blockchain-pulse" id="zc-blockchain-pulse" aria-label="Blockchain technology">
   <div class="wrap">
     <div class="section-head">
       <div>
-        <div class="eyebrow">Blockchain technology</div>
-        <h2 id="zc-blockchain-pulse-title">A pulse through every block.</h2>
-        <p class="muted">A visual journey through connected blocks, with a glowing signal travelling across the chain.</p>
+        <div class="eyebrow zc-pulse-only-heading">BLOCKCHAIN TECHNOLOGY</div>
       </div>
     </div>
     <div class="zc-pulse-stage zc-visitor-edge-glow">
@@ -11853,3 +11851,189 @@ body[data-zc-theme] #application .zc-studio-note b {
   }
 }
 </style>
+
+<style id="zc-dashboard-transition-splash-v1">
+#public .zc-blockchain-pulse .zc-pulse-only-heading{
+ display:inline-flex;align-items:center;min-height:32px;color:#b9d9ff;
+ font-size:clamp(13px,1.8vw,16px);font-weight:900;letter-spacing:.28em;line-height:1.35
+}
+#zc-transition-splash{
+ position:fixed;inset:0;z-index:2147483000;display:grid;place-items:center;padding:24px;
+ overflow:hidden;opacity:0;visibility:hidden;pointer-events:none;color:#edf6ff;
+ background:radial-gradient(ellipse at 50% 42%,rgba(22,91,160,.26),transparent 42%),linear-gradient(145deg,#061322,#081b30 48%,#050e1a);
+ transition:opacity .42s ease,visibility .42s ease
+}
+#zc-transition-splash.is-active{opacity:1;visibility:visible;pointer-events:auto}
+#zc-transition-splash.is-leaving{opacity:0;visibility:hidden;pointer-events:none}
+#zc-transition-splash .zc-transition-particles{position:absolute;inset:0;overflow:hidden;pointer-events:none}
+#zc-transition-splash .zc-transition-particles i{
+ position:absolute;width:3px;height:3px;border-radius:50%;background:#74bdff;opacity:.2;
+ box-shadow:0 0 12px rgba(93,171,255,.85);animation:zcTransitionParticle 5s ease-in-out infinite
+}
+#zc-transition-splash .zc-transition-particles i:nth-child(1){left:12%;top:18%;animation-delay:-1s}
+#zc-transition-splash .zc-transition-particles i:nth-child(2){left:82%;top:20%;animation-delay:-2.4s}
+#zc-transition-splash .zc-transition-particles i:nth-child(3){left:20%;top:76%;animation-delay:-3.2s}
+#zc-transition-splash .zc-transition-particles i:nth-child(4){left:88%;top:72%;animation-delay:-.8s}
+#zc-transition-splash .zc-transition-particles i:nth-child(5){left:50%;top:10%;animation-delay:-4s}
+#zc-transition-splash .zc-transition-particles i:nth-child(6){left:68%;top:88%;animation-delay:-2s}
+#zc-transition-splash .zc-transition-content{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;width:min(100%,460px);text-align:center}
+#zc-transition-splash .zc-transition-brand{margin-bottom:26px;color:#c8e3ff;font-size:12px;font-weight:900;letter-spacing:.36em;text-indent:.36em}
+#zc-transition-splash .zc-transition-title{margin:0;color:#f0f7ff;font-size:clamp(17px,4vw,22px);font-weight:900;letter-spacing:.14em;line-height:1.35}
+#zc-transition-splash .zc-transition-subtitle{margin:10px 0 0;color:#9bb8d6;font-size:13px;line-height:1.65}
+#zc-transition-splash .zc-transition-progress{width:min(210px,65%);height:3px;margin-top:26px;overflow:hidden;border-radius:99px;background:rgba(108,166,220,.18)}
+#zc-transition-splash .zc-transition-progress i{display:block;width:38%;height:100%;border-radius:inherit;background:linear-gradient(90deg,transparent,#66b4ff,#d9f0ff,transparent);box-shadow:0 0 12px rgba(106,186,255,.9);animation:zcTransitionProgress 1.55s ease-in-out infinite}
+#zc-transition-splash .zc-transition-visual{position:relative;display:grid;place-items:center;width:min(72vw,330px);aspect-ratio:1;margin-bottom:30px}
+#zc-transition-splash .zc-radar-disc{
+ position:absolute;inset:3%;overflow:hidden;border:1px solid rgba(101,174,239,.55);border-radius:50%;
+ background:radial-gradient(circle at center,rgba(34,111,187,.22),rgba(8,30,52,.4) 60%,rgba(5,18,32,.86));
+ box-shadow:0 0 0 8px rgba(61,143,219,.035),0 0 0 19px rgba(61,143,219,.025),0 0 55px rgba(47,137,221,.18),inset 0 0 48px rgba(48,138,218,.16)
+}
+#zc-transition-splash .zc-radar-disc:before,#zc-transition-splash .zc-radar-disc:after{content:"";position:absolute;border:1px solid rgba(103,180,246,.17);border-radius:50%;pointer-events:none}
+#zc-transition-splash .zc-radar-disc:before{inset:16%}
+#zc-transition-splash .zc-radar-disc:after{inset:32%}
+#zc-transition-splash .zc-radar-grid{
+ position:absolute;inset:0;border-radius:50%;
+ background:linear-gradient(90deg,transparent calc(50% - .5px),rgba(111,180,241,.22) 50%,transparent calc(50% + .5px)),linear-gradient(0deg,transparent calc(50% - .5px),rgba(111,180,241,.22) 50%,transparent calc(50% + .5px))
+}
+#zc-transition-splash .zc-radar-sweep{
+ position:absolute;inset:0;border-radius:50%;
+ background:conic-gradient(from 0deg,transparent 0deg,transparent 276deg,rgba(79,158,230,.035) 286deg,rgba(91,177,255,.16) 316deg,rgba(126,202,255,.5) 344deg,rgba(126,202,255,.08) 360deg);
+ animation:zcRadarSweep 3.8s linear infinite
+}
+#zc-transition-splash .zc-radar-beam{
+ position:absolute;left:50%;top:50%;width:49%;height:1.5px;transform-origin:left center;
+ background:linear-gradient(90deg,rgba(173,222,255,.95),rgba(87,168,244,.25),transparent);
+ filter:drop-shadow(0 0 5px rgba(102,183,255,.95));animation:zcRadarSweep 3.8s linear infinite
+}
+#zc-transition-splash .zc-radar-ring{position:absolute;inset:8%;border:1px solid rgba(106,184,247,.34);border-radius:50%;animation:zcRadarRing 3.2s ease-out infinite}
+#zc-transition-splash .zc-radar-ring.ring-b{animation-delay:1.05s}
+#zc-transition-splash .zc-radar-ring.ring-c{animation-delay:2.1s}
+#zc-transition-splash .zc-radar-node{
+ position:absolute;width:9px;height:9px;border-radius:50%;background:#c8e9ff;border:1px solid #6bbaff;
+ box-shadow:0 0 0 4px rgba(84,164,235,.12),0 0 18px rgba(92,178,255,.95);animation:zcRadarNode 2.1s ease-in-out infinite
+}
+#zc-transition-splash .zc-radar-node:after{content:"";position:absolute;inset:-7px;border:1px solid rgba(117,191,255,.7);border-radius:50%;animation:zcRadarNodeRing 2.1s ease-out infinite}
+#zc-transition-splash .zc-radar-node.node-a{left:26%;top:35%;animation-delay:-.2s}
+#zc-transition-splash .zc-radar-node.node-b{right:23%;top:27%;animation-delay:-1s}
+#zc-transition-splash .zc-radar-node.node-c{right:31%;bottom:22%;animation-delay:-1.5s}
+#zc-transition-splash .zc-radar-node.node-d{left:18%;bottom:29%;width:6px;height:6px;animation-delay:-.7s}
+#zc-transition-splash .zc-radar-center{
+ position:absolute;left:50%;top:50%;width:17%;aspect-ratio:1;transform:translate(-50%,-50%);
+ border:1px solid rgba(182,222,255,.9);border-radius:50%;
+ background:radial-gradient(circle,#e2f4ff 0 8%,#75bcff 14%,rgba(47,137,221,.28) 56%,transparent 72%);
+ box-shadow:0 0 23px rgba(93,178,255,.75),0 0 55px rgba(63,143,224,.28)
+}
+#zc-transition-splash[data-mode="logout"]{
+ background:radial-gradient(ellipse at 50% 48%,rgba(64,73,160,.2),transparent 43%),linear-gradient(145deg,#080f24,#101a35 52%,#080d1c)
+}
+#zc-transition-splash[data-mode="logout"] .zc-transition-brand{color:#c8d3ff}
+#zc-transition-splash .zc-exit-visual{position:relative;display:grid;place-items:center;width:min(62vw,270px);aspect-ratio:1;margin-bottom:30px}
+#zc-transition-splash .zc-exit-orbit{position:absolute;inset:8%;border:1px dashed rgba(157,171,255,.56);border-radius:50%;animation:zcExitOrbit 12s linear infinite}
+#zc-transition-splash .zc-exit-orbit:before,#zc-transition-splash .zc-exit-orbit:after{content:"";position:absolute;width:9px;height:9px;border-radius:50%;background:#bac8ff;box-shadow:0 0 14px rgba(150,170,255,.9)}
+#zc-transition-splash .zc-exit-orbit:before{left:9%;top:24%}
+#zc-transition-splash .zc-exit-orbit:after{right:9%;bottom:24%}
+#zc-transition-splash .zc-exit-ring{position:absolute;inset:19%;border:1px solid rgba(147,163,255,.44);border-radius:50%;box-shadow:0 0 32px rgba(95,112,210,.16),inset 0 0 30px rgba(100,120,220,.1);animation:zcExitCollapse 2.1s ease-in-out infinite}
+#zc-transition-splash .zc-exit-symbol{position:relative;display:grid;place-items:center;width:34%;aspect-ratio:1;border:1px solid rgba(173,190,255,.72);border-radius:25%;background:linear-gradient(145deg,rgba(74,94,179,.28),rgba(14,24,54,.88));box-shadow:0 0 34px rgba(94,111,218,.24),inset 0 1px rgba(255,255,255,.12)}
+#zc-transition-splash .zc-exit-symbol svg{width:56%;height:56%;stroke:#dce3ff;stroke-width:1.8;fill:none;stroke-linecap:round;stroke-linejoin:round}
+#zc-transition-splash .zc-exit-streams{position:absolute;inset:0;pointer-events:none}
+#zc-transition-splash .zc-exit-streams i{position:absolute;left:0;right:0;top:50%;height:1px;background:linear-gradient(90deg,transparent,rgba(135,153,255,.9),transparent);transform-origin:center;animation:zcExitStream 1.6s ease-in-out infinite}
+#zc-transition-splash .zc-exit-streams i:nth-child(2){top:35%;animation-delay:-.45s}
+#zc-transition-splash .zc-exit-streams i:nth-child(3){top:65%;animation-delay:-.9s}
+#zc-transition-splash .zc-exit-status{margin-top:18px;color:#aebcf6;font-size:10px;font-weight:800;letter-spacing:.2em}
+@keyframes zcRadarSweep{to{transform:rotate(360deg)}}
+@keyframes zcRadarRing{0%{transform:scale(.72);opacity:.8}80%,100%{transform:scale(1.2);opacity:0}}
+@keyframes zcRadarNode{0%,100%{opacity:.45;transform:scale(.78)}50%{opacity:1;transform:scale(1.2)}}
+@keyframes zcRadarNodeRing{0%{opacity:.8;transform:scale(.5)}100%{opacity:0;transform:scale(2.1)}}
+@keyframes zcTransitionParticle{0%,100%{opacity:.1;transform:translateY(0) scale(.75)}50%{opacity:.62;transform:translateY(-13px) scale(1.25)}}
+@keyframes zcTransitionProgress{0%{transform:translateX(-140%)}100%{transform:translateX(390%)}}
+@keyframes zcExitOrbit{to{transform:rotate(-360deg)}}
+@keyframes zcExitCollapse{0%,100%{transform:scale(1);opacity:.45}50%{transform:scale(.78);opacity:1}}
+@keyframes zcExitStream{0%,100%{opacity:0;transform:scaleX(.2)}50%{opacity:.75;transform:scaleX(1)}}
+body.zc-transition-lock{overflow:hidden!important}
+@media(max-width:480px){
+ #zc-transition-splash{padding:18px}
+ #zc-transition-splash .zc-transition-brand{margin-bottom:18px}
+ #zc-transition-splash .zc-transition-title{font-size:17px;letter-spacing:.1em}
+ #zc-transition-splash .zc-transition-subtitle{font-size:12px}
+}
+@media(prefers-reduced-motion:reduce){
+ #zc-transition-splash *,#zc-transition-splash *:before,#zc-transition-splash *:after{animation:none!important;transition:none!important}
+ #zc-transition-splash .zc-transition-progress i{width:100%;opacity:.65}
+}
+</style>
+
+<script id="zc-dashboard-transition-splash-runtime-v1">
+(function(){
+ if(window.__zcDashboardTransitionSplashV1)return;
+ window.__zcDashboardTransitionSplashV1=true;
+ const state={mode:'',startedAt:0,hideTimer:0,removeTimer:0};
+ let root=null;
+ function markup(mode){
+  if(mode==='entry'){
+   return '<div class="zc-transition-particles" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i></div><div class="zc-transition-content"><div class="zc-transition-brand">ZENTRACHAIN</div><div class="zc-transition-visual" aria-hidden="true"><div class="zc-radar-disc"><div class="zc-radar-grid"></div><div class="zc-radar-sweep"></div><div class="zc-radar-beam"></div><i class="zc-radar-ring"></i><i class="zc-radar-ring ring-b"></i><i class="zc-radar-ring ring-c"></i><i class="zc-radar-node node-a"></i><i class="zc-radar-node node-b"></i><i class="zc-radar-node node-c"></i><i class="zc-radar-node node-d"></i><i class="zc-radar-center"></i></div></div><h1 class="zc-transition-title">CONNECTING TO DASHBOARD</h1><p class="zc-transition-subtitle">Preparing your ZentraChain workspace</p><div class="zc-transition-progress" aria-hidden="true"><i></i></div></div>';
+  }
+  return '<div class="zc-transition-particles" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i></div><div class="zc-transition-content"><div class="zc-transition-brand">ZENTRACHAIN</div><div class="zc-exit-visual" aria-hidden="true"><div class="zc-exit-orbit"></div><div class="zc-exit-ring"></div><div class="zc-exit-streams"><i></i><i></i><i></i></div><div class="zc-exit-symbol"><svg viewBox="0 0 48 48"><path d="M20 8H11a3 3 0 0 0-3 3v26a3 3 0 0 0 3 3h9"/><path d="M26 16l9 8-9 8M14 24h21"/></svg></div></div><h1 class="zc-transition-title">CLOSING YOUR SESSION</h1><p class="zc-transition-subtitle">Signing you out of ZentraChain</p><div class="zc-exit-status">SESSION EXIT IN PROGRESS</div><div class="zc-transition-progress" aria-hidden="true"><i></i></div></div>';
+ }
+ function ensureRoot(){
+  if(root&&root.isConnected)return root;
+  root=document.createElement('div');root.id='zc-transition-splash';
+  root.setAttribute('role','status');root.setAttribute('aria-live','polite');root.setAttribute('aria-atomic','true');
+  document.body.appendChild(root);return root;
+ }
+ function begin(mode){
+  if(state.mode===mode&&root&&root.classList.contains('is-active'))return state.startedAt;
+  if(state.hideTimer)clearTimeout(state.hideTimer);if(state.removeTimer)clearTimeout(state.removeTimer);
+  state.hideTimer=0;state.removeTimer=0;state.mode=mode;state.startedAt=Date.now();
+  const el=ensureRoot();el.dataset.mode=mode;el.innerHTML=markup(mode);el.classList.remove('is-leaving');el.classList.add('is-active');
+  document.body.classList.add('zc-transition-lock');return state.startedAt;
+ }
+ function hideAfter(mode,minDuration){
+  if(state.mode!==mode)return;
+  if(state.hideTimer)clearTimeout(state.hideTimer);if(state.removeTimer)clearTimeout(state.removeTimer);
+  const wait=Math.max(0,(Number(minDuration)||1400)-(Date.now()-state.startedAt));
+  state.hideTimer=setTimeout(function(){
+   if(state.mode!==mode||!root)return;
+   root.classList.add('is-leaving');
+   state.removeTimer=setTimeout(function(){
+    if(state.mode!==mode)return;
+    root.classList.remove('is-active','is-leaving');root.removeAttribute('data-mode');root.innerHTML='';
+    document.body.classList.remove('zc-transition-lock');state.mode='';state.startedAt=0;state.hideTimer=0;state.removeTimer=0;
+   },440);
+  },wait);
+ }
+ function signedIn(){try{return typeof currentUser!=='undefined'&&!!currentUser&&!!currentUser.id}catch(error){return false}}
+
+ const originalShowApp=window.showApp;
+ if(typeof originalShowApp==='function')window.showApp=function(){
+  if(state.mode!=='logout')begin('entry');
+  return originalShowApp.apply(this,arguments);
+ };
+ const originalLoadSession=window.loadSession;
+ if(typeof originalLoadSession==='function')window.loadSession=async function(){
+  try{return await originalLoadSession.apply(this,arguments)}
+  finally{if(state.mode==='entry')hideAfter('entry',1550)}
+ };
+ const originalGoDashboard=window.zcGoDashboard;
+ if(typeof originalGoDashboard==='function')window.zcGoDashboard=function(){
+  const result=originalGoDashboard.apply(this,arguments);
+  if(state.mode==='entry')hideAfter('entry',1550);
+  return result;
+ };
+ const originalNavigate=window.navigate;
+ if(typeof originalNavigate==='function')window.navigate=function(destination){
+  const shouldSplash=String(destination)==='overview'&&signedIn()&&state.mode!=='entry'&&state.mode!=='logout';
+  if(shouldSplash)begin('entry');
+  try{
+   const result=originalNavigate.apply(this,arguments);
+   if(shouldSplash)hideAfter('entry',1550);
+   return result;
+  }catch(error){if(shouldSplash)hideAfter('entry',900);throw error}
+ };
+ const originalSignOut=window.signOut;
+ if(typeof originalSignOut==='function')window.signOut=async function(){
+  begin('logout');
+  try{return await originalSignOut.apply(this,arguments)}
+  finally{hideAfter('logout',1450)}
+ };
+})();
+</script>
