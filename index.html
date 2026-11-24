@@ -13138,7 +13138,7 @@ body[data-zc-theme] #application #app-content .zc-mobile-bitcoin-emblem .zc-bitc
  background-clip:text!important;
  background-repeat:no-repeat!important;
  opacity:0!important;
- transform:translate3d(0,0,2px) rotate(0deg)!important;
+ transform:translate3d(0,0,2px) rotate(0deg);
  filter:drop-shadow(0 0 3px color-mix(in srgb,var(--green,#20c783) 40%,transparent))!important;
  animation:zcBitcoinShardBurst 5s cubic-bezier(.2,.7,.2,1) infinite!important;
 }
@@ -13158,7 +13158,7 @@ body[data-zc-theme] #application #app-content .zc-mobile-bitcoin-emblem .zc-bitc
  0%,60%,100%{opacity:0;transform:translate3d(0,0,2px) rotate(0deg)}
  63%{opacity:1;transform:translate3d(0,0,2px) rotate(0deg)}
  70%,80%{opacity:1;transform:translate3d(var(--burst-x),var(--burst-y),12px) rotate(var(--burst-r))}
- 86%{opacity:1;transform:translate3d(calc(var(--burst-x) * .48),calc(var(--burst-y) * .48),7px) rotate(calc(var(--burst-r) * .48))}
+ 86%{opacity:1;transform:translate3d(var(--burst-x),var(--burst-y),12px) rotate(var(--burst-r))}
  92%{opacity:.8;transform:translate3d(0,0,2px) rotate(0deg)}
  96%{opacity:0;transform:translate3d(0,0,2px) rotate(0deg)}
 }
