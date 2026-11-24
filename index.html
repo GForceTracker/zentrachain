@@ -1428,8 +1428,15 @@ html body .modal-head .brand{white-space:nowrap!important;min-width:0!important}
 
 
 
+<section class="section reveal zc-active-countries-section" id="active-countries">
+  <div class="section-head">
+    <div><div class="eyebrow">GLOBAL REACH</div><h2 style="margin-top:5px">Active countries</h2><p class="muted">Explore the countries represented across the ZentraChain community.</p></div>
+  </div>
+  <div class="card panel zc-countries-card"><div id="zc-countries-list" class="zc-countries-list"></div></div>
+</section>
+
 <section class="section zc-account-access" id="account-access"><div class="section-head"><div><div class="eyebrow">Account access</div><h2>Get started in a few steps</h2><p class="muted">A clear path from registration to reviewing your account activity.</p></div></div><div class="zc-access-grid"><article class="zc-access-card"><span class="zc-access-number">01</span><div><h3>Create your account</h3><p>Register with your email and complete the verification steps shown on screen.</p></div></article><article class="zc-access-card"><span class="zc-access-number">02</span><div><h3>Review deposit instructions</h3><p>Check the deposit network and destination details carefully before sending any funds.</p></div></article><article class="zc-access-card"><span class="zc-access-number">03</span><div><h3>Track verified activity</h3><p>Follow deposit reviews, recorded ledger entries and withdrawal request statuses.</p></div></article></div></section>
-<section class="section" id="plans"><div class="section-head"><div><div class="eyebrow">Plan information</div><h2>Explore plan configurations</h2><p class="muted">Review each plan’s duration and deposit limits before selecting it.</p></div></div><div id="public-plan-cards" class="plan-grid">Loading plans…</div><div class="zc-calc-card" style="margin-top:22px"><div class="zc-calc-plan-box"><label class="zc-calc-plan-label" for="zc-pub-plan-btn">Plan</label><button type="button" id="zc-pub-plan-btn" class="zc-calc-plan-btn" onclick="zcPubToggleDropdown()" aria-haspopup="listbox" aria-expanded="false"><span class="zc-calc-plan-btn-main"><b id="zc-pub-plan-name">Loading plans…</b><small id="zc-pub-plan-meta"></small></span><svg class="zc-calc-chevron" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></button><div id="zc-pub-plan-list" class="zc-calc-plan-list hidden" role="listbox"><div class="empty">Loading plans…</div></div><select id="pub-select" tabindex="-1" aria-hidden="true" style="display:none" onchange="planUpdate('pub')"></select></div><div class="zc-calc-body"><div class="zc-calc-amount-row"><label for="pub-amount">Amount (USD)</label><div class="zc-calc-amount-input"><span>$</span><input class="calc-amount" id="pub-amount" type="number" step=".01" inputmode="decimal" value="50" oninput="planSync('pub','input')" onblur="planSync('pub','blur')"></div></div><input id="pub-range" class="zc-calc-range" type="range" min="0" max="100" step="10" aria-label="Amount slider" oninput="planSync('pub','range')"><div class="zc-calc-minmax"><span id="pub-min">Min —</span><span>Steps of $10</span><span id="pub-max">Max —</span></div><div class="zc-calc-facts"><div><small>Plan rate</small><b id="pub-rate">—</b></div><div><small>Duration</small><b id="pub-dur">—</b></div><div><small>Projected profit</small><b id="pub-profit">—</b></div><div><small>Total at maturity</small><b class="calc-total" id="pub-total">—</b></div></div><input id="pub-days" type="hidden"><div id="pub-limits" hidden></div></div></div><div class="zc-trust-grid"><section class="card panel zc-testi-card"><div class="zc-testi-head"><span class="zc-live-dot"></span><h3>Member testimonials</h3><span class="zc-testi-verified"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg> Verified withdrawals</span></div><div id="zc-testi-stage" class="zc-testi-stage" aria-live="polite"></div><div class="zc-testi-dots" id="zc-testi-dots"></div></section><section class="card panel zc-countries-card"><div class="zc-testi-head"><span class="zc-live-dot"></span><h3>Active countries</h3></div><div id="zc-countries-list" class="zc-countries-list"></div></section></div></section>
+<section class="section" id="plans"><div class="section-head"><div><div class="eyebrow">Plan information</div><h2>Explore plan configurations</h2><p class="muted">Review each plan’s duration and deposit limits before selecting it.</p></div></div><div id="public-plan-cards" class="plan-grid">Loading plans…</div><div class="zc-calc-card" style="margin-top:22px"><div class="zc-calc-plan-box"><label class="zc-calc-plan-label" for="zc-pub-plan-btn">Plan</label><button type="button" id="zc-pub-plan-btn" class="zc-calc-plan-btn" onclick="zcPubToggleDropdown()" aria-haspopup="listbox" aria-expanded="false"><span class="zc-calc-plan-btn-main"><b id="zc-pub-plan-name">Loading plans…</b><small id="zc-pub-plan-meta"></small></span><svg class="zc-calc-chevron" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></button><div id="zc-pub-plan-list" class="zc-calc-plan-list hidden" role="listbox"><div class="empty">Loading plans…</div></div><select id="pub-select" tabindex="-1" aria-hidden="true" style="display:none" onchange="planUpdate('pub')"></select></div><div class="zc-calc-body"><div class="zc-calc-amount-row"><label for="pub-amount">Amount (USD)</label><div class="zc-calc-amount-input"><span>$</span><input class="calc-amount" id="pub-amount" type="number" step=".01" inputmode="decimal" value="50" oninput="planSync('pub','input')" onblur="planSync('pub','blur')"></div></div><input id="pub-range" class="zc-calc-range" type="range" min="0" max="100" step="10" aria-label="Amount slider" oninput="planSync('pub','range')"><div class="zc-calc-minmax"><span id="pub-min">Min —</span><span>Steps of $10</span><span id="pub-max">Max —</span></div><div class="zc-calc-facts"><div><small>Plan rate</small><b id="pub-rate">—</b></div><div><small>Duration</small><b id="pub-dur">—</b></div><div><small>Projected profit</small><b id="pub-profit">—</b></div><div><small>Total at maturity</small><b class="calc-total" id="pub-total">—</b></div></div><input id="pub-days" type="hidden"><div id="pub-limits" hidden></div></div></div><div class="zc-trust-grid zc-testimonials-only"><section class="card panel zc-testi-card"><div class="zc-testi-head"><span class="zc-live-dot"></span><h3>Member testimonials</h3><span class="zc-testi-verified"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg> Verified withdrawals</span></div><div id="zc-testi-stage" class="zc-testi-stage" aria-live="polite"></div><div class="zc-testi-dots" id="zc-testi-dots"></div></section></div></section>
 <script id="zc-visitor-trust-v1">
 (function(){
  if(window.__zcVisitorTrustV1)return;window.__zcVisitorTrustV1=true;
@@ -8433,35 +8440,39 @@ body.zc-community-chat-open{overflow:hidden!important;overscroll-behavior:none}
 }
 </style>
 <style id="zc-dashboard-insights-polish-v1">
-.zc-dashboard-insights{display:grid;grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr);gap:16px;margin-top:16px;align-items:stretch}
+.zc-dashboard-insights{display:grid;grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr);gap:12px;margin-top:12px;align-items:stretch}
 .zc-dashboard-insights>.card{min-width:0;overflow:hidden}
-.zc-dashboard-insights .zc-health-card,.zc-dashboard-insights .zc-network-card{display:flex;flex-direction:column;min-width:0;min-height:100%;padding:18px;border:1px solid var(--line);border-radius:18px;background:linear-gradient(145deg,var(--panel2),var(--panel));box-shadow:var(--shadow)}
+.zc-dashboard-insights .zc-health-card,.zc-dashboard-insights .zc-network-card{display:flex;flex-direction:column;min-width:0;min-height:100%;padding:14px;border:1px solid var(--line);border-radius:18px;background:linear-gradient(145deg,var(--panel2),var(--panel));box-shadow:var(--shadow)}
 .zc-health-head{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
 .zc-health-title{font-size:15px;font-weight:850;letter-spacing:-.01em}
 .zc-health-count,.zc-net-total{display:inline-flex;align-items:center;max-width:100%;padding:6px 9px;border:1px solid var(--line);border-radius:99px;background:color-mix(in srgb,var(--panel2) 82%,transparent);color:var(--muted);font-size:10px;font-weight:800}
-.zc-health-ring{position:relative;display:grid;place-items:center;width:150px;height:150px;max-width:100%;margin:18px auto 20px}
+.zc-health-ring{position:relative;display:grid;place-items:center;width:108px;height:108px;max-width:100%;margin:10px auto 12px}
 .zc-health-ring svg{display:block;width:100%;height:100%;overflow:visible}
 .zc-ring-bg,.zc-ring-fg{fill:none;stroke-width:9}
 .zc-ring-bg{stroke:color-mix(in srgb,var(--muted) 25%,transparent)}
 .zc-ring-fg{stroke:var(--green);stroke-linecap:round;transform:rotate(-90deg);transform-origin:60px 60px;transition:stroke-dashoffset .7s ease}
 .zc-health-score{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;pointer-events:none}
-.zc-health-score b{font-size:29px;line-height:1;font-weight:900;letter-spacing:-.04em;color:var(--text)}
+.zc-health-score b{font-size:25px;line-height:1;font-weight:900;letter-spacing:-.04em;color:var(--text)}
 .zc-health-score small{margin-top:6px;font-size:11px;font-weight:750;color:var(--muted)}
-.zc-health-items{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
-.zc-health-item{display:flex;align-items:center;gap:8px;min-width:0;padding:9px 10px;border:1px solid var(--line);border-radius:11px;background:color-mix(in srgb,var(--panel2) 82%,transparent);font-size:11.5px;line-height:1.4;color:var(--text)}
+.zc-health-items{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}
+.zc-health-item{display:flex;align-items:center;gap:6px;min-width:0;padding:7px 8px;border:1px solid var(--line);border-radius:10px;background:color-mix(in srgb,var(--panel2) 82%,transparent);font-size:10.5px;line-height:1.25;color:var(--text)}
 .zc-health-mark{flex:0 0 18px;display:grid;place-items:center;width:18px;height:18px;border-radius:50%;background:color-mix(in srgb,var(--muted) 15%,transparent);color:var(--muted);font-size:11px;font-weight:900}
 .zc-health-item.done .zc-health-mark{background:color-mix(in srgb,var(--green) 17%,transparent);color:var(--mint)}
-.zc-net-rows{display:grid;grid-template-columns:1fr;gap:9px;margin-top:14px}
-.zc-net-rows .zc-country-row{display:grid;grid-template-columns:30px minmax(0,1fr) 44px;align-items:center;gap:10px;min-width:0;padding:9px 10px;border:1px solid var(--line);border-radius:12px;background:color-mix(in srgb,var(--panel2) 82%,transparent)}
+.zc-net-rows{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px;margin-top:10px}
+.zc-net-rows .zc-country-row{display:grid;grid-template-columns:22px minmax(0,1fr) 34px;align-items:center;gap:6px;min-width:0;padding:7px 7px;border:1px solid var(--line);border-radius:10px;background:color-mix(in srgb,var(--panel2) 82%,transparent)}
 .zc-net-rows .zc-country-row.top{border-color:color-mix(in srgb,var(--green) 48%,var(--line));box-shadow:0 0 14px color-mix(in srgb,var(--green) 10%,transparent)}
-.zc-net-rows .zc-country-flag{font-size:18px;text-align:center}
+.zc-net-rows .zc-country-flag{font-size:15px;text-align:center}
 .zc-net-rows .zc-country-meta{min-width:0}
-.zc-net-rows .zc-country-name{font-size:12px;font-weight:800;margin-bottom:5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.zc-net-rows .zc-country-bar{height:7px;border-radius:99px;background:color-mix(in srgb,var(--muted) 24%,transparent);overflow:hidden}
+.zc-net-rows .zc-country-name{font-size:10.5px;font-weight:800;margin-bottom:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.zc-net-rows .zc-country-bar{height:5px;border-radius:99px;background:color-mix(in srgb,var(--muted) 24%,transparent);overflow:hidden}
 .zc-net-rows .zc-country-bar i{display:block;height:100%;width:0;border-radius:99px;background:linear-gradient(90deg,var(--green),#f7c948);transition:width 1.6s cubic-bezier(.22,.75,.25,1)}
-.zc-net-rows .zc-country-pct{font-size:11.5px;font-weight:900;color:#f7c948;text-align:right;font-variant-numeric:tabular-nums}
-@media(max-width:760px){.zc-dashboard-insights{grid-template-columns:1fr}.zc-dashboard-insights .zc-health-card,.zc-dashboard-insights .zc-network-card{padding:16px}}
-@media(max-width:420px){.zc-health-items{grid-template-columns:1fr}.zc-dashboard-insights{gap:12px}.zc-net-rows .zc-country-row{grid-template-columns:28px minmax(0,1fr) 42px;gap:8px;padding:8px}}
+.zc-net-rows .zc-country-pct{font-size:10px;font-weight:900;color:#f7c948;text-align:right;font-variant-numeric:tabular-nums}
+@media(max-width:760px){.zc-dashboard-insights{grid-template-columns:1fr}.zc-dashboard-insights .zc-health-card,.zc-dashboard-insights .zc-network-card{padding:13px}}
+@media(max-width:360px){.zc-net-rows{grid-template-columns:1fr}} @media(max-width:420px){.zc-health-items{grid-template-columns:repeat(2,minmax(0,1fr))}.zc-dashboard-insights{gap:10px}.zc-net-rows .zc-country-row{grid-template-columns:20px minmax(0,1fr) 32px;gap:5px;padding:6px}}
+.zc-trust-grid.zc-testimonials-only{max-width:980px;grid-template-columns:minmax(0,1fr)}
+.zc-active-countries-section .zc-countries-card{max-width:980px;margin:0 auto;padding:16px;border-radius:18px}
+.zc-active-countries-section .zc-countries-list{margin-top:0}
+@media(max-width:640px){.zc-active-countries-section .zc-countries-card{padding:12px}}
 </style>
 </body>
 
