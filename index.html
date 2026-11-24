@@ -2986,7 +2986,7 @@ function gfReset(){['gf-id','gf-name','gf-rate','gf-description'].forEach(x=>$(x
 async function gfDelete(id){if(profile?.role!=='admin'||!confirm('Delete this plan configuration?'))return;const {error}=await db.from('gforce_investment_plans').delete().eq('id',id);if(error)return toast(error.message,true);toast('Plan deleted.');await gfRefreshAdmin();}
 async function gfRefreshAdmin(){const rows=await gfAdminRows(),el=$('gf-plan-admin');if(el)el.outerHTML=gfAdminPanel(rows);await gfLoadPlans();}
 const baseAdmin=renderAdmin;renderAdmin=async function(){const rows=await gfAdminRows();await baseAdmin();$('app-content').insertAdjacentHTML('beforeend',gfAdminPanel(rows));};
-const basePage=renderPage;renderPage=function(){if(page==='plans'){const c=$('app-content');c.innerHTML='<div class="card panel"><p class="muted">Loading current plans…</p></div>';gfLoadPlans().then(()=>{c.innerHTML='<div class="page-title"><div><div class="eyebrow">Trading plans</div><h1>Trading plans</h1><p class="muted">Tap Buy now to reveal the amount field. Tap the field to enter an amount.</p></div></div><div class="zc-plan-list-cue" role="note"><strong>'+gfPlans.length+' '+(gfPlans.length===1?'PLAN':'PLANS')+' AVAILABLE</strong><span>'+(gfPlans.length>1?'Scroll down — more plans are below':gfPlans.length===1?'Only one active plan is currently published':'No active plans are currently published')+' ↓</span></div><div id="dash-cards" class="plan-grid"></div>';$('dash-cards').innerHTML=gfPlans.length?gfPlans.map(p=>gfCard(p,'dash')).join(''):'<div class="empty card">No active plans.</div>';if(window.lucide&&window.lucide.createIcons)window.lucide.createIcons({root:$('dash-cards')});if(typeof zcSyncDashCards==='function')zcSyncDashCards('dash','');}).catch(err=>{console.error('Plan page load failed:',err);const c=$('app-content');if(c)c.innerHTML='<div class="card panel"><h3>Plans are temporarily unavailable</h3><p class="muted">Please try again in a moment.</p><button class="btn primary" onclick="navigate(\'plans\')">Retry</button></div>';toast('Could not load plans: '+(err?.message||'Please try again.'),true)});return;}basePage();};
+const basePage=renderPage;renderPage=function(){if(page==='plans'){const c=$('app-content');c.innerHTML='<div class="card panel"><p class="muted">Loading current plans…</p></div>';gfLoadPlans().then(()=>{c.innerHTML='<div class="page-title"><div><h1>Trading plans</h1><p class="muted">Tap Buy now to reveal the amount field. Tap the field to enter an amount.</p></div></div><div id="dash-cards" class="plan-grid"></div>';$('dash-cards').innerHTML=gfPlans.length?gfPlans.map(p=>gfCard(p,'dash')).join(''):'<div class="empty card">No active plans.</div>';if(window.lucide&&window.lucide.createIcons)window.lucide.createIcons({root:$('dash-cards')});if(typeof zcSyncDashCards==='function')zcSyncDashCards('dash','');}).catch(err=>{console.error('Plan page load failed:',err);const c=$('app-content');if(c)c.innerHTML='<div class="card panel"><h3>Plans are temporarily unavailable</h3><p class="muted">Please try again in a moment.</p><button class="btn primary" onclick="navigate(\'plans\')">Retry</button></div>';toast('Could not load plans: '+(err?.message||'Please try again.'),true)});return;}basePage();};
 const baseShowApp=showApp;showApp=function(){baseShowApp();if(!$('plans-nav'))$('side-nav').insertAdjacentHTML('beforeend','');};
 gfLoadPlans();
 window.__zcVerifyLanding=/access_token=|[?&]code=|error_code=/.test(location.hash+' '+location.search);
@@ -12133,18 +12133,16 @@ body.zc-transition-lock{overflow:hidden!important}
 }
 </style>
 
-<style id="zc-plan-list-visibility-v1">
-.zc-plan-list-cue{
- display:flex;align-items:center;justify-content:space-between;gap:12px;
- width:100%;max-width:760px;margin:0 auto 13px;padding:11px 14px;
- border:1px solid color-mix(in srgb,var(--green) 40%,var(--line));border-radius:13px;
- background:linear-gradient(100deg,color-mix(in srgb,var(--green) 12%,var(--panel2)),var(--panel));
- color:var(--muted);font-size:12px;font-weight:750;line-height:1.35
-}
-.zc-plan-list-cue strong{flex:0 0 auto;color:var(--mint);font-size:11px;letter-spacing:.07em}
-.zc-plan-list-cue span{min-width:0;text-align:right}
-@media(max-width:430px){
- .zc-plan-list-cue{padding:10px 11px;gap:8px;font-size:10px}
- .zc-plan-list-cue strong{font-size:10px}
+
+
+<style id="zc-plan-first-card-peek-v1">
+/* Member plans: leave the first card complete and let the next card visibly follow below. */
+@media(max-width:700px){
+ #dash-cards{gap:14px!important;padding:3px 1px 18px!important}
+ #dash-cards>.gf-plan-compact-card{padding-bottom:10px!important}
+ #dash-cards .gf-plan-artwork{height:126px!important;min-height:126px!important;max-height:126px!important;flex-basis:126px!important}
+ #dash-cards .gf-plan-card-heading{padding-top:4px!important;margin-bottom:3px!important}
+ #dash-cards .gf-plan-detail-line{padding-top:6px!important;padding-bottom:6px!important}
+ #dash-cards .plan-card .zc-buy-open{min-height:38px!important;margin-top:7px!important}
 }
 </style>
