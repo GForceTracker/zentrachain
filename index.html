@@ -1386,7 +1386,7 @@ html body .modal-head .brand{white-space:nowrap!important;min-width:0!important}
   document.addEventListener('visibilitychange',function(){if(!document.hidden)cycle()});
 })();
 </script>
-<section class="hero"><div><div class="eyebrow">Digital asset account platform</div><p>Access your account, follow digital asset markets, submit transaction requests and review account activity through one secure portal. Trading execution and performance are reported separately from market price movements.</p><div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:25px"><button class="btn primary" onclick="showAuth('signup')">Open an account →</button><button class="btn" onclick="document.getElementById('how').scrollIntoView({behavior:'smooth'})">Explore platform</button></div><div class="risk" style="margin-top:18px">Cryptoassets are volatile. You may lose some or all of the value you commit.</div></div><div class="hero-card"><div style="display:flex;justify-content:space-between;align-items:center"><div><div class="muted">Market overview</div><b style="font-size:19px">Digital assets</b></div><span class="pill">Live market feed</span></div><div class="mini-chart"><svg viewBox="0 0 520 150" width="100%" height="100%" preserveAspectRatio="none"><defs><linearGradient id="area" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="#20c783" stop-opacity=".3"/><stop offset="1" stop-color="#20c783" stop-opacity="0"/></linearGradient></defs><path d="M0 112 C35 108 45 77 80 85 S130 122 160 95 S205 74 240 88 S285 50 320 66 S365 90 390 54 S430 38 455 48 S490 20 520 12 L520 150 L0 150Z" fill="url(#area)"/><path d="M0 112 C35 108 45 77 80 85 S130 122 160 95 S205 74 240 88 S285 50 320 66 S365 90 390 54 S430 38 455 48 S490 20 520 12" fill="none" stroke="#36d99a" stroke-width="3"/></svg></div><div class="metric-row"><div class="metric"><small class="muted">BTC / USD</small><strong id="hero-btc">—</strong><small id="hero-btc-change" class="muted">Market price</small></div><div class="metric"><small class="muted">ETH / USD</small><strong id="hero-eth">—</strong><small id="hero-eth-change" class="muted">Market price</small></div><div class="metric"><small class="muted">SOL / USD</small><strong id="hero-sol">—</strong><small id="hero-sol-change" class="muted">Market price</small></div></div><div class="risk">Prices are indicative public market data, not ZentraChain account returns.</div></div></section>
+<section class="hero"><div><div class="eyebrow">Digital asset account platform</div><p>Access your account, follow digital asset markets, submit transaction requests and review account activity through one secure portal. Trading execution and performance are reported separately from market price movements.</p><div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:25px"><button class="btn primary" onclick="showAuth('signup')">Open an account →</button><button class="btn" onclick="document.getElementById('how').scrollIntoView({behavior:'smooth'})">Explore platform</button></div><div class="risk" style="margin-top:18px">Cryptoassets are volatile. You may lose some or all of the value you commit.</div></div><div class="hero-card zc-market-edge-glow"><div style="display:flex;justify-content:space-between;align-items:center"><div><div class="muted">Market overview</div><b style="font-size:19px">Digital assets</b></div><span class="pill">Live market feed</span></div><div class="mini-chart"><svg viewBox="0 0 520 150" width="100%" height="100%" preserveAspectRatio="none"><defs><linearGradient id="area" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="#20c783" stop-opacity=".3"/><stop offset="1" stop-color="#20c783" stop-opacity="0"/></linearGradient></defs><path d="M0 112 C35 108 45 77 80 85 S130 122 160 95 S205 74 240 88 S285 50 320 66 S365 90 390 54 S430 38 455 48 S490 20 520 12 L520 150 L0 150Z" fill="url(#area)"/><path d="M0 112 C35 108 45 77 80 85 S130 122 160 95 S205 74 240 88 S285 50 320 66 S365 90 390 54 S430 38 455 48 S490 20 520 12" fill="none" stroke="#36d99a" stroke-width="3"/></svg></div><div class="metric-row"><div class="metric"><small class="muted">BTC / USD</small><strong id="hero-btc">—</strong><small id="hero-btc-change" class="muted">Market price</small></div><div class="metric"><small class="muted">ETH / USD</small><strong id="hero-eth">—</strong><small id="hero-eth-change" class="muted">Market price</small></div><div class="metric"><small class="muted">SOL / USD</small><strong id="hero-sol">—</strong><small id="hero-sol-change" class="muted">Market price</small></div></div><div class="risk">Prices are indicative public market data, not ZentraChain account returns.</div></div></section>
 <section class="zc-milestones wrap" aria-label="ZentraChain platform milestones">
   <div class="zc-milestones-head"><div><div class="eyebrow">Growing with our community</div><h2>Built for the next milestone.</h2></div><span class="zc-monthly-tag"><i></i> Monthly milestone goals</span></div>
   <div class="zc-milestones-grid">
@@ -11422,5 +11422,54 @@ body[data-zc-theme] #application .zc-studio-note b {
     animation:none!important;
   }
   .zc-visitor-edge-glow::before{opacity:.42}
+}
+</style>
+
+<style id="zc-visitor-market-edge-glow-v1">
+/* Add the same running blue edge light to the visitor market overview card.
+   Keep the hero card's existing shimmer on ::before; the edge sweep uses ::after. */
+.hero-card.zc-market-edge-glow{
+  position:relative!important;
+  isolation:isolate!important;
+  overflow:hidden!important;
+}
+.hero-card.zc-market-edge-glow::before{
+  z-index:0;
+}
+.hero-card.zc-market-edge-glow::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  z-index:2;
+  padding:1.6px;
+  border-radius:inherit;
+  pointer-events:none;
+  background:conic-gradient(
+    from var(--zc-balance-edge-angle,0deg),
+    rgba(74,158,255,0) 0deg,
+    rgba(74,158,255,0) 248deg,
+    rgba(74,158,255,.18) 282deg,
+    rgba(75,157,255,.96) 305deg,
+    rgba(196,229,255,.98) 314deg,
+    rgba(74,158,255,.35) 329deg,
+    rgba(74,158,255,0) 349deg,
+    rgba(74,158,255,0) 360deg
+  );
+  -webkit-mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0);
+  -webkit-mask-composite:xor;
+  mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0);
+  mask-composite:exclude;
+  animation:zcBalanceEdgeSweep 6.2s linear infinite;
+  filter:drop-shadow(0 0 4px rgba(73,157,255,.34));
+}
+.hero-card.zc-market-edge-glow>*{
+  position:relative;
+  z-index:1;
+}
+@media(prefers-reduced-motion:reduce){
+  .hero-card.zc-market-edge-glow::after{
+    animation:none!important;
+    opacity:.42;
+  }
 }
 </style>
