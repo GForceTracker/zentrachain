@@ -6864,7 +6864,6 @@ const KEY='zc-community-invite-dismissed-v2',FIRST_DELAY=5000,REPEAT_DELAYS=[150
 let timer=null,chatChannel=null,memberChannel=null,memberRecord=null,replyRecord=null,photoFile=null,photoPreviewUrl=null,cache=[],communityReactions=[],photoUrls={};
 const el=id=>document.getElementById(id),modal=el('zc-community-modal'),invite=el('zc-community-invite'),room=el('zc-community-room'),gate=el('zc-community-gate'),messages=el('zc-community-messages'),admin=el('zc-community-admin');
  let txTimer=null,botTimer=null;
- const COMMUNITY_PERSONAS=Array.from({length:400},(_,i)=>TX_FIRST[i%TX_FIRST.length]+' '+TX_SUR[(i*13+7)%TX_SUR.length]);
  let typingChannel=null,typingHumans={},typingBots={},typingTimer=null,lastTypingSent=0;
  function renderTyping(){
   const box=el('zc-community-typing');if(!box)return;
@@ -6890,6 +6889,7 @@ const el=id=>document.getElementById(id),modal=el('zc-community-modal'),invite=e
  }
  const TX_FIRST=['Amara','Jamal','Chen','Diego','Fatima','Grace','Hiro','Ivan','Jade','Kwame','Lena','Marcus','Nadia','Omar','Priya','Quinn','Rosa','Samir','Tara','Umar','Vera','Wale','Xiu','Yara','Zane','Bola','Carla','Dmitri','Efe','Farah','Gabriel','Hana','Ifeoma','Jonas','Kira','Luca','Mona','Nils','Ayo','Beatriz'];
  const TX_SUR=['Ade','Bakr','Cole','Diaz','Enzo','Ferr','Gala','Hale','Ibra','Jons'];
+ const COMMUNITY_PERSONAS=Array.from({length:400},(_,i)=>TX_FIRST[i%TX_FIRST.length]+' '+TX_SUR[(i*13+7)%TX_SUR.length]);
  function personaFor(seed){let h=0;const s=String(seed||"");for(let i=0;i<s.length;i++)h=(h*31+s.charCodeAt(i))>>>0;return TX_FIRST[h%TX_FIRST.length]+" "+TX_SUR[(h*13+7)%TX_SUR.length]}
  function txAmountText(t){const v=Number(t.amount||0);if(v>=1000)return v.toLocaleString("en-US",{maximumFractionDigits:0});if(v>=1)return v.toLocaleString("en-US",{maximumFractionDigits:2});return v.toPrecision(3)}
  async function loadTxHeading(){
