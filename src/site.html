@@ -2965,6 +2965,24 @@ body[data-zc-theme] #app-content #wd-network-cards::-webkit-scrollbar-thumb{back
 #app-content .gf-plan-public-logo{width:54px;height:54px;object-fit:contain;border-radius:14px;background:var(--panel2);border:1px solid var(--line);padding:6px;display:block;margin-bottom:12px}
 #app-content .gf-plan-public-logo-empty{width:54px;height:54px;display:grid;place-items:center;border-radius:14px;background:var(--panel2);border:1px solid var(--line);font-weight:900;color:var(--muted);margin-bottom:12px}
 #app-content .gf-plan-public-badge{display:inline-flex;margin:0 0 10px;padding:4px 8px;border-radius:99px;background:var(--panel2);border:1px solid var(--line);font-size:9px;font-weight:800;letter-spacing:.6px}
+#app-content .gf-plan-logo-manager{margin:18px 0 22px;padding:16px;border:1px solid var(--line);border-radius:16px;background:var(--panel2)}
+#app-content .gf-plan-logo-manager-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-top:14px}
+#app-content .gf-plan-logo-manager-card{min-width:0;padding:12px;border:1px solid var(--line);border-radius:13px;background:var(--panel)}
+#app-content .gf-plan-logo-manager-head{display:flex;align-items:center;gap:10px;margin-bottom:11px;min-width:0}
+#app-content .gf-plan-logo-manager-preview{position:relative;display:grid;place-items:center;flex:0 0 58px;width:58px;height:58px;overflow:hidden;border-radius:12px;border:1px solid var(--line);background:var(--panel2)}
+#app-content .gf-plan-logo-manager-preview img{display:block;width:100%;height:100%;object-fit:contain;padding:4px}
+#app-content .gf-plan-logo-manager-preview.is-fallback:before{content:attr(data-fallback);font-size:23px;font-weight:900;color:var(--green)}
+#app-content .gf-plan-logo-manager-head span{display:block;color:var(--muted);font-size:10px;font-weight:800;letter-spacing:.08em}
+#app-content .gf-plan-logo-manager-head strong{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:13px}
+#app-content .gf-plan-logo-manager-card label{display:block;margin:9px 0 5px;font-size:11px;font-weight:750;color:var(--muted)}
+#app-content .gf-plan-logo-manager-card input[type=file],#app-content .gf-plan-logo-manager-card select{width:100%;min-width:0;font-size:12px}
+#app-content .gf-plan-logo-manager-card .btn{width:100%;margin-top:10px}
+#app-content .gf-plan-logo-manager-card small{display:block;margin-top:7px;line-height:1.45;color:var(--muted);font-size:10px}
+#public-plan-cards .gf-plan-theme-tint,#dash-cards .gf-plan-theme-tint{position:relative;isolation:isolate;background-color:var(--panel2)!important;background-size:cover!important;background-position:center!important}
+#public-plan-cards .gf-plan-theme-tint:before,#dash-cards .gf-plan-theme-tint:before{content:"";position:absolute;inset:0;z-index:1;background:var(--green);-webkit-mask-image:var(--gf-plan-theme-image);mask-image:var(--gf-plan-theme-image);-webkit-mask-repeat:no-repeat;mask-repeat:no-repeat;-webkit-mask-position:center;mask-position:center;-webkit-mask-size:contain;mask-size:contain}
+#public-plan-cards .gf-plan-theme-tint:after,#dash-cards .gf-plan-theme-tint:after{content:"";position:absolute;inset:0;z-index:2;pointer-events:none;background:linear-gradient(140deg,color-mix(in srgb,var(--green) 10%,transparent),transparent 58%)}
+@media(max-width:900px){#app-content .gf-plan-logo-manager-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:560px){#app-content .gf-plan-logo-manager-grid{grid-template-columns:1fr}}
 @media(max-width:560px){#app-content .gf-plan-editor-fields{grid-template-columns:1fr}#app-content .gf-plan-editor-fields .full{grid-column:auto}#app-content .gf-plan-form-actions .btn{flex:1}}
 </style>
 <script id="zc-plan-manager-v2">
@@ -2993,6 +3011,76 @@ body[data-zc-theme] #app-content #wd-network-cards::-webkit-scrollbar-thumb{back
   const url=logoUrl(p.logo_url);
   return url?'<img class="gf-plan-public-logo" src="'+escapeValue(url)+'" alt="'+escapeValue(p.name)+' logo" loading="lazy">':'<div class="gf-plan-public-logo-empty" aria-hidden="true">'+escapeValue((p.name||'P').trim().slice(0,1).toUpperCase())+'</div>';
  }
+
+ function gfPlanLogoManagerCard(p,index){
+  const id=escapeValue(p.id),url=logoUrl(p.logo_url),initial=(p.name||'P').trim().slice(0,1).toUpperCase();
+  const mode=p.logo_color_mode==='theme'?'theme':'original';
+  const preview=url?'<img class="gf-plan-logo-manager-image" src="'+escapeValue(url)+'" alt="" onerror="this.remove();this.parentElement.classList.add(&quot;is-fallback&quot;)">':'';
+  return '<article class="gf-plan-logo-manager-card" id="gf-plan-logo-card-'+id+'"><div class="gf-plan-logo-manager-head"><div class="gf-plan-logo-manager-preview '+(url?'':'is-fallback')+'" data-fallback="'+escapeValue(initial)+'">'+preview+'</div><div><span>PLAN '+(index+1)+'</span><strong>'+escapeValue(p.name)+'</strong></div></div><label for="gf-plan-logo-file-'+id+'">Upload or replace image</label><input id="gf-plan-logo-file-'+id+'" type="file" accept="image/png,image/jpeg,image/webp" onchange="gfPreviewPlanLogo(event,&quot;'+id+'&quot;)"><label for="gf-plan-logo-mode-'+id+'">Logo colour mode</label><select id="gf-plan-logo-mode-'+id+'" onchange="gfSetPlanLogoMode(this)"><option value="original" '+(mode==='original'?'selected':'')+'>Keep original colours</option><option value="theme" '+(mode==='theme'?'selected':'')+'>Match active theme</option></select><button class="btn primary" type="button" onclick="gfSavePlanLogo(&quot;'+id+'&quot;)">Save Plan '+(index+1)+' logo</button><small>PNG, JPG or WebP · maximum 2 MB. Theme matching works best with a transparent-background logo.</small></article>';
+ }
+ function gfPlanLogoManagerHTML(rows){
+  const ordered=(Array.isArray(rows)?rows:[]).slice().sort((a,b)=>(Number(a.sort_order)||0)-(Number(b.sort_order)||0));
+  if(!ordered.length)return '';
+  return '<section class="gf-plan-logo-manager"><div><div class="eyebrow">INDIVIDUAL PLAN BRANDING</div><h3 style="margin:5px 0">Manage Plan 1–8 logos</h3><p class="muted" style="margin:0;font-size:12px;line-height:1.55">Each plan has its own image and colour setting. Upload and save one plan without changing its rate, limits or other details.</p></div><div class="gf-plan-logo-manager-grid">'+ordered.map((p,i)=>gfPlanLogoManagerCard(p,i)).join('')+'</div></section>';
+ }
+ window.gfPreviewPlanLogo=function(event,planId){
+  const file=event&&event.target&&event.target.files&&event.target.files[0],tile=byId('gf-plan-logo-card-'+planId);
+  if(!file||!tile)return;
+  if(!['image/png','image/jpeg','image/webp'].includes(file.type)||file.size>2097152){toast('Choose a PNG, JPG or WebP image no larger than 2 MB.',true);event.target.value='';return}
+  const reader=new FileReader();
+  reader.onload=function(){
+   const preview=tile.querySelector('.gf-plan-logo-manager-preview');
+   if(!preview)return;
+   preview.classList.remove('is-fallback');
+   preview.replaceChildren();
+   const img=document.createElement('img');
+   img.className='gf-plan-logo-manager-image';img.alt='Selected plan logo preview';
+   img.onerror=function(){this.remove();preview.classList.add('is-fallback')};
+   img.src=String(reader.result||'');
+   preview.appendChild(img);
+  };
+  reader.readAsDataURL(file);
+ };
+ window.gfSetPlanLogoMode=function(select){
+  const tile=select&&select.closest('.gf-plan-logo-manager-card');
+  if(tile)tile.classList.toggle('is-theme-mode',select.value==='theme');
+ };
+ window.gfSavePlanLogo=async function(planId){
+  if(profile?.role!=='admin')return toast('Admin access required.',true);
+  const rows=await gfAdminRows(),plan=rows.find(p=>String(p.id)===String(planId));
+  if(!plan)return toast('Could not find that plan. Refresh the page and try again.',true);
+  const tile=byId('gf-plan-logo-card-'+planId),input=byId('gf-plan-logo-file-'+planId),modeEl=byId('gf-plan-logo-mode-'+planId);
+  if(!tile||!modeEl)return toast('The plan logo controls are not ready. Refresh and try again.',true);
+  const file=input&&input.files&&input.files[0],mode=modeEl.value==='theme'?'theme':'original';
+  if(file&&(!['image/png','image/jpeg','image/webp'].includes(file.type)||file.size>2097152))return toast('Choose a PNG, JPG or WebP image no larger than 2 MB.',true);
+  const sourceType=file?file.type.toLowerCase():String(plan.logo_url||'').toLowerCase();
+  if(mode==='theme'&&(sourceType==='image/jpeg'||sourceType.endsWith('.jpg')||sourceType.endsWith('.jpeg')))return toast('Theme matching needs a transparent PNG or WebP. Keep this JPG in original-colour mode.',true);
+  let newPath=null;
+  if(file){
+   const extension=file.type==='image/png'?'png':file.type==='image/webp'?'webp':'jpg';
+   newPath=planId+'/logo-'+Date.now()+'-'+Math.floor(Math.random()*1000000)+'.'+extension;
+   const upload=await db.storage.from('plan-logos').upload(newPath,file,{cacheControl:'31536000',upsert:false,contentType:file.type});
+   if(upload.error)return toast('Logo upload failed: '+upload.error.message,true);
+  }
+  const update={logo_color_mode:mode,updated_at:new Date().toISOString()};
+  if(newPath)update.logo_url=newPath;
+  const saved=await db.from('gforce_investment_plans').update(update).eq('id',planId).select('*').single();
+  if(saved.error){
+   if(newPath)await db.storage.from('plan-logos').remove([newPath]);
+   return toast('Logo uploaded but the plan could not be updated: '+saved.error.message,true);
+  }
+  const oldPath=plan.logo_url;
+  if(newPath&&oldPath&&!String(oldPath).startsWith('data:image/')&&!String(oldPath).startsWith('http://')&&!String(oldPath).startsWith('https://')){
+   const removed=await db.storage.from('plan-logos').remove([oldPath]);
+   if(removed.error)console.warn('Old plan logo cleanup failed:',removed.error.message);
+  }
+  const refreshed=await gfAdminRows(),ordered=refreshed.slice().sort((a,b)=>(Number(a.sort_order)||0)-(Number(b.sort_order)||0)),index=ordered.findIndex(p=>String(p.id)===String(planId));
+  const latest=refreshed.find(p=>String(p.id)===String(planId));
+  if(tile&&latest)tile.outerHTML=gfPlanLogoManagerCard(latest,Math.max(0,index));
+  if(input)input.value='';
+  if(typeof window.gfLoadPlans==='function')await window.gfLoadPlans();
+  toast('Plan '+(index+1)+' logo settings saved.');
+ };
 
  window.gfLoadPlans=async function(){
   const {data,error}=await db.from('gforce_investment_plans').select('*').eq('is_active',true).order('sort_order').order('created_at');
@@ -3023,9 +3111,12 @@ body[data-zc-theme] #app-content #wd-network-cards::-webkit-scrollbar-thumb{back
   const artworkByOrder=['starter','growth','advanced','professional','premium','elite','institutional','private'];
   const artworkSlug=artworkById[String(p.id)]||artworkByOrder[slot]||'';
   const builtIn=/^data:image\/svg\+xml/i.test(String(p.logo_url||''));
+  const logoMode=p.logo_color_mode==='theme'?'theme':'original';
   let art='';
-  if(url&&!builtIn){
-   art='<div class="gf-plan-artwork zc-plan-custom-art"><img src="'+escapeValue(url)+'" alt="'+planName+' plan artwork" loading="lazy" decoding="async"></div>';
+  if(url&&logoMode==='theme'){
+   art='<div class="gf-plan-artwork zc-plan-custom-art gf-plan-theme-tint" style="--gf-plan-theme-image:url(&quot;'+escapeValue(url)+'&quot;);background-image:url(&quot;/assets/plans/'+artworkSlug+'.svg&quot;)"></div>';
+  }else if(url&&!builtIn){
+   art='<div class="gf-plan-artwork zc-plan-custom-art"><img src="'+escapeValue(url)+'" alt="'+planName+' plan artwork" loading="eager" decoding="async" onerror="this.onerror=null;this.src=&quot;/assets/plans/'+artworkSlug+'.svg&quot;;this.classList.add(&quot;gf-plan-image-fallback&quot;)"></div>';
   }else if(artworkSlug){
    art='<div class="gf-plan-artwork zc-plan-photo"><img src="/assets/plans/'+artworkSlug+'.svg" alt="'+planName+' plan artwork" loading="lazy" decoding="async"></div>';
   }else if(url){
@@ -3033,8 +3124,6 @@ body[data-zc-theme] #app-content #wd-network-cards::-webkit-scrollbar-thumb{back
   }else{
    art='<div class="gf-plan-artwork zc-plan-photo" role="img" aria-label="'+planName+' plan artwork"></div>';
   }
-  const cardInteraction=s==='pub'?' role="group"':' role="button" tabindex="0" aria-label="Select '+planName+'" onclick="gfChoose(&quot;'+s+'&quot;,&quot;'+id+'&quot;)" onkeydown="if(event.keyCode===13||event.keyCode===32){event.preventDefault();gfChoose(&quot;'+s+'&quot;,&quot;'+id+'&quot;)}"';
-  const buttonInteraction=s==='pub'?'':' onclick="event.stopPropagation();gfChoose(&quot;'+s+'&quot;,&quot;'+id+'&quot;)"';
   return '<article class="plan-card gf-plan-compact-card" data-gf-plan-id="'+id+'"'+cardInteraction+'>'+art+'<div class="gf-plan-card-heading"><div class="gf-plan-card-title"><div class="eyebrow">'+planName+'</div>'+(tagline?'<p class="muted">'+escapeValue(tagline)+'</p>':'')+badge+'</div></div>'+(description?'<p class="muted gf-plan-description">'+escapeValue(description)+'</p>':'')+'<div class="gf-plan-details"><div class="gf-plan-detail-line"><i data-lucide="arrow-down-to-line" aria-hidden="true"></i><span>Min deposit: <b>'+money(p.min_amount)+'</b></span></div><div class="gf-plan-detail-line"><i data-lucide="arrow-up-from-line" aria-hidden="true"></i><span>Max deposit: <b>'+money(p.max_amount)+'</b></span></div><div class="gf-plan-detail-line"><i data-lucide="percent" aria-hidden="true"></i><span>Plan percentage: <b>'+fmt(p.percentage)+'%</b></span></div></div><div class="muted gf-plan-duration" style="margin:5px 11px 0">'+duration+'</div><button type="button" class="btn gf-plan-select-button"'+buttonInteraction+'>Choose plan</button>'+(s==='pub'?'':'<span class="zc-sel-pill hidden">Selected</span><button type="button" class="btn primary zc-buy-open" onclick="event.stopPropagation();zcToggleCardBuy(this)">Buy plan</button><div class="zc-card-buy" hidden onclick="event.stopPropagation()"><select class="zc-buy-source" aria-label="Payment balance"><option value="available">Available Funds</option><option value="deposit">Deposit Balance</option></select><input class="zc-buy-amount" type="number" inputmode="decimal" min="'+p.min_amount+'" max="'+p.max_amount+'" step="0.01" placeholder="Amount (USD)"><small class="zc-buy-limit">Allowed amount: '+money(p.min_amount)+' – '+money(p.max_amount)+'</small><button type="button" class="btn primary zc-buy-confirm" onclick="event.stopPropagation();zcConfirmCardBuy(this)">Confirm</button><div class="zc-buy-err hidden" role="alert"><span class="zc-buy-msg"></span><button type="button" class="btn primary zc-buy-deposit" style="display:none" onclick="event.stopPropagation();zcStartPlanDeposit(this)">Deposit</button></div></div>')+'</article>';
  };
  window.gfLogoPublicUrl=logoUrl;
@@ -3045,7 +3134,7 @@ body[data-zc-theme] #app-content #wd-network-cards::-webkit-scrollbar-thumb{back
    const logo=url?'<img class="gf-plan-table-logo" src="'+escapeValue(url)+'" alt="" loading="lazy">':'<span class="gf-plan-logo-empty" style="width:42px;height:42px;font-size:16px">'+escapeValue((p.name||'P').slice(0,1).toUpperCase())+'</span>';
    return '<tr><td><div class="gf-plan-table-name">'+logo+'<div><strong>'+escapeValue(p.name)+'</strong><small>'+escapeValue(p.tagline||'No subtitle')+'</small></div></div></td><td>'+fmt(p.percentage)+'%</td><td>'+money(p.min_amount)+' – '+money(p.max_amount)+'</td><td>'+p.duration_value+' '+escapeValue(p.duration_unit)+'</td><td><span class="gf-plan-status '+(p.is_active?'live':'draft')+'">'+(p.is_active?'Published':'Draft')+'</span></td><td><button class="btn" type="button" onclick="gfEdit(&quot;'+p.id+'&quot;)">Edit</button> <button class="btn danger" type="button" onclick="gfDelete(&quot;'+p.id+'&quot;)">Delete</button></td></tr>';
   }).join(''):'<tr><td colspan="6"><div class="empty">No plans yet. Use the form above to create your first plan.</div></td></tr>';
-  return '<section class="card panel" id="gf-plan-admin"><div class="gf-plan-admin-hero"><div><div class="eyebrow">PLAN WORKSPACE</div><h2 id="gf-plan-form-heading" style="margin:5px 0">Create or edit a plan</h2><p class="muted" style="margin:0">Manage the plan title, logo, description, rate, limits, duration and publication status.</p></div><button class="btn" type="button" onclick="gfReset()">＋ New plan</button></div><form id="gf-plan-editor" onsubmit="gfSavePlan(event)" style="margin-top:18px"><input type="hidden" id="gf-id"><input type="hidden" id="gf-logo-path"><div class="gf-plan-editor-fields"><div class="field full"><label>Plan logo</label><div class="gf-plan-logo-picker"><span id="gf-plan-logo-empty" class="gf-plan-logo-empty">P</span><img id="gf-logo-preview" class="gf-plan-logo-preview hidden" alt="Selected plan logo preview"><div style="min-width:180px;flex:1"><div class="gf-plan-logo-actions"><input id="gf-logo-file" type="file" accept="image/png,image/jpeg,image/webp" onchange="gfPreviewLogo(event)" style="max-width:100%"><button class="btn" type="button" onclick="gfClearPlanLogo()">Remove logo</button></div><small class="muted" style="display:block;margin-top:7px">PNG, JPG or WebP · maximum 2 MB. Uploaded logo appears on the public plan card.</small></div></div></div><div class="field"><label>Plan name</label><input id="gf-name" required maxlength="80" placeholder="For example: Plan 1"></div><div class="field"><label>Short subtitle</label><input id="gf-tagline" maxlength="120" placeholder="Short line below the plan name"></div><div class="field full"><label>Plan description</label><textarea id="gf-description" rows="3" maxlength="1000" placeholder="Explain what this plan represents. Avoid wording that promises or guarantees a return."></textarea></div><div class="field"><label>Percentage (%)</label><input id="gf-rate" type="number" min="0" max="100" step=".0001" required></div><div class="field"><label>Badge text (optional)</label><input id="gf-badge" maxlength="32" placeholder="For example: STARTER"></div><div class="field"><label>Minimum amount (USDT)</label><input id="gf-min" type="number" min=".01" step=".01" value="50" required></div><div class="field"><label>Maximum amount (USDT)</label><input id="gf-max" type="number" min=".01" step=".01" value="2000" required></div><div class="field"><label>Duration value</label><input id="gf-duration" type="number" min="1" step="1" value="1" required></div><div class="field"><label>Duration unit</label><select id="gf-unit"><option value="hours">Hours</option><option value="days" selected>Days</option></select></div><div class="field"><label>Display order</label><input id="gf-order" type="number" step="1" value="1"></div><div class="field"><label style="display:flex;align-items:center;gap:9px"><input id="gf-active" type="checkbox" style="width:auto"> Publish this plan on the website</label><small class="muted">Keep this off while the plan is being edited.</small></div></div><div class="gf-plan-form-actions"><button class="btn primary" id="gf-submit-button" type="submit">Save plan</button><button class="btn" type="button" onclick="gfReset()">Clear form</button></div><p class="muted" style="font-size:11px;margin-top:10px">Percentages are displayed as calculator inputs only. Saving a plan does not create an investment, execute trades, or guarantee profit.</p></form><div class="table-wrap" style="margin-top:24px"><h3 style="margin:0 0 12px">All configured plans</h3><table><thead><tr><th>Plan</th><th>Rate</th><th>Amount range</th><th>Duration</th><th>Status</th><th>Actions</th></tr></thead><tbody>'+items+'</tbody></table></div></section>';
+  return '<section class="card panel" id="gf-plan-admin"><div class="gf-plan-admin-hero"><div><div class="eyebrow">PLAN WORKSPACE</div><h2 id="gf-plan-form-heading" style="margin:5px 0">Create or edit a plan</h2><p class="muted" style="margin:0">Manage the plan title, logo, description, rate, limits, duration and publication status.</p></div><button class="btn" type="button" onclick="gfReset()">＋ New plan</button></div>'+gfPlanLogoManagerHTML(rows)+'<form id="gf-plan-editor" onsubmit="gfSavePlan(event)" style="margin-top:18px"><input type="hidden" id="gf-id"><input type="hidden" id="gf-logo-path"><div class="gf-plan-editor-fields"><div class="field full"><label>Plan logo</label><div class="gf-plan-logo-picker"><span id="gf-plan-logo-empty" class="gf-plan-logo-empty">P</span><img id="gf-logo-preview" class="gf-plan-logo-preview hidden" alt="Selected plan logo preview"><div style="min-width:180px;flex:1"><div class="gf-plan-logo-actions"><input id="gf-logo-file" type="file" accept="image/png,image/jpeg,image/webp" onchange="gfPreviewLogo(event)" style="max-width:100%"><button class="btn" type="button" onclick="gfClearPlanLogo()">Remove logo</button></div><small class="muted" style="display:block;margin-top:7px">PNG, JPG or WebP · maximum 2 MB. Uploaded logo appears on the public plan card.</small></div></div></div><div class="field"><label>Plan name</label><input id="gf-name" required maxlength="80" placeholder="For example: Plan 1"></div><div class="field"><label>Short subtitle</label><input id="gf-tagline" maxlength="120" placeholder="Short line below the plan name"></div><div class="field full"><label>Logo colour mode</label><select id="gf-logo-color-mode"><option value="original">Keep original colours</option><option value="theme">Match active theme</option></select><small class="muted">Theme matching works best with a transparent PNG or WebP logo. Use original colours for photos and JPG images.</small></div><div class="field full"><label>Plan description</label><textarea id="gf-description" rows="3" maxlength="1000" placeholder="Explain what this plan represents. Avoid wording that promises or guarantees a return."></textarea></div><div class="field"><label>Percentage (%)</label><input id="gf-rate" type="number" min="0" max="100" step=".0001" required></div><div class="field"><label>Badge text (optional)</label><input id="gf-badge" maxlength="32" placeholder="For example: STARTER"></div><div class="field"><label>Minimum amount (USDT)</label><input id="gf-min" type="number" min=".01" step=".01" value="50" required></div><div class="field"><label>Maximum amount (USDT)</label><input id="gf-max" type="number" min=".01" step=".01" value="2000" required></div><div class="field"><label>Duration value</label><input id="gf-duration" type="number" min="1" step="1" value="1" required></div><div class="field"><label>Duration unit</label><select id="gf-unit"><option value="hours">Hours</option><option value="days" selected>Days</option></select></div><div class="field"><label>Display order</label><input id="gf-order" type="number" step="1" value="1"></div><div class="field"><label style="display:flex;align-items:center;gap:9px"><input id="gf-active" type="checkbox" style="width:auto"> Publish this plan on the website</label><small class="muted">Keep this off while the plan is being edited.</small></div></div><div class="gf-plan-form-actions"><button class="btn primary" id="gf-submit-button" type="submit">Save plan</button><button class="btn" type="button" onclick="gfReset()">Clear form</button></div><p class="muted" style="font-size:11px;margin-top:10px">Percentages are displayed as calculator inputs only. Saving a plan does not create an investment, execute trades, or guarantee profit.</p></form><div class="table-wrap" style="margin-top:24px"><h3 style="margin:0 0 12px">All configured plans</h3><table><thead><tr><th>Plan</th><th>Rate</th><th>Amount range</th><th>Duration</th><th>Status</th><th>Actions</th></tr></thead><tbody>'+items+'</tbody></table></div></section>';
  };
 
  window.gfPreviewLogo=function(event){
@@ -3070,7 +3159,7 @@ body[data-zc-theme] #app-content #wd-network-cards::-webkit-scrollbar-thumb{back
   byId('gf-duration').value=p.duration_value;byId('gf-unit').value=p.duration_unit||'days';
   byId('gf-description').value=p.description||'';byId('gf-badge').value=p.badge_label||'';
   byId('gf-order').value=p.sort_order||0;byId('gf-active').checked=!!p.is_active;
-  byId('gf-logo-file').value='';window.gfCurrentLogoPath=p.logo_url||null;window.gfLogoRemoved=false;
+  byId('gf-logo-file').value='';byId('gf-logo-color-mode').value=p.logo_color_mode==='theme'?'theme':'original';window.gfCurrentLogoPath=p.logo_url||null;window.gfLogoRemoved=false;
   byId('gf-logo-path').value=p.logo_url||'';setLogoPreview(p.logo_url);
   const heading=byId('gf-plan-form-heading'),button=byId('gf-submit-button');
   if(heading)heading.textContent='Edit '+(p.name||'plan');
@@ -3085,6 +3174,7 @@ body[data-zc-theme] #app-content #wd-network-cards::-webkit-scrollbar-thumb{back
   byId('gf-badge').value='';byId('gf-order').value='1';byId('gf-active').checked=false;
   byId('gf-logo-path').value='';window.gfCurrentLogoPath=null;window.gfLogoRemoved=false;
   if(byId('gf-logo-file'))byId('gf-logo-file').value='';
+  if(byId('gf-logo-color-mode'))byId('gf-logo-color-mode').value='original';
   setLogoPreview(null);
   const heading=byId('gf-plan-form-heading'),button=byId('gf-submit-button');
   if(heading)heading.textContent='Create a new plan';
@@ -3106,7 +3196,7 @@ body[data-zc-theme] #app-content #wd-network-cards::-webkit-scrollbar-thumb{back
   if(!Number.isFinite(mn)||!Number.isFinite(mx)||mn<=0||mx<mn||!Number.isFinite(rate)||rate<0||rate>100||!Number.isInteger(duration)||duration<1)return toast('Check the amount range, percentage and duration.',true);
   if(file&&(!['image/png','image/jpeg','image/webp'].includes(file.type)||file.size>2097152))return toast('Choose a PNG, JPG or WebP logo no larger than 2 MB.',true);
   const id=byId('gf-id').value,oldPath=window.gfCurrentLogoPath;
-  const row={name:name,tagline:byId('gf-tagline').value.trim(),description:byId('gf-description').value.trim(),badge_label:byId('gf-badge').value.trim(),min_amount:mn,max_amount:mx,percentage:rate,duration_value:duration,duration_unit:byId('gf-unit').value,percentage_label:'target',sort_order:Number(byId('gf-order').value)||0,is_active:byId('gf-active').checked,logo_url:window.gfLogoRemoved?null:(oldPath||null),updated_at:new Date().toISOString()};
+  const row={name:name,tagline:byId('gf-tagline').value.trim(),description:byId('gf-description').value.trim(),badge_label:byId('gf-badge').value.trim(),min_amount:mn,max_amount:mx,percentage:rate,duration_value:duration,duration_unit:byId('gf-unit').value,percentage_label:'target',sort_order:Number(byId('gf-order').value)||0,is_active:byId('gf-active').checked,logo_url:window.gfLogoRemoved?null:(oldPath||null),logo_color_mode:byId('gf-logo-color-mode').value==='theme'?'theme':'original',updated_at:new Date().toISOString()};
   let saved,error;
   if(id){const result=await db.from('gforce_investment_plans').update(row).eq('id',id).select('*').single();saved=result.data;error=result.error}
   else{const result=await db.from('gforce_investment_plans').insert(row).select('*').single();saved=result.data;error=result.error}
@@ -3114,12 +3204,12 @@ body[data-zc-theme] #app-content #wd-network-cards::-webkit-scrollbar-thumb{back
   let savedId=saved.id;
   if(file){
    const extension=file.type==='image/png'?'png':file.type==='image/webp'?'webp':'jpg';
-   const path=savedId+'/logo.'+extension;
-   const upload=await db.storage.from('plan-logos').upload(path,file,{cacheControl:'3600',upsert:true,contentType:file.type});
+   const path=savedId+'/logo-'+Date.now()+'-'+Math.floor(Math.random()*1000000)+'.'+extension;
+   const upload=await db.storage.from('plan-logos').upload(path,file,{cacheControl:'31536000',upsert:false,contentType:file.type});
    if(upload.error){toast('Plan saved, but the logo upload failed: '+upload.error.message,true);await gfRefreshAdmin(savedId);return}
    const updated=await db.from('gforce_investment_plans').update({logo_url:path,updated_at:new Date().toISOString()}).eq('id',savedId);
    if(updated.error){toast('Plan saved, but its logo link could not be saved: '+updated.error.message,true);await gfRefreshAdmin(savedId);return}
-   if(oldPath&&oldPath!==path)await db.storage.from('plan-logos').remove([oldPath]);
+   if(oldPath&&oldPath!==path&&!String(oldPath).startsWith('data:image/')&&!String(oldPath).startsWith('http://')&&!String(oldPath).startsWith('https://'))await db.storage.from('plan-logos').remove([oldPath]);
   }else if(window.gfLogoRemoved&&oldPath){
    await db.storage.from('plan-logos').remove([oldPath]);
   }
