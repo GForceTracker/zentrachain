@@ -6,7 +6,10 @@ const { applyVisitorPlanPatch } = require('../src/api/visitor-plan-patch');
 
 const root = path.resolve(__dirname, '..');
 const output = path.join(root, 'dist');
-const sourceHtml = path.join(root, 'src', 'site.html');
+
+// IMPORTANT: index.html is the complete visitor + account portal source.
+// src/site.html is only the older Vercel runtime copy and is not the full app.
+const sourceHtml = path.join(root, 'index.html');
 const sourceEnv = path.join(root, 'src', 'js', 'env.js');
 const sourceAssets = path.join(root, 'assets');
 
@@ -28,8 +31,14 @@ if (!env.includes('https://ltowdrhwebaitbrrupks.supabase.co')) {
 }
 
 let html = fs.readFileSync(sourceHtml, 'utf8');
+if (html.length < 900000) {
+  fail('index.html is unexpectedly small. Refusing to deploy a partial visitor-only site.');
+}
 if (!/<script\s+src=["']js\/env\.js["']/.test(html)) {
-  fail('The visitor page no longer references js/env.js as expected.');
+  fail('The full site no longer references js/env.js as expected.');
+}
+if (!/dashboard/i.test(html) || !/studio/i.test(html) || !/create account/i.test(html)) {
+  fail('The full dashboard, Studio, or account portal content is missing from index.html.');
 }
 
 html = applyVisitorPlanPatch(html);
@@ -50,7 +59,8 @@ if (!copiedAssets.some((entry) => String(entry).startsWith('plans'))) {
   fail('The plan artwork directory was not copied into the build output.');
 }
 
-console.log('[Cloudflare Worker build] Created dist/index.html');
+console.log('[Cloudflare Worker build] Created full dist/index.html (' + html.length + ' characters)');
+console.log('[Cloudflare Worker build] Full dashboard, Studio, and account portal checks passed.');
 console.log('[Cloudflare Worker build] Copied production Supabase config to dist/js/env.js');
 console.log('[Cloudflare Worker build] Copied ' + copiedAssets.length + ' asset entries');
 console.log('[Cloudflare Worker build] Visitor plan behaviour patch is included.');
