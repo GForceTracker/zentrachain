@@ -9160,11 +9160,11 @@ body[data-zc-theme] #app-content input.zc-calc-range::-moz-range-thumb{
  };
  window.refreshData=async function(){
   var result;if(typeof previousRefresh==="function")result=await previousRefresh.apply(this,arguments);
-  await refreshNotifications(true);return result;
+  updateBadge();return result;
  };
  window.startRealtimeAlerts=function(){
   if(typeof previousRealtime==="function")previousRealtime.apply(this,arguments);
-  subscribeNotifications();
+  updateBadge();
  };
  window.loadReferralList=async function(){
   var uid=currentUser&&currentUser.id;
@@ -9194,7 +9194,7 @@ body[data-zc-theme] #app-content input.zc-calc-range::-moz-range-thumb{
    box.innerHTML='<div class="zc-referral-scroll"><table><thead><tr><th>Member</th><th>Join date &amp; time</th><th>Join bonus</th></tr></thead><tbody>'+tableRows+'</tbody></table></div>'+rewardNote;
   }catch(error){console.error("Referral list could not be loaded:",error);if(box)box.innerHTML='<p class="muted">Could not load referrals. Please refresh and try again.</p>'}
  };
- var init=function(){updateBadge();if(currentUser&&currentUser.id)refreshNotifications(true)};
+ var init=function(){updateBadge()};
  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",init,{once:true});else init();
 })();
 </script>
