@@ -56,8 +56,8 @@ Deno.serve(async (req: Request) => {
 
     if (!/^[0-9a-f-]{36}$/i.test(challengeId)) return response({ error: "Please complete the CAPTCHA again." }, 400);
 
-    // captcha-verify marks image challenges as verified. Require that
-    // status, enforce the 10-minute expiry, and consume each challenge once.
+    // The image CAPTCHA is verified by captcha-verify. Only verified,
+    // unused, unexpired challenges may authorize an account registration.
     const challengeUrl = new URL(SUPABASE_URL + "/rest/v1/captcha_challenges");
     challengeUrl.searchParams.set("id", "eq." + challengeId);
     challengeUrl.searchParams.set("select", "id,verified,used,created_at");
@@ -66,13 +66,15 @@ Deno.serve(async (req: Request) => {
     });
     const chRows = chRes.ok ? await chRes.json() : [];
     const ch = chRows[0];
-    if (!ch) return response({ error: "CAPTCHA expired. Please verify again." }, 400);
-    if (ch.used) return response({ error: "CAPTCHA already used. Please verify again." }, 400);
+    if (!ch) return response({ error: "CAPTCHA expired. Please verify the box again." }, 400);
+    if (ch.used) return response({ error: "CAPTCHA already used. Please verify the box again." }, 400);
     if (!ch.verified) return response({ error: "Please complete the CAPTCHA verification first." }, 400);
     if (Date.now() - new Date(ch.created_at).getTime() > 600000) {
-      return response({ error: "CAPTCHA expired. Please verify again." }, 400);
+      return response({ error: "CAPTCHA expired. Please verify the box again." }, 400);
     }
 
+    // Atomically consume the verified challenge so it cannot authorize
+    // two registrations, even if two requests arrive at the same time.
     const consumeUrl = new URL(SUPABASE_URL + "/rest/v1/captcha_challenges");
     consumeUrl.searchParams.set("id", "eq." + challengeId);
     consumeUrl.searchParams.set("verified", "eq.true");
