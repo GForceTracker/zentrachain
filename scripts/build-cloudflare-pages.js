@@ -12,13 +12,14 @@ const output = path.join(root, 'dist');
 const sourceHtml = path.join(root, 'index.html');
 const sourceEnv = path.join(root, 'src', 'js', 'env.js');
 const sourceAssets = path.join(root, 'assets');
+const sourceJs = path.join(root, 'js');
 
 function fail(message) {
   console.error('[Cloudflare Worker build] ' + message);
   process.exit(1);
 }
 
-for (const file of [sourceHtml, sourceEnv, sourceAssets]) {
+for (const file of [sourceHtml, sourceEnv, sourceAssets, sourceJs]) {
   if (!fs.existsSync(file)) fail('Required source is missing: ' + path.relative(root, file));
 }
 
@@ -37,6 +38,9 @@ if (html.length < 900000) {
 if (!/<script\s+src=["']js\/env\.js["']/.test(html)) {
   fail('The full site no longer references js/env.js as expected.');
 }
+if (html.includes('js/tap-earn.js') && !fs.existsSync(path.join(sourceJs, 'tap-earn.js'))) {
+  fail('The Tap To Earn frontend script is referenced but missing from the root js directory.');
+}
 if (!/dashboard/i.test(html) || !/studio/i.test(html) || !/create account/i.test(html)) {
   fail('The full dashboard, Studio, or account portal content is missing from index.html.');
 }
@@ -47,7 +51,7 @@ if (!html.includes('zc-visitor-plan-flow-v2')) {
 }
 
 fs.rmSync(output, { recursive: true, force: true });
-fs.mkdirSync(path.join(output, 'js'), { recursive: true });
+fs.cpSync(sourceJs, path.join(output, 'js'), { recursive: true });
 fs.mkdirSync(path.join(output, 'assets'), { recursive: true });
 
 fs.writeFileSync(path.join(output, 'index.html'), html, 'utf8');
@@ -61,7 +65,8 @@ if (!copiedAssets.some((entry) => String(entry).startsWith('plans'))) {
 
 console.log('[Cloudflare Worker build] Created full dist/index.html (' + html.length + ' characters)');
 console.log('[Cloudflare Worker build] Full dashboard, Studio, and account portal checks passed.');
-console.log('[Cloudflare Worker build] Copied production Supabase config to dist/js/env.js');
+console.log('[Cloudflare Worker build] Copied root JavaScript assets, including Tap To Earn when present.');
+console.log('[Cloudflare Worker build] Replaced dist/js/env.js with the production Supabase config.');
 console.log('[Cloudflare Worker build] Copied ' + copiedAssets.length + ' asset entries');
 console.log('[Cloudflare Worker build] Visitor plan behaviour patch is included.');
 console.log('[Cloudflare Worker build] No Vercel or Supabase production settings were changed.');
