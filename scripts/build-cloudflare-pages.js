@@ -20,7 +20,7 @@ for (const file of [sourceHtml, sourceEnv, sourceAssets]) {
 }
 
 const env = fs.readFileSync(sourceEnv, 'utf8');
-if (!/MODE\\s*:\\s*['"]cloud['"]/.test(env)) {
+if (!/MODE\s*:\s*['"]cloud['"]/.test(env)) {
   fail('The deployed environment must remain in cloud mode.');
 }
 if (!env.includes('https://ltowdrhwebaitbrrupks.supabase.co')) {
@@ -28,7 +28,7 @@ if (!env.includes('https://ltowdrhwebaitbrrupks.supabase.co')) {
 }
 
 let html = fs.readFileSync(sourceHtml, 'utf8');
-if (!/<script\\s+src=["']js\\/env\\.js["']/.test(html)) {
+if (!/<script\s+src=["']js\/env\.js["']/.test(html)) {
   fail('The visitor page no longer references js/env.js as expected.');
 }
 
