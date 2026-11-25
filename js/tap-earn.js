@@ -37,7 +37,35 @@ installPublicHeaderViewportGuard();
 
 let locked=false;
 let tapQueue=0,tapPending=0,tapInFlight=false,tapTimer=null,tapPageState=null;
+function ensureTapEarnMenuStyles(){
+ if(document.getElementById('zc-tap-earn-menu-layout-v1'))return;
+ const style=document.createElement('style');
+ style.id='zc-tap-earn-menu-layout-v1';
+ style.textContent=
+ '#app-drawer .side-nav button#zc-tap-earn-nav,#side-nav button#zc-tap-earn-nav{' +
+ 'box-sizing:border-box!important;display:flex!important;flex-direction:row!important;align-items:center!important;justify-content:flex-start!important;gap:12px!important;' +
+ 'width:100%!important;max-width:none!important;min-width:0!important;min-height:53px!important;flex:initial!important;' +
+ 'padding:13px 14px!important;text-align:left!important;white-space:nowrap!important;font-size:13px!important;line-height:1.2!important' +
+ '}' +
+ '#app-drawer .side-nav button#zc-tap-earn-nav>.zc-home-nav-icon,#side-nav button#zc-tap-earn-nav>.zc-home-nav-icon{' +
+ 'box-sizing:border-box!important;display:grid!important;place-items:center!important;flex:0 0 25px!important;' +
+ 'width:25px!important;height:25px!important;min-width:25px!important;min-height:25px!important;margin:0!important;padding:0!important' +
+ '}' +
+ '#app-drawer .side-nav button#zc-tap-earn-nav>.zc-tap-earn-nav-label,#side-nav button#zc-tap-earn-nav>.zc-tap-earn-nav-label{' +
+ 'box-sizing:border-box!important;display:inline-block!important;position:static!important;flex:0 1 auto!important;' +
+ 'width:auto!important;min-width:0!important;max-width:none!important;height:auto!important;min-height:0!important;' +
+ 'margin:0!important;padding:0!important;border:0!important;border-radius:0!important;' +
+ 'background:transparent!important;color:inherit!important;font-family:inherit!important;font-size:13px!important;' +
+ 'font-weight:inherit!important;line-height:1.2!important;letter-spacing:normal!important;text-align:left!important;' +
+ 'white-space:nowrap!important;overflow:visible!important;vertical-align:middle!important' +
+ '}' +
+ '#app-drawer .side-nav button#zc-tap-earn-nav>.zc-home-nav-icon svg,#side-nav button#zc-tap-earn-nav>.zc-home-nav-icon svg{' +
+ 'display:block!important;width:17px!important;height:17px!important;flex:0 0 17px!important;margin:0!important' +
+ '}';
+ document.head.appendChild(style);
+}
 function setTapEarnMenuIcon(){
+ ensureTapEarnMenuStyles();
  const n=$('zc-tap-earn-nav');if(!n)return;
  if(n.dataset.zcTapLucideIcon!=='1'){
   // Match the existing hamburger buttons: icon wrapper first, plain text label second.
