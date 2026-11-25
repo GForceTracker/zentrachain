@@ -3,6 +3,38 @@
 const $=id=>document.getElementById(id), esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const usd=v=>'$'+Number(v||0).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:8});
 const pc=(v,t)=>t>0?Math.max(0,Math.min(100,Number(v||0)/t*100)):100;
+
+function installPublicHeaderViewportGuard(){
+ if(document.getElementById('zc-public-auth-header-viewport-guard-v1'))return;
+ const style=document.createElement('style');
+ style.id='zc-public-auth-header-viewport-guard-v1';
+ style.textContent=
+ '@media(max-width:760px){' +
+ '#public header.topbar.wrap{' +
+ 'box-sizing:border-box!important;display:grid!important;grid-template-columns:minmax(0,1fr)!important;grid-template-rows:auto auto!important;grid-auto-flow:row!important;' +
+ 'align-content:start!important;align-items:center!important;justify-content:initial!important;gap:10px!important;' +
+ 'width:100%!important;max-width:100%!important;height:auto!important;min-height:120px!important;' +
+ 'margin:0!important;padding:14px 16px!important;overflow:visible!important;position:relative!important;inset:auto!important;transform:none!important;z-index:30!important' +
+ '}' +
+ '#public header.topbar.wrap>.brand{grid-column:1!important;grid-row:1!important;display:flex!important;align-items:center!important;justify-self:start!important;min-width:0!important;max-width:100%!important;margin:0!important;white-space:nowrap!important}' +
+ '#public header.topbar.wrap>.nav{display:none!important}' +
+ '#public #public-account-actions{' +
+ 'grid-column:1!important;grid-row:2!important;box-sizing:border-box!important;display:flex!important;flex-direction:row!important;align-items:stretch!important;justify-content:stretch!important;gap:8px!important;' +
+ 'position:relative!important;inset:auto!important;transform:none!important;float:none!important;clear:both!important;' +
+ 'width:100%!important;max-width:100%!important;min-width:0!important;min-height:44px!important;margin:0!important;padding:0!important;visibility:visible!important;opacity:1!important;z-index:31!important' +
+ '}' +
+ '#public #public-account-actions>button:not(.hidden){' +
+ 'box-sizing:border-box!important;display:inline-flex!important;position:relative!important;inset:auto!important;transform:none!important;float:none!important;' +
+ 'flex:1 1 0!important;width:auto!important;min-width:0!important;max-width:none!important;min-height:44px!important;height:auto!important;' +
+ 'align-items:center!important;justify-content:center!important;margin:0!important;padding:10px 6px!important;' +
+ 'font-size:13px!important;line-height:1.2!important;white-space:nowrap!important;text-align:center!important;overflow:visible!important;visibility:visible!important;opacity:1!important' +
+ '}' +
+ '#public #public-account-actions>button.hidden{display:none!important}' +
+ '}' ;
+ (document.head||document.documentElement).appendChild(style);
+}
+installPublicHeaderViewportGuard();
+
 let locked=false;
 let tapQueue=0,tapPending=0,tapInFlight=false,tapTimer=null,tapPageState=null;
 function setTapEarnMenuIcon(){
