@@ -1774,161 +1774,35 @@ async function zcSavePasswordCredential(email,password){
  }
 }
 async function submitAuth(e){e.preventDefault();const email=$('auth-email').value.trim().toLowerCase(),password=$('auth-password').value;if(!email||!password)return authMsg('Enter your email and password.',true);
+if(authMode==='signup'&&password.length<12)return authMsg('For account security, use a password with at least 12 characters.',true);
 if(authMode==='signup'&&zcTick.state!=='verified')return authMsg('Tap the verification box first.',true);const submit=$('auth-submit');if(submit){submit.disabled=true;submit.textContent=authMode==='signup'?'Creating account…':'Signing in…'}try{let r;if(authMode==='signup'){
  if(zcTick.state!=='verified')return authMsg('Tap the verification box first.',true);
  const base=(window.ZC_ENV&&window.ZC_ENV.SUPABASE_URL)||'';
- const sr=await fetch(base+'/functions/v1/member-signup',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:email,password:password,full_name:$('auth-name')?.value||'',challenge_id:zcTick.id})});
+ const sr=await fetch(base+'/functions/v1/member-signup',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:email,password:password,full_name:$('auth-name')?.value||'',challenge_id:zcTick.id,nonce:zcTick.nonce})});
  const sd=await sr.json().catch(()=>({}));
  if(!sr.ok||!sd.ok)return authMsg(sd.error||'Signup failed. Please try again.',true);
- r=await db.auth.signInWithPassword({email,password});if(r.error)return authMsg(r.error.message,true);await zcSavePasswordCredential(email,password);
+ if(sd.needs_confirmation)return authMsg('Account created. Please check your email inbox and confirm your email address before logging in. Use Resend verification below if you do not receive the message.',false);
+ if(sd.session?.access_token&&sd.session?.refresh_token){r=await db.auth.setSession({access_token:sd.session.access_token,refresh_token:sd.session.refresh_token});if(r.error)return authMsg(r.error.message,true)}
+ else{return authMsg('Account created. You can now log in with your email and password.',false)}
 }else{r=await db.auth.signInWithPassword({email,password});if(r.error)return authMsg(r.error.message,true)}hideAuth();await loadSession();if(window.zcCommunityAfterAuth)await window.zcCommunityAfterAuth()}catch(err){authMsg(err?.message||'Sign-in could not be completed. Please try again.',true)}finally{if(submit){submit.disabled=false;submit.textContent=authMode==='signup'?'Create account':'Log in'}}}
-let zcTick={state:'idle',id:''};
-function zcTickReset(){
- zcTick={state:'idle',id:''};
- const box=$('zc-tickbox');
- if(box){box.classList.remove('verified','verifying');box.setAttribute('aria-checked','false')}
- const mark=$('zc-tick-mark');if(mark)mark.textContent='';
- const state=$('zc-tick-state');if(state)state.textContent='';
- const modal=$('zc-captcha-modal');if(modal)modal.classList.add('hidden');
- const image=$('zc-captcha-image');if(image)image.removeAttribute('src');
- const answer=$('zc-captcha-answer');if(answer){answer.value='';answer.blur()}
- const feedback=$('zc-captcha-feedback');if(feedback)feedback.textContent='';
- const loading=$('zc-captcha-loading');if(loading){loading.classList.remove('hidden');loading.textContent='Loading security challenge…'}
- const button=$('zc-captcha-verify');if(button){button.disabled=false;button.textContent='Verify'}
- const refresh=$('zc-captcha-modal-refresh');if(refresh)refresh.disabled=false;
-}
-function zcCloseCaptchaModal(){
- if(zcTick.state==='verified')return;
- zcTickReset();
- const tickbox=$('zc-tickbox');
- if(tickbox)setTimeout(()=>tickbox.focus({preventScroll:false}),40);
-}
-function zcAuthFocusField(field){
- if(!field||!field.isConnected||document.activeElement!==field)return;
- const type=String(field.type||'').toLowerCase();
- if(['hidden','checkbox','radio','file','range','button','submit','reset','image'].includes(type))return;
- const scroller=field.closest('#auth-modal .modal, #zc-captcha-modal .modal');
- if(!scroller)return;
- const fieldRect=field.getBoundingClientRect();
- const panelRect=scroller.getBoundingClientRect();
- const inset=18;
- if(fieldRect.bottom>panelRect.bottom-inset){
-  scroller.scrollTop+=fieldRect.bottom-(panelRect.bottom-inset);
- }else if(fieldRect.top<panelRect.top+inset){
-  scroller.scrollTop-=((panelRect.top+inset)-fieldRect.top);
- }
-}
-(function zcMobileKeyboardViewport(){
- const root=document.documentElement;
- function sync(){
-  const vv=window.visualViewport;
-  const height=vv&&vv.height?vv.height:window.innerHeight;
-  // Keep modal anchors fixed at the top; only adapt the available height.
-  root.style.setProperty('--zc-visual-height',Math.max(240,height)+'px');
-  root.style.setProperty('--zc-visual-top','0px');
- }
- document.addEventListener('focusin',event=>{
-  const field=event.target;
-  if(!field||!field.matches||!field.matches('input,textarea,select,[contenteditable="true"]'))return;
-  zcAuthFocusField(field);
- },true);
- if(window.visualViewport){
-  window.visualViewport.addEventListener('resize',sync,{passive:true});
- }
- window.addEventListener('resize',sync,{passive:true});
- window.addEventListener('orientationchange',sync,{passive:true});
- sync();
-})();
-async function zcTickStart(statusMessage=''){
- if(['loading','checking','verified'].includes(zcTick.state))return;
- const box=$('zc-tickbox'),modal=$('zc-captcha-modal'),state=$('zc-tick-state');
- if(!box||!modal)return;
- modal.classList.remove('hidden');
- zcTick.state='loading';
- box.classList.add('verifying');
- if(state)state.textContent='Loading challenge…';
- const feedback=$('zc-captcha-feedback'),loading=$('zc-captcha-loading'),image=$('zc-captcha-image'),answer=$('zc-captcha-answer'),button=$('zc-captcha-verify'),refresh=$('zc-captcha-modal-refresh');
- if(feedback)feedback.textContent='';
- if(loading){loading.classList.remove('hidden');loading.textContent='Loading security challenge…'}
- if(image)image.removeAttribute('src');
- if(answer)answer.value='';
- if(button){button.disabled=true;button.textContent='Loading…'}
- if(refresh)refresh.disabled=true;
+let zcTick={state:'idle',id:'',nonce:''};
+function zcTickReset(){zcTick={state:'idle',id:'',nonce:''};const box=$('zc-tickbox');if(!box)return;box.classList.remove('verified','verifying');box.setAttribute('aria-checked','false');const mk=$('zc-tick-mark');if(mk)mk.textContent='';const st=$('zc-tick-state');if(st)st.textContent=''}
+async function zcSha256(sx){const d=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(sx));return Array.from(new Uint8Array(d),b=>b.toString(16).padStart(2,'0')).join('')}
+async function zcTickStart(){
+ if(zcTick.state==='verifying')return;
+ const box=$('zc-tickbox');if(!box)return;
+ zcTick.state='verifying';box.classList.add('verifying');const st=$('zc-tick-state');if(st)st.textContent='Verifying...';
  try{
-  const base=(window.ZC_ENV&&window.ZC_ENV.SUPABASE_URL)||SUPABASE_URL||'';
-  const response=await fetch(base+'/functions/v1/captcha-challenge',{method:'POST',headers:{'Content-Type':'application/json'},body:'{}',cache:'no-store'});
-  const data=await response.json().catch(()=>({}));
-  if(!response.ok||!data.id||!data.svg)throw new Error(data.error||'Could not load the CAPTCHA. Please try again.');
-  zcTick.id=data.id;
-  zcTick.state='challenge';
-  if(image)image.src='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(data.svg);
-  if(loading)loading.classList.add('hidden');
-  if(state)state.textContent='Solve the challenge';
-  if(statusMessage&&feedback)feedback.textContent=statusMessage;
-  if(answer){
-   answer.value='';
-   setTimeout(()=>{if(!$('zc-captcha-modal')?.classList.contains('hidden')){answer.focus();zcAuthFocusField(answer)}},100);
-  }
- }catch(error){
-  zcTick.state='idle';
-  if(feedback)feedback.textContent=error?.message||'The CAPTCHA could not be loaded.';
-  if(loading){loading.classList.remove('hidden');loading.textContent='The challenge could not be loaded. Tap refresh to retry.'}
-  if(state)state.textContent='Try again';
-  toast(error?.message||'Could not load the CAPTCHA. Please try again.',true);
- }finally{
-  box.classList.remove('verifying');
-  if(button){button.disabled=false;button.textContent='Verify'}
-  if(refresh)refresh.disabled=false;
- }
-}
-async function zcTickVerify(){
- if(zcTick.state!=='challenge'||!zcTick.id)return zcTickStart();
- const answer=String($('zc-captcha-answer')?.value||'').trim().toUpperCase();
- const feedback=$('zc-captcha-feedback'),button=$('zc-captcha-verify'),box=$('zc-tickbox'),state=$('zc-tick-state');
- if(!/^[A-HJ-NP-Z2-9]{6}$/.test(answer)){
-  if(feedback)feedback.textContent='Enter all six characters shown in the image.';
-  const input=$('zc-captcha-answer');if(input){input.focus();zcAuthFocusField(input)}
-  return;
- }
- zcTick.state='checking';
- if(button){button.disabled=true;button.textContent='Checking…'}
- if(feedback)feedback.textContent='Checking your answer…';
- try{
-  const base=(window.ZC_ENV&&window.ZC_ENV.SUPABASE_URL)||SUPABASE_URL||'';
-  const response=await fetch(base+'/functions/v1/captcha-verify',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id:zcTick.id,answer}),cache:'no-store'});
-  const data=await response.json().catch(()=>({}));
-  if(!response.ok||!data.ok){
-   const message=String(data.error||'That answer was not accepted.');
-   if(response.status===400||response.status===409){
-    const wrong=/did not match|incorrect|wrong code/i.test(message);
-    zcTick.state='idle';zcTick.id='';
-    await zcTickStart(wrong?'CAPTCHA incorrect. A new CAPTCHA image has been loaded. Please try again.':'This CAPTCHA expired or became invalid. A new image has been loaded. Please try again.');
-   }else{
-    zcTick.state='challenge';
-    if(feedback)feedback.textContent=message;
-   }
-   return;
-  }
-  zcTick.state='verified';
-  box.classList.remove('verifying');
-  box.classList.add('verified');
-  box.setAttribute('aria-checked','true');
-  const mark=$('zc-tick-mark');if(mark)mark.textContent='✓';
-  if(state)state.textContent='Verified';
-  const modal=$('zc-captcha-modal');if(modal)modal.classList.add('hidden');
-  const input=$('zc-captcha-answer');if(input){input.value='';input.blur()}
-  if(feedback)feedback.textContent='';
-  if(button){button.disabled=false;button.textContent='Verify'}
-  const submit=$('auth-submit');
-  if(submit)setTimeout(()=>{try{submit.scrollIntoView({behavior:'smooth',block:'center',inline:'nearest'})}catch(e){submit.scrollIntoView()}},220);
- }catch(error){
-  zcTick.state='challenge';
-  if(feedback)feedback.textContent=error?.message||'Could not verify the answer. Please retry.';
- }finally{
-  if(button&&zcTick.state!=='verified'){button.disabled=false;button.textContent='Verify'}
- }
-}
-function authMsg(s,bad){$('auth-message').textContent=s;$('auth-message').classList.remove('hidden');$('auth-message').classList.toggle('error',bad);const r=$('auth-resend');if(r)r.classList.toggle('hidden',!(/confirm/i.test(String(s||''))))}
+  const base=(window.ZC_ENV&&window.ZC_ENV.SUPABASE_URL)||'';
+  const r=await fetch(base+'/functions/v1/captcha-challenge',{method:'POST',headers:{'Content-Type':'application/json'},body:'{}'});
+  const d=await r.json();if(!r.ok||!d.id)throw new Error(d.error||'Challenge failed');
+  const zeros='0'.repeat(Number(d.difficulty)||3);let n=0,found=-1;
+  while(n<400000){const h=await zcSha256(d.salt+n);if(h.startsWith(zeros)){found=n;break}n++}
+  if(found<0)throw new Error('Verification failed');
+  zcTick.id=d.id;zcTick.nonce=String(found);zcTick.state='verified';
+  box.classList.remove('verifying');box.classList.add('verified');box.setAttribute('aria-checked','true');const mk=$('zc-tick-mark');if(mk)mk.textContent='\u2713';if(st)st.textContent='Verified';
+ }catch(e){zcTick.state='idle';box.classList.remove('verifying');if(st)st.textContent='';toast(e.message||'Captcha failed - tap the box again.',true)}
+}function authMsg(s,bad){$('auth-message').textContent=s;$('auth-message').classList.remove('hidden');$('auth-message').classList.toggle('error',bad);const r=$('auth-resend');if(r)r.classList.toggle('hidden',!(/confirm/i.test(String(s||''))))}
 async function resendVerification(){const email=($('auth-email')?.value||'').trim().toLowerCase();if(!email)return toast('Enter your email above first.',true);try{const {error}=await db.auth.resend({type:'signup',email,options:{emailRedirectTo:window.location.origin+'/'}});if(error)throw error;toast('Verification email sent - check your inbox.')}catch(e){toast(e.message||'Could not resend the email.',true)}}
 let sessionLoadPromise=null;
 
