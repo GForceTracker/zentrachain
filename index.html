@@ -4711,19 +4711,6 @@ body[data-zc-theme] #app-content #wd-network-cards::-webkit-scrollbar-thumb{back
 #app-content .gf-plan-logo-manager-card input[type=file],#app-content .gf-plan-logo-manager-card select{width:100%;min-width:0;font-size:12px}
 #app-content .gf-plan-logo-manager-card .btn{width:100%;margin-top:10px}
 #app-content .gf-plan-logo-manager-card small{display:block;margin-top:7px;line-height:1.45;color:var(--muted);font-size:10px}
-#app-content .gf-shared-plan-artwork{display:grid;grid-template-columns:minmax(0,1fr) minmax(240px,340px);gap:18px;align-items:start;margin:0 0 16px;padding:16px;border:1px solid var(--line);border-radius:16px;background:var(--panel2)}
-#app-content .gf-shared-plan-artwork-controls{display:flex;flex-direction:column;gap:8px;min-width:0}
-#app-content .gf-shared-plan-artwork-controls label{font-size:11px;font-weight:750;color:var(--muted);margin-top:3px}
-#app-content .gf-shared-plan-artwork-controls input,#app-content .gf-shared-plan-artwork-controls select{width:100%;min-width:0;font-size:12px}
-#app-content .gf-shared-plan-artwork-controls .btn{width:100%}
-#app-content .gf-shared-plan-artwork-controls small{font-size:10px;line-height:1.5;color:var(--muted)}
-#app-content .gf-shared-plan-status{margin-top:10px;font-size:11px;font-weight:700;color:var(--green)}
-#app-content .gf-shared-plan-current{display:flex;align-items:center;justify-content:center;min-height:96px;overflow:hidden;border:1px solid var(--line);border-radius:12px;background:var(--panel);color:var(--muted);font-size:11px;text-align:center}
-#app-content .gf-shared-plan-current img{display:block;max-width:100%;width:100%;height:150px;object-fit:cover}
-#public-plan-cards .gf-plan-shared-theme-art,#dash-cards .gf-plan-shared-theme-art{position:relative;isolation:isolate;overflow:hidden!important;background:var(--panel2)!important}
-#public-plan-cards .gf-plan-shared-theme-art img,#dash-cards .gf-plan-shared-theme-art img{position:relative;z-index:0;display:block;width:100%;height:100%;object-fit:cover;filter:saturate(.78) contrast(1.06)}
-#public-plan-cards .gf-plan-shared-theme-art:before,#dash-cards .gf-plan-shared-theme-art:before{content:"";position:absolute;z-index:1;inset:0;pointer-events:none;background:var(--green);mix-blend-mode:color;opacity:.88}
-#public-plan-cards .gf-plan-shared-theme-art:after,#dash-cards .gf-plan-shared-theme-art:after{content:"";position:absolute;z-index:2;inset:0;pointer-events:none;background:linear-gradient(140deg,color-mix(in srgb,var(--green) 22%,transparent),transparent 65%)}
 #public-plan-cards .gf-plan-theme-tint,#dash-cards .gf-plan-theme-tint{position:relative;isolation:isolate;background-color:var(--panel2)!important;background-size:cover!important;background-position:center!important}
 #public-plan-cards .gf-plan-theme-tint:before,#dash-cards .gf-plan-theme-tint:before{content:"";position:absolute;inset:0;z-index:1;background:var(--green);-webkit-mask-image:var(--gf-plan-theme-image);mask-image:var(--gf-plan-theme-image);-webkit-mask-repeat:no-repeat;mask-repeat:no-repeat;-webkit-mask-position:center;mask-position:center;-webkit-mask-size:contain;mask-size:contain}
 #public-plan-cards .gf-plan-theme-tint:after,#dash-cards .gf-plan-theme-tint:after{content:"";position:absolute;inset:0;z-index:2;pointer-events:none;background:linear-gradient(140deg,color-mix(in srgb,var(--green) 10%,transparent),transparent 58%)}
@@ -4763,76 +4750,11 @@ body[data-zc-theme] #app-content #wd-network-cards::-webkit-scrollbar-thumb{back
   const preview=url?'<img class="gf-plan-logo-manager-image" src="'+escapeValue(url)+'" alt="" onerror="this.remove();this.parentElement.classList.add(&quot;is-fallback&quot;)">':'';
   return '<article class="gf-plan-logo-manager-card" id="gf-plan-logo-card-'+id+'"><div class="gf-plan-logo-manager-head"><div class="gf-plan-logo-manager-preview '+(url?'':'is-fallback')+'" data-fallback="'+escapeValue(initial)+'">'+preview+'</div><div><span>PLAN '+(index+1)+'</span><strong>'+escapeValue(p.name)+'</strong></div></div><label for="gf-plan-logo-file-'+id+'">Upload or replace image</label><input id="gf-plan-logo-file-'+id+'" type="file" accept="image/png,image/jpeg,image/webp" onchange="gfPreviewPlanLogo(event,&quot;'+id+'&quot;)"><label for="gf-plan-logo-mode-'+id+'">Logo colour mode</label><select id="gf-plan-logo-mode-'+id+'" onchange="gfSetPlanLogoMode(this)"><option value="original" '+(mode==='original'?'selected':'')+'>Keep original colours</option><option value="theme" '+(mode==='theme'?'selected':'')+'>Match active theme</option></select><button class="btn primary" type="button" onclick="gfSavePlanLogo(&quot;'+id+'&quot;)">Save Plan '+(index+1)+' logo</button><small>PNG, JPG or WebP. Theme matching works best with a transparent-background logo.</small></article>';
  }
- function gfPlanLogoStoragePath(value){
-  const raw=String(value||'').trim(),marker='/storage/v1/object/public/plan-logos/',at=raw.indexOf(marker);
-  if(at>=0){try{return decodeURIComponent(raw.slice(at+marker.length).split('?')[0])}catch(e){return raw.slice(at+marker.length).split('?')[0]}}
-  if(/^https?:\/\//i.test(raw)||/^data:/i.test(raw))return '';
-  return raw.replace(/^\/+/,'');
- }
  function gfPlanLogoManagerHTML(rows){
   const ordered=(Array.isArray(rows)?rows:[]).slice().sort((a,b)=>(Number(a.sort_order)||0)-(Number(b.sort_order)||0));
   if(!ordered.length)return '';
-  let firstSource=true;
-  const sourceOptions=ordered.map(p=>{
-   const path=gfPlanLogoStoragePath(p.logo_url);
-   if(!path)return '';
-   const selected=firstSource?' selected':'';
-   firstSource=false;
-   return '<option value="'+escapeValue(path)+'"'+selected+'>'+escapeValue(p.name)+' — existing uploaded photo</option>';
-  }).join('');
-  const shared='<section class="gf-shared-plan-artwork"><div class="gf-shared-plan-artwork-copy"><div class="eyebrow">ONE PHOTO · ALL PLAN CARDS</div><h3 style="margin:5px 0">Shared theme-adaptive plan photo</h3><p class="muted" style="margin:0;font-size:12px;line-height:1.55">Choose one of your existing uploaded plan photos or upload a new image. The same image will appear on every plan card and automatically follow the active site theme. Your individual plan photos remain saved and untouched.</p><div id="gf-shared-plan-status" class="gf-shared-plan-status">Checking shared photo status…</div></div><div class="gf-shared-plan-artwork-controls"><div class="gf-shared-plan-current"><img id="gf-shared-plan-current-preview" class="hidden" alt="Current shared plan photo"><span id="gf-shared-plan-current-empty">No shared photo is active yet.</span></div><label for="gf-shared-plan-source">Use an image already uploaded to a plan</label><select id="gf-shared-plan-source" onchange="gfPreviewSharedPlanSource(this)"><option value="">Choose an existing plan photo</option>'+sourceOptions+'</select><label for="gf-shared-plan-file">Or upload one shared image</label><input id="gf-shared-plan-file" type="file" accept="image/png,image/jpeg,image/webp" onchange="gfPreviewSharedPlanArtwork(event)"><button class="btn primary" type="button" onclick="gfSaveSharedPlanArtwork()">Apply one photo to all plans</button><button class="btn" type="button" onclick="gfDisableSharedPlanArtwork()">Return to individual plan photos</button><small>PNG, JPG or WebP · Maximum 50 MB. The image detail is retained while its colour follows the selected theme.</small></div></section>';
-  return shared+'<section class="gf-plan-logo-manager"><div><div class="eyebrow">INDIVIDUAL PLAN BRANDING</div><h3 style="margin:5px 0">Manage Plan 1–8 logos</h3><p class="muted" style="margin:0;font-size:12px;line-height:1.55">Each plan keeps its own saved image and colour setting. These individual photos are used again when the shared photo is turned off.</p></div><div class="gf-plan-logo-manager-grid">'+ordered.map((p,i)=>gfPlanLogoManagerCard(p,i)).join('')+'</div></section>';
+  return '<section class="gf-plan-logo-manager"><div><div class="eyebrow">INDIVIDUAL PLAN BRANDING</div><h3 style="margin:5px 0">Manage Plan 1–8 logos</h3><p class="muted" style="margin:0;font-size:12px;line-height:1.55">Each plan has its own image and colour setting. Upload and save one plan without changing its rate, limits or other details.</p></div><div class="gf-plan-logo-manager-grid">'+ordered.map((p,i)=>gfPlanLogoManagerCard(p,i)).join('')+'</div></section>';
  }
-
- window.gfPreviewSharedPlanSource=function(select){
-  const path=select&&select.value,img=byId('gf-shared-plan-current-preview'),empty=byId('gf-shared-plan-current-empty');
-  if(!path||!img||typeof logoUrl!=='function'){if(img)img.classList.add('hidden');if(empty)empty.classList.remove('hidden');return}
-  const url=logoUrl(path);
-  img.src=url+'?preview='+Date.now();img.classList.remove('hidden');if(empty)empty.classList.add('hidden');
- };
- window.gfPreviewSharedPlanArtwork=function(event){
-  const file=event&&event.target&&event.target.files&&event.target.files[0],img=byId('gf-shared-plan-current-preview'),empty=byId('gf-shared-plan-current-empty');
-  if(!file||!img)return;
-  if(!['image/png','image/jpeg','image/webp'].includes(file.type)){toast('Choose a PNG, JPG or WebP image.',true);event.target.value='';return}
-  const reader=new FileReader();
-  reader.onload=function(){img.src=String(reader.result||'');img.classList.remove('hidden');if(empty)empty.classList.add('hidden')};
-  reader.readAsDataURL(file);
- };
- window.gfUpdateSharedPlanArtworkStatus=function(){
-  const activeUrl=String(window.gfSharedPlanArtworkUrl||''),status=byId('gf-shared-plan-status'),img=byId('gf-shared-plan-current-preview'),empty=byId('gf-shared-plan-current-empty');
-  if(status)status.textContent=activeUrl?(window.gfSharedPlanArtworkIsDefault?'Shared photo is active on all plan cards, using your first uploaded plan photo. It follows each visitor’s selected site theme.':'Shared photo is active on all plan cards. It follows each visitor’s selected site theme.'):'No shared photo is active. Each plan is using its own uploaded photo.';
-  if(img&&activeUrl){img.src=activeUrl;img.classList.remove('hidden');if(empty)empty.classList.add('hidden')}
-  else if(img){img.removeAttribute('src');img.classList.add('hidden');if(empty)empty.classList.remove('hidden')}
- };
- window.gfSaveSharedPlanArtwork=async function(){
-  if(profile?.role!=='admin'||!currentUser?.id)return toast('Administrator access required.',true);
-  const input=byId('gf-shared-plan-file'),select=byId('gf-shared-plan-source'),file=input&&input.files&&input.files[0],source=select&&select.value;
-  if(file&&(!['image/png','image/jpeg','image/webp'].includes(file.type)))return toast('Choose a PNG, JPG or WebP image.',true);
-  if(file&&file.size>52428800)return toast('Choose an image no larger than 50 MB.',true);
-  if(!file&&!source)return toast('Choose an existing plan photo or upload a new image.',true);
-  const version=Date.now(),targetPath='shared/plan-artwork-'+version;
-  const storage=db.storage.from('plan-logos');
-  const saved=file
-   ?await storage.upload(targetPath,file,{cacheControl:'31536000',upsert:false,contentType:file.type})
-   :await storage.copy(source,targetPath);
-  if(saved.error)return toast('Shared photo could not be saved: '+saved.error.message,true);
-  const result=await db.from('site_settings').upsert({setting_key:'shared_plan_artwork',numeric_value:version,updated_by:currentUser.id,updated_at:new Date().toISOString()},{onConflict:'setting_key'});
-  if(result.error){await storage.remove([targetPath]);return toast('Photo uploaded, but its shared setting could not be saved: '+result.error.message,true)}
-  window.gfSharedPlanArtworkVersion=version;
-  if(input)input.value='';
-  if(typeof window.gfLoadPlans==='function')await window.gfLoadPlans();
-  if(typeof window.gfUpdateSharedPlanArtworkStatus==='function')window.gfUpdateSharedPlanArtworkStatus();
-  toast('One shared plan photo is now active across all plan cards and adapts to every site theme.');
- };
- window.gfDisableSharedPlanArtwork=async function(){
-  if(profile?.role!=='admin'||!currentUser?.id)return toast('Administrator access required.',true);
-  const result=await db.from('site_settings').upsert({setting_key:'shared_plan_artwork',numeric_value:0,updated_by:currentUser.id,updated_at:new Date().toISOString()},{onConflict:'setting_key'});
-  if(result.error)return toast('Could not switch back to individual plan photos: '+result.error.message,true);
-  window.gfSharedPlanArtworkVersion=0;
-  if(typeof window.gfLoadPlans==='function')await window.gfLoadPlans();
-  if(typeof window.gfUpdateSharedPlanArtworkStatus==='function')window.gfUpdateSharedPlanArtworkStatus();
-  toast('Individual plan photos are active again. No uploaded images were deleted.');
- };
  window.gfPreviewPlanLogo=function(event,planId){
   const file=event&&event.target&&event.target.files&&event.target.files[0],tile=byId('gf-plan-logo-card-'+planId);
   if(!file||!tile)return;
@@ -4895,31 +4817,9 @@ body[data-zc-theme] #app-content #wd-network-cards::-webkit-scrollbar-thumb{back
  window.gfLoadPlans=async function(){
   const {data,error}=await db.from('gforce_investment_plans').select('*').eq('is_active',true).order('sort_order').order('created_at');
   gfPlans=error?[]:(data||[]);
-  let settingData=null,settingError=null;
-  try{
-   const shared=await db.from('site_settings').select('numeric_value').eq('setting_key','shared_plan_artwork').maybeSingle();
-   settingData=shared.data;settingError=shared.error;
-   if(settingError)console.warn('Shared plan photo setting unavailable:',settingError.message);
-  }catch(e){settingError=e;console.warn('Shared plan photo lookup skipped:',e&&e.message||e)}
-  const version=!settingError&&settingData?Number(settingData.numeric_value)||0:0;
-  window.gfSharedPlanArtworkVersion=version>0?Math.floor(version):0;
-  window.gfSharedPlanArtworkIsDefault=false;
-  window.gfSharedPlanArtworkUrl='';
-  if(!settingError&&settingData){
-   if(window.gfSharedPlanArtworkVersion&&typeof logoUrl==='function'){
-    window.gfSharedPlanArtworkUrl=logoUrl('shared/plan-artwork-'+window.gfSharedPlanArtworkVersion)+'?v='+window.gfSharedPlanArtworkVersion;
-   }
-  }else if(!settingError&&!settingData){
-   const firstUploadedPlan=gfPlans.find(p=>p&&p.logo_url);
-   if(firstUploadedPlan&&typeof logoUrl==='function'){
-    window.gfSharedPlanArtworkUrl=logoUrl(firstUploadedPlan.logo_url);
-    window.gfSharedPlanArtworkIsDefault=!!window.gfSharedPlanArtworkUrl;
-   }
-  }
   const cards=byId('public-plan-cards');
   if(cards)cards.innerHTML=gfPlans.length?gfPlans.map(p=>gfCard(p,'pub')).join(''):'<div class="empty card">No active plans are published yet.</div>';
   gfFill('pub');
-  if(typeof window.gfUpdateSharedPlanArtworkStatus==='function')window.gfUpdateSharedPlanArtworkStatus();
  };
  window.gfCard=function(p,s){
   const badgeText=s==='pub'?cleanVisitorPlanCopy(p.badge_label,''):String(p.badge_label||'');
@@ -4943,11 +4843,8 @@ body[data-zc-theme] #app-content #wd-network-cards::-webkit-scrollbar-thumb{back
   const artworkSlug=artworkById[String(p.id)]||artworkByOrder[slot]||'';
   const builtIn=/^data:image\/svg\+xml/i.test(String(p.logo_url||''));
   const logoMode=p.logo_color_mode==='theme'?'theme':'original';
-  const sharedUrl=String(window.gfSharedPlanArtworkUrl||'');
   let art='';
-  if(sharedUrl){
-   art='<div class="gf-plan-artwork gf-plan-shared-theme-art"><img src="'+escapeValue(sharedUrl)+'" alt="'+planName+' shared plan artwork" loading="eager" decoding="async"></div>';
-  }else if(url&&logoMode==='theme'){
+  if(url&&logoMode==='theme'){
    art='<div class="gf-plan-artwork zc-plan-custom-art gf-plan-theme-tint" style="--gf-plan-theme-image:url(&quot;'+escapeValue(url)+'&quot;);background-image:url(&quot;/assets/plans/'+artworkSlug+'.svg&quot;)"></div>';
   }else if(url&&!builtIn){
    art='<div class="gf-plan-artwork zc-plan-custom-art"><img src="'+escapeValue(url)+'" alt="'+planName+' plan artwork" loading="eager" decoding="async" onerror="this.onerror=null;this.src=&quot;/assets/plans/'+artworkSlug+'.svg&quot;;this.classList.add(&quot;gf-plan-image-fallback&quot;)"></div>';
@@ -5067,7 +4964,6 @@ body[data-zc-theme] #app-content #wd-network-cards::-webkit-scrollbar-thumb{back
   c.innerHTML='<div class="card panel"><p class="muted">Loading your plan workspace…</p></div>';
   const rows=await gfAdminRows();
   c.innerHTML='<div class="zc-admin-page-head"><button type="button" class="zc-admin-back" aria-label="Back to navigation" onclick="zcAdminBackToMenu()"><svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 18-6-6 6-6"/><path d="M20 12H9"/></svg></button><div class="zc-admin-page-copy"><div class="eyebrow">ADMIN ACCESS</div><h1>Investment Plans</h1><p class="muted">Create plans, upload logos, edit their details and control publication.</p></div></div>'+gfAdminPanel(rows);
-  await gfLoadPlans();
   const starter=rows.find(p=>p.name==='Plan 1');
   if(starter)await gfEdit(starter.id);else gfReset();
  };
