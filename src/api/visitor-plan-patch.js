@@ -20,40 +20,59 @@ const MARKER = 'zc-visitor-plan-flow-v2';
 const EARLY = '<script id="' + MARKER + '-early">window.__zcVisitorPlanSwipeSelectionV2=true;window.__zcVisitorPlanFlowV2Controller=true;window.__zcVisitorPlanScrollHighlightV11=true;window.__zcVisitorPlanScrollHighlightV10=true;</script>';
 
 const STYLE = `<style id="${MARKER}-css">
+
 #public-plan-cards>.gf-plan-compact-card{position:relative!important;isolation:isolate!important}
 html body #public-plan-cards>.gf-plan-compact-card.zc-plan-active-v3{
- z-index:12!important;border:2px solid #73efb9!important;
- outline:1px solid rgba(155,255,208,.72)!important;outline-offset:2px!important;
- box-shadow:0 0 0 2px rgba(72,235,158,.18),0 0 18px rgba(32,199,131,.68),0 0 38px rgba(32,199,131,.38),0 14px 34px rgba(0,0,0,.36),inset 0 0 18px rgba(32,199,131,.12)!important;
+ z-index:12!important;border:2px solid color-mix(in srgb,var(--green) 92%,white)!important;
+ outline:1px solid color-mix(in srgb,var(--mint) 72%,transparent)!important;outline-offset:2px!important;
+ box-shadow:0 0 0 2px color-mix(in srgb,var(--green) 20%,transparent),
+  0 0 18px color-mix(in srgb,var(--green) 68%,transparent),
+  0 0 38px color-mix(in srgb,var(--green) 38%,transparent),
+  0 14px 34px rgba(0,0,0,.36),
+  inset 0 0 18px color-mix(in srgb,var(--green) 12%,transparent)!important;
  transform:translateY(-3px)!important;
 }
 #public-plan-cards>.gf-plan-compact-card.zc-plan-active-v3::after{
  content:""!important;display:block!important;position:absolute!important;inset:0!important;
  z-index:30!important;pointer-events:none!important;border-radius:inherit!important;padding:3px!important;
- background:conic-gradient(from 0deg,transparent 0deg,transparent 225deg,rgba(70,255,174,.25) 245deg,#62ffb5 270deg,#eafff4 286deg,#62ffb5 302deg,rgba(70,255,174,.2) 325deg,transparent 350deg,transparent 360deg)!important;
+ background:conic-gradient(from 0deg,transparent 0deg,transparent 225deg,
+  color-mix(in srgb,var(--green) 25%,transparent) 245deg,
+  var(--green) 270deg,var(--mint) 286deg,var(--green) 302deg,
+  color-mix(in srgb,var(--green) 20%,transparent) 325deg,transparent 350deg,transparent 360deg)!important;
  -webkit-mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0)!important;
  -webkit-mask-composite:xor!important;mask-composite:exclude!important;
  opacity:1!important;animation:zcPlanActiveEdgeSpinV3 2.1s linear infinite!important;
 }
 @keyframes zcPlanActiveEdgeSpinV3{to{transform:rotate(1turn)}}
 #public-plan-cards>.gf-plan-compact-card.zc-plan-active-v3 .gf-plan-select-button{
- background:linear-gradient(115deg,#71efb8 0%,#b7ffe1 28%,#35d79a 52%,#a0f8ce 76%,#71efb8 100%)!important;
- background-size:240% 240%!important;border:1px solid #b7ffe1!important;color:#032116!important;
- box-shadow:0 0 0 2px rgba(155,255,208,.32),0 0 14px rgba(32,199,131,.76),0 0 30px rgba(32,199,131,.42)!important;
+ background:linear-gradient(115deg,var(--green) 0%,var(--mint) 45%,var(--green) 100%)!important;
+ background-size:240% 240%!important;border:1px solid var(--mint)!important;color:var(--bg)!important;
+ box-shadow:0 0 0 2px color-mix(in srgb,var(--mint) 32%,transparent),
+  0 0 14px color-mix(in srgb,var(--green) 76%,transparent),
+  0 0 30px color-mix(in srgb,var(--green) 42%,transparent)!important;
  animation:zcPlanActiveButtonGlowV3 2.3s ease-in-out infinite!important;
 }
 @keyframes zcPlanActiveButtonGlowV3{
- 0%,100%{background-position:0% 50%;box-shadow:0 0 0 2px rgba(155,255,208,.25),0 0 12px rgba(32,199,131,.65),0 0 24px rgba(32,199,131,.3)!important}
- 50%{background-position:100% 50%;box-shadow:0 0 0 3px rgba(190,255,226,.5),0 0 20px rgba(32,199,131,.95),0 0 38px rgba(32,199,131,.55)!important}
+ 0%,100%{background-position:0% 50%;box-shadow:0 0 0 2px color-mix(in srgb,var(--mint) 25%,transparent),0 0 12px color-mix(in srgb,var(--green) 65%,transparent),0 0 24px color-mix(in srgb,var(--green) 30%,transparent)!important}
+ 50%{background-position:100% 50%;box-shadow:0 0 0 3px color-mix(in srgb,var(--mint) 50%,transparent),0 0 20px color-mix(in srgb,var(--green) 95%,transparent),0 0 38px color-mix(in srgb,var(--green) 55%,transparent)!important}
 }
 #public-plan-cards>.gf-plan-compact-card:not(.zc-plan-active-v3) .gf-plan-select-button{
  animation:none!important;filter:none!important;transform:none!important;
+}
+/* iPhone/Safari can paint a conic-mask runner as a diagonal streak over the card artwork.
+   Keep the theme-coloured active outline and button glow, but remove the rotating overlay
+   on touch devices so the artwork itself stays clean. */
+@media(hover:none),(pointer:coarse){
+ #public-plan-cards>.gf-plan-compact-card.zc-plan-active-v3::after{
+  display:none!important;opacity:0!important;animation:none!important;
+ }
 }
 @media(prefers-reduced-motion:reduce){
  #public-plan-cards>.gf-plan-compact-card.zc-plan-active-v3::after,
  #public-plan-cards>.gf-plan-compact-card.zc-plan-active-v3 .gf-plan-select-button{animation:none!important}
 }
-</style>`
+
+</style>`;
 
 const SCRIPT = `<script id="${MARKER}-js">
 (function(){
