@@ -8,13 +8,14 @@ let tapQueue=0,tapPending=0,tapInFlight=false,tapTimer=null,tapPageState=null;
 function setTapEarnMenuIcon(){
  const n=$('zc-tap-earn-nav');if(!n)return;
  if(n.dataset.zcTapLucideIcon!=='1'){
-  n.innerHTML='<i data-lucide="hand-coins" aria-hidden="true"></i><span>Tap To Earn</span>';
+  // Match the existing hamburger buttons: icon wrapper first, plain text label second.
+  n.innerHTML='<span class="zc-home-nav-icon" aria-hidden="true"><i data-lucide="hand-coins"></i></span>Tap To Earn';
   n.dataset.zcTapLucideIcon='1';
  }
  if(window.lucide&&typeof window.lucide.createIcons==='function'){
   window.lucide.createIcons();
  }else{
-  const i=n.querySelector('[data-lucide="hand-coins"]');
+  const i=n.querySelector('.zc-home-nav-icon [data-lucide="hand-coins"]');
   if(i)i.outerHTML='<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 8V4H8"/><circle cx="16" cy="8" r="4"/><path d="M3 14h2l2-2h4a2 2 0 0 1 0 4H9"/><path d="m3 14 4 6h7l6-3a2 2 0 0 0-2-4l-4 1"/></svg>';
  }
 }
@@ -33,10 +34,10 @@ function ensureTapEarnStyles(){
  const style=document.createElement('style');
  style.id='zc-tap-earn-interaction-styles';
  style.textContent=
- '#app-content .zc-tap-hero{display:flex!important;flex-direction:column!important;align-items:center!important;gap:16px!important;position:relative!important;overflow:visible!important;text-align:center!important;width:100%}' +
- '#app-content .zc-tap-hero-copy{width:100%;text-align:center;margin:0!important}' +
+ '#app-content .zc-tap-hero{box-sizing:border-box!important;display:flex!important;flex-direction:column!important;align-items:center!important;gap:16px!important;position:relative!important;overflow:visible!important;text-align:center!important;width:100%!important;min-width:0!important;padding:clamp(16px,3vw,26px) clamp(12px,2.5vw,22px)!important}' +
+ '#app-content .zc-tap-hero-copy{box-sizing:border-box!important;width:100%!important;max-width:560px!important;min-width:0!important;text-align:center;margin:0!important}' +
  '#app-content .zc-tap-hero-copy h2{margin:0 auto!important;font-size:clamp(18px,3vw,25px)!important}' +
- '#app-content .zc-tap-logo-button{position:relative!important;display:grid!important;place-items:center!important;overflow:visible!important;touch-action:manipulation!important;-webkit-tap-highlight-color:transparent!important;user-select:none!important;-webkit-user-select:none!important;cursor:pointer!important;outline:none!important;min-width:0!important;flex:0 0 auto!important;padding:10px!important;background:transparent!important;border:0!important;box-shadow:none!important}' +
+ '#app-content .zc-tap-logo-button{box-sizing:border-box!important;position:relative!important;display:grid!important;place-items:center!important;overflow:visible!important;max-width:100%!important;margin:0 auto!important;touch-action:manipulation!important;-webkit-tap-highlight-color:transparent!important;user-select:none!important;-webkit-user-select:none!important;cursor:pointer!important;outline:none!important;min-width:0!important;flex:0 0 auto!important;padding:10px!important;background:transparent!important;border:0!important;box-shadow:none!important}' +
  '#app-content .zc-tap-logo-button:disabled{opacity:.55!important;cursor:not-allowed!important}' +
  '#app-content .zc-tap-logo-circle{position:relative!important;display:grid!important;place-items:center!important;overflow:visible!important;transform-origin:center!important}' +
  '#app-content .zc-tap-logo-glyph{pointer-events:none!important}' +
@@ -44,24 +45,24 @@ function ensureTapEarnStyles(){
  '#app-content .zc-tap-float-reward{position:absolute;z-index:8;pointer-events:none;white-space:nowrap;color:var(--mint,#55e6ad);font-weight:900;font-size:clamp(13px,3.7vw,17px);text-shadow:0 2px 12px rgba(0,0,0,.6);transform:translate(-50%,-35%);animation:zcTapRewardRise 820ms cubic-bezier(.16,.72,.22,1) forwards}' +
  '#app-content .zc-tap-ripple{position:absolute;z-index:3;pointer-events:none;width:18px;height:18px;border:2px solid var(--mint,#55e6ad);border-radius:50%;transform:translate(-50%,-50%) scale(.2);animation:zcTapRipple 520ms ease-out forwards}' +
  '#app-content .zc-tap-cta-label{font-weight:800;letter-spacing:.12em;font-size:11px;opacity:.78}' +
- '#app-content .zc-tap-hero-progress{width:100%!important;display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:12px!important;margin-top:4px!important}' +
- '#app-content .zc-tap-hero-progress .zc-tap-progress-item{min-width:0!important;margin:0!important;text-align:left!important}' +
+ '#app-content .zc-tap-hero-progress{box-sizing:border-box!important;width:100%!important;max-width:none!important;min-width:0!important;display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;align-items:stretch!important;gap:10px!important;margin:6px 0 0!important}' +
+ '#app-content .zc-tap-hero-progress .zc-tap-progress-item{box-sizing:border-box!important;display:block!important;width:100%!important;min-width:0!important;margin:0!important;padding:10px!important;border:1px solid var(--line)!important;border-radius:12px!important;background:color-mix(in srgb,var(--panel) 76%,transparent)!important;text-align:left!important;overflow:hidden!important}' +
  '#app-content .zc-tap-progress-top{display:flex;align-items:flex-start;justify-content:space-between;gap:8px}' +
  '#app-content .zc-tap-progress-top b{min-width:0;font-size:12px}' +
  '#app-content .zc-tap-progress-top span{font-size:11px;text-align:right;overflow-wrap:anywhere}' +
  '#app-content .zc-tap-progress-item small{display:block;line-height:1.35;margin-top:6px;font-size:10px}' +
- '#app-content .zc-tap-balance-grid{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:10px!important;width:100%!important}' +
- '#app-content .zc-tap-balance-card{display:flex!important;flex-direction:column!important;justify-content:center!important;align-items:flex-start!important;min-width:0!important;padding:clamp(9px,2.4vw,15px)!important;overflow:hidden!important}' +
+ '#app-content .zc-tap-balance-grid{box-sizing:border-box!important;display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;align-items:stretch!important;gap:clamp(6px,1.2vw,12px)!important;width:100%!important;min-width:0!important;margin:14px 0 18px!important}' +
+ '#app-content .zc-tap-balance-card{box-sizing:border-box!important;display:flex!important;flex-direction:column!important;justify-content:center!important;align-items:flex-start!important;min-width:0!important;width:100%!important;margin:0!important;padding:clamp(8px,1.5vw,14px)!important;overflow:hidden!important;gap:5px!important}' +
  '#app-content .zc-tap-balance-card small{font-size:clamp(8px,2.2vw,10px)!important;line-height:1.25!important;overflow-wrap:anywhere!important}' +
- '#app-content .zc-tap-balance-card strong{display:block!important;font-size:clamp(12px,3.6vw,20px)!important;line-height:1.25!important;letter-spacing:-.035em!important;overflow-wrap:anywhere!important;max-width:100%!important}' +
+ '#app-content .zc-tap-balance-card strong{display:block!important;font-size:clamp(11px,3.2vw,20px)!important;line-height:1.2!important;letter-spacing:-.035em!important;white-space:normal!important;overflow-wrap:anywhere!important;max-width:100%!important}' +
  '#app-content .zc-tap-balance-card span{font-size:clamp(8px,2vw,10px)!important;line-height:1.3!important;overflow-wrap:anywhere!important}' +
  '#app-content .zc-tap-progress-panel{display:none!important}' +
- '#zc-tap-earn-nav{display:flex;align-items:center;gap:10px}' +
+ '#zc-tap-earn-nav{display:flex;align-items:center;gap:9px;min-width:0}#zc-tap-earn-nav .zc-home-nav-icon{display:inline-flex;align-items:center;justify-content:center;width:16px;height:16px;flex:0 0 16px;margin:0}#zc-tap-earn-nav .zc-home-nav-icon svg{width:16px;height:16px;display:block}' +
  '#zc-tap-earn-nav [data-lucide],#zc-tap-earn-nav svg{width:18px;height:18px;flex:0 0 18px;stroke:currentColor;stroke-width:1.8}' +
  '@keyframes zcTapCoinPress{0%{transform:scale(1)}34%{transform:scale(.91) rotate(-2deg)}72%{transform:scale(1.035)}100%{transform:scale(1)}}' +
  '@keyframes zcTapRewardRise{0%{opacity:0;transform:translate(-50%,-15%) scale(.82)}15%{opacity:1}100%{opacity:0;transform:translate(-50%,-145%) scale(1.06)}}' +
  '@keyframes zcTapRipple{0%{opacity:.9;transform:translate(-50%,-50%) scale(.2)}100%{opacity:0;transform:translate(-50%,-50%) scale(3.7)}}' +
- '@media(max-width:520px){#app-content .zc-tap-hero-progress{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:10px!important}#app-content .zc-tap-balance-grid{grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:7px!important}#app-content .zc-tap-progress-top{gap:4px}#app-content .zc-tap-progress-top b,#app-content .zc-tap-progress-top span{font-size:10px}}' +
+ '@media(max-width:520px){#app-content .zc-tap-hero-progress{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:8px!important}#app-content .zc-tap-hero-progress .zc-tap-progress-item{padding:8px!important}#app-content .zc-tap-balance-grid{grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:6px!important}#app-content .zc-tap-balance-card{padding:8px 6px!important;gap:4px!important}#app-content .zc-tap-balance-card small{font-size:8px!important;letter-spacing:.02em!important}#app-content .zc-tap-balance-card strong{font-size:clamp(10px,3.1vw,13px)!important}#app-content .zc-tap-balance-card span{font-size:8px!important;line-height:1.2!important}#app-content .zc-tap-progress-top{gap:4px}#app-content .zc-tap-progress-top b,#app-content .zc-tap-progress-top span{font-size:10px}}@media(max-width:360px){#app-content .zc-tap-balance-card strong{font-size:10px!important}#app-content .zc-tap-hero-progress .zc-tap-progress-item small{font-size:9px!important}}@media(max-width:900px){#side-nav #zc-tap-earn-nav{gap:2px!important;justify-content:space-around!important}#side-nav #zc-tap-earn-nav .zc-home-nav-icon{display:block!important;width:auto!important;height:auto!important;flex:initial!important;margin:0 auto 3px!important}#side-nav #zc-tap-earn-nav .zc-home-nav-icon svg{width:17px!important;height:17px!important}}' +
  '@media(prefers-reduced-motion:reduce){#app-content .zc-tap-logo-button.is-tapping .zc-tap-logo-circle,#app-content .zc-tap-float-reward,#app-content .zc-tap-ripple{animation-duration:1ms!important}}';
  document.head.appendChild(style);
 }
