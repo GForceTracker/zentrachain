@@ -3653,7 +3653,7 @@ html body .zc-motion-reveal{transition:opacity .62s ease,transform .62s cubic-be
 })();
 </script>
 <style id="zc-support-widget-v1">
-#zc-support-dock{position:fixed;right:22px;bottom:24px;z-index:99990;display:flex;align-items:center;gap:10px;touch-action:none;user-select:none}
+#zc-support-dock{position:fixed;right:22px;bottom:24px;z-index:99990;display:flex;align-items:center;gap:10px;touch-action:manipulation;user-select:none;left:auto!important;top:auto!important}
 #zc-support-dock .zc-support-options{display:flex;align-items:center;gap:9px;opacity:0;transform:translateX(12px) scale(.94);pointer-events:none;transition:opacity .22s ease,transform .22s ease}
 #zc-support-dock.zc-open .zc-support-options{opacity:1;transform:translateX(0) scale(1);pointer-events:auto}
 #zc-support-dock button{border:1px solid rgba(255,255,255,.22);cursor:pointer;display:grid;place-items:center;color:#fff;box-shadow:0 9px 28px rgba(0,0,0,.28);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);transition:transform .18s ease,box-shadow .18s ease}
@@ -3669,7 +3669,6 @@ html body .zc-motion-reveal{transition:opacity .62s ease,transform .62s cubic-be
 #zc-support-dock.zc-open .zc-support-main svg{transform:scale(1.08)}
 #zc-support-dock .zc-support-tip{position:absolute;right:0;bottom:68px;white-space:nowrap;background:rgba(10,20,25,.88);color:#fff;border:1px solid rgba(255,255,255,.14);border-radius:9px;padding:6px 9px;font-size:11px;opacity:0;pointer-events:none;transition:opacity .2s}
 #zc-support-dock:hover .zc-support-tip{opacity:1}
-#zc-support-dock.zc-dragging{cursor:grabbing}
 @media(max-width:560px){#zc-support-dock{right:15px;bottom:18px;gap:8px}#zc-support-dock .zc-support-main{width:54px;height:54px}#zc-support-dock .zc-support-option{width:45px;height:45px}}
 @media(prefers-reduced-motion:reduce){#zc-support-dock *{transition:none!important}}
 </style>
@@ -3690,7 +3689,7 @@ html body .zc-motion-reveal{transition:opacity .62s ease,transform .62s cubic-be
  document.body.appendChild(dock);
  const main=dock.querySelector('.zc-support-main'),opts=dock.querySelector('.zc-support-options');
  function toggle(){const open=dock.classList.toggle('zc-open');main.setAttribute('aria-expanded',String(open));main.setAttribute('aria-label',open?'Close support options':'Open support options');opts.setAttribute('aria-hidden',String(!open))}
- main.addEventListener('click',()=>{if(!dragged)toggle()});
+ main.addEventListener('click',toggle);
  dock.querySelectorAll('[data-channel]').forEach(btn=>btn.addEventListener('click',()=>{
   const channel=btn.dataset.channel;
   const cfg=window.ZC_SUPPORT_LINKS||{};
@@ -3705,27 +3704,6 @@ html body .zc-motion-reveal{transition:opacity .62s ease,transform .62s cubic-be
   if(typeof window.toast==='function')window.toast(channel==='telegram'?'Telegram support link has not been configured yet.':'WhatsApp support link has not been configured yet.');
   else alert('This support channel has not been configured yet.');
  }));
- let startX=0,startY=0,originX=0,originY=0,dragging=false,dragged=false,pointerId=null;
- dock.addEventListener('pointerdown',e=>{
-  if(e.target.closest('[data-channel]'))return;
-  if(e.target.closest('button')&&!e.target.closest('.zc-support-main'))return;
-  pointerId=e.pointerId;startX=e.clientX;startY=e.clientY;
-  const r=dock.getBoundingClientRect();originX=r.left;originY=r.top;
-  dragging=true;dragged=false;dock.setPointerCapture(pointerId);
- });
- dock.addEventListener('pointermove',e=>{
-  if(!dragging||e.pointerId!==pointerId)return;
-  const dx=e.clientX-startX,dy=e.clientY-startY;
-  if(Math.abs(dx)+Math.abs(dy)>7)dragged=true;
-  if(!dragged)return;
-  dock.classList.add('zc-dragging');
-  const x=Math.max(4,Math.min(window.innerWidth-dock.offsetWidth-4,originX+dx));
-  const y=Math.max(4,Math.min(window.innerHeight-dock.offsetHeight-4,originY+dy));
-  dock.style.left=x+'px';dock.style.top=y+'px';dock.style.right='auto';dock.style.bottom='auto';
- });
- function endDrag(e){if(e.pointerId!==pointerId)return;dragging=false;pointerId=null;dock.classList.remove('zc-dragging');if(dragged){setTimeout(()=>{dragged=false},80)}}
- dock.addEventListener('pointerup',endDrag);dock.addEventListener('pointercancel',endDrag);
- window.addEventListener('resize',()=>{if(dock.style.left){const r=dock.getBoundingClientRect();dock.style.left=Math.max(4,Math.min(innerWidth-dock.offsetWidth-4,r.left))+'px';dock.style.top=Math.max(4,Math.min(innerHeight-dock.offsetHeight-4,r.top))+'px'}});
 })();
 </script>
 <script id="zc-support-page-v1">
@@ -14122,25 +14100,26 @@ body[data-zc-theme="metallic"] #app-drawer .zc-theme-choice[data-theme="metallic
 </style>
 
 
-<style id="zc-member-plan-carousel-peek-v1">
-/* Member dashboard only: show one full plan and a preview of the next plan on phones. */
+<style id="zc-member-plan-vertical-peek-v2">
+/* Keep member dashboard plans vertical; show a full card and part of the next on phones. */
 @media (max-width:700px) {
   #app-content #dash-cards.plan-grid {
     display:flex!important;
-    flex-direction:row!important;
+    flex-direction:column!important;
     flex-wrap:nowrap!important;
     align-items:stretch!important;
     gap:28px!important;
     width:100%!important;
     max-width:100%!important;
-    overflow-x:auto!important;
-    overflow-y:hidden!important;
+    max-height:min(680px, calc(100dvh - 220px))!important;
+    overflow-x:hidden!important;
+    overflow-y:auto!important;
     padding:8px 4px 24px!important;
     -webkit-overflow-scrolling:touch!important;
-    overscroll-behavior-x:contain!important;
-    scroll-snap-type:x mandatory!important;
-    scroll-padding-inline:4px!important;
-    touch-action:pan-x pan-y;
+    overscroll-behavior-y:contain!important;
+    scroll-snap-type:y mandatory!important;
+    scroll-padding-block:8px!important;
+    touch-action:pan-y;
     scrollbar-width:none!important;
   }
   #app-content #dash-cards.plan-grid::-webkit-scrollbar {
@@ -14149,25 +14128,20 @@ body[data-zc-theme="metallic"] #app-drawer .zc-theme-choice[data-theme="metallic
   #app-content #dash-cards.plan-grid>.gf-plan-compact-card,
   #app-content #dash-cards.plan-grid>.plan-card {
     box-sizing:border-box!important;
-    flex:0 0 calc(66.6667% - 18.6667px)!important;
-    width:calc(66.6667% - 18.6667px)!important;
+    flex:0 0 auto!important;
+    width:100%!important;
     min-width:0!important;
-    max-width:none!important;
+    max-width:100%!important;
     scroll-snap-align:start!important;
     scroll-snap-stop:always!important;
-  }
-  #app-content #dash-cards.plan-grid>.gf-plan-compact-card:only-child,
-  #app-content #dash-cards.plan-grid>.plan-card:only-child {
-    flex-basis:100%!important;
-    width:100%!important;
   }
 }
 </style>
 
 <script id="zc-member-plan-auto-swipe-v1">
 (function(){
-  if(window.__ZcMemberPlanAutoSwipeV1)return;
-  window.__ZcMemberPlanAutoSwipeV1=true;
+  if(window.__ZcMemberPlanAutoSwipeV2)return;
+  window.__ZcMemberPlanAutoSwipeV2=true;
 
   var SELECTOR='#app-content #dash-cards';
   var IDLE_DELAY=5000;
@@ -14186,8 +14160,8 @@ body[data-zc-theme="metallic"] #app-drawer .zc-theme-choice[data-theme="metallic
   }
 
   function attach(rail){
-    if(!rail||rail.dataset.zcMemberAutoSwipeReady==='1')return;
-    rail.dataset.zcMemberAutoSwipeReady='1';
+    if(!rail||rail.dataset.zcMemberAutoSwipeReady==='2')return;
+    rail.dataset.zcMemberAutoSwipeReady='2';
 
     var timer=0;
     var settleTimer=0;
@@ -14226,16 +14200,16 @@ body[data-zc-theme="metallic"] #app-drawer .zc-theme-choice[data-theme="metallic
         :window.innerWidth<=700;
       var reduced=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
       return mobile&&!reduced&&cards.length>1&&rail.clientWidth>0&&
-        rail.scrollWidth>rail.clientWidth+8;
+        rail.scrollHeight>rail.clientHeight+8;
     }
 
     function nearestCardIndex(cards){
       var railRect=rail.getBoundingClientRect();
-      var start=railRect.left+rail.clientLeft;
+      var start=railRect.top+rail.clientTop;
       var bestDistance=Infinity;
       var bestIndex=0;
       cards.forEach(function(card,index){
-        var distance=Math.abs(card.getBoundingClientRect().left-start);
+        var distance=Math.abs(card.getBoundingClientRect().top-start);
         if(distance<bestDistance){
           bestDistance=distance;
           bestIndex=index;
@@ -14248,12 +14222,12 @@ body[data-zc-theme="metallic"] #app-drawer .zc-theme-choice[data-theme="metallic
       if(!card)return;
       var railRect=rail.getBoundingClientRect();
       var cardRect=card.getBoundingClientRect();
-      var target=rail.scrollLeft+cardRect.left-(railRect.left+rail.clientLeft);
-      var left=Math.max(0,target);
+      var target=rail.scrollTop+cardRect.top-(railRect.top+rail.clientTop);
+      var top=Math.max(0,target);
       if(typeof rail.scrollTo==='function'){
-        rail.scrollTo({left:left,behavior:'smooth'});
+        rail.scrollTo({top:top,behavior:'smooth'});
       }else{
-        rail.scrollLeft=left;
+        rail.scrollTop=top;
       }
     }
 
