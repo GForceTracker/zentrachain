@@ -5039,6 +5039,7 @@ body[data-zc-theme] #app-content #wd-network-cards::-webkit-scrollbar-thumb{back
  const nav=document.getElementById('side-nav');
  const menuItems=[
   ['dashboard','▦','Dashboard','Admin overview and shortcuts'],
+  ['tap-earn','⚡','Tap To Earn Settings','Enable rewards, adjust limits and review withdrawals'],
   ['dashboard-studio','▧','Dashboard Studio','Preview and activate one of five customer dashboard designs'],
    ['investment-plans','◈','Investment Plans','Create, edit, brand and publish plans'],
   ['deposit-settings','↓','Deposit Settings','Set minimum and maximum deposits'],
@@ -5054,7 +5055,7 @@ body[data-zc-theme] #app-content #wd-network-cards::-webkit-scrollbar-thumb{back
    ['referrals','◈','Referrals','Set rewards, see who invited whom'],
    ['treasury-wallet','◈','Treasury Wallet','Move funds to trading, credit profits'],
    ['email-alerts','✉','Email Alerts','Send bonus and custom emails to members'],
-   ['tap-earn','⚡','Tap To Earn','Manage rewards and withdrawals']
+
   ];
  const safe=v=>String(v??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
  const fmtUSD=v=>String.fromCharCode(36)+Number(v||0).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
@@ -5115,6 +5116,7 @@ body[data-zc-theme] #app-content #wd-network-cards::-webkit-scrollbar-thumb{back
   const root=$('app-content');
   root.innerHTML=head('Admin dashboard','Your administrator workspace. Open Admin Access in the sidebar to select one area at a time.')+
    '<div class="stats zc-admin-stats"><div class="card stat"><small>Registered users</small><strong id="zc-admin-count-users">—</strong></div><div class="card stat"><small>Investment plans</small><strong id="zc-admin-count-plans">—</strong></div><div class="card stat"><small>Deposit requests</small><strong id="zc-admin-count-deposits">—</strong></div><div class="card stat"><small>Withdrawal requests</small><strong id="zc-admin-count-withdrawals">—</strong></div></div>'+
+   '<section class="card panel" style="margin:16px 0;border-color:color-mix(in srgb,var(--green) 38%,var(--line))"><div class="eyebrow">REWARDS PROGRAM</div><h2 style="margin:5px 0 8px">Tap To Earn controls</h2><p class="muted" style="margin:0 0 15px;line-height:1.6">Switch Tap To Earn on or off, edit reward amounts and daily limits, set referral bonuses and manage payout requests from one place.</p><button type="button" class="btn primary" onclick="zcOpenAdminSection(&quot;tap-earn&quot;)">Open Tap To Earn settings</button></section>'+
    '<section class="card panel"><div class="eyebrow">ADMIN ACCESS</div><h2 style="margin:5px 0 8px">Manage ZentraChain</h2><p class="muted" style="margin:0">Choose a single section from the expanded Admin Access menu. Each section opens on its own page with a back arrow.</p><div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-top:16px"><button type="button" class="btn primary" onclick="zcOpenAdminSection(&quot;dashboard-studio&quot;)">Open Dashboard Studio →</button><span class="muted" style="font-size:11px">5 customer designs · Dashboard 1 remains available</span></div></section>';
   const tasks=[['profiles','zc-admin-count-users'],['gforce_investment_plans','zc-admin-count-plans'],['deposit_requests','zc-admin-count-deposits'],['withdrawal_requests','zc-admin-count-withdrawals']];
   await Promise.all(tasks.map(async x=>{try{const n=await count(x[0]);const node=$(x[1]);if(node)node.textContent=n.toLocaleString()}catch(e){const node=$(x[1]);if(node)node.textContent='—'}}));
