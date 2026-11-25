@@ -9089,8 +9089,8 @@ body[data-zc-theme] #app-content input.zc-calc-range::-moz-range-thumb{
   if(latest&&typeof window.toast==="function")window.toast(String(latest.title||"New notification")+": "+String(latest.message||"You have a new account notification."));
  }
  async function refreshNotifications(announce){
-  var uid=window.currentUser&&window.currentUser.id;
-  if(!uid||!window.db){rows=[];updateBadge();return []}
+  var uid=currentUser&&currentUser.id;
+  if(!uid||!db){rows=[];updateBadge();return []}
   if(activeUid!==uid)loadSeen(uid);
   try{
    var result=await db.from("user_notifications").select("id,notification_type,title,message,metadata,reference_id,created_at,read_at").eq("user_id",uid).order("created_at",{ascending:false}).limit(100);
@@ -9105,8 +9105,8 @@ body[data-zc-theme] #app-content input.zc-calc-range::-moz-range-thumb{
   }catch(error){console.warn("ZentraChain notifications could not be refreshed:",error&&error.message||error);updateBadge();return rows}
  }
  function subscribeNotifications(){
-  var uid=window.currentUser&&window.currentUser.id;
-  if(!uid||!window.db)return;
+  var uid=currentUser&&currentUser.id;
+  if(!uid||!db)return;
   if(channel){try{db.removeChannel(channel)}catch(e){}channel=null}
   channel=db.channel("zc-user-notifications-"+uid)
    .on("postgres_changes",{event:"INSERT",schema:"public",table:"user_notifications",filter:"user_id=eq."+uid},function(payload){
@@ -9152,16 +9152,16 @@ body[data-zc-theme] #app-content input.zc-calc-range::-moz-range-thumb{
   subscribeNotifications();
  };
  window.loadReferralList=async function(){
-  var uid=window.currentUser&&window.currentUser.id;
+  var uid=currentUser&&currentUser.id;
   var link=document.getElementById("zc-ref-link");if(link)link.value=typeof window.zcReferralLink==="function"?window.zcReferralLink():"";
-  var box=document.getElementById("zc-ref-list");if(!uid||!window.db){if(box)box.innerHTML='<p class="muted">Sign in to view your invited members.</p>';return}
+  var box=document.getElementById("zc-ref-list");if(!uid||!db){if(box)box.innerHTML='<p class="muted">Sign in to view your invited members.</p>';return}
   try{
    var result=await db.from("referrals").select("id,referrer_id,referred_id,reward_paid,signup_paid,created_at").eq("referrer_id",uid).order("created_at",{ascending:false});
-   var inviteRows=result.error?(window.referrals||[]).filter(function(r){return r.referrer_id===uid}):(result.data||[]);
+   var inviteRows=result.error?(referrals||[]).filter(function(r){return r.referrer_id===uid}):(result.data||[]);
    var names={};
    try{var people=await db.rpc("get_my_referral_profiles");if(!people.error)(people.data||[]).forEach(function(p){names[p.id]=p})}catch(e){console.warn("Referral name lookup unavailable:",e&&e.message||e)}
    var count=document.getElementById("zc-ref-count");if(count)count.textContent=String(inviteRows.length);
-   var earned=(window.ledger||[]).filter(function(x){return x.entry_type==="bonus"&&(x.reference_type==="referral_reward"||x.reference_type==="referral_signup")}).reduce(function(s,x){return s+Number(x.amount||0)},0);
+   var earned=(ledger||[]).filter(function(x){return x.entry_type==="bonus"&&(x.reference_type==="referral_reward"||x.reference_type==="referral_signup")}).reduce(function(s,x){return s+Number(x.amount||0)},0);
    var earnedEl=document.getElementById("zc-ref-earned");if(earnedEl)earnedEl.textContent=typeof window.money==="function"?window.money(earned):"$"+earned.toFixed(2);
    var settings=await db.from("site_settings").select("setting_key,numeric_value").in("setting_key",["referral_reward_percent","referral_signup_bonus_usd"]);
    var pct=null,bonus=null;(settings.data||[]).forEach(function(x){if(x.setting_key==="referral_reward_percent")pct=Number(x.numeric_value);if(x.setting_key==="referral_signup_bonus_usd")bonus=Number(x.numeric_value)});
@@ -9179,7 +9179,7 @@ body[data-zc-theme] #app-content input.zc-calc-range::-moz-range-thumb{
    box.innerHTML='<div class="zc-referral-scroll"><table><thead><tr><th>Member</th><th>Join date &amp; time</th><th>Join bonus</th></tr></thead><tbody>'+tableRows+'</tbody></table></div>'+rewardNote;
   }catch(error){console.error("Referral list could not be loaded:",error);if(box)box.innerHTML='<p class="muted">Could not load referrals. Please refresh and try again.</p>'}
  };
- var init=function(){updateBadge();if(window.currentUser&&window.currentUser.id)refreshNotifications(true)};
+ var init=function(){updateBadge();if(currentUser&&currentUser.id)refreshNotifications(true)};
  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",init,{once:true});else init();
 })();
 </script>
