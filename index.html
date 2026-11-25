@@ -13460,3 +13460,97 @@ body[data-zc-theme] #app-content .deposit-steps .deposit-step p{color:var(--mute
  };
 })();
 </script>
+
+<style id="zc-deposit-withdrawal-field-parity-v2">
+/* Match the deposit amount and conversion surfaces to the bordered withdrawal form. */
+body[data-zc-theme] #app-content .deposit-form-card.zc-deposit-original-card .zc-inline-conversion-field{
+ display:grid!important;
+ grid-template-columns:minmax(0,1fr)!important;
+ gap:7px!important;
+ width:100%!important;
+ margin:8px 0 0!important;
+ padding:0!important;
+ border:0!important;
+ border-radius:0!important;
+ background:transparent!important;
+ box-shadow:none!important;
+}
+body[data-zc-theme] #app-content .deposit-form-card.zc-deposit-original-card .zc-inline-conversion-field>label{
+ display:block!important;
+ margin:0!important;
+ color:var(--muted)!important;
+}
+body[data-zc-theme] #app-content .deposit-form-card.zc-deposit-original-card .zc-inline-conversion-field>#zc-deposit-amount{
+ display:block!important;
+ width:100%!important;
+ max-width:100%!important;
+ box-sizing:border-box!important;
+ height:auto!important;
+ min-height:54px!important;
+ padding:13px 14px!important;
+ font-size:16px!important;
+ line-height:1.25!important;
+ appearance:none!important;
+ -webkit-appearance:none!important;
+ background:var(--bg)!important;
+ background-image:none!important;
+ color:var(--text)!important;
+ border:1px solid var(--line)!important;
+ border-radius:11px!important;
+ box-shadow:none!important;
+}
+body[data-zc-theme] #app-content .deposit-form-card.zc-deposit-original-card .zc-inline-conversion-field>#zc-deposit-amount:focus{
+ background:var(--bg)!important;
+ border-color:var(--green)!important;
+ box-shadow:0 0 0 2px color-mix(in srgb,var(--green) 18%,transparent)!important;
+ outline:none!important;
+}
+body[data-zc-theme] #app-content .deposit-form-card.zc-deposit-original-card .zc-inline-conversion-field>#zc-deposit-amount::placeholder{
+ color:var(--muted)!important;
+ opacity:1!important;
+}
+body[data-zc-theme] #app-content .deposit-form-card.zc-deposit-original-card #zc-quote-summary{
+ display:block!important;
+ width:100%!important;
+ box-sizing:border-box!important;
+ margin:14px 0 0!important;
+ padding:15px!important;
+ border:1px solid var(--line)!important;
+ border-radius:15px!important;
+ background:linear-gradient(145deg,var(--panel2),var(--panel))!important;
+ color:var(--text)!important;
+ box-shadow:0 10px 24px #0002,inset 0 1px 0 #ffffff08!important;
+}
+body[data-zc-theme] #app-content .deposit-form-card.zc-deposit-original-card #zc-quote-summary .eyebrow{
+ color:var(--mint)!important;
+ font-size:10px!important;
+ line-height:1.35!important;
+ margin:0 0 6px!important;
+}
+body[data-zc-theme] #app-content .deposit-form-card.zc-deposit-original-card #zc-quote-summary .zc-quote-meta{
+ color:var(--muted)!important;
+ font-size:12px!important;
+ line-height:1.45!important;
+ margin:3px 0!important;
+}
+body[data-zc-theme] #app-content .deposit-form-card.zc-deposit-original-card #zc-quote-summary .zc-quote-main{
+ color:var(--mint)!important;
+ font-size:20px!important;
+ font-weight:850!important;
+ line-height:1.25!important;
+ margin:5px 0 9px!important;
+ overflow-wrap:anywhere!important;
+}
+@media(max-width:480px){
+ body[data-zc-theme] #app-content .deposit-form-card.zc-deposit-original-card .zc-inline-conversion-field>#zc-deposit-amount{
+  min-height:52px!important;
+  padding:12px 13px!important;
+ }
+ body[data-zc-theme] #app-content .deposit-form-card.zc-deposit-original-card #zc-quote-summary{
+  padding:13px!important;
+ }
+ body[data-zc-theme] #app-content .deposit-form-card.zc-deposit-original-card #zc-quote-summary .zc-quote-main{
+  font-size:18px!important;
+ }
+}
+</style>
