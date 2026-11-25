@@ -13554,3 +13554,62 @@ body[data-zc-theme] #app-content .deposit-form-card.zc-deposit-original-card #zc
  }
 }
 </style>
+
+<script id="zc-dashboard-viewport-reset-v1">
+(function(){
+ 'use strict';
+ if(window.__zcDashboardViewportResetV1)return;
+ window.__zcDashboardViewportResetV1=true;
+ let generation=0;
+ let timers=[];
+ function resetViewport(id){
+  if(id!==generation)return;
+  const app=document.getElementById('application');
+  if(!app||app.classList.contains('hidden'))return;
+  try{
+   window.scrollTo(0,0);
+   if(document.scrollingElement)document.scrollingElement.scrollTop=0;
+   document.documentElement.scrollTop=0;
+   document.body.scrollTop=0;
+  }catch(error){}
+ }
+ function scheduleReset(){
+  const id=++generation;
+  timers.forEach(clearTimeout);
+  timers=[];
+  resetViewport(id);
+  if(typeof window.requestAnimationFrame==='function'){
+   window.requestAnimationFrame(()=>resetViewport(id));
+   window.requestAnimationFrame(()=>window.requestAnimationFrame(()=>resetViewport(id)));
+  }
+  [80,260,2050].forEach(delay=>timers.push(setTimeout(()=>resetViewport(id),delay)));
+ }
+ const originalNavigate=window.navigate;
+ if(typeof originalNavigate==='function'){
+  window.navigate=function(destination){
+   const result=originalNavigate.apply(this,arguments);
+   scheduleReset();
+   return result;
+  };
+ }
+ const originalShowApp=window.showApp;
+ if(typeof originalShowApp==='function'){
+  window.showApp=function(){
+   const result=originalShowApp.apply(this,arguments);
+   scheduleReset();
+   return result;
+  };
+ }
+ const originalGoDashboard=window.zcGoDashboard;
+ if(typeof originalGoDashboard==='function'){
+  window.zcGoDashboard=function(){
+   const result=originalGoDashboard.apply(this,arguments);
+   scheduleReset();
+   return result;
+  };
+ }
+ window.addEventListener('popstate',function(){
+  scheduleReset();
+ });
+})();
+</script>
