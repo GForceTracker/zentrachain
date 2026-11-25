@@ -11,7 +11,7 @@ const sourceEnv = path.join(root, 'src', 'js', 'env.js');
 const sourceAssets = path.join(root, 'assets');
 
 function fail(message) {
-  console.error('[Cloudflare Pages build] ' + message);
+  console.error('[Cloudflare Worker build] ' + message);
   process.exit(1);
 }
 
@@ -20,7 +20,7 @@ for (const file of [sourceHtml, sourceEnv, sourceAssets]) {
 }
 
 const env = fs.readFileSync(sourceEnv, 'utf8');
-if (!/MODE\s*:\s*['"]cloud['"]/.test(env)) {
+if (!/MODE\\s*:\\s*['"]cloud['"]/.test(env)) {
   fail('The deployed environment must remain in cloud mode.');
 }
 if (!env.includes('https://ltowdrhwebaitbrrupks.supabase.co')) {
@@ -28,7 +28,7 @@ if (!env.includes('https://ltowdrhwebaitbrrupks.supabase.co')) {
 }
 
 let html = fs.readFileSync(sourceHtml, 'utf8');
-if (!/<script\s+src=["']js\/env\.js["']/.test(html)) {
+if (!/<script\\s+src=["']js\\/env\\.js["']/.test(html)) {
   fail('The visitor page no longer references js/env.js as expected.');
 }
 
@@ -50,8 +50,8 @@ if (!copiedAssets.some((entry) => String(entry).startsWith('plans'))) {
   fail('The plan artwork directory was not copied into the build output.');
 }
 
-console.log('[Cloudflare Pages build] Created dist/index.html');
-console.log('[Cloudflare Pages build] Copied production Supabase config to dist/js/env.js');
-console.log('[Cloudflare Pages build] Copied ' + copiedAssets.length + ' asset entries');
-console.log('[Cloudflare Pages build] Visitor plan behaviour patch is included.');
-console.log('[Cloudflare Pages build] No Vercel or Supabase production settings were changed.');
+console.log('[Cloudflare Worker build] Created dist/index.html');
+console.log('[Cloudflare Worker build] Copied production Supabase config to dist/js/env.js');
+console.log('[Cloudflare Worker build] Copied ' + copiedAssets.length + ' asset entries');
+console.log('[Cloudflare Worker build] Visitor plan behaviour patch is included.');
+console.log('[Cloudflare Worker build] No Vercel or Supabase production settings were changed.');
