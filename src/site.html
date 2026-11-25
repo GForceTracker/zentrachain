@@ -1071,13 +1071,16 @@ function hideAuth(){$('auth-modal').classList.add('hidden');$('auth-form').class
 function renderAuthMode(){$('auth-title').textContent=authMode==='login'?'Welcome back':'Create your account';$('auth-submit').textContent=authMode==='login'?'Log in':'Create account';$('auth-switch').textContent=authMode==='login'?'Create an account':'I already have an account';$('name-field').classList.toggle('hidden',authMode==='login');const cf=$('zc-captcha-field');if(cf)cf.classList.toggle('hidden',authMode!=='signup');zcTickReset()}
 function toggleAuthMode(){authMode=authMode==='login'?'signup':'login';renderAuthMode()}
 async function submitAuth(e){e.preventDefault();const email=$('auth-email').value.trim().toLowerCase(),password=$('auth-password').value;if(!email||!password)return authMsg('Enter your email and password.',true);
+if(authMode==='signup'&&password.length<12)return authMsg('For account security, use a password with at least 12 characters.',true);
 if(authMode==='signup'&&zcTick.state!=='verified')return authMsg('Tap the verification box first.',true);const submit=$('auth-submit');if(submit){submit.disabled=true;submit.textContent=authMode==='signup'?'Creating account…':'Signing in…'}try{let r;if(authMode==='signup'){
  if(zcTick.state!=='verified')return authMsg('Tap the verification box first.',true);
  const base=(window.ZC_ENV&&window.ZC_ENV.SUPABASE_URL)||'';
  const sr=await fetch(base+'/functions/v1/member-signup',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:email,password:password,full_name:$('auth-name')?.value||'',challenge_id:zcTick.id,nonce:zcTick.nonce})});
  const sd=await sr.json().catch(()=>({}));
  if(!sr.ok||!sd.ok)return authMsg(sd.error||'Signup failed. Please try again.',true);
- r=await db.auth.signInWithPassword({email,password});if(r.error)return authMsg(r.error.message,true);
+ if(sd.needs_confirmation)return authMsg('Account created. Please check your email inbox and confirm your email address before logging in. Use Resend verification below if you do not receive the message.',false);
+ if(sd.session?.access_token&&sd.session?.refresh_token){r=await db.auth.setSession({access_token:sd.session.access_token,refresh_token:sd.session.refresh_token});if(r.error)return authMsg(r.error.message,true)}
+ else{return authMsg('Account created. You can now log in with your email and password.',false)}
 }else{r=await db.auth.signInWithPassword({email,password});if(r.error)return authMsg(r.error.message,true)}hideAuth();await loadSession();if(window.zcCommunityAfterAuth)await window.zcCommunityAfterAuth()}catch(err){authMsg(err?.message||'Sign-in could not be completed. Please try again.',true)}finally{if(submit){submit.disabled=false;submit.textContent=authMode==='signup'?'Create account':'Log in'}}}
 let zcTick={state:'idle',id:'',nonce:''};
 function zcTickReset(){zcTick={state:'idle',id:'',nonce:''};const box=$('zc-tickbox');if(!box)return;box.classList.remove('verified','verifying');box.setAttribute('aria-checked','false');const mk=$('zc-tick-mark');if(mk)mk.textContent='';const st=$('zc-tick-state');if(st)st.textContent=''}
