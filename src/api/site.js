@@ -39,7 +39,7 @@ function applyBrandMetadata(html, req) {
     '<link rel="icon" type="image/png" sizes="192x192" href="/favicon-192.png">',
     '<link rel="shortcut icon" href="/favicon.ico">',
     '<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">'
-  ].join('\\n');
+  ].join('\n');
   const socialTags = [
     '<link rel="canonical" href="' + origin + '/">',
     '<meta property="og:type" content="website">',
@@ -57,12 +57,12 @@ function applyBrandMetadata(html, req) {
     '<meta name="twitter:title" content="ZentraChain | Digital Asset Platform">',
     '<meta name="twitter:description" content="ZentraChain digital asset account portal, market information and transaction management.">',
     '<meta name="twitter:image" content="' + origin + '/og-image.jpg">'
-  ].join('\\n');
+  ].join('\n');
   let result = String(html);
-  result = result.replace(/<link\\s+rel=["'](?:icon|shortcut icon|apple-touch-icon)["'][^>]*>/gi, '');
-  result = result.replace(/<link\\s+rel=["']canonical["'][^>]*>/gi, '');
-  result = result.replace(/<meta\\s+(?:property|name)=["'](?:og:[^"']+|twitter:[^"']+)["'][^>]*>/gi, '');
-  return result.replace(/<\\/head>/i, iconTags + '\\n' + socialTags + '\\n</head>');
+  result = result.replace(/<link\s+rel=["'](?:icon|shortcut icon|apple-touch-icon)["'][^>]*>/gi, '');
+  result = result.replace(/<link\s+rel=["']canonical["'][^>]*>/gi, '');
+  result = result.replace(/<meta\s+(?:property|name)=["'](?:og:[^"']+|twitter:[^"']+)["'][^>]*>/gi, '');
+  return result.replace(/<\/head>/i, iconTags + '\n' + socialTags + '\n</head>');
 }
 
 module.exports = (req, res) => {
