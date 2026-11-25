@@ -1306,30 +1306,46 @@ html body .modal-head .brand{white-space:nowrap!important;min-width:0!important}
 @media(max-width:560px){#app-content .zc-tap-page-title{align-items:flex-start;flex-direction:column}#app-content .zc-tap-logo-circle{width:158px;height:158px}#app-content .zc-tap-logo-glyph{font-size:88px}#app-content .zc-tap-form-grid{grid-template-columns:1fr}#app-content .zc-tap-address-field{grid-column:auto}}
 </style>
 <style id="zc-public-auth-header-mobile-fix-v1">
-/* Mobile public header: keep branding on row one and account actions fully visible on row two. */
-@media(max-width:560px){
+/* Restore ZentraChain's original compact mobile header: brand and account actions share
+   the first row; the public navigation remains visible on the row below. */
+@media(max-width:900px){
  #public header.topbar.wrap{
-  box-sizing:border-box!important;display:grid!important;grid-template-columns:minmax(0,1fr)!important;
-  grid-auto-rows:auto!important;align-content:center!important;align-items:center!important;
-  justify-content:initial!important;gap:12px!important;width:100%!important;max-width:100%!important;
-  height:auto!important;min-height:0!important;margin:0!important;padding:14px 16px!important;overflow:visible!important
+  display:flex!important;flex-flow:row wrap!important;align-items:center!important;
+  justify-content:space-between!important;width:100%!important;max-width:100%!important;
+  height:auto!important;min-height:76px!important;margin:0!important;padding:10px 14px!important;
+  gap:8px!important;overflow:visible!important
  }
- #public header.topbar.wrap>.nav{display:none!important}
  #public header.topbar.wrap>.brand{
-  display:flex!important;align-items:center!important;justify-self:start!important;min-width:0!important;
-  max-width:100%!important;gap:9px!important;font-size:18px!important;line-height:1.2!important;white-space:nowrap!important
+  display:flex!important;order:1!important;align-items:center!important;justify-self:auto!important;
+  flex:0 1 auto!important;min-width:0!important;max-width:none!important;
+  gap:7px!important;font-size:15px!important;line-height:1.2!important;white-space:nowrap!important
  }
- #public header.topbar.wrap>.brand>.logo{flex:0 0 34px!important;width:34px!important;height:34px!important}
+ #public header.topbar.wrap>.brand>.logo{
+  flex:0 0 32px!important;width:32px!important;height:32px!important
+ }
+ #public header.topbar.wrap>.nav{
+  display:flex!important;order:3!important;flex:1 0 100%!important;width:100%!important;
+  min-width:0!important;justify-content:space-between!important;gap:12px!important;
+  overflow-x:auto!important;padding:5px 0 1px!important
+ }
+ #public header.topbar.wrap>.nav a{font-size:12px!important;white-space:nowrap!important}
  #public #public-account-actions{
-  display:flex!important;align-items:stretch!important;justify-content:stretch!important;gap:8px!important;
-  width:100%!important;max-width:100%!important;min-width:0!important;margin:0!important;box-sizing:border-box!important
+  display:flex!important;order:2!important;align-items:center!important;justify-content:flex-end!important;
+  flex:0 0 auto!important;width:auto!important;max-width:none!important;min-width:0!important;
+  margin:0 0 0 auto!important;gap:6px!important;box-sizing:border-box!important
  }
  #public #public-account-actions>button:not(.hidden){
-  display:inline-flex!important;flex:1 1 0!important;align-items:center!important;justify-content:center!important;
-  min-width:0!important;max-width:none!important;min-height:42px!important;margin:0!important;padding:10px 8px!important;
-  box-sizing:border-box!important;white-space:nowrap!important;overflow:visible!important;font-size:13px!important;
-  line-height:1.2!important;text-align:center!important
+  display:inline-flex!important;flex:0 0 auto!important;align-items:center!important;justify-content:center!important;
+  min-width:0!important;max-width:none!important;min-height:38px!important;margin:0!important;
+  padding:8px 10px!important;box-sizing:border-box!important;white-space:nowrap!important;
+  overflow:visible!important;font-size:11px!important;line-height:1.2!important;text-align:center!important
  }
+}
+@media(max-width:560px){
+ #public header.topbar.wrap{min-height:66px!important;gap:8px!important;padding:10px 14px!important}
+ #public header.topbar.wrap>.brand{font-size:15px!important;gap:7px!important}
+ #public header.topbar.wrap>.brand>.logo{width:32px!important;height:32px!important;flex-basis:32px!important}
+ #public #public-account-actions>button:not(.hidden){min-height:38px!important;padding:9px 10px!important;font-size:12px!important}
 }
 </style>
 </head><body><script>try{var __zcT=localStorage.getItem('zentrachain-theme')||'blue';document.body.setAttribute('data-zc-theme',__zcT)}catch(__zcE){}</script><div class="zc-particle-field" aria-hidden="true"></div>
