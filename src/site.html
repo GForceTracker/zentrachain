@@ -11783,9 +11783,56 @@ box-sizing:border-box!important;display:inline-flex!important;align-items:center
 #dash-cards .gf-plan-artwork{height:150px!important;min-height:150px!important;max-height:150px!important;flex:0 0 150px!important}
 #dash-cards .gf-plan-artwork img{object-position:center 42%!important}
 #dash-cards .gf-plan-card-heading{display:flex!important;align-items:flex-start!important;justify-content:space-between!important;gap:12px!important;padding:6px 16px 0!important;margin:0 0 4px!important}
-#dash-cards .gf-plan-days-circle{display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:center!important;width:46px!important;height:46px!important;flex:0 0 46px!important;margin:0!important;border:1px solid rgba(115,238,180,.34)!important;border-radius:50%!important;background:radial-gradient(circle at 30% 22%,rgba(103,255,190,.20),rgba(20,105,76,.24) 68%,rgba(5,36,27,.42))!important;box-shadow:0 0 0 3px rgba(45,205,139,.055),0 0 12px rgba(48,220,150,.12),inset 0 1px 0 rgba(255,255,255,.12)!important;text-align:center!important}
-#dash-cards .gf-plan-days-circle b{font-size:14px!important;font-weight:850!important;line-height:1!important;color:#83f0bd!important}
-#dash-cards .gf-plan-days-circle i{font-style:normal!important;font-size:6.5px!important;font-weight:800!important;letter-spacing:.7px!important;text-transform:uppercase!important;color:#9be8c5!important;margin-top:2px!important;opacity:.9!important}
+<style id="zc-plan-days-theme-running-ring-v1">
+/* The 30 DAYS badge uses the active palette and has a moving theme-coloured edge glow. */
+#dash-cards .gf-plan-days-circle{
+ display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:center!important;
+ position:relative!important;isolation:isolate!important;overflow:visible!important;
+ width:46px!important;height:46px!important;flex:0 0 46px!important;margin:0!important;
+ border:1px solid color-mix(in srgb,var(--green,#20c783) 48%,var(--line,#28513c))!important;
+ border-radius:50%!important;
+ background:radial-gradient(circle at 30% 22%,
+  color-mix(in srgb,var(--mint,#9be8c5) 20%,transparent),
+  color-mix(in srgb,var(--green,#20c783) 20%,var(--panel2,#10291d)) 68%,
+  color-mix(in srgb,var(--panel,#081b13) 72%,var(--bg,#06140f)))!important;
+ box-shadow:0 0 0 3px color-mix(in srgb,var(--green,#20c783) 8%,transparent),
+  0 0 12px color-mix(in srgb,var(--green,#20c783) 22%,transparent),
+  inset 0 1px 0 color-mix(in srgb,var(--text,#effaf4) 12%,transparent)!important;
+ text-align:center!important;
+ animation:zcPlanDaysHaloPulseV1 2.8s ease-in-out infinite!important;
+}
+#dash-cards .gf-plan-days-circle::before{
+ content:""!important;position:absolute!important;inset:-4px!important;z-index:0!important;
+ border-radius:50%!important;pointer-events:none!important;
+ background:conic-gradient(from 0deg,transparent 0deg 250deg,
+  color-mix(in srgb,var(--mint,#9be8c5) 48%,transparent) 278deg,
+  var(--mint,#9be8c5) 310deg,var(--green,#20c783) 338deg,transparent 360deg)!important;
+ -webkit-mask:radial-gradient(farthest-side,transparent calc(100% - 3px),#000 calc(100% - 2px))!important;
+ mask:radial-gradient(farthest-side,transparent calc(100% - 3px),#000 calc(100% - 2px))!important;
+ filter:drop-shadow(0 0 3px var(--green,#20c783))!important;
+ animation:zcPlanDaysRingRunV1 2.4s linear infinite!important;
+}
+#dash-cards .gf-plan-days-circle b{
+ position:relative!important;z-index:1!important;
+ font-size:14px!important;font-weight:850!important;line-height:1!important;
+ color:var(--mint,#9be8c5)!important;
+ text-shadow:0 0 8px color-mix(in srgb,var(--mint,#9be8c5) 32%,transparent)!important;
+}
+#dash-cards .gf-plan-days-circle i{
+ position:relative!important;z-index:1!important;
+ font-style:normal!important;font-size:6.5px!important;font-weight:800!important;
+ letter-spacing:.7px!important;text-transform:uppercase!important;
+ color:var(--mint,#9be8c5)!important;margin-top:2px!important;opacity:.9!important;
+}
+@keyframes zcPlanDaysRingRunV1{to{transform:rotate(1turn)}}
+@keyframes zcPlanDaysHaloPulseV1{
+ 0%,100%{box-shadow:0 0 0 3px color-mix(in srgb,var(--green,#20c783) 8%,transparent),0 0 12px color-mix(in srgb,var(--green,#20c783) 22%,transparent),inset 0 1px 0 color-mix(in srgb,var(--text,#effaf4) 12%,transparent)}
+ 50%{box-shadow:0 0 0 4px color-mix(in srgb,var(--green,#20c783) 13%,transparent),0 0 19px color-mix(in srgb,var(--green,#20c783) 35%,transparent),inset 0 1px 0 color-mix(in srgb,var(--text,#effaf4) 17%,transparent)}
+}
+@media(prefers-reduced-motion:reduce){
+ #dash-cards .gf-plan-days-circle,#dash-cards .gf-plan-days-circle::before{animation:none!important}
+}
+</style>
 #dash-cards .gf-plan-card-title p{display:-webkit-box!important;-webkit-line-clamp:2!important;-webkit-box-orient:vertical!important;overflow:hidden!important}
 #dash-cards .gf-plan-duration{display:none!important}
 #dash-cards .gf-plan-details{width:calc(100% - 32px)!important;margin:0 16px!important;padding:1px 0!important}
