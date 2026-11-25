@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 480" role="img" aria-label="Starter plan - stacked gold coins and sprout investment artwork">
+<defs>
+ <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#123b29"/><stop offset=".48" stop-color="#0a2419"/><stop offset="1" stop-color="#06150f"/></linearGradient>
+ <radialGradient id="glow"><stop stop-color="#24d58a" stop-opacity=".34"/><stop offset="1" stop-color="#24d58a" stop-opacity="0"/></radialGradient>
+ <linearGradient id="gold" x1="0" y1="0" x2="0.9" y2="1"><stop stop-color="#fff0b6"/><stop offset=".25" stop-color="#f5d477"/><stop offset=".63" stop-color="#d99b31"/><stop offset="1" stop-color="#8d571d"/></linearGradient>
+ <linearGradient id="mint" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#c1ffdf"/><stop offset=".45" stop-color="#46dba0"/><stop offset="1" stop-color="#08794b"/></linearGradient>
+ <linearGradient id="glass" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#c9ffe1" stop-opacity=".8"/><stop offset=".35" stop-color="#35c98e" stop-opacity=".42"/><stop offset="1" stop-color="#0c6545" stop-opacity=".16"/></linearGradient>
+ <filter id="shadow" x="-30%" y="-30%" width="160%" height="170%"><feGaussianBlur in="SourceAlpha" stdDeviation="11" result="b"/><feOffset dy="12" result="o"/><feComponentTransfer><feFuncA type="linear" slope=".48"/></feComponentTransfer><feMerge><feMergeNode/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+ <filter id="soft"><feGaussianBlur stdDeviation="26"/></filter>
+ <pattern id="grid" width="42" height="42" patternUnits="userSpaceOnUse"><path d="M42 0H0V42" fill="none" stroke="#9be8c5" stroke-opacity=".07" stroke-width="1"/></pattern>
+</defs>
+<rect width="640" height="480" rx="28" fill="url(#bg)"/>
+<ellipse cx="318" cy="224" rx="290" ry="220" fill="url(#glow)"/>
+<rect width="640" height="480" fill="url(#grid)" opacity=".9"/>
+<path d="M35 400 Q320 330 605 400" fill="none" stroke="#20c783" stroke-opacity=".25" stroke-width="2"/>
+<path d="M24 426 Q320 355 616 426" fill="none" stroke="#e7c16d" stroke-opacity=".35" stroke-width="2"/>
+<g fill="#d9f9e8" opacity=".7"><circle cx="93" cy="92" r="2"/><circle cx="524" cy="85" r="2"/><circle cx="553" cy="274" r="2"/><circle cx="137" cy="305" r="1.7"/><circle cx="470" cy="160" r="1.4"/></g>
+<g filter="url(#shadow)">
+ <ellipse cx="320" cy="388" rx="184" ry="22" fill="#020d08" opacity=".65"/>
+ <g fill="url(#gold)" stroke="#f7d98a" stroke-width="3">
+  <path d="M126 328c0-17 47-31 105-31s105 14 105 31v25c0 17-47 31-105 31s-105-14-105-31Z"/><ellipse cx="231" cy="328" rx="105" ry="31" fill="url(#gold)"/>
+  <path d="M154 279c0-14 35-25 78-25s78 11 78 25v20c0 14-35 25-78 25s-78-11-78-25Z"/><ellipse cx="232" cy="279" rx="78" ry="25"/>
+  <path d="M174 239c0-12 26-21 58-21s58 9 58 21v19c0 12-26 21-58 21s-58-9-58-21Z"/><ellipse cx="232" cy="239" rx="58" ry="21"/>
+ </g>
+ <path d="M321 338c17-31 33-62 31-104" fill="none" stroke="#8ce8b8" stroke-width="10" stroke-linecap="round"/>
+ <path d="M351 268c-42-5-65-32-64-65 35-4 68 18 64 65Z" fill="url(#mint)" stroke="#b9ffdc" stroke-width="3"/>
+ <path d="M350 238c8-38 36-58 71-51 0 32-25 57-71 51Z" fill="url(#mint)" stroke="#b9ffdc" stroke-width="3"/>
+ <path d="M352 275c-6-35 0-65 15-93" fill="none" stroke="#d3ffe6" stroke-width="3" opacity=".8"/>
+ </g>
+</svg>
