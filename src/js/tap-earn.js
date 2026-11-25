@@ -4,8 +4,23 @@ const $=id=>document.getElementById(id), esc=v=>String(v??'').replace(/[&<>"']/g
 const usd=v=>'$'+Number(v||0).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:8});
 const pc=(v,t)=>t>0?Math.max(0,Math.min(100,Number(v||0)/t*100)):100;
 let locked=false;
+let tapQueue=0,tapPending=0,tapInFlight=false,tapTimer=null,tapPageState=null;
+function setTapEarnMenuIcon(){
+ const n=$('zc-tap-earn-nav');if(!n)return;
+ if(n.dataset.zcTapLucideIcon!=='1'){
+  n.innerHTML='<i data-lucide="hand-coins" aria-hidden="true"></i><span>Tap To Earn</span>';
+  n.dataset.zcTapLucideIcon='1';
+ }
+ if(window.lucide&&typeof window.lucide.createIcons==='function'){
+  window.lucide.createIcons();
+ }else{
+  const i=n.querySelector('[data-lucide="hand-coins"]');
+  if(i)i.outerHTML='<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 8V4H8"/><circle cx="16" cy="8" r="4"/><path d="M3 14h2l2-2h4a2 2 0 0 1 0 4H9"/><path d="m3 14 4 6h7l6-3a2 2 0 0 0-2-4l-4 1"/></svg>';
+ }
+}
 async function syncMenu(){
  const n=$('zc-tap-earn-nav');if(!n)return;
+ setTapEarnMenuIcon();
  if(typeof currentUser==='undefined'||!currentUser||!currentUser.id||typeof db==='undefined'){n.classList.add('hidden');return}
  try{const r=await db.rpc('tap_earn_is_enabled');const on=!r.error&&r.data===true;n.classList.toggle('hidden',!on);if(!on&&typeof page!=='undefined'&&page==='tap-earn')navigate('overview')}catch(e){n.classList.add('hidden')}
 }
@@ -13,31 +28,148 @@ window.zcSyncTapEarnMenu=syncMenu;
 const progress=(title,label,value,note)=>'<div class="zc-tap-progress-item"><div class="zc-tap-progress-top"><b>'+title+'</b><span>'+label+'</span></div><div class="zc-tap-progress-track"><i style="width:'+pc(value,100)+'%"></i></div><small>'+note+'</small></div>';
 const tag=s=>'<span class="zc-tap-status '+(s==='paid'?'good':s==='approved'?'warn':s==='declined'?'rejected':'')+'">'+esc(String(s||'pending').replace(/_/g,' '))+'</span>';
 function history(items){return !items||!items.length?'<div class="empty">No Tap To Earn withdrawals yet.</div>':items.map(x=>'<div class="zc-tap-history-row"><div><b>'+usd(x.amount)+'</b><small>'+esc(x.network)+' · '+esc(x.created_at?new Date(x.created_at).toLocaleString():'—')+'</small>'+(x.tx_hash?'<small>TX: '+esc(x.tx_hash)+'</small>':'')+'</div>'+tag(x.status)+'</div>').join('')}
+function ensureTapEarnStyles(){
+ if(document.getElementById('zc-tap-earn-interaction-styles'))return;
+ const style=document.createElement('style');
+ style.id='zc-tap-earn-interaction-styles';
+ style.textContent=
+ '#app-content .zc-tap-hero{display:flex!important;flex-direction:column!important;align-items:center!important;gap:16px!important;position:relative!important;overflow:visible!important;text-align:center!important;width:100%}' +
+ '#app-content .zc-tap-hero-copy{width:100%;text-align:center;margin:0!important}' +
+ '#app-content .zc-tap-hero-copy h2{margin:0 auto!important;font-size:clamp(18px,3vw,25px)!important}' +
+ '#app-content .zc-tap-logo-button{position:relative!important;display:grid!important;place-items:center!important;overflow:visible!important;touch-action:manipulation!important;-webkit-tap-highlight-color:transparent!important;user-select:none!important;-webkit-user-select:none!important;cursor:pointer!important;outline:none!important;min-width:0!important;flex:0 0 auto!important;padding:10px!important;background:transparent!important;border:0!important;box-shadow:none!important}' +
+ '#app-content .zc-tap-logo-button:disabled{opacity:.55!important;cursor:not-allowed!important}' +
+ '#app-content .zc-tap-logo-circle{position:relative!important;display:grid!important;place-items:center!important;overflow:visible!important;transform-origin:center!important}' +
+ '#app-content .zc-tap-logo-glyph{pointer-events:none!important}' +
+ '#app-content .zc-tap-logo-button.is-tapping .zc-tap-logo-circle{animation:zcTapCoinPress 190ms cubic-bezier(.2,.8,.2,1)}' +
+ '#app-content .zc-tap-float-reward{position:absolute;z-index:8;pointer-events:none;white-space:nowrap;color:var(--mint,#55e6ad);font-weight:900;font-size:clamp(13px,3.7vw,17px);text-shadow:0 2px 12px rgba(0,0,0,.6);transform:translate(-50%,-35%);animation:zcTapRewardRise 820ms cubic-bezier(.16,.72,.22,1) forwards}' +
+ '#app-content .zc-tap-ripple{position:absolute;z-index:3;pointer-events:none;width:18px;height:18px;border:2px solid var(--mint,#55e6ad);border-radius:50%;transform:translate(-50%,-50%) scale(.2);animation:zcTapRipple 520ms ease-out forwards}' +
+ '#app-content .zc-tap-cta-label{font-weight:800;letter-spacing:.12em;font-size:11px;opacity:.78}' +
+ '#app-content .zc-tap-hero-progress{width:100%!important;display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:12px!important;margin-top:4px!important}' +
+ '#app-content .zc-tap-hero-progress .zc-tap-progress-item{min-width:0!important;margin:0!important;text-align:left!important}' +
+ '#app-content .zc-tap-progress-top{display:flex;align-items:flex-start;justify-content:space-between;gap:8px}' +
+ '#app-content .zc-tap-progress-top b{min-width:0;font-size:12px}' +
+ '#app-content .zc-tap-progress-top span{font-size:11px;text-align:right;overflow-wrap:anywhere}' +
+ '#app-content .zc-tap-progress-item small{display:block;line-height:1.35;margin-top:6px;font-size:10px}' +
+ '#app-content .zc-tap-balance-grid{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:10px!important;width:100%!important}' +
+ '#app-content .zc-tap-balance-card{display:flex!important;flex-direction:column!important;justify-content:center!important;align-items:flex-start!important;min-width:0!important;padding:clamp(9px,2.4vw,15px)!important;overflow:hidden!important}' +
+ '#app-content .zc-tap-balance-card small{font-size:clamp(8px,2.2vw,10px)!important;line-height:1.25!important;overflow-wrap:anywhere!important}' +
+ '#app-content .zc-tap-balance-card strong{display:block!important;font-size:clamp(12px,3.6vw,20px)!important;line-height:1.25!important;letter-spacing:-.035em!important;overflow-wrap:anywhere!important;max-width:100%!important}' +
+ '#app-content .zc-tap-balance-card span{font-size:clamp(8px,2vw,10px)!important;line-height:1.3!important;overflow-wrap:anywhere!important}' +
+ '#app-content .zc-tap-progress-panel{display:none!important}' +
+ '#zc-tap-earn-nav{display:flex;align-items:center;gap:10px}' +
+ '#zc-tap-earn-nav [data-lucide],#zc-tap-earn-nav svg{width:18px;height:18px;flex:0 0 18px;stroke:currentColor;stroke-width:1.8}' +
+ '@keyframes zcTapCoinPress{0%{transform:scale(1)}34%{transform:scale(.91) rotate(-2deg)}72%{transform:scale(1.035)}100%{transform:scale(1)}}' +
+ '@keyframes zcTapRewardRise{0%{opacity:0;transform:translate(-50%,-15%) scale(.82)}15%{opacity:1}100%{opacity:0;transform:translate(-50%,-145%) scale(1.06)}}' +
+ '@keyframes zcTapRipple{0%{opacity:.9;transform:translate(-50%,-50%) scale(.2)}100%{opacity:0;transform:translate(-50%,-50%) scale(3.7)}}' +
+ '@media(max-width:520px){#app-content .zc-tap-hero-progress{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:10px!important}#app-content .zc-tap-balance-grid{grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:7px!important}#app-content .zc-tap-progress-top{gap:4px}#app-content .zc-tap-progress-top b,#app-content .zc-tap-progress-top span{font-size:10px}}' +
+ '@media(prefers-reduced-motion:reduce){#app-content .zc-tap-logo-button.is-tapping .zc-tap-logo-circle,#app-content .zc-tap-float-reward,#app-content .zc-tap-ripple{animation-duration:1ms!important}}';
+ document.head.appendChild(style);
+}
+function tapProgress(id,title,label,value,note){
+ return '<div class="zc-tap-progress-item" data-tap-progress="'+id+'"><div class="zc-tap-progress-top"><b>'+title+'</b><span>'+label+'</span></div><div class="zc-tap-progress-track"><i style="width:'+pc(value,100)+'%"></i></div><small>'+note+'</small></div>';
+}
+function applyTapEarnUI(){
+ const s=tapPageState,c=$('app-content');if(!s||!c)return;
+ const reward=Number(s.reward_per_tap||.0003),pendingReward=tapPending*reward;
+ const free=Number(s.free_taps_remaining||0),bonus=Number(s.bonus_taps_available||0);
+ const pendingFree=Math.min(tapPending,free),pendingBonus=Math.max(0,tapPending-pendingFree);
+ const freeLeft=Math.max(0,free-pendingFree),bonusLeft=Math.max(0,bonus-pendingBonus);
+ const daily=Number(s.daily_free_taps||100),used=Number(s.free_taps_used||0)+pendingFree;
+ const balance=Number(s.tap_balance||0)+pendingReward;
+ const available=Number(s.available_balance||0)+pendingReward;
+ const total=Number(s.total_earned||0)+pendingReward;
+ const put=(id,value)=>{const el=c.querySelector('[data-tap-balance="'+id+'"]');if(el)el.textContent=usd(value)};
+ put('tap',balance);put('available',available);put('earned',total);
+ const set=(id,label,value,note)=>{const el=c.querySelector('[data-tap-progress="'+id+'"]');if(!el)return;const top=el.querySelector('.zc-tap-progress-top span'),bar=el.querySelector('.zc-tap-progress-track i'),small=el.querySelector('small');if(top)top.textContent=label;if(bar)bar.style.width=pc(value,100)+'%';if(small)small.textContent=note};
+ set('daily',used+' / '+daily,daily?used/daily*100:100,freeLeft+' free taps remaining today · resets at 00:00 UTC');
+ const min=Number(s.minimum_withdrawal_usd||1);
+ set('balance',usd(available)+' / '+usd(min),min?available/min*100:100,available>=min?'Minimum withdrawal balance reached.':'You need '+usd(min-available)+' more.');
+ const invites=Number(s.invite_count||0),required=Number(s.minimum_invites||15);
+ set('invites',invites+' / '+required,required?invites/required*100:100,invites>=required?'Invite requirement completed.':'Invite '+Math.max(0,required-invites)+' more before withdrawing.');
+ const bonusRate=Number(s.bonus_taps_per_referral||50);
+ set('bonus',bonusLeft+' available',bonusRate?bonusLeft/bonusRate*100:0,bonusLeft+' extra taps available from verified referrals.');
+ const canTap=freeLeft+bonusLeft>0,b=$('zc-tap-hit-target'),l=$('zc-tap-cta-label');
+ if(b)b.disabled=!canTap;
+ if(l)l.textContent=canTap?'TAP TO EARN':'TAPS COMPLETE';
+}
 async function renderTapEarn(state){
- const c=$('app-content');if(!c)return;c.innerHTML='<section class="card panel"><p class="muted">Loading Tap To Earn…</p></section>';
+ const c=$('app-content');if(!c)return;
+ ensureTapEarnStyles();
+ if(tapTimer){window.clearTimeout(tapTimer);tapTimer=null}
+ tapQueue=0;tapPending=0;tapInFlight=false;tapPageState=null;
+ c.innerHTML='<section class="card panel"><p class="muted">Loading Tap To Earn…</p></section>';
  try{
   if(!state||typeof state.tap_balance==='undefined'){const r=await db.rpc('tap_earn_state');if(r.error)throw r.error;state=r.data}
   if(!state||!state.enabled)throw Error('Tap To Earn is currently disabled.');
-  const daily=Number(state.daily_free_taps||100),used=Number(state.free_taps_used||0),free=Number(state.free_taps_remaining||0),bonus=Number(state.bonus_taps_available||0),invites=Number(state.invite_count||0),required=Number(state.minimum_invites||15),min=Number(state.minimum_withdrawal_usd||1),available=Number(state.available_balance||0),reward=Number(state.reward_per_tap||.0003),bonusRate=Number(state.bonus_taps_per_referral||50),canTap=free>0||bonus>0;
+  tapPageState=state;
+  const daily=Number(state.daily_free_taps||100),used=Number(state.free_taps_used||0),free=Number(state.free_taps_remaining||0),bonus=Number(state.bonus_taps_available||0),invites=Number(state.invite_count||0),required=Number(state.minimum_invites||15),min=Number(state.minimum_withdrawal_usd||1),available=Number(state.available_balance||0),bonusRate=Number(state.bonus_taps_per_referral||50),canTap=free>0||bonus>0;
   const link=typeof zcReferralLink==='function'?zcReferralLink():(profile&&profile.referral_code?location.origin+'/?ref='+encodeURIComponent(profile.referral_code):'');
   c.innerHTML=
-   '<div class="page-title zc-tap-page-title"><div><div class="eyebrow">REWARDS CENTRE</div><h1>Tap To Earn</h1><p class="muted">Earn '+usd(reward)+' for each confirmed tap.</p></div><span class="zc-tap-live-pill"><i></i>'+(canTap?'READY TO EARN':'TAPS COMPLETE')+'</span></div>'+
-   '<section class="card panel zc-tap-hero"><div class="zc-tap-hero-copy"><div class="eyebrow">YOUR DAILY REWARD</div><h2>Tap the Bitcoin logo to earn.</h2><p>Each confirmed tap is credited to your separate Tap Balance. This larger coin stays whole and does not break apart.</p></div><button type="button" id="zc-tap-hit-target" class="zc-tap-logo-button" onclick="zcTapEarnClick()" '+(canTap?'':'disabled')+'><span class="zc-tap-logo-circle"><span class="zc-tap-logo-glyph">₿</span></span></button><div class="zc-tap-cta-label" id="zc-tap-cta-label">'+(canTap?'TAP BITCOIN TO EARN':'DAILY AND BONUS TAPS COMPLETE')+'</div><div class="zc-tap-earn-rate">+ '+usd(reward)+' <span>per tap</span></div><div class="zc-tap-hero-progress">'+progress('Daily taps',used+' / '+daily,daily?used/daily*100:100,free+' free taps remaining today · resets at 00:00 UTC')+'</div></section>'+
-   '<div class="zc-tap-balance-grid"><section class="card panel zc-tap-balance-card"><small>TAP BALANCE</small><strong>'+usd(state.tap_balance)+'</strong><span>Separate reward balance</span></section><section class="card panel zc-tap-balance-card"><small>AVAILABLE TO WITHDRAW</small><strong>'+usd(available)+'</strong><span>After pending requests are reserved</span></section><section class="card panel zc-tap-balance-card"><small>TOTAL EARNED</small><strong>'+usd(state.total_earned)+'</strong><span>Lifetime tap rewards</span></section></div>'+
-   '<section class="card panel zc-tap-progress-panel"><div class="eyebrow">YOUR PROGRESS</div><h3>Tap and withdrawal goals</h3>'+
-   progress('Daily free taps',used+' / '+daily,daily?used/daily*100:100,free+' free taps remain today · resets at 00:00 UTC')+
-   progress('Withdraw threshold',usd(available)+' / '+usd(min),min?available/min*100:100,available>=min?'Minimum balance reached.':'You need '+usd(min-available)+' more.')+
-   progress('Verified invites',invites+' / '+required,required?invites/required*100:100,invites>=required?'Invite requirement completed.':'Invite '+(required-invites)+' more before withdrawing.')+
-   '<div class="zc-tap-bonus-note"><b>'+bonus+' extra taps available</b><small>Each verified referral adds '+bonusRate+' bonus taps. They are used after your daily free taps.</small></div></section>'+
+   '<section class="card panel zc-tap-hero"><div class="zc-tap-hero-copy"><h2>Tap the Bitcoin logo to earn.</h2></div>'+
+   '<button type="button" id="zc-tap-hit-target" class="zc-tap-logo-button" onclick="zcTapEarnClick(event)" aria-label="Tap Bitcoin to earn" '+(canTap?'':'disabled')+'><span class="zc-tap-logo-circle"><span class="zc-tap-logo-glyph">₿</span></span></button>'+
+   '<div class="zc-tap-cta-label" id="zc-tap-cta-label">'+(canTap?'TAP TO EARN':'TAPS COMPLETE')+'</div>'+
+   '<div class="zc-tap-hero-progress">'+
+    tapProgress('daily','Daily taps',used+' / '+daily,daily?used/daily*100:100,free+' free taps remaining today · resets at 00:00 UTC')+
+    tapProgress('balance','Withdrawal balance',usd(available)+' / '+usd(min),min?available/min*100:100,available>=min?'Minimum withdrawal balance reached.':'You need '+usd(min-available)+' more.')+
+    tapProgress('invites','Verified invites',invites+' / '+required,required?invites/required*100:100,invites>=required?'Invite requirement completed.':'Invite '+(required-invites)+' more before withdrawing.')+
+    tapProgress('bonus','Bonus taps',bonus+' available',bonusRate?bonus/bonusRate*100:0,bonus+' extra taps available from verified referrals.')+
+   '</div></section>'+
+   '<div class="zc-tap-balance-grid">'+
+    '<section class="card panel zc-tap-balance-card"><small>TAP BALANCE</small><strong data-tap-balance="tap">'+usd(state.tap_balance)+'</strong><span>Separate reward balance</span></section>'+
+    '<section class="card panel zc-tap-balance-card"><small>AVAILABLE</small><strong data-tap-balance="available">'+usd(available)+'</strong><span>After pending requests</span></section>'+
+    '<section class="card panel zc-tap-balance-card"><small>TOTAL EARNED</small><strong data-tap-balance="earned">'+usd(state.total_earned)+'</strong><span>Lifetime rewards</span></section>'+
+   '</div>'+
    '<section class="card panel zc-tap-invite-panel"><div class="eyebrow">INVITE & EARN</div><h3>Share your referral link</h3><p class="muted">A new member who signs up through your referral link adds '+bonusRate+' bonus taps after the referral is linked.</p><div class="zc-tap-referral-row"><input id="zc-tap-referral-link" readonly value="'+esc(link)+'"><button class="btn primary" onclick="zcTapCopyReferral()">Copy link</button></div></section>'+
    '<section class="card panel zc-tap-withdraw-panel"><div class="eyebrow">TAP REWARDS PAYOUT</div><h3>Withdraw Tap Balance</h3><p class="muted">USDT payout. Minimum '+required+' verified invites and '+usd(min)+' Tap Balance. Requests are reviewed by an administrator.</p>'+
    '<form onsubmit="return zcTapEarnSubmitWithdrawal(event)"><div class="zc-tap-form-grid"><div class="field"><label>Amount (USD)</label><input id="zc-tap-withdraw-amount" type="number" min="'+min+'" max="'+Number(state.maximum_withdrawal_usd||10000000)+'" step="0.00000001" required></div><div class="field"><label>USDT network</label><select id="zc-tap-withdraw-network"><option>TRC20</option><option>BEP20</option><option>ERC20</option></select></div><div class="field zc-tap-address-field"><label>USDT wallet address</label><input id="zc-tap-withdraw-address" minlength="20" maxlength="150" required></div></div><p class="muted">'+(invites<required?'Invite requirement not met.':available<min?'Tap balance below minimum.':'You meet the requirements.')+'</p><button class="btn primary" id="zc-tap-withdraw-submit" type="submit" '+(invites<required||available<min?'disabled':'')+'>Request withdrawal</button></form></section>'+
    '<section class="card panel zc-tap-history-panel"><h3>Withdrawal history</h3>'+history(state.recent_withdrawals||[])+'</section>';
+  applyTapEarnUI();
  }catch(e){c.innerHTML='<section class="card panel"><h3>Tap To Earn is unavailable</h3><p class="muted">'+esc(e.message||'Please retry.')+'</p><button class="btn" onclick="zcOpenTapEarnPage()">Retry</button></section>'}
 }
 window.renderTapEarnPage=renderTapEarn;
 window.zcOpenTapEarnPage=async()=>{if(!currentUser||!currentUser.id){toast('Please sign in.',true);return}page='tap-earn';document.querySelectorAll('.side-nav button').forEach(b=>b.classList.toggle('active',b.dataset.page==='tap-earn'));if(typeof closeDrawer==='function')closeDrawer();if(typeof zcApplyDashboardStyle==='function')zcApplyDashboardStyle();await renderTapEarn()};
-window.zcTapEarnClick=async()=>{if(locked)return;locked=true;const b=$('zc-tap-hit-target');if(b){b.disabled=true;b.classList.add('is-tapping')}const l=$('zc-tap-cta-label');if(l)l.textContent='CONFIRMING TAP…';try{const r=await db.rpc('tap_earn_claim',{p_taps:1});if(r.error)throw r.error;toast('Tap confirmed: +'+usd(r.data.last_claim_reward||0));await renderTapEarn(r.data)}catch(e){toast(e.message||'Tap failed.',true);await renderTapEarn()}finally{locked=false}};
+async function flushTapQueue(){
+ if(tapInFlight)return;
+ tapInFlight=true;
+ while(tapQueue>0){
+  const batch=Math.min(10,tapQueue);
+  tapQueue-=batch;
+  try{
+   const r=await db.rpc('tap_earn_claim',{p_taps:batch});
+   if(r.error)throw r.error;
+   tapPending=Math.max(0,tapPending-batch);
+   tapPageState=r.data;
+   applyTapEarnUI();
+  }catch(e){
+   tapQueue=0;tapPending=0;
+   try{const fresh=await db.rpc('tap_earn_state');if(!fresh.error)tapPageState=fresh.data}catch(ignore){}
+   applyTapEarnUI();
+   toast(e.message||'Tap could not be confirmed. Please try again.',true);
+   break;
+  }
+ }
+ tapInFlight=false;
+ if(tapQueue>0)flushTapQueue();
+}
+window.zcTapEarnClick=(event)=>{
+ const state=tapPageState,b=$('zc-tap-hit-target');
+ if(!state||!b)return;
+ const free=Number(state.free_taps_remaining||0),bonus=Number(state.bonus_taps_available||0);
+ if(free+bonus-tapPending<=0){applyTapEarnUI();return}
+ tapPending++;tapQueue++;
+ const rect=b.getBoundingClientRect();
+ const x=event&&Number.isFinite(event.clientX)?Math.max(0,Math.min(rect.width,event.clientX-rect.left)):rect.width/2;
+ const y=event&&Number.isFinite(event.clientY)?Math.max(0,Math.min(rect.height,event.clientY-rect.top)):rect.height/2;
+ const ripple=document.createElement('span');ripple.className='zc-tap-ripple';ripple.style.left=x+'px';ripple.style.top=y+'px';b.appendChild(ripple);
+ window.setTimeout(()=>ripple.remove(),560);
+ const float=document.createElement('span');float.className='zc-tap-float-reward';float.textContent='+'+usd(state.reward_per_tap||.0003);float.style.left=x+'px';float.style.top=y+'px';b.appendChild(float);
+ window.setTimeout(()=>float.remove(),880);
+ b.classList.remove('is-tapping');void b.offsetWidth;b.classList.add('is-tapping');
+ window.setTimeout(()=>b.classList.remove('is-tapping'),220);
+ applyTapEarnUI();
+ if(!tapTimer)tapTimer=window.setTimeout(()=>{tapTimer=null;flushTapQueue()},140);
+ if(tapQueue>=10&&!tapInFlight){if(tapTimer){window.clearTimeout(tapTimer);tapTimer=null}flushTapQueue()}
+};
 window.zcTapCopyReferral=async()=>{const i=$('zc-tap-referral-link');if(!i||!i.value){toast('Referral link not available.',true);return}try{if(navigator.clipboard&&navigator.clipboard.writeText)await navigator.clipboard.writeText(i.value);else{i.select();if(!document.execCommand('copy'))throw Error('copy')}toast('Referral link copied.')}catch(e){i.select();toast('Long-press the selected link to copy it.',true)}};
 window.zcTapEarnSubmitWithdrawal=async e=>{if(e&&e.preventDefault)e.preventDefault();const amount=Number($('zc-tap-withdraw-amount').value),network=$('zc-tap-withdraw-network').value,address=$('zc-tap-withdraw-address').value.trim(),b=$('zc-tap-withdraw-submit');if(!amount||amount<=0){toast('Enter a valid amount.',true);return false}if(typeof zcValidateAddress==='function'&&!zcValidateAddress(network,address)){toast('Invalid '+network+' USDT address.',true);return false}b.disabled=true;b.textContent='Submitting…';try{const r=await db.rpc('tap_earn_request_withdrawal',{p_amount:amount,p_network:network,p_destination:address});if(r.error)throw r.error;toast('Tap withdrawal request submitted.');await renderTapEarn()}catch(x){toast(x.message||'Withdrawal request failed.',true);b.disabled=false;b.textContent='Request withdrawal'}return false};
 
