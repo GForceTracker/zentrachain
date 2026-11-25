@@ -1,0 +1,1 @@
+-- UUID audit entity references are corrected in the base Tap To Earn function definitions for fresh installs.
