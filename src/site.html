@@ -9038,6 +9038,7 @@ body[data-zc-theme] #app-content input.zc-calc-range::-moz-range-thumb{
  var channel=null;
  var audioContext=null;
  var previousBadge=window.updateAlertBadge;
+ var previousOpenAlerts=window.openAlerts;
  var previousRefresh=window.refreshData;
  var previousRealtime=window.startRealtimeAlerts;
  var previousTransactionAlert=window.showTransactionAlert;
@@ -9122,18 +9123,22 @@ body[data-zc-theme] #app-content input.zc-calc-range::-moz-range-thumb{
  window.refreshZcNotifications=refreshNotifications;
  window.updateAlertBadge=updateBadge;
  window.openAlerts=async function(){
-  await refreshNotifications(false);
-  var card=document.querySelector("#transaction-modal .transaction-card");
-  if(!card)return;
+  await refreshNotifications(true);
+  var card=document.querySelector("#transaction-modal .transaction-card");if(!card)return;
+  if(typeof previousOpenAlerts==="function"){try{previousOpenAlerts.apply(window,arguments)}catch(e){console.warn("Legacy notifications could not be rendered:",e)}}
+  var list=card.querySelector(".zc-notice-list");
   var unread=rows.filter(function(n){return !n.read_at});
   var icons={welcome:"✓",referral_joined:"＋",referred_by:"↗"};
-  card.innerHTML='<div class="zc-notice-head"><div><div class="eyebrow">ACCOUNT NOTIFICATIONS</div><h3>Notifications</h3></div><button class="x" aria-label="Close notifications" onclick="closeAlerts()">×</button></div><div class="zc-notice-list">'
-   +(rows.length?rows.map(function(n,i){return '<article class="zc-notice-item" style="animation-delay:'+Math.min(i*25,300)+'ms"><div class="zc-notice-icon">'+(icons[n.notification_type]||"•")+'</div><div class="zc-notice-copy"><b>'+escapeText(n.title||"Notification")+'</b><p>'+escapeText(n.message||"") + '</p><time>'+escapeText(formatWhen(n.created_at))+'</time></div></article>'}).join(""):'<div class="zc-notice-empty">You’re all caught up. Welcome and referral updates will appear here.</div>')
-   +'</div><button class="btn primary" style="width:100%;margin-top:12px" onclick="closeAlerts()">Done</button>';
+  var itemsHtml=rows.map(function(n,i){return '<article class="zc-notice-item" style="animation-delay:'+Math.min(i*25,300)+'ms"><div class="zc-notice-icon">'+(icons[n.notification_type]||"•")+'</div><div class="zc-notice-copy"><b>'+escapeText(n.title||"Notification")+'</b><p>'+escapeText(n.message||"") + '</p><time>'+escapeText(formatWhen(n.created_at))+'</time></div></article>'}).join("");
+  if(!list){
+   card.innerHTML='<div class="zc-notice-head"><div><div class="eyebrow">ACCOUNT NOTIFICATIONS</div><h3>Notifications</h3></div><button class="x" aria-label="Close notifications" onclick="closeAlerts()">×</button></div><div class="zc-notice-list"></div><button class="btn primary" style="width:100%;margin-top:12px" onclick="closeAlerts()">Done</button>';
+   list=card.querySelector(".zc-notice-list");
+  }
+  if(list&&itemsHtml)list.insertAdjacentHTML("afterbegin",itemsHtml);
   var modal=document.getElementById("transaction-modal");if(modal)modal.classList.remove("hidden");
   if(unread.length){
-   var ids=unread.map(function(n){return n.id});
-   try{var marked=await db.from("user_notifications").update({read_at:new Date().toISOString()}).eq("user_id",currentUser.id).in("id",ids);if(marked.error)throw marked.error;rows=rows.map(function(n){return ids.indexOf(n.id)>=0?Object.assign({},n,{read_at:new Date().toISOString()}):n})}catch(e){console.warn("Could not mark notifications read:",e&&e.message||e)}
+   var ids=unread.map(function(n){return n.id});var readAt=new Date().toISOString();
+   try{var marked=await db.from("user_notifications").update({read_at:readAt}).eq("user_id",currentUser.id).in("id",ids);if(marked.error)throw marked.error;rows=rows.map(function(n){return ids.indexOf(n.id)>=0?Object.assign({},n,{read_at:readAt}):n})}catch(e){console.warn("Could not mark notifications read:",e&&e.message||e)}
   }
   updateBadge();
  };
