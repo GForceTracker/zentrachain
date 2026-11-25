@@ -68,7 +68,7 @@ module.exports = (req, res) => {
   try {
     const html = applyBrandMetadata(applyVisitorPlanPatch(loadSiteHtml()), req);
     res.setHeader('Content-Type', 'text/html; charset=utf-8');
-    res.setHeader('Cache-Control', 'public, s-maxage=60, stale-while-revalidate=300');
+    res.setHeader('Cache-Control', 'no-cache, must-revalidate');
     res.setHeader('X-Content-Type-Options', 'nosniff');
     res.statusCode = 200;
     res.end(html);
