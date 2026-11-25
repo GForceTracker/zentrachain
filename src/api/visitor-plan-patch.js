@@ -20,58 +20,61 @@ const MARKER = 'zc-visitor-plan-flow-v2';
 const EARLY = '<script id="' + MARKER + '-early">window.__zcVisitorPlanSwipeSelectionV2=true;window.__zcVisitorPlanFlowV2Controller=true;window.__zcVisitorPlanScrollHighlightV11=true;window.__zcVisitorPlanScrollHighlightV10=true;</script>';
 
 const STYLE = `<style id="${MARKER}-css">
-
-#public-plan-cards>.gf-plan-compact-card{position:relative!important;isolation:isolate!important}
+/* Restore the visitor plan-card edge treatment from fa9c8c7. */
+#public-plan-cards>.gf-plan-compact-card,#dash-cards>.gf-plan-compact-card{
+ border:1px solid color-mix(in srgb,var(--green) 25%,transparent)!important;
+ background:linear-gradient(155deg,var(--panel2),var(--panel))!important;
+ transition:border-color .18s ease,box-shadow .18s ease,transform .18s ease!important;
+ cursor:pointer!important;position:relative!important;
+}
 html body #public-plan-cards>.gf-plan-compact-card.zc-plan-active-v3{
- z-index:12!important;border:2px solid color-mix(in srgb,var(--green) 92%,white)!important;
- outline:1px solid color-mix(in srgb,var(--mint) 72%,transparent)!important;outline-offset:2px!important;
- box-shadow:0 0 0 2px color-mix(in srgb,var(--green) 20%,transparent),
-  0 0 18px color-mix(in srgb,var(--green) 68%,transparent),
-  0 0 38px color-mix(in srgb,var(--green) 38%,transparent),
-  0 14px 34px rgba(0,0,0,.36),
-  inset 0 0 18px color-mix(in srgb,var(--green) 12%,transparent)!important;
- transform:translateY(-3px)!important;
+ z-index:2!important;border:2px solid var(--green)!important;
+ box-shadow:0 0 0 2px color-mix(in srgb,var(--green) 22%,transparent),
+  0 12px 28px color-mix(in srgb,var(--green) 20%,transparent),
+  inset 0 0 0 1px rgba(255,255,255,.045)!important;
+ transform:translateY(-2px)!important;
 }
-#public-plan-cards>.gf-plan-compact-card.zc-plan-active-v3::after{
- content:""!important;display:block!important;position:absolute!important;inset:0!important;
- z-index:30!important;pointer-events:none!important;border-radius:inherit!important;padding:3px!important;
- background:conic-gradient(from 0deg,transparent 0deg,transparent 225deg,
-  color-mix(in srgb,var(--green) 25%,transparent) 245deg,
-  var(--green) 270deg,var(--mint) 286deg,var(--green) 302deg,
-  color-mix(in srgb,var(--green) 20%,transparent) 325deg,transparent 350deg,transparent 360deg)!important;
- -webkit-mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0)!important;
- -webkit-mask-composite:xor!important;mask-composite:exclude!important;
- opacity:1!important;animation:zcPlanActiveEdgeSpinV3 2.1s linear infinite!important;
-}
-@keyframes zcPlanActiveEdgeSpinV3{to{transform:rotate(1turn)}}
+#public-plan-cards>.gf-plan-compact-card.zc-plan-active-v3::after{content:none!important;display:none!important}
 #public-plan-cards>.gf-plan-compact-card.zc-plan-active-v3 .gf-plan-select-button{
- background:linear-gradient(115deg,var(--green) 0%,var(--mint) 45%,var(--green) 100%)!important;
- background-size:240% 240%!important;border:1px solid var(--mint)!important;color:var(--bg)!important;
- box-shadow:0 0 0 2px color-mix(in srgb,var(--mint) 32%,transparent),
-  0 0 14px color-mix(in srgb,var(--green) 76%,transparent),
-  0 0 30px color-mix(in srgb,var(--green) 42%,transparent)!important;
- animation:zcPlanActiveButtonGlowV3 2.3s ease-in-out infinite!important;
-}
-@keyframes zcPlanActiveButtonGlowV3{
- 0%,100%{background-position:0% 50%;box-shadow:0 0 0 2px color-mix(in srgb,var(--mint) 25%,transparent),0 0 12px color-mix(in srgb,var(--green) 65%,transparent),0 0 24px color-mix(in srgb,var(--green) 30%,transparent)!important}
- 50%{background-position:100% 50%;box-shadow:0 0 0 3px color-mix(in srgb,var(--mint) 50%,transparent),0 0 20px color-mix(in srgb,var(--green) 95%,transparent),0 0 38px color-mix(in srgb,var(--green) 55%,transparent)!important}
+ background:linear-gradient(135deg,var(--green),var(--panel2))!important;
+ border:1px solid var(--green)!important;color:var(--bg)!important;
+ box-shadow:none!important;animation:none!important;
 }
 #public-plan-cards>.gf-plan-compact-card:not(.zc-plan-active-v3) .gf-plan-select-button{
  animation:none!important;filter:none!important;transform:none!important;
 }
-/* iPhone/Safari can paint a conic-mask runner as a diagonal streak over the card artwork.
-   Keep the theme-coloured active outline and button glow, but remove the rotating overlay
-   on touch devices so the artwork itself stays clean. */
-@media(hover:none),(pointer:coarse){
- #public-plan-cards>.gf-plan-compact-card.zc-plan-active-v3::after{
-  display:none!important;opacity:0!important;animation:none!important;
- }
+/* Keep the ZentraChain brand and both visitor account actions on one clean row. */
+html body .logo.zc-brand-mark{
+ display:grid!important;place-items:center!important;overflow:hidden!important;
+ background:linear-gradient(145deg,var(--panel2),var(--panel))!important;
+ border:1px solid color-mix(in srgb,var(--green) 55%,transparent)!important;
+ box-shadow:inset 0 1px 0 rgba(255,255,255,.14),0 3px 14px rgba(0,0,0,.28)!important;
+}
+html body .logo.zc-brand-mark svg{display:block!important;width:29px!important;height:29px!important}
+html body #public-account-actions{
+ display:flex!important;align-items:center!important;justify-content:flex-end!important;
+ gap:9px!important;flex:0 0 auto!important;min-width:max-content!important;white-space:nowrap!important;
+}
+html body #public-account-actions .btn{
+ display:inline-flex!important;align-items:center!important;justify-content:center!important;
+ white-space:nowrap!important;word-break:keep-all!important;flex:0 0 auto!important;
+ min-width:max-content!important;
+}
+html body #public-login-button,html body #public-signup-button{width:auto!important;min-width:max-content!important}
+html body #auth-submit,html body #auth-switch{white-space:nowrap!important;word-break:keep-all!important;flex-shrink:0!important;width:100%!important;min-width:0!important}
+html body .modal-head .brand{white-space:nowrap!important;min-width:0!important}
+@media(max-width:900px){
+ html body #public-account-actions{gap:6px!important}
+ html body #public-account-actions .btn{font-size:11px!important;padding:8px 10px!important}
+}
+@media(max-width:420px){
+ html body .topbar .btn.ghost{padding-left:12px!important;padding-right:12px!important}
+ html body #public-account-actions{gap:5px!important}
+ html body #public-account-actions .btn{padding-left:8px!important;padding-right:8px!important;font-size:10px!important}
 }
 @media(prefers-reduced-motion:reduce){
- #public-plan-cards>.gf-plan-compact-card.zc-plan-active-v3::after,
- #public-plan-cards>.gf-plan-compact-card.zc-plan-active-v3 .gf-plan-select-button{animation:none!important}
+ #public-plan-cards>.gf-plan-compact-card{transition:none!important}
 }
-
 </style>`;
 
 const SCRIPT = `<script id="${MARKER}-js">
