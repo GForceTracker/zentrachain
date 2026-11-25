@@ -49,20 +49,46 @@ Deno.serve(async (req: Request) => {
     const challengeId = String(body?.challenge_id ?? "");
     const nonce = String(body?.nonce ?? "");
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return response({ error: "Enter a valid email address." }, 400);
-    if (password.length < 12) return response({ error: "For account security, use a password with at least 12 characters." }, 400);
+    if (password.length < 8) return response({ error: "Password must be at least 8 characters." }, 400);
     if (!SUPABASE_URL || !SERVICE_KEY || !PUBLISHABLE_KEY) {
       return response({ error: "Account registration is not configured. Please try again later." }, 503);
     }
 
-    const chRes = await fetch(SUPABASE_URL + "/rest/v1/captcha_challenges?id=eq." + challengeId + "&select=id,salt,difficulty,used,created_at", { headers: { apikey: SERVICE_KEY, Authorization: `Bearer ${SERVICE_KEY}` } });
+    if (!/^[0-9a-f-]{36}$/i.test(challengeId)) return response({ error: "Please complete the CAPTCHA again." }, 400);
+
+    // captcha-verify marks image challenges as verified. Require that
+    // status, enforce the 10-minute expiry, and consume each challenge once.
+    const challengeUrl = new URL(SUPABASE_URL + "/rest/v1/captcha_challenges");
+    challengeUrl.searchParams.set("id", "eq." + challengeId);
+    challengeUrl.searchParams.set("select", "id,verified,used,created_at");
+    const chRes = await fetch(challengeUrl.toString(), {
+      headers: { apikey: SERVICE_KEY, Authorization: `Bearer ${SERVICE_KEY}` }
+    });
     const chRows = chRes.ok ? await chRes.json() : [];
     const ch = chRows[0];
-    if (!ch) return response({ error: "Captcha expired - tick the box again." }, 400);
-    if (ch.used) return response({ error: "Captcha already used - tick the box again." }, 400);
-    if (Date.now() - new Date(ch.created_at).getTime() > 600000) return response({ error: "Captcha expired - tick the box again." }, 400);
-    const hex = await sha256Hex(ch.salt + nonce);
-    if (!hex.startsWith("0".repeat(Number(ch.difficulty)))) return response({ error: "Captcha verification failed - tick the box again." }, 400);
-    await fetch(SUPABASE_URL + "/rest/v1/captcha_challenges?id=eq." + challengeId, { method: "DELETE", headers: { apikey: SERVICE_KEY, Authorization: `Bearer ${SERVICE_KEY}`, Prefer: "return=minimal" } });
+    if (!ch) return response({ error: "CAPTCHA expired. Please verify again." }, 400);
+    if (ch.used) return response({ error: "CAPTCHA already used. Please verify again." }, 400);
+    if (!ch.verified) return response({ error: "Please complete the CAPTCHA verification first." }, 400);
+    if (Date.now() - new Date(ch.created_at).getTime() > 600000) {
+      return response({ error: "CAPTCHA expired. Please verify again." }, 400);
+    }
+
+    const consumeUrl = new URL(SUPABASE_URL + "/rest/v1/captcha_challenges");
+    consumeUrl.searchParams.set("id", "eq." + challengeId);
+    consumeUrl.searchParams.set("verified", "eq.true");
+    consumeUrl.searchParams.set("used", "eq.false");
+    const consume = await fetch(consumeUrl.toString(), {
+      method: "PATCH",
+      headers: {
+        apikey: SERVICE_KEY,
+        Authorization: `Bearer ${SERVICE_KEY}`,
+        "Content-Type": "application/json",
+        Prefer: "return=representation"
+      },
+      body: JSON.stringify({ used: true })
+    });
+    const consumedRows = consume.ok ? await consume.json() : [];
+    if (!consumedRows.length) return response({ error: "CAPTCHA expired or already used. Please verify again." }, 400);
 
     // Use the public Auth signup endpoint so email ownership is verified before
     // the account can sign in.
