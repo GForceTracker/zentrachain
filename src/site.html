@@ -2009,7 +2009,7 @@ function zcDashboardWatchPanel(){
  return '<section class="market-panel zc-alt-market-watch"><div class="market-panel-head"><h3>Market watch</h3><span class="live-pill"><i></i><small class="muted">Public feed</small></span></div><div id="home-market-list" class="market-mini-list">'+marketRows()+'</div><button class="btn" type="button" style="width:100%;margin-top:14px" onclick="navigate(&quot;markets&quot;)">Explore markets →</button></section>';
 }
 function zcDashboardReferralPanel(){
- return '<section class="card panel zc-alt-referrals" id="zc-referral-card"><div class="app-hero-row"><div><div class="eyebrow">REFERRALS</div><h3 style="margin:5px 0">Invite friends</h3><p class="muted" style="margin:0">Share your personal link and track referral rewards.</p></div></div><div class="field" style="margin-top:12px"><label>Your referral link</label><div class="zc-alt-referral-link"><input id="zc-ref-link" readonly value=""><button class="btn" type="button" onclick="zcCopyReferral()">Copy</button></div></div><div class="stats zc-alt-referral-stats"><div class="card stat"><small>My referrals</small><strong id="zc-ref-count">0</strong></div><div class="card stat"><small>Rewards earned</small><strong id="zc-ref-earned">$0.00</strong></div></div><div id="zc-ref-list"><p class="muted">Loading invited members…</p></div></section>';
+ return '<section class="card panel zc-alt-referrals" id="zc-referral-card"><div class="app-hero-row"><div><div class="eyebrow">REFERRALS</div><h3 style="margin:5px 0">Invite friends</h3><p class="muted" style="margin:0">Share your personal link and track referral rewards.</p></div></div><div class="field" style="margin-top:12px"><label>Your referral link</label><div class="zc-alt-referral-link"><input id="zc-ref-link" readonly value=""><button class="btn" type="button" onclick="zcCopyReferral(this)">Copy</button></div></div><div class="stats zc-alt-referral-stats"><div class="card stat"><small>My referrals</small><strong id="zc-ref-count">0</strong></div><div class="card stat"><small>Rewards earned</small><strong id="zc-ref-earned">$0.00</strong></div></div></section>';
 }
 function zcDashboardRecentPanel(){
  return '<section class="card panel zc-alt-recent"><div class="app-hero-row"><div><div class="eyebrow">ACCOUNT ACTIVITY</div><h3 style="margin:5px 0">Recent transactions</h3></div><button class="btn" type="button" onclick="navigate(&quot;activity&quot;)">View all</button></div><div class="zc-recent-activity" id="zc-recent-activity"><div class="empty">Loading activity…</div></div></section>';
@@ -2355,9 +2355,9 @@ window.zcStartNetworkTick=function(){
  },4200);
 };
 
-function renderPage(){try{zcStartProfitTicker()}catch(e){}const c=$('app-content');const bal=balance();if(page==='overview'&&Number(zcDashboardStyle)!==1){return zcRenderAltDashboard(Number(zcDashboardStyle))}if(page==='overview'){c.innerHTML='<section class="app-hero"><div class="app-hero-row"><div><div class="eyebrow">PERSONAL ASSET SPACE</div><h1>Welcome back, '+esc(profile.full_name||currentUser.email.split('@')[0])+'</h1><p>Your account activity, balances and public crypto markets in one place. Market prices are informational and are not your personal trading performance.</p></div><div class="app-quick-actions"><button class="btn primary" onclick="navigate(\'deposits\')">＋ Deposit</button><button class="btn" onclick="navigate(\'withdrawals\')">↑ Withdraw</button></div></div></section><section class="card panel zc-dashboard-available-balance" style="display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;margin:0 0 14px"><div><small style="display:block;color:var(--muted);font-weight:800;letter-spacing:.08em">Available Funds</small><strong style="display:block;font-size:clamp(26px,4vw,34px);margin:7px 0">'+money(availableFundsUnlocked())+'</strong><span class="muted" style="font-size:12px">Ready to use or withdraw</span></div><span class="admin-tag">AVAILABLE</span></section><div class="app-stats zc-dashboard-support-stats"><div class="app-stat"><small>Deposit Balance</small><strong>'+money(uninvestedDepositTotal())+'</strong><span class="stat-foot">Not yet in a plan</span></div><div class="app-stat"><small>Investment Balance</small><strong>'+money(activeInvestTotal())+'</strong><span class="stat-foot">Locked in running plans</span></div><div class="app-stat"><small>Accrued profit</small><strong id="zc-profit-live">'+zcLiveProfitUsd(pendingPlanProfit())+'</strong><span class="stat-foot">Accrued plan profit</span></div><div class="app-stat"><small>Bonus Balance</small><strong>'+money(bonusTotal())+'</strong><span class="stat-foot">Referral rewards</span></div></div>'+(function(){const active=investmentRows().filter(x=>x.status==='active'&&!x.matured);return '<div id="zc-dashboard-active-plans" style="margin-bottom:14px">'+(active.length?active.map(invCardHTML).join(''):emptyPlanCardHTML())+'</div>'})()+'<section class="card panel" id="zc-referral-card"><div class="app-hero-row"><div><div class="eyebrow">REFERRALS</div><h3 style="margin:5px 0">Invite friends</h3><p class="muted" style="margin:0">Share your link. When an invited member\'s first deposit is credited, you earn a referral bonus percentage of it — added straight to your Bonus Balance.</p></div></div><div class="field" style="margin-top:12px"><label>Your referral link</label><div style="display:flex;gap:8px"><input id="zc-ref-link" readonly value="" style="flex:1"><button class="btn" type="button" onclick="zcCopyReferral()">Copy</button></div></div><div class="stats"><div class="card stat"><small>My referrals</small><strong id="zc-ref-count">0</strong></div><div class="card stat"><small>Rewards earned</small><strong id="zc-ref-earned">$0.00</strong></div></div><div id="zc-ref-list"><p class="muted">Loading invited members…</p></div></section><section class="card panel" style="margin-top:14px"><div class="app-hero-row"><div><div class="eyebrow">HISTORY</div><h3 style="margin:5px 0">Recent account activity</h3></div><button class="btn" onclick="navigate(\'activity\')">View all</button></div><div class="zc-recent-activity" id="zc-recent-activity"><div class="empty">Loading activity…</div></div></section>'+zcDashboardInsightsHTML()+'<div class="app-grid"><section class="market-panel"><div class="market-panel-head"><div><div class="eyebrow">LIVE PUBLIC MARKET DATA</div><h3 style="margin-top:5px">Market pulse</h3></div><select id="home-chart-select" class="market-chart-select" onchange="loadAssetChart(\'home-chart\',this.value)"><option value="BTCUSDT">Bitcoin · BTC</option><option value="ETHUSDT">Ethereum · ETH</option><option value="SOLUSDT">Solana · SOL</option><option value="BNBUSDT">BNB</option><option value="XRPUSDT">XRP</option><option value="ADAUSDT">Cardano · ADA</option></select></div><div id="home-chart" class="market-chart-box"><div class="muted">Loading market chart…</div></div><div class="muted" style="font-size:11px;margin-top:10px">Public exchange spot data · Not an execution statement or investment performance report.</div></section><section class="market-panel"><div class="market-panel-head"><h3>Market watch</h3><span class="live-pill"><i></i><small class="muted">Feed</small></span></div><div id="home-market-list" class="market-mini-list">'+marketRows()+'</div><button class="btn" style="width:100%;margin-top:14px" onclick="navigate(\'markets\')">Explore markets →</button></section></div><div class="app-grid" style="margin-top:16px"><section class="card panel"><h3>Recent account activity</h3>'+ledgerTable(ledger.slice(0,6))+'</section><section class="card panel"><h3>How your account works</h3><div class="flow-diagram"><div class="flow-node"><b>Deposit</b><small>Choose supported network</small></div><span class="flow-arrow">›</span><div class="flow-node"><b>Verify</b><small>On-chain confirmation</small></div><span class="flow-arrow">›</span><div class="flow-node"><b>Ledger</b><small>Recorded account entry</small></div></div><p class="muted" style="line-height:1.65;font-size:12px;margin-top:14px">Account Balances change only when a verified transaction is recorded in the ledger. Public market prices do not change your balance.</p></section></div>' ;loadAssetChart('home-chart',$('home-chart-select').value);loadReferralList();renderRecentActivity();return}
+function renderPage(){try{zcStartProfitTicker()}catch(e){}const c=$('app-content');const bal=balance();if(page==='overview'&&Number(zcDashboardStyle)!==1){return zcRenderAltDashboard(Number(zcDashboardStyle))}if(page==='overview'){c.innerHTML='<section class="app-hero"><div class="app-hero-row"><div><div class="eyebrow">PERSONAL ASSET SPACE</div><h1>Welcome back, '+esc(profile.full_name||currentUser.email.split('@')[0])+'</h1><p>Your account activity, balances and public crypto markets in one place. Market prices are informational and are not your personal trading performance.</p></div><div class="app-quick-actions"><button class="btn primary" onclick="navigate(\'deposits\')">＋ Deposit</button><button class="btn" onclick="navigate(\'withdrawals\')">↑ Withdraw</button></div></div></section><section class="card panel zc-dashboard-available-balance" style="display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;margin:0 0 14px"><div><small style="display:block;color:var(--muted);font-weight:800;letter-spacing:.08em">Available Funds</small><strong style="display:block;font-size:clamp(26px,4vw,34px);margin:7px 0">'+money(availableFundsUnlocked())+'</strong><span class="muted" style="font-size:12px">Ready to use or withdraw</span></div><span class="admin-tag">AVAILABLE</span></section><div class="app-stats zc-dashboard-support-stats"><div class="app-stat"><small>Deposit Balance</small><strong>'+money(uninvestedDepositTotal())+'</strong><span class="stat-foot">Not yet in a plan</span></div><div class="app-stat"><small>Investment Balance</small><strong>'+money(activeInvestTotal())+'</strong><span class="stat-foot">Locked in running plans</span></div><div class="app-stat"><small>Accrued profit</small><strong id="zc-profit-live">'+zcLiveProfitUsd(pendingPlanProfit())+'</strong><span class="stat-foot">Accrued plan profit</span></div><div class="app-stat"><small>Bonus Balance</small><strong>'+money(bonusTotal())+'</strong><span class="stat-foot">Referral rewards</span></div></div>'+(function(){const active=investmentRows().filter(x=>x.status==='active'&&!x.matured);return '<div id="zc-dashboard-active-plans" style="margin-bottom:14px">'+(active.length?active.map(invCardHTML).join(''):emptyPlanCardHTML())+'</div>'})()+'<section class="card panel" id="zc-referral-card"><div class="app-hero-row"><div><div class="eyebrow">REFERRALS</div><h3 style="margin:5px 0">Invite friends</h3><p class="muted" style="margin:0">Share your link. When an invited member\'s first deposit is credited, you earn a referral bonus percentage of it — added straight to your Bonus Balance.</p></div></div><div class="field" style="margin-top:12px"><label>Your referral link</label><div style="display:flex;gap:8px"><input id="zc-ref-link" readonly value="" style="flex:1"><button class="btn" type="button" onclick="zcCopyReferral()">Copy</button></div></div><div class="stats"><div class="card stat"><small>My referrals</small><strong id="zc-ref-count">0</strong></div><div class="card stat"><small>Rewards earned</small><strong id="zc-ref-earned">$0.00</strong></div></div></section><section class="card panel" style="margin-top:14px"><div class="app-hero-row"><div><div class="eyebrow">HISTORY</div><h3 style="margin:5px 0">Recent account activity</h3></div><button class="btn" onclick="navigate(\'activity\')">View all</button></div><div class="zc-recent-activity" id="zc-recent-activity"><div class="empty">Loading activity…</div></div></section>'+zcDashboardInsightsHTML()+'<div class="app-grid"><section class="market-panel"><div class="market-panel-head"><div><div class="eyebrow">LIVE PUBLIC MARKET DATA</div><h3 style="margin-top:5px">Market pulse</h3></div><select id="home-chart-select" class="market-chart-select" onchange="loadAssetChart(\'home-chart\',this.value)"><option value="BTCUSDT">Bitcoin · BTC</option><option value="ETHUSDT">Ethereum · ETH</option><option value="SOLUSDT">Solana · SOL</option><option value="BNBUSDT">BNB</option><option value="XRPUSDT">XRP</option><option value="ADAUSDT">Cardano · ADA</option></select></div><div id="home-chart" class="market-chart-box"><div class="muted">Loading market chart…</div></div><div class="muted" style="font-size:11px;margin-top:10px">Public exchange spot data · Not an execution statement or investment performance report.</div></section><section class="market-panel"><div class="market-panel-head"><h3>Market watch</h3><span class="live-pill"><i></i><small class="muted">Feed</small></span></div><div id="home-market-list" class="market-mini-list">'+marketRows()+'</div><button class="btn" style="width:100%;margin-top:14px" onclick="navigate(\'markets\')">Explore markets →</button></section></div><div class="app-grid" style="margin-top:16px"><section class="card panel"><h3>Recent account activity</h3>'+ledgerTable(ledger.slice(0,6))+'</section><section class="card panel"><h3>How your account works</h3><div class="flow-diagram"><div class="flow-node"><b>Deposit</b><small>Choose supported network</small></div><span class="flow-arrow">›</span><div class="flow-node"><b>Verify</b><small>On-chain confirmation</small></div><span class="flow-arrow">›</span><div class="flow-node"><b>Ledger</b><small>Recorded account entry</small></div></div><p class="muted" style="line-height:1.65;font-size:12px;margin-top:14px">Account Balances change only when a verified transaction is recorded in the ledger. Public market prices do not change your balance.</p></section></div>' ;loadAssetChart('home-chart',$('home-chart-select').value);loadReferralList();renderRecentActivity();return}
 if(page==='referrals'){
- c.innerHTML='<div class="page-title"><div><div class="eyebrow">INVITE &amp; EARN</div><h1>Referrals</h1><p class="muted">Share your personal referral link, track invited members and see the rewards earned.</p></div><button type="button" class="btn" onclick="navigate(\'overview\')">Back to Dashboard</button></div><section class="card panel" id="zc-referral-card"><div class="app-hero-row"><div><div class="eyebrow">REFERRALS</div><h3 style="margin:5px 0">Invite friends</h3><p class="muted" style="margin:0">Share your link. When an invited member\'s first deposit is credited, you earn a referral bonus percentage of it — added straight to your Bonus Balance.</p></div></div><div class="field" style="margin-top:12px"><label>Your referral link</label><div style="display:flex;gap:8px"><input id="zc-ref-link" readonly value="" style="flex:1"><button class="btn" type="button" onclick="zcCopyReferral()">Copy</button></div></div><div class="stats"><div class="card stat"><small>My referrals</small><strong id="zc-ref-count">0</strong></div><div class="card stat"><small>Rewards earned</small><strong id="zc-ref-earned">$0.00</strong></div></div><div id="zc-ref-list"><p class="muted">Loading invited members…</p></div></section>';
+ c.innerHTML='<div class="page-title"><div><div class="eyebrow">INVITE &amp; EARN</div><h1>Referrals</h1><p class="muted">Share your personal referral link, track invited members and see the rewards earned.</p></div><button type="button" class="btn" onclick="navigate(\'overview\')">Back to Dashboard</button></div><section class="card panel" id="zc-referral-card"><div class="app-hero-row"><div><div class="eyebrow">REFERRALS</div><h3 style="margin:5px 0">Invite friends</h3><p class="muted" style="margin:0">Share your link. When an invited member\'s first deposit is credited, you earn a referral bonus percentage of it — added straight to your Bonus Balance.</p></div></div><div class="field" style="margin-top:12px"><label>Your referral link</label><div style="display:flex;gap:8px"><input id="zc-ref-link" readonly value="" style="flex:1"><button class="btn" type="button" onclick="zcCopyReferral()">Copy</button></div></div><div class="stats"><div class="card stat"><small>My referrals</small><strong id="zc-ref-count">0</strong></div><div class="card stat"><small>Rewards earned</small><strong id="zc-ref-earned">$0.00</strong></div></div></section><section class="card panel zc-referral-members-card"><div class="app-hero-row"><div><div class="eyebrow">YOUR INVITES</div><h3 style="margin:5px 0">People who joined with your link</h3><p class="muted" style="margin:0">See each invited member’s name and joining time.</p></div></div><div id="zc-ref-list"><p class="muted">Loading invited members…</p></div></section>';
  loadReferralList();
  return;
 }
@@ -9183,6 +9183,232 @@ body[data-zc-theme] #app-content input.zc-calc-range::-moz-range-thumb{
     return '<tr><td><b>'+escapeText(name)+'</b>'+(p.email?'<small style="display:block;color:var(--muted)">'+escapeText(p.email)+'</small>':"") + '</td><td>'+escapeText(joined)+'</td><td>'+paid+'</td></tr>';
    }).join("");
    box.innerHTML='<div class="zc-referral-scroll"><table><thead><tr><th>Member</th><th>Join date &amp; time</th><th>Join bonus</th></tr></thead><tbody>'+tableRows+'</tbody></table></div>'+rewardNote;
+  }catch(error){console.error("Referral list could not be loaded:",error);if(box)box.innerHTML='<p class="muted">Could not load referrals. Please refresh and try again.</p>'}
+ };
+ var init=function(){updateBadge();if(currentUser&&currentUser.id)refreshNotifications(true)};
+ if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",init,{once:true});else init();
+})();
+</script>
+
+<style id="zc-referral-top-toast-v3">
+#zc-referral-toast-host{
+ position:fixed!important;
+ top:calc(env(safe-area-inset-top,0px) + 12px)!important;
+ left:50%!important;
+ right:auto!important;
+ bottom:auto!important;
+ transform:translateX(-50%)!important;
+ width:min(520px,calc(100vw - 24px))!important;
+ z-index:1000000!important;
+ display:grid!important;
+ gap:8px!important;
+ pointer-events:none!important;
+}
+.zc-referral-toast{
+ position:relative!important;
+ width:100%!important;
+ overflow:hidden!important;
+ display:flex!important;
+ align-items:flex-start!important;
+ gap:11px!important;
+ padding:14px 15px 17px!important;
+ border:1px solid var(--green,var(--line))!important;
+ border-radius:16px!important;
+ color:var(--text)!important;
+ background:linear-gradient(145deg,var(--panel2),var(--panel))!important;
+ box-shadow:0 16px 44px rgba(0,0,0,.34),0 0 0 1px color-mix(in srgb,var(--green) 15%,transparent)!important;
+ opacity:1;
+ transform:translateY(0);
+ transition:opacity .28s ease,transform .28s ease;
+ pointer-events:auto!important;
+}
+.zc-referral-toast.zc-is-hiding{opacity:0;transform:translateY(-14px) scale(.985)}
+.zc-referral-toast-icon{
+ flex:0 0 34px;width:34px;height:34px;border-radius:11px;
+ display:grid;place-items:center;font-size:16px;font-weight:900;
+ color:var(--mint);background:color-mix(in srgb,var(--mint) 14%,transparent);
+}
+.zc-referral-toast-copy{min-width:0;flex:1}
+.zc-referral-toast-copy b{display:block;font-size:13px;line-height:1.35;margin:1px 0 3px}
+.zc-referral-toast-copy p{font-size:12px;line-height:1.45;color:var(--muted);margin:0}
+.zc-referral-toast-close{
+ flex:0 0 26px;width:26px;height:26px;display:grid;place-items:center;
+ padding:0;border:0;border-radius:8px;background:transparent;
+ color:var(--muted);font-size:20px;cursor:pointer;
+}
+.zc-referral-toast-track{
+ position:absolute;left:0;right:0;bottom:0;height:3px;
+ background:color-mix(in srgb,var(--green) 18%,transparent);
+}
+.zc-referral-toast-bar{
+ display:block;width:100%;height:100%;background:var(--green,var(--mint));
+ transform-origin:left center;transform:scaleX(1);
+ animation:zcReferralToastDrain 5s linear forwards;
+}
+@keyframes zcReferralToastDrain{from{transform:scaleX(1)}to{transform:scaleX(0)}}
+.zc-referral-members-card{margin-top:14px!important}
+.zc-referral-scroll{
+ max-height:min(440px,60vh);overflow:auto;overscroll-behavior:contain;
+ border:1px solid var(--line);border-radius:13px;
+}
+.zc-referral-scroll table{margin:0;min-width:440px}
+.zc-referral-scroll thead th{position:sticky;top:0;z-index:2;background:var(--panel2)}
+.zc-referral-scroll tbody tr:last-child td{border-bottom:0}
+@media(max-width:560px){
+ #zc-referral-toast-host{width:calc(100vw - 20px)!important;top:calc(env(safe-area-inset-top,0px) + 8px)!important}
+ .zc-referral-toast{padding:12px 13px 16px!important}
+ .zc-referral-scroll{max-height:54vh}
+ .zc-referral-scroll table{min-width:400px}
+}
+@media(prefers-reduced-motion:reduce){
+ .zc-referral-toast,.zc-referral-toast-bar{transition:none!important;animation:none!important}
+}
+</style>
+
+<script id="zc-referral-notifications-v3">
+(function(){
+ if(window.__zcReferralNotificationsV3)return;
+ window.__zcReferralNotificationsV3=true;
+ var rows=[];
+ var seen=new Set();
+ var activeUid=null;
+ var channel=null;
+ var audioContext=null;
+ var toastTimer=null;
+ var toastHideTimer=null;
+ var previousBadge=window.updateAlertBadge;
+ var previousOpenAlerts=window.openAlerts;
+ var previousRefresh=window.refreshData;
+ var previousRealtime=window.startRealtimeAlerts;
+ var previousTransactionAlert=window.showTransactionAlert;
+ function unlockSound(){
+  try{var AudioCtor=window.AudioContext||window.webkitAudioContext;if(!AudioCtor)return;if(!audioContext)audioContext=new AudioCtor();if(audioContext.state==="suspended")audioContext.resume()}catch(e){}
+ }
+ function playSound(){
+  try{
+   unlockSound();if(!audioContext||audioContext.state!=="running")return;
+   var osc=audioContext.createOscillator(),gain=audioContext.createGain(),now=audioContext.currentTime;
+   osc.type="sine";osc.frequency.setValueAtTime(880,now);osc.frequency.setValueAtTime(1174.66,now+0.09);
+   gain.gain.setValueAtTime(0.0001,now);gain.gain.exponentialRampToValueAtTime(0.13,now+0.015);gain.gain.exponentialRampToValueAtTime(0.0001,now+0.25);
+   osc.connect(gain);gain.connect(audioContext.destination);osc.start(now);osc.stop(now+0.27);
+  }catch(e){}
+ }
+ document.addEventListener("pointerdown",unlockSound,{once:true,passive:true});
+ document.addEventListener("keydown",unlockSound,{once:true});
+ function escapeText(value){return typeof window.esc==="function"?window.esc(String(value==null?"":value)):String(value==null?"":value).replace(/[&<>"]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;"}[c]})}
+ function formatWhen(value){var d=new Date(value);return isNaN(d.getTime())?"—":d.toLocaleString(undefined,{year:"numeric",month:"short",day:"numeric",hour:"2-digit",minute:"2-digit"})}
+ function showTopReferralToast(item){
+  if(!item)return;
+  var host=document.getElementById("zc-referral-toast-host");
+  if(!host){host=document.createElement("div");host.id="zc-referral-toast-host";host.setAttribute("role","status");host.setAttribute("aria-live","polite");host.setAttribute("aria-atomic","true");document.body.appendChild(host)}
+  if(toastTimer)clearTimeout(toastTimer);if(toastHideTimer)clearTimeout(toastHideTimer);
+  host.replaceChildren();
+  var card=document.createElement("article");card.className="zc-referral-toast";
+  var icon=document.createElement("div");icon.className="zc-referral-toast-icon";
+  icon.textContent=item.notification_type==="referral_joined"?"+":item.notification_type==="referred_by"?"↗":"✓";
+  var copy=document.createElement("div");copy.className="zc-referral-toast-copy";
+  var title=document.createElement("b");title.textContent=String(item.title||"New notification");
+  var message=document.createElement("p");message.textContent=String(item.message||"You have a new account notification.");
+  copy.appendChild(title);copy.appendChild(message);
+  var close=document.createElement("button");close.type="button";close.className="zc-referral-toast-close";close.setAttribute("aria-label","Dismiss notification");close.textContent="×";
+  var track=document.createElement("div");track.className="zc-referral-toast-track";
+  var bar=document.createElement("span");bar.className="zc-referral-toast-bar";track.appendChild(bar);
+  function dismiss(){if(toastTimer)clearTimeout(toastTimer);if(toastHideTimer)clearTimeout(toastHideTimer);card.classList.add("zc-is-hiding");toastHideTimer=setTimeout(function(){if(card.parentNode===host)host.replaceChildren()},300)}
+  close.addEventListener("click",dismiss);
+  card.appendChild(icon);card.appendChild(copy);card.appendChild(close);card.appendChild(track);host.appendChild(card);
+  toastTimer=setTimeout(dismiss,5000);
+ }
+ function loadSeen(uid){activeUid=uid;seen=new Set();try{var data=JSON.parse(localStorage.getItem("zc-notification-seen-"+uid)||"[]");if(Array.isArray(data))data.forEach(function(id){seen.add(String(id))})}catch(e){}}
+ function rememberSeen(ids){(ids||[]).forEach(function(id){if(id)seen.add(String(id))});try{localStorage.setItem("zc-notification-seen-"+activeUid,JSON.stringify(Array.from(seen).slice(-250)))}catch(e){}}
+ function updateBadge(){
+  var el=document.getElementById("alert-count");if(!el)return;
+  var legacy=0;try{if(typeof previousBadge==="function")previousBadge();legacy=parseInt(String(el.textContent||"0").replace(/[^0-9]/g,""),10)||0}catch(e){}
+  var unread=rows.filter(function(n){return !n.read_at}).length,total=legacy+unread;
+  el.textContent=total>9?"9+":String(total);el.classList.toggle("hidden",total===0);
+ }
+ function announceFresh(fresh){
+  if(!fresh||!fresh.length)return;
+  playSound();
+  var priority={referral_joined:3,referred_by:3,welcome:2};
+  var latest=fresh.slice().sort(function(a,b){
+   var diff=(priority[b.notification_type]||1)-(priority[a.notification_type]||1);
+   return diff||new Date(b.created_at)-new Date(a.created_at);
+  })[0];
+  showTopReferralToast(latest);
+ }
+ async function refreshNotifications(announce){
+  var uid=currentUser&&currentUser.id;if(!uid||!db){rows=[];updateBadge();return []}
+  if(activeUid!==uid)loadSeen(uid);
+  try{
+   var result=await db.from("user_notifications").select("id,notification_type,title,message,metadata,reference_id,created_at,read_at").eq("user_id",uid).order("created_at",{ascending:false}).limit(100);
+   if(result.error)throw result.error;
+   var next=result.data||[],fresh=next.filter(function(n){return n.id&&!seen.has(String(n.id))});
+   rows=next;rememberSeen(fresh.map(function(n){return n.id}));if(announce!==false)announceFresh(fresh);updateBadge();return rows;
+  }catch(error){console.warn("ZentraChain notifications could not be refreshed:",error&&error.message||error);updateBadge();return rows}
+ }
+ function subscribeNotifications(){
+  var uid=currentUser&&currentUser.id;if(!uid||!db)return;
+  if(channel){try{db.removeChannel(channel)}catch(e){}channel=null}
+  channel=db.channel("zc-user-notifications-"+uid)
+   .on("postgres_changes",{event:"INSERT",schema:"public",table:"user_notifications",filter:"user_id=eq."+uid},function(payload){
+    var item=payload&&payload.new;if(!item||!item.id)return;
+    if(!rows.some(function(n){return n.id===item.id}))rows.unshift(item);
+    rows.sort(function(a,b){return new Date(b.created_at)-new Date(a.created_at)});
+    var fresh=!seen.has(String(item.id));rememberSeen([item.id]);
+    if(fresh){playSound();showTopReferralToast(item)}
+    if(item.notification_type==="referral_joined"&&typeof window.loadReferralList==="function")window.loadReferralList();
+    updateBadge();
+   })
+   .subscribe(function(status){if(status==="CHANNEL_ERROR"||status==="TIMED_OUT")console.warn("Notification live updates:",status)});
+ }
+ window.refreshZcNotifications=refreshNotifications;
+ window.updateAlertBadge=updateBadge;
+ window.openAlerts=async function(){
+  await refreshNotifications(true);
+  var card=document.querySelector("#transaction-modal .transaction-card");if(!card)return;
+  if(typeof previousOpenAlerts==="function"){try{previousOpenAlerts.apply(window,arguments)}catch(e){console.warn("Legacy notifications could not be rendered:",e)}}
+  var list=card.querySelector(".zc-notice-list"),unread=rows.filter(function(n){return !n.read_at});
+  var icons={welcome:"✓",referral_joined:"＋",referred_by:"↗"};
+  var itemsHtml=rows.map(function(n,i){return '<article class="zc-notice-item" style="animation-delay:'+Math.min(i*25,300)+'ms"><div class="zc-notice-icon">'+(icons[n.notification_type]||"•")+'</div><div class="zc-notice-copy"><b>'+escapeText(n.title||"Notification")+'</b><p>'+escapeText(n.message||"")+'</p><time>'+escapeText(formatWhen(n.created_at))+'</time></div></article>'}).join("");
+  if(!list){
+   card.innerHTML='<div class="zc-notice-head"><div><div class="eyebrow">ACCOUNT NOTIFICATIONS</div><h3>Notifications</h3></div><button class="x" aria-label="Close notifications" onclick="closeAlerts()">×</button></div><div class="zc-notice-list"></div><button class="btn primary" style="width:100%;margin-top:12px" onclick="closeAlerts()">Done</button>';
+   list=card.querySelector(".zc-notice-list");
+  }
+  if(list&&itemsHtml)list.insertAdjacentHTML("afterbegin",itemsHtml);
+  var modal=document.getElementById("transaction-modal");if(modal)modal.classList.remove("hidden");
+  if(unread.length){
+   var ids=unread.map(function(n){return n.id}),readAt=new Date().toISOString();
+   try{var marked=await db.from("user_notifications").update({read_at:readAt}).eq("user_id",currentUser.id).in("id",ids);if(marked.error)throw marked.error;rows=rows.map(function(n){return ids.indexOf(n.id)>=0?Object.assign({},n,{read_at:readAt}):n})}catch(e){console.warn("Could not mark notifications read:",e&&e.message||e)}
+  }
+  updateBadge();
+ };
+ window.showTransactionAlert=function(title,message){
+  playSound();if(typeof previousTransactionAlert==="function")return previousTransactionAlert.apply(window,arguments);
+  if(typeof window.toast==="function")window.toast(String(title||"Notification")+": "+String(message||""));updateBadge();
+ };
+ window.refreshData=async function(){var result;if(typeof previousRefresh==="function")result=await previousRefresh.apply(this,arguments);await refreshNotifications(true);return result};
+ window.startRealtimeAlerts=function(){if(typeof previousRealtime==="function")previousRealtime.apply(this,arguments);subscribeNotifications()};
+ window.loadReferralList=async function(){
+  var uid=currentUser&&currentUser.id;
+  var link=document.getElementById("zc-ref-link");if(link)link.value=typeof window.zcReferralLink==="function"?window.zcReferralLink():"";
+  var box=document.getElementById("zc-ref-list");
+  if(!uid||!db){if(box)box.innerHTML='<p class="muted">Sign in to view your invited members.</p>';return}
+  try{
+   var result=await db.from("referrals").select("id,referrer_id,referred_id,reward_paid,signup_paid,created_at").eq("referrer_id",uid).order("created_at",{ascending:false});
+   var inviteRows=result.error?(referrals||[]).filter(function(r){return r.referrer_id===uid}):(result.data||[]);
+   var names={};
+   try{var people=await db.rpc("get_my_referral_profiles");if(!people.error)(people.data||[]).forEach(function(p){names[p.id]={full_name:p.full_name,created_at:p.created_at}})}catch(e){console.warn("Referral name lookup unavailable:",e&&e.message||e)}
+   var count=document.getElementById("zc-ref-count");if(count)count.textContent=String(inviteRows.length);
+   var earned=(ledger||[]).filter(function(x){return x.entry_type==="bonus"&&(x.reference_type==="referral_reward"||x.reference_type==="referral_signup")}).reduce(function(s,x){return s+Number(x.amount||0)},0);
+   var earnedEl=document.getElementById("zc-ref-earned");if(earnedEl)earnedEl.textContent=typeof window.money==="function"?window.money(earned):"$"+earned.toFixed(2);
+   if(!box)return;
+   if(!inviteRows.length){box.innerHTML='<p class="muted">No invites yet. Share your link to grow your referral count.</p>';return}
+   var tableRows=inviteRows.map(function(r){
+    var p=names[r.referred_id]||{},name=p.full_name||"Member",joined=formatWhen(p.created_at||r.created_at);
+    var paid=(r.signup_paid||r.reward_paid)?'<span class="pill">Paid</span>':'<span class="pill pending">Pending</span>';
+    return '<tr><td><b>'+escapeText(name)+'</b></td><td>'+escapeText(joined)+'</td><td>'+paid+'</td></tr>';
+   }).join("");
+   box.innerHTML='<div class="zc-referral-scroll"><table><thead><tr><th>Member</th><th>Join date &amp; time</th><th>Join bonus</th></tr></thead><tbody>'+tableRows+'</tbody></table></div>';
   }catch(error){console.error("Referral list could not be loaded:",error);if(box)box.innerHTML='<p class="muted">Could not load referrals. Please refresh and try again.</p>'}
  };
  var init=function(){updateBadge();if(currentUser&&currentUser.id)refreshNotifications(true)};
