@@ -1741,7 +1741,16 @@ async function zcRefreshWithdrawalReview(){
 // Shared admin-role guard for administrator action handlers.
 function admin(){return typeof profile!=='undefined'&&profile?.role==='admin'}
 function showAuth(mode){authMode=mode;$('auth-modal').classList.remove('hidden');$('auth-form').classList.remove('hidden');$('auth-message').classList.add('hidden');renderAuthMode()}
-function hideAuth(){$('auth-modal').classList.add('hidden');$('auth-form').classList.remove('hidden');}
+function hideAuth(){
+ const modal=$('auth-modal');
+ const active=document.activeElement;
+ if(modal&&active&&modal.contains(active)&&typeof active.blur==='function'){
+  try{active.blur()}catch(error){}
+ }
+ if(modal)modal.classList.add('hidden');
+ $('auth-form')?.classList.remove('hidden');
+ if(typeof window.zcScheduleDashboardViewportReset==='function')window.zcScheduleDashboardViewportReset();
+}
 function renderAuthMode(){
  const isSignup=authMode==='signup';
  $('auth-title').textContent=isSignup?'Create your account':'Welcome back';
@@ -13555,61 +13564,149 @@ body[data-zc-theme] #app-content .deposit-form-card.zc-deposit-original-card #zc
 }
 </style>
 
-<script id="zc-dashboard-viewport-reset-v1">
+<script id="zc-dashboard-viewport-reset-v2">
 (function(){
  'use strict';
- if(window.__zcDashboardViewportResetV1)return;
- window.__zcDashboardViewportResetV1=true;
- let generation=0;
- let timers=[];
- function resetViewport(id){
-  if(id!==generation)return;
+ if(window.__zcDashboardViewportResetV2)return;
+ window.__zcDashboardViewportResetV2=true;
+ let generation=0,armed=false,timers=[],observer=null,touchStart=null;
+ function appIsVisible(){
   const app=document.getElementById('application');
-  if(!app||app.classList.contains('hidden'))return;
+  return !!app&&!app.classList.contains('hidden');
+ }
+ function scrollTargets(){
+  const app=document.getElementById('application');
+  const targets=new Set([document.scrollingElement,document.documentElement,document.body,app].filter(Boolean));
+  const bar=app&&app.querySelector('.appbar');
+  for(let node=bar;node;node=node.parentElement){
+   if(node===document.body||node===document.documentElement){targets.add(node);continue}
+   let style;
+   try{style=window.getComputedStyle(node)}catch(error){}
+   if(node===app||node.classList?.contains('main')||node.classList?.contains('content')||
+      (style&&/(auto|scroll|overlay)/.test(style.overflowY)))targets.add(node);
+  }
+  return targets;
+ }
+ function atTop(id){
+  if(!armed||id!==generation||!appIsVisible())return;
   try{
-   window.scrollTo(0,0);
-   if(document.scrollingElement)document.scrollingElement.scrollTop=0;
-   document.documentElement.scrollTop=0;
-   document.body.scrollTop=0;
+   const root=document.scrollingElement||document.documentElement||document.body;
+   if(root&&root.scrollTop)root.scrollTop=0;
+   if(document.documentElement)document.documentElement.scrollTop=0;
+   if(document.body)document.body.scrollTop=0;
+   for(const node of scrollTargets()){
+    if(node&&node!==window&&node.scrollTop)node.scrollTop=0;
+   }
+   if(window.scrollY>0)window.scrollTo(0,0);
   }catch(error){}
  }
- function scheduleReset(){
-  const id=++generation;
-  timers.forEach(clearTimeout);
-  timers=[];
-  resetViewport(id);
-  if(typeof window.requestAnimationFrame==='function'){
-   window.requestAnimationFrame(()=>resetViewport(id));
-   window.requestAnimationFrame(()=>window.requestAnimationFrame(()=>resetViewport(id)));
+ function stopGuard(){
+  if(!armed)return;
+  armed=false;
+  timers.forEach(clearTimeout);timers=[];
+  if(observer){observer.disconnect();observer=null}
+ }
+ function onUserVerticalScroll(){
+  stopGuard();
+ }
+ document.addEventListener('touchstart',function(event){
+  const touch=event.touches&&event.touches[0];
+  touchStart=touch?{x:touch.clientX,y:touch.clientY}:null;
+ },{passive:true,capture:true});
+ document.addEventListener('touchmove',function(event){
+  if(!armed||!touchStart)return;
+  const touch=event.touches&&event.touches[0];
+  if(!touch)return;
+  const dx=Math.abs(touch.clientX-touchStart.x);
+  const dy=Math.abs(touch.clientY-touchStart.y);
+  if(dy>8&&dy>dx*1.15)onUserVerticalScroll();
+ },{passive:true,capture:true});
+ document.addEventListener('touchend',function(){touchStart=null},{passive:true,capture:true});
+ document.addEventListener('touchcancel',function(){touchStart=null},{passive:true,capture:true});
+ window.addEventListener('wheel',function(event){if(armed&&Math.abs(event.deltaY)>1)onUserVerticalScroll()},{passive:true,capture:true});
+ document.addEventListener('keydown',function(event){
+  if(!armed)return;
+  const target=event.target;
+  if(target&&(/INPUT|TEXTAREA|SELECT/.test(target.tagName)||target.isContentEditable))return;
+  if(['ArrowDown','ArrowUp','PageDown','PageUp','Home','End',' '].includes(event.key))onUserVerticalScroll();
+ },true);
+ function onScroll(){
+  if(!armed||!appIsVisible())return;
+  const root=document.scrollingElement||document.documentElement;
+  const nested=Array.from(scrollTargets()).some(node=>node&&node!==window&&node.scrollTop>1);
+  if((root&&root.scrollTop>1)||window.scrollY>1||nested){
+   const id=generation;
+   if(window.requestAnimationFrame)window.requestAnimationFrame(()=>atTop(id));else atTop(id);
   }
-  [80,260,2050].forEach(delay=>timers.push(setTimeout(()=>resetViewport(id),delay)));
  }
- const originalNavigate=window.navigate;
- if(typeof originalNavigate==='function'){
-  window.navigate=function(destination){
-   const result=originalNavigate.apply(this,arguments);
+ window.addEventListener('scroll',onScroll,{passive:true,capture:true});
+ document.addEventListener('scroll',onScroll,{passive:true,capture:true});
+ window.addEventListener('resize',function(){if(armed)atTop(generation)},{passive:true});
+ window.visualViewport?.addEventListener('resize',function(){if(armed)atTop(generation)},{passive:true});
+ function scheduleReset(){
+  if(!appIsVisible())return;
+  const id=++generation;
+  armed=true;
+  timers.forEach(clearTimeout);timers=[];
+  if(observer){observer.disconnect();observer=null}
+  try{if('scrollRestoration'in history)history.scrollRestoration='manual'}catch(error){}
+  atTop(id);
+  if(window.requestAnimationFrame){
+   window.requestAnimationFrame(()=>atTop(id));
+   window.requestAnimationFrame(()=>window.requestAnimationFrame(()=>atTop(id)));
+  }
+  [60,160,350,700,1200,2200,3500,5000,6500].forEach(delay=>{
+   timers.push(setTimeout(()=>atTop(id),delay));
+  });
+  const content=document.getElementById('app-content');
+  if(content&&window.MutationObserver){
+   observer=new MutationObserver(()=>{
+    if(!armed||id!==generation)return;
+    if(window.requestAnimationFrame)window.requestAnimationFrame(()=>atTop(id));else atTop(id);
+   });
+   observer.observe(content,{childList:true,subtree:true});
+  }
+  timers.push(setTimeout(()=>{if(id===generation)stopGuard()},7000));
+ }
+ window.zcScheduleDashboardViewportReset=scheduleReset;
+ const oldHideAuth=window.hideAuth;
+ if(typeof oldHideAuth==='function'){
+  window.hideAuth=function(){
+   const modal=document.getElementById('auth-modal');
+   const active=document.activeElement;
+   if(modal&&active&&modal.contains(active)&&typeof active.blur==='function'){
+    try{active.blur()}catch(error){}
+   }
+   const result=oldHideAuth.apply(this,arguments);
    scheduleReset();
    return result;
   };
  }
- const originalShowApp=window.showApp;
- if(typeof originalShowApp==='function'){
+ const oldNavigate=window.navigate;
+ if(typeof oldNavigate==='function'){
+  window.navigate=function(){
+   const result=oldNavigate.apply(this,arguments);
+   scheduleReset();
+   return result;
+  };
+ }
+ const oldShowApp=window.showApp;
+ if(typeof oldShowApp==='function'){
   window.showApp=function(){
-   const result=originalShowApp.apply(this,arguments);
+   const result=oldShowApp.apply(this,arguments);
    scheduleReset();
    return result;
   };
  }
- const originalGoDashboard=window.zcGoDashboard;
- if(typeof originalGoDashboard==='function'){
+ const oldGoDashboard=window.zcGoDashboard;
+ if(typeof oldGoDashboard==='function'){
   window.zcGoDashboard=function(){
-   const result=originalGoDashboard.apply(this,arguments);
+   const result=oldGoDashboard.apply(this,arguments);
    scheduleReset();
    return result;
   };
  }
- window.addEventListener('popstate',function(){
-  scheduleReset();
- });
+ window.addEventListener('popstate',scheduleReset);
+ window.addEventListener('pageshow',function(event){if(event.persisted)scheduleReset()});
 })();
 </script>
