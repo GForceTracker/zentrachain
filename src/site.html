@@ -4842,7 +4842,7 @@ body[data-zc-theme] #app-content #wd-network-cards::-webkit-scrollbar-thumb{back
   }else{
    art='<div class="gf-plan-artwork zc-plan-photo" role="img" aria-label="'+planName+' plan artwork"></div>';
   }
-  return '<article class="plan-card gf-plan-compact-card" data-gf-plan-id="'+id+'" role="button" tabindex="0" aria-label="Select '+planName+'" onclick="gfChoose(&quot;'+s+'&quot;,&quot;'+id+'&quot;)" onkeydown="if(event.keyCode===13||event.keyCode===32){event.preventDefault();gfChoose(&quot;'+s+'&quot;,&quot;'+id+'&quot;)}">'+art+'<div class="gf-plan-card-heading"><div class="gf-plan-card-title"><div class="eyebrow">'+planName+'</div>'+(cleanPlanCopy(p.tagline,'')?'<p class="muted">'+escapeValue(cleanPlanCopy(p.tagline,''))+'</p>':'')+badge+'</div>'+(s==='pub'?'':'<div class="gf-plan-days-circle" aria-label="Duration '+duration+'"><b>'+escapeValue(p.duration_value)+'</b><i>'+escapeValue(p.duration_unit)+'</i></div>')+'</div><p class="muted gf-plan-description">'+escapeValue(cleanPlanCopy(p.description,'Plan details are shown below.'))+'</p><div class="gf-plan-details"><div class="gf-plan-detail-line"><i data-lucide="arrow-down-to-line" aria-hidden="true"></i><span>Min deposit: <b>'+money(p.min_amount)+'</b></span></div><div class="gf-plan-detail-line"><i data-lucide="arrow-up-from-line" aria-hidden="true"></i><span>Max deposit: <b>'+money(p.max_amount)+'</b></span></div><div class="gf-plan-detail-line"><i data-lucide="percent" aria-hidden="true"></i><span>Plan percentage: <b>'+fmt(p.percentage)+'%</b></span></div></div>'+(s==='pub'?'<div class="muted gf-plan-duration" style="margin:5px 11px 0">'+duration+'</div>':'')+(s==='pub'?'<button type="button" class="btn gf-plan-select-button" onclick="event.stopPropagation();gfChoose(&quot;'+s+'&quot;,&quot;'+id+'&quot;)">Choose plan</button>':'<button type="button" class="btn primary zc-buy-open" onclick="event.stopPropagation();zcToggleCardBuy(this)">Buy now</button><div class="zc-card-buy" hidden onclick="event.stopPropagation()"><select class="zc-buy-source" aria-label="Payment Balance"><option value="available">Available Funds</option><option value="deposit">Deposit Balance</option></select><input class="zc-buy-amount" type="number" inputmode="decimal" min="'+p.min_amount+'" max="'+p.max_amount+'" step="0.01" placeholder="Amount (USD)"><small class="zc-buy-limit">Allowed amount: '+money(p.min_amount)+' – '+money(p.max_amount)+'</small><button type="button" class="btn primary zc-buy-confirm" onclick="event.stopPropagation();zcConfirmCardBuy(this)">Confirm</button><div class="zc-buy-err hidden" role="alert"><span class="zc-buy-msg"></span><button type="button" class="btn primary zc-buy-deposit" style="display:none" onclick="event.stopPropagation();zcStartPlanDeposit(this)">Deposit</button></div></div>')+'</article>';
+  return '<article class="plan-card gf-plan-compact-card" data-gf-plan-id="'+id+'" role="button" tabindex="0" aria-label="Select '+planName+'" onclick="gfChoose(&quot;'+s+'&quot;,&quot;'+id+'&quot;)" onkeydown="if(event.keyCode===13||event.keyCode===32){event.preventDefault();gfChoose(&quot;'+s+'&quot;,&quot;'+id+'&quot;)}">'+art+'<div class="gf-plan-card-heading"><div class="gf-plan-card-title"><div class="eyebrow">'+planName+'</div>'+(cleanPlanCopy(p.tagline,'')?'<p class="muted">'+escapeValue(cleanPlanCopy(p.tagline,''))+'</p>':'')+badge+'</div>'+'<div class="gf-plan-days-circle" aria-label="Duration '+duration+'"><b>'+escapeValue(p.duration_value)+'</b><i>'+escapeValue(p.duration_unit)+'</i></div>'+'</div><p class="muted gf-plan-description">'+escapeValue(cleanPlanCopy(p.description,'Plan details are shown below.'))+'</p><div class="gf-plan-details"><div class="gf-plan-detail-line"><i data-lucide="arrow-down-to-line" aria-hidden="true"></i><span>Min deposit: <b>'+money(p.min_amount)+'</b></span></div><div class="gf-plan-detail-line"><i data-lucide="arrow-up-from-line" aria-hidden="true"></i><span>Max deposit: <b>'+money(p.max_amount)+'</b></span></div><div class="gf-plan-detail-line"><i data-lucide="percent" aria-hidden="true"></i><span>Plan percentage: <b>'+fmt(p.percentage)+'%</b></span></div></div>'+(s==='pub'?'<div class="muted gf-plan-duration" style="margin:5px 11px 0">'+duration+'</div>':'')+(s==='pub'?'<button type="button" class="btn gf-plan-select-button" onclick="event.stopPropagation();gfChoose(&quot;'+s+'&quot;,&quot;'+id+'&quot;)">Choose plan</button>':'<button type="button" class="btn primary zc-buy-open" onclick="event.stopPropagation();zcToggleCardBuy(this)">Buy now</button><div class="zc-card-buy" hidden onclick="event.stopPropagation()"><select class="zc-buy-source" aria-label="Payment Balance"><option value="available">Available Funds</option><option value="deposit">Deposit Balance</option></select><input class="zc-buy-amount" type="number" inputmode="decimal" min="'+p.min_amount+'" max="'+p.max_amount+'" step="0.01" placeholder="Amount (USD)"><small class="zc-buy-limit">Allowed amount: '+money(p.min_amount)+' – '+money(p.max_amount)+'</small><button type="button" class="btn primary zc-buy-confirm" onclick="event.stopPropagation();zcConfirmCardBuy(this)">Confirm</button><div class="zc-buy-err hidden" role="alert"><span class="zc-buy-msg"></span><button type="button" class="btn primary zc-buy-deposit" style="display:none" onclick="event.stopPropagation();zcStartPlanDeposit(this)">Deposit</button></div></div>')+'</article>';
  };
  window.gfLogoPublicUrl=logoUrl;
  window.gfAdminPanel=function(rows){
@@ -11831,6 +11831,53 @@ box-sizing:border-box!important;display:inline-flex!important;align-items:center
 }
 @media(prefers-reduced-motion:reduce){
  #dash-cards .gf-plan-days-circle,#dash-cards .gf-plan-days-circle::before{animation:none!important}
+}
+
+/* Public visitor plan cards: keep the title content intact and add the same themed duration ring on its right. */
+#public-plan-cards .gf-plan-card-heading{
+ display:flex!important;align-items:flex-start!important;justify-content:space-between!important;
+ gap:12px!important;min-width:0!important;
+}
+#public-plan-cards .gf-plan-card-title{flex:1 1 auto!important;min-width:0!important}
+#public-plan-cards .gf-plan-days-circle{
+ display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:center!important;
+ position:relative!important;isolation:isolate!important;overflow:visible!important;z-index:2!important;
+ width:46px!important;height:46px!important;flex:0 0 46px!important;margin:0!important;
+ border:1px solid color-mix(in srgb,var(--green,#20c783) 48%,var(--line,#28513c))!important;
+ border-radius:50%!important;
+ background:radial-gradient(circle at 30% 22%,
+  color-mix(in srgb,var(--mint,#9be8c5) 20%,transparent),
+  color-mix(in srgb,var(--green,#20c783) 20%,var(--panel2,#10291d)) 68%,
+  color-mix(in srgb,var(--panel,#081b13) 72%,var(--bg,#06140f)))!important;
+ box-shadow:0 0 0 3px color-mix(in srgb,var(--green,#20c783) 8%,transparent),
+  0 0 12px color-mix(in srgb,var(--green,#20c783) 22%,transparent),
+  inset 0 1px 0 color-mix(in srgb,var(--text,#effaf4) 12%,transparent)!important;
+ text-align:center!important;animation:zcPlanDaysHaloPulseV1 2.8s ease-in-out infinite!important;
+}
+#public-plan-cards .gf-plan-days-circle::before{
+ content:""!important;position:absolute!important;inset:-4px!important;z-index:0!important;
+ border-radius:50%!important;pointer-events:none!important;
+ background:conic-gradient(from 0deg,transparent 0deg 250deg,
+  color-mix(in srgb,var(--mint,#9be8c5) 48%,transparent) 278deg,
+  var(--mint,#9be8c5) 310deg,var(--green,#20c783) 338deg,transparent 360deg)!important;
+ -webkit-mask:radial-gradient(farthest-side,transparent calc(100% - 3px),#000 calc(100% - 2px))!important;
+ mask:radial-gradient(farthest-side,transparent calc(100% - 3px),#000 calc(100% - 2px))!important;
+ filter:drop-shadow(0 0 3px var(--green,#20c783))!important;
+ animation:zcPlanDaysRingRunV1 2.4s linear infinite!important;
+}
+#public-plan-cards .gf-plan-days-circle b{
+ position:relative!important;z-index:1!important;font-size:14px!important;
+ font-weight:850!important;line-height:1!important;color:var(--mint,#9be8c5)!important;
+ text-shadow:0 0 8px color-mix(in srgb,var(--mint,#9be8c5) 32%,transparent)!important;
+}
+#public-plan-cards .gf-plan-days-circle i{
+ position:relative!important;z-index:1!important;font-style:normal!important;
+ font-size:6.5px!important;font-weight:800!important;letter-spacing:.7px!important;
+ text-transform:uppercase!important;color:var(--mint,#9be8c5)!important;
+ margin-top:2px!important;opacity:.9!important;
+}
+@media(prefers-reduced-motion:reduce){
+ #public-plan-cards .gf-plan-days-circle,#public-plan-cards .gf-plan-days-circle::before{animation:none!important}
 }
 #dash-cards .gf-plan-card-title p{display:-webkit-box!important;-webkit-line-clamp:2!important;-webkit-box-orient:vertical!important;overflow:hidden!important}
 #dash-cards .gf-plan-duration{display:none!important}
