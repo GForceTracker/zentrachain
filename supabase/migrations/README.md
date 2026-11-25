@@ -12,6 +12,9 @@ Security hardening added on 2026-11-25 includes:
 - Removing direct member INSERT access to `user_investments` and `referrals`.
 - Restricting the `anon` role to SELECT-only access on explicitly public tables.
 - Removing default anonymous privileges from future public-schema tables.
+- Revoking the obsolete plan-purchase RPC from client roles.
+- Adding restrictive RLS policies that deny anonymous storage uploads,
+  updates, and deletes while preserving public reads for public buckets.
 
 Secrets and environment variables are intentionally excluded. Configure those
 separately in Supabase Edge Function secrets or protected Vercel environment

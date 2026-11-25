@@ -1,10 +1,19 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 const corsFor = (origin: string | null) => {
-  const ok = origin === "https://g-force-auto-trading-bot.vercel.app" ||
-    (!!origin && /^https:\/\/g-force-auto-trading-[a-z0-9-]+\.vercel\.app$/.test(origin));
-  return { "Access-Control-Allow-Origin": ok && origin ? origin : "https://g-force-auto-trading-bot.vercel.app",
+  const allowedStableOrigins = new Set([
+    "https://g-force-auto-trading-bot.vercel.app",
+    "https://zentrachain.vercel.app",
+    "https://zentrachain-git-main-inemesitobot428-gmailcoms-projects.vercel.app",
+  ]);
+  const isAllowedPreview = !!origin &&
+    /^https:\/\/g-force-auto-trading-[a-z0-9-]+\.vercel\.app$/.test(origin);
+  const ok = !!origin && (allowedStableOrigins.has(origin) || isAllowedPreview);
+  return {
+    "Access-Control-Allow-Origin": ok && origin ? origin : "https://zentrachain.vercel.app",
     "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
-    "Access-Control-Allow-Methods": "GET, POST, OPTIONS", "Vary": "Origin" };
+    "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+    "Vary": "Origin",
+  };
 };
 const reply = (body: unknown, status = 200, origin: string | null = null) =>
   new Response(JSON.stringify(body), { status, headers: { ...corsFor(origin), "Content-Type": "application/json" } });
@@ -44,7 +53,16 @@ Deno.serve(async (req: Request) => {
     const auth = await fetch(url + "/auth/v1/user", { headers: { apikey: serviceKey, Authorization: "Bearer " + token } });
     if (!auth.ok) return reply({ error: "Unauthorized" }, 401, origin);
     const user = await auth.json();
-    if ((user.email || "").toLowerCase() !== "inemesitobot428@gmail.com") return reply({ error: "Forbidden" }, 403, origin);
+    if (!user?.id) return reply({ error: "Unauthorized" }, 401, origin);
+    const profileRes = await fetch(
+      url + "/rest/v1/profiles?id=eq." + encodeURIComponent(String(user.id)) + "&select=role&limit=1",
+      { headers: { apikey: serviceKey, Authorization: "Bearer " + serviceKey } }
+    );
+    if (!profileRes.ok) return reply({ error: "Could not verify administrator access" }, 503, origin);
+    const profiles = await profileRes.json();
+    if (!Array.isArray(profiles) || profiles[0]?.role !== "admin") {
+      return reply({ error: "Administrator access required" }, 403, origin);
+    }
     const range = new URL(req.url).searchParams.get("range") || "7d";
     const days = range === "30d" ? 30 : range === "today" ? 1 : 7;
     const since = new Date(Date.now() - days * 86400000).toISOString();
