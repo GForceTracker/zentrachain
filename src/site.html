@@ -3172,7 +3172,8 @@ const zcThemeChoices=[
  {id:'arctic',name:'Arctic Glow',dot:'linear-gradient(135deg,#102438 0%,#36bce0 48%,#c9f6ff 100%)'},
  {id:'ember',name:'Royal Ember',dot:'linear-gradient(135deg,#17131d 0%,#9f344c 48%,#f1bd74 100%)'},
  {id:'amethyst',name:'Amethyst Noir',dot:'linear-gradient(135deg,#14101f 0%,#7845b7 50%,#ef79be 100%)'},
- {id:'oceanfire',name:'Ocean Sunset',dot:'linear-gradient(135deg,#0b1d2a 0%,#1cb8b1 45%,#e4a25a 100%)'}
+ {id:'oceanfire',name:'Ocean Sunset',dot:'linear-gradient(135deg,#0b1d2a 0%,#1cb8b1 45%,#e4a25a 100%)'},
+ {id:'metallic',name:'Metallic Alloy',dot:'linear-gradient(120deg,#aeb7c0 0%,#537a99 34%,#8a949e 67%,#e2e6e9 100%)'}
 ];
 function zcApplyTheme(id){
  const t=zcThemeChoices.some(x=>x.id===id)?id:'blue';
@@ -13382,3 +13383,56 @@ body[data-zc-theme] #application #app-content .zc-mobile-bitcoin-emblem .zc-bitc
 @media(max-width:560px){#app-content .zc-tap-page-title{align-items:flex-start;flex-direction:column}#app-content .zc-tap-logo-circle{width:158px;height:158px}#app-content .zc-tap-logo-glyph{font-size:88px}#app-content .zc-tap-form-grid{grid-template-columns:1fr}#app-content .zc-tap-address-field{grid-column:auto}}
 </style>
 <script id="zc-tap-earn-loader" src="js/tap-earn.js"></script>
+
+<style id="zc-metallic-alloy-theme-v1">
+/* Metallic Alloy: metallic blue + silver-grey with a restrained ash finish. */
+body[data-zc-theme="metallic"] {
+  --bg:#0a121b;
+  --panel:#17232f;
+  --panel2:#2b3e50;
+  --line:#697b8b;
+  --green:#8eb7d8;
+  --mint:#dce4eb;
+  --text:#f3f6f9;
+  --muted:#aeb9c3;
+  --zc-color-three:#8b949d;
+  --zc-color-four:#496b86;
+  --zc-card-gradient:linear-gradient(145deg,#66798a 0%,#3f607b 32%,#89939d 64%,#2d4052 100%);
+  --zc-hero-gradient:linear-gradient(135deg,#89949e 0%,#527b9a 34%,#a3abb3 66%,#3b5368 100%);
+  background:
+    radial-gradient(ellipse at 84% 0%,rgba(117,160,194,.20),transparent 43%),
+    radial-gradient(ellipse at 0% 100%,rgba(139,148,157,.14),transparent 38%),
+    var(--bg)!important;
+  color:var(--text)!important;
+}
+body[data-zc-theme="metallic"] #application #app-content :is(
+  .app-stat,.card.stat,.market-panel,.zc-alt-active-plans,.zc-alt-recent,
+  .zc-alt-referrals,.panel,.deposit-form-card
+) {
+  background:var(--zc-card-gradient)!important;
+  border-color:var(--line)!important;
+  color:var(--text)!important;
+}
+body[data-zc-theme="metallic"] #application #app-content :is(
+  .app-hero,.zc-finflex-balance,.zc-minimal-balance,.zc-mobile-balance
+) {
+  background:var(--zc-hero-gradient)!important;
+  border-color:color-mix(in srgb,var(--green) 46%,var(--line))!important;
+  color:var(--text)!important;
+}
+body[data-zc-theme="metallic"] .zc-theme-choice.active {
+  border-color:var(--green)!important;
+  background:linear-gradient(120deg,#455e74 0%,#71808d 48%,#344b60 100%)!important;
+  color:var(--text)!important;
+}
+body[data-zc-theme="metallic"] .zc-theme-choice[data-theme="metallic"] {
+  background:linear-gradient(120deg,#aeb7c0 0%,#537a99 34%,#8a949e 67%,#e2e6e9 100%)!important;
+  color:#142333!important;
+  border-color:#9eabb7!important;
+  text-shadow:0 1px rgba(255,255,255,.28);
+}
+body[data-zc-theme="metallic"] #app-drawer .zc-theme-choice[data-theme="metallic"].active {
+  border:2px solid #d8e0e7!important;
+  box-shadow:0 0 0 2px rgba(120,163,195,.26),0 0 15px rgba(144,174,198,.18)!important;
+}
+</style>
