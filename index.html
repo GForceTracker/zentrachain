@@ -7443,7 +7443,7 @@ body[data-zc-theme] #app-content #dash-cards>.gf-plan-compact-card.is-tap-select
 .zc-bot-chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
 .zc-bot-chip{font-size:10.5px;padding:4px 9px;border:1px solid var(--line,#1d4432);border-radius:99px;background:var(--panel2);color:var(--text,#effaf4)}
 .zc-bot-chip small{color:var(--mint,#9be8c5);font-size:9px;margin-left:4px}
-</style><section class="shell"><header class="head"><div><strong>ZentraChain Community</strong><small>Group conversation · 98,000 members</small></div><button class="close" type="button" aria-label="Close chat" onclick="zcCloseCommunityChat()">×</button></header><div id="zc-community-gate" class="gate"></div><div id="zc-community-room" class="room hidden"><div class="toolbar"><span id="zc-community-member-status">Connecting…</span><label class="zc-community-language-wrap" for="zc-community-language">My language <select id="zc-community-language" aria-label="My language" title="Messages are automatically translated into your selected language." onchange="zcSetCommunityLanguage(this.value)"><option value="en">English</option><option value="zh">Chinese</option><option value="hi">Hindi</option><option value="es">Spanish</option><option value="ar">Arabic</option><option value="fr">French</option><option value="bn">Bengali</option><option value="pt">Portuguese</option><option value="ru">Russian</option><option value="ur">Urdu</option><option value="id">Indonesian</option><option value="de">German</option><option value="ja">Japanese</option><option value="sw">Swahili</option><option value="ko">Korean</option><option value="tr">Turkish</option><option value="vi">Vietnamese</option><option value="fa">Persian</option><option value="it">Italian</option><option value="nl">Dutch</option><option value="pl">Polish</option><option value="th">Thai</option><option value="ms">Malay</option><option value="uk">Ukrainian</option><option value="el">Greek</option><option value="ro">Romanian</option><option value="sv">Swedish</option><option value="cs">Czech</option><option value="he">Hebrew</option><option value="ta">Tamil</option></select></label><button id="zc-community-admin-button" class="hidden" type="button" onclick="zcToggleCommunityAdmin()">Manage members</button><button id="zc-community-wipe-button" class="hidden" type="button" onclick="zcWipeCommunityChat()">Wipe chat</button></div><div id="zc-community-admin" class="admin hidden"></div><div id="zc-community-tx-head" class="tx-head hidden"><span class="tx-head-label">LIVE ON-CHAIN</span><div class="tx-ticker"><div class="tx-ticker-track" id="zc-community-tx-track"><span class="tx-item">Connecting to the blockchain…</span></div></div></div><div id="zc-community-messages" class="messages" aria-live="polite"><div class="empty">Loading messages…</div></div><div id="zc-community-typing" class="typing hidden"></div><div class="compose"><div id="zc-community-compose-status" class="status"></div><div id="zc-community-reply" class="reply hidden"><span id="zc-community-reply-text"></span><button type="button" onclick="zcCancelCommunityReply()">×</button></div><div id="zc-community-photo-preview" class="photo-preview hidden" aria-live="polite"></div><div class="compose-row"><input id="zc-community-photo" type="file" accept="image/*" hidden onchange="zcCommunityPhotoChanged(this)"><button class="attach" type="button" aria-label="Upload photo" onclick="document.getElementById('zc-community-photo').click()">＋</button><textarea id="zc-community-input" name="zc-community-message" rows="1" maxlength="3000" autocomplete="off" autocorrect="on" autocapitalize="sentences" spellcheck="true" inputmode="text" enterkeyhint="send" placeholder="Write a message…" oninput="zcCommunityAutoGrow(this)" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();zcSendCommunityMessage(event)}"></textarea><button id="zc-community-send" class="send" type="button" onclick="zcSendCommunityMessage(event)">Send</button></div></div></div></section></div><div id="zc-community-message-menu" class="hidden" role="menu" aria-label="Message actions"></div><div id="zc-community-lightbox" class="hidden" role="dialog" aria-modal="true" aria-label="Community photo viewer"><button type="button" class="zc-community-lightbox-close" aria-label="Close full-size photo" onclick="zcCloseCommunityLightbox()">×</button><img id="zc-community-lightbox-image" alt="Full-size community photo"></div>
+</style><section class="shell"><header class="head"><div><strong>ZentraChain Community</strong><small>Group conversation · 98,000 members</small></div><button class="close" type="button" aria-label="Close chat" onclick="zcCloseCommunityChat()">×</button></header><div id="zc-community-gate" class="gate"></div><div id="zc-community-room" class="room hidden"><div class="toolbar"><span id="zc-community-member-status">Connecting…</span><label class="zc-community-language-wrap" for="zc-community-language">My language <select id="zc-community-language" aria-label="My language" title="Messages are automatically translated into your selected language." onchange="zcSetCommunityLanguage(this.value)"><option value="en">English</option><option value="zh">Chinese</option><option value="hi">Hindi</option><option value="es">Spanish</option><option value="ar">Arabic</option><option value="fr">French</option><option value="bn">Bengali</option><option value="pt">Portuguese</option><option value="ru">Russian</option><option value="ur">Urdu</option><option value="id">Indonesian</option><option value="de">German</option><option value="ja">Japanese</option><option value="sw">Swahili</option><option value="ko">Korean</option><option value="tr">Turkish</option><option value="vi">Vietnamese</option><option value="fa">Persian</option><option value="it">Italian</option><option value="nl">Dutch</option><option value="pl">Polish</option><option value="th">Thai</option><option value="ms">Malay</option><option value="uk">Ukrainian</option><option value="el">Greek</option><option value="ro">Romanian</option><option value="sv">Swedish</option><option value="cs">Czech</option><option value="he">Hebrew</option><option value="ta">Tamil</option></select></label><button id="zc-community-admin-button" class="hidden" type="button" onclick="zcToggleCommunityAdmin()">Manage members</button><button id="zc-community-wipe-button" class="hidden" type="button" onclick="zcWipeCommunityChat()">Wipe chat</button><button id="zc-community-leave-button" class="hidden" type="button" onclick="zcLeaveCommunityChat()">Leave group</button></div><div id="zc-community-admin" class="admin hidden"></div><div id="zc-community-tx-head" class="tx-head hidden"><span class="tx-head-label">LIVE ON-CHAIN</span><div class="tx-ticker"><div class="tx-ticker-track" id="zc-community-tx-track"><span class="tx-item">Connecting to the blockchain…</span></div></div></div><div id="zc-community-messages" class="messages" aria-live="polite"><div class="empty">Loading messages…</div></div><div id="zc-community-typing" class="typing hidden"></div><div class="compose"><div id="zc-community-compose-status" class="status"></div><div id="zc-community-reply" class="reply hidden"><span id="zc-community-reply-text"></span><button type="button" onclick="zcCancelCommunityReply()">×</button></div><div id="zc-community-photo-preview" class="photo-preview hidden" aria-live="polite"></div><div class="compose-row"><input id="zc-community-photo" type="file" accept="image/*" hidden onchange="zcCommunityPhotoChanged(this)"><button class="attach" type="button" aria-label="Upload photo" onclick="document.getElementById('zc-community-photo').click()">＋</button><textarea id="zc-community-input" name="zc-community-message" rows="1" maxlength="3000" autocomplete="off" autocorrect="on" autocapitalize="sentences" spellcheck="true" inputmode="text" enterkeyhint="send" placeholder="Write a message…" oninput="zcCommunityAutoGrow(this)" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();zcSendCommunityMessage(event)}"></textarea><button id="zc-community-send" class="send" type="button" onclick="zcSendCommunityMessage(event)">Send</button></div></div></div></section></div><div id="zc-community-message-menu" class="hidden" role="menu" aria-label="Message actions"></div><div id="zc-community-lightbox" class="hidden" role="dialog" aria-modal="true" aria-label="Community photo viewer"><button type="button" class="zc-community-lightbox-close" aria-label="Close full-size photo" onclick="zcCloseCommunityLightbox()">×</button><img id="zc-community-lightbox-image" alt="Full-size community photo"></div>
 <script>
 (function(){
 const KEY='zc-community-invite-dismissed-v2',FIRST_DELAY=5000,REPEAT_DELAYS=[15000,45000,120000],MAX_DISMISSALS=4;
@@ -7536,7 +7536,84 @@ function resumeInvite(){if(dismissals<MAX_DISMISSALS&&invite.classList.contains(
 window.zcDismissCommunityInvite=function(){invite.classList.add('hidden');dismissals=Math.min(MAX_DISMISSALS,dismissals+1);try{localStorage.setItem(KEY,String(dismissals))}catch(e){}if(dismissals<MAX_DISMISSALS)schedule(REPEAT_DELAYS[dismissals-1])};
 document.addEventListener('visibilitychange',resumeInvite);
 const publicPage=el('public');if(publicPage&&'MutationObserver'in window)new MutationObserver(resumeInvite).observe(publicPage,{attributes:true,attributeFilter:['class']});
-function renderGate(title,copy,actions){room.classList.add('hidden');gate.classList.remove('hidden');gate.replaceChildren();const h=document.createElement('h3');h.textContent=title;const p=document.createElement('p');p.textContent=copy;gate.append(h,p);if(actions){const box=document.createElement('div');box.className='actions';[['Log in','login',false],['Create account','signup',true]].forEach(x=>{const b=document.createElement('button');b.type='button';b.textContent=x[0];if(x[2])b.className='secondary';b.onclick=()=>{window.zcCommunityPendingOpen=true;showAuth(x[1])};box.append(b)});gate.append(box)}}
+function renderGate(title,copy,actions){
+ room.classList.add('hidden');gate.classList.remove('hidden');gate.replaceChildren();
+ const h=document.createElement('h3');h.textContent=title;
+ const p=document.createElement('p');p.textContent=copy;gate.append(h,p);
+ if(actions==='join'){
+  const box=document.createElement('div');box.className='actions';
+  const b=document.createElement('button');b.type='button';b.textContent='Join group chat';
+  b.onclick=()=>join();box.append(b);gate.append(box);
+ }else if(actions){
+  const box=document.createElement('div');box.className='actions';
+  [['Log in','login',false],['Create account','signup',true]].forEach(x=>{
+   const b=document.createElement('button');b.type='button';b.textContent=x[0];
+   if(x[2])b.className='secondary';
+   b.onclick=()=>{window.zcCommunityPendingOpen=true;showAuth(x[1])};
+   box.append(b);
+  });
+  gate.append(box);
+ }
+}
+function setCommunityJoined(value){
+ const nav=el('zc-community-nav');
+ if(nav)nav.classList.toggle('zc-community-joined',!!value);
+ try{
+  if(currentUser&&currentUser.id){
+   const key='zc-community-joined-'+currentUser.id;
+   if(value)localStorage.setItem(key,'1');else localStorage.removeItem(key);
+  }
+ }catch(e){}
+}
+async function enterCommunityRoom(record){
+ memberRecord=record;
+ setCommunityJoined(true);
+ gate.classList.add('hidden');room.classList.remove('hidden');
+ el('zc-community-admin-button').classList.toggle('hidden',profile?.role!=='admin');
+ el('zc-community-wipe-button').classList.toggle('hidden',profile?.role!=='admin');
+ const leaveButton=el('zc-community-leave-button');
+ if(leaveButton)leaveButton.classList.toggle('hidden',!['active','muted'].includes(memberRecord.status));
+ el('zc-community-member-status').textContent=memberRecord.status==='muted'?'Muted: you can read but cannot post.':'Connected as '+memberRecord.display_name;
+ composer(memberRecord.status==='active');
+ if(!window.__zcTypingPingBound){
+  window.__zcTypingPingBound=true;
+  const ci=el('zc-community-input');
+  if(ci)ci.addEventListener('input',zcCommunityTypingPing);
+ }
+ initCommunityLanguage();
+ await loadMessages();
+ subscribe();
+ startFeed();
+ startFeed();
+}
+function stopCommunityLiveConnections(keepMemberChannel){
+ if(chatChannel){db.removeChannel(chatChannel);chatChannel=null}
+ if(!keepMemberChannel&&memberChannel){db.removeChannel(memberChannel);memberChannel=null}
+ if(typingChannel){db.removeChannel(typingChannel);typingChannel=null}
+ stopFeed();
+}
+async function checkCommunityMembership(){
+ renderGate('Checking group membership…','Please wait while we check your access.',false);
+ try{
+  const q=await db.from('community_members').select('*').eq('user_id',currentUser.id).maybeSingle();
+  if(q.error)throw q.error;
+  if(!q.data){
+   memberRecord=null;setCommunityJoined(false);
+   const leaveButton=el('zc-community-leave-button');if(leaveButton)leaveButton.classList.add('hidden');
+   renderGate('Join the group chat','Join the ZentraChain group to read messages, take part in the conversation, and receive message notifications.','join');
+   return;
+  }
+  if(q.data.status==='removed'){
+   memberRecord=q.data;setCommunityJoined(false);
+   const leaveButton=el('zc-community-leave-button');if(leaveButton)leaveButton.classList.add('hidden');
+   renderGate('Community access restricted',q.data.restriction_note||'An administrator has removed this account from the group chat. Contact support if you believe this is a mistake.',false);
+   return;
+  }
+  await enterCommunityRoom(q.data);
+ }catch(e){
+  renderGate('Unable to check group access',e?.message||'Please try again.',false);
+ }
+}
 window.zcOpenCommunityChat=async function(){
  clearTimeout(timer);timer=null;invite.classList.add('hidden');
  const supportPanel=document.getElementById('zc-admin-support-panel');
@@ -7545,13 +7622,68 @@ window.zcOpenCommunityChat=async function(){
  document.body.style.overflow='hidden';
  bindCommunityViewport();
  modal.classList.remove('hidden');
- if(!currentUser){renderGate('Join the group chat','Sign in or create a ZentraChain account to take part in the live community conversation.',true);return}
- await join();
+ if(!currentUser){
+  renderGate('Join the group chat','Sign in or create a ZentraChain account to take part in the live community conversation.',true);
+  return;
+ }
+ await checkCommunityMembership();
 };
-async function join(){renderGate('Opening the community…','Checking your community access.',false);try{let q=await db.from('community_members').select('*').eq('user_id',currentUser.id).maybeSingle();if(q.error)throw q.error;if(!q.data){const ins=await db.from('community_members').insert({user_id:currentUser.id}).select('*').single();if(ins.error&&ins.error.code!=='23505')throw ins.error;q=await db.from('community_members').select('*').eq('user_id',currentUser.id).single();if(q.error)throw q.error}memberRecord=q.data;const communityNav=el('zc-community-nav');if(communityNav)communityNav.classList.add('zc-community-joined');try{localStorage.setItem('zc-community-joined-'+currentUser.id,'1')}catch(e){}if(memberRecord.status==='removed'){renderGate('Community access restricted',memberRecord.restriction_note||'An administrator has removed this account from the group chat. Contact support if you believe this is a mistake.',false);return}gate.classList.add('hidden');room.classList.remove('hidden');el('zc-community-admin-button').classList.toggle('hidden',profile?.role!=='admin');el('zc-community-wipe-button').classList.toggle('hidden',profile?.role!=='admin');el('zc-community-member-status').textContent=memberRecord.status==='muted'?'Muted: you can read but cannot post.':'Connected as '+memberRecord.display_name;composer(memberRecord.status==='active');if(!window.__zcTypingPingBound){window.__zcTypingPingBound=true;const ci=el('zc-community-input');if(ci)ci.addEventListener('input',zcCommunityTypingPing)}initCommunityLanguage();await loadMessages();subscribe();startFeed();startFeed()}catch(e){renderGate('Unable to open the group chat',e?.message||'Please try again.',false)}}
+async function join(){
+ if(!currentUser){
+  renderGate('Join the group chat','Sign in or create a ZentraChain account to take part in the live community conversation.',true);
+  return;
+ }
+ renderGate('Joining the group chat…','Adding your account to the ZentraChain community.',false);
+ try{
+  let q=await db.from('community_members').select('*').eq('user_id',currentUser.id).maybeSingle();
+  if(q.error)throw q.error;
+  if(q.data&&q.data.status==='removed'){
+   memberRecord=q.data;setCommunityJoined(false);
+   renderGate('Community access restricted',q.data.restriction_note||'An administrator has removed this account from the group chat. Contact support if you believe this is a mistake.',false);
+   return;
+  }
+  if(!q.data){
+   const ins=await db.from('community_members').insert({user_id:currentUser.id}).select('*').single();
+   if(ins.error&&ins.error.code!=='23505')throw ins.error;
+   q=await db.from('community_members').select('*').eq('user_id',currentUser.id).single();
+   if(q.error)throw q.error;
+  }
+  if(!q.data||q.data.status==='removed'){
+   renderGate('Community access restricted','An administrator has restricted this account from the group chat.',false);
+   return;
+  }
+  await enterCommunityRoom(q.data);
+  if(typeof toast==='function')toast('You have joined the group chat.');
+ }catch(e){
+  renderGate('Unable to join the group chat',e?.message||'Please try again.',false);
+ }
+}
 function composer(on){el('zc-community-input').disabled=!on;el('zc-community-send').disabled=!on;el('zc-community-photo').disabled=!on;el('zc-community-compose-status').textContent=on?'':'Posting is restricted. You can still read the chat.'}
 function subscribe(){if(chatChannel)db.removeChannel(chatChannel);if(memberChannel)db.removeChannel(memberChannel);chatChannel=db.channel('zc-community-messages').on('postgres_changes',{event:'*',schema:'public',table:'community_messages'},loadMessages).on('postgres_changes',{event:'*',schema:'public',table:'community_message_reactions'},loadCommunityReactions).subscribe();memberChannel=db.channel('zc-community-member-'+currentUser.id).on('postgres_changes',{event:'UPDATE',schema:'public',table:'community_members',filter:'user_id=eq.'+currentUser.id},refreshMember).subscribe();if(typingChannel)db.removeChannel(typingChannel);typingChannel=db.channel('community-typing',{config:{broadcast:{self:false}}}).on('broadcast',{event:'typing'},p=>{const n=p&&p.payload&&p.payload.name;if(n)markHumanTyping(n)}).on('postgres_changes',{event:'*',schema:'public',table:'community_typing'},p=>{if(p.eventType==='DELETE'){const on=p.old&&p.old.name;if(on){delete typingBots[on];renderTyping()}return}const row=p&&p.new;if(row&&row.name)markBotTyping(row.name,row.until)}).subscribe()}
-async function refreshMember(){const r=await db.from('community_members').select('*').eq('user_id',currentUser.id).maybeSingle();if(r.error||!r.data)return;memberRecord=r.data;if(r.data.status==='removed')renderGate('Community access restricted',r.data.restriction_note||'An administrator has removed this account from the group chat.',false);else{el('zc-community-member-status').textContent=r.data.status==='muted'?'Muted: you can read but cannot post.':'Connected as '+r.data.display_name;composer(r.data.status==='active')}}
+async function refreshMember(){
+ const r=await db.from('community_members').select('*').eq('user_id',currentUser.id).maybeSingle();
+ if(r.error){console.warn('Community membership refresh failed:',r.error.message);return}
+ if(!r.data){
+  memberRecord=null;setCommunityJoined(false);stopCommunityLiveConnections(true);
+  composer(false);
+  const leaveButton=el('zc-community-leave-button');if(leaveButton)leaveButton.classList.add('hidden');
+  renderGate('You are not in the group chat','Join again to return to the ZentraChain community conversation.','join');
+  return;
+ }
+ memberRecord=r.data;
+ if(r.data.status==='removed'){
+  setCommunityJoined(false);stopCommunityLiveConnections(true);composer(false);
+  const leaveButton=el('zc-community-leave-button');if(leaveButton)leaveButton.classList.add('hidden');
+  renderGate('Community access restricted',r.data.restriction_note||'An administrator has removed this account from the group chat.',false);
+  return;
+ }
+ setCommunityJoined(true);
+ if(!gate.classList.contains('hidden')){await enterCommunityRoom(r.data);return}
+ const leaveButton=el('zc-community-leave-button');
+ if(leaveButton)leaveButton.classList.remove('hidden');
+ el('zc-community-member-status').textContent=r.data.status==='muted'?'Muted: you can read but cannot post.':'Connected as '+r.data.display_name;
+ composer(r.data.status==='active');
+}
 async function loadMessages(){
  const r=await db.from('community_messages').select('*').order('created_at',{ascending:false}).limit(100);
  if(r.error){el('zc-community-compose-status').textContent=r.error.message;return}
@@ -8128,7 +8260,34 @@ async function loadMembers(){
  admin.append(aiHead,aiTitle,aiNote,aiToggle,aiBox);
  }
 async function moderate(id,status){if(profile?.role!=='admin'||id===currentUser.id)return;const note=status==='active'?null:(status==='muted'?'Posting restricted by an administrator':'Removed by an administrator');const r=await db.from('community_members').update({status:status,restriction_note:note,updated_at:new Date().toISOString()}).eq('user_id',id);if(r.error){toast(r.error.message,true);return}await db.from('audit_logs').insert({actor_id:currentUser.id,action:'community_member_'+status,entity_type:'community_member',entity_id:id,details:{status:status,restriction_note:note}});toast(status==='active'?'Member restored.':status==='muted'?'Member muted.':'Member removed from group.');if(!admin.classList.contains('hidden'))await loadMembers()}
-window.zcCloseCommunityChat=function(){modal.classList.add('hidden');window.zcCommunityPendingOpen=false;document.body.classList.remove('zc-community-chat-open');document.body.style.overflow='';unbindCommunityViewport();if(chatChannel){db.removeChannel(chatChannel);chatChannel=null}if(memberChannel){db.removeChannel(memberChannel);memberChannel=null}if(typingChannel){db.removeChannel(typingChannel);typingChannel=null}stopFeed();replyRecord=null;clearCommunityPhoto();closeCommunityPhoto();hideCommunityMessageMenu();resumeInvite()};
+window.zcCloseCommunityChat=function(){
+ modal.classList.add('hidden');window.zcCommunityPendingOpen=false;
+ document.body.classList.remove('zc-community-chat-open');document.body.style.overflow='';
+ unbindCommunityViewport();stopCommunityLiveConnections(false);
+ replyRecord=null;clearCommunityPhoto();closeCommunityPhoto();hideCommunityMessageMenu();resumeInvite();
+};
+window.zcLeaveCommunityChat=async function(){
+ if(!currentUser||!memberRecord||!['active','muted'].includes(memberRecord.status))return;
+ if(!window.confirm('Leave the group chat? You can join again later unless an administrator has restricted your access.'))return;
+ const button=el('zc-community-leave-button');
+ if(button){button.disabled=true;button.textContent='Leaving…'}
+ try{
+  const result=await db.from('community_members').delete()
+   .eq('user_id',currentUser.id).in('status',['active','muted']).select('user_id');
+  if(result.error)throw result.error;
+  if(!result.data||!result.data.length)throw new Error('Your membership could not be removed. Refresh and try again.');
+  memberRecord=null;setCommunityJoined(false);stopCommunityLiveConnections(false);
+  replyRecord=null;clearCommunityPhoto();closeCommunityPhoto();hideCommunityMessageMenu();
+  composer(false);
+  renderGate('You left the group chat','You are no longer a member. Join again any time to return to the conversation.','join');
+  if(typeof toast==='function')toast('You have left the group chat.');
+ }catch(e){
+  if(typeof toast==='function')toast(e?.message||'Could not leave the group chat.',true);
+  else console.error('Could not leave community chat:',e);
+ }finally{
+  if(button){button.disabled=false;button.textContent='Leave group'}
+ }
+};
 window.zcCommunityPendingOpen=false;
 window.zcCommunityAfterAuth=async function(){if(window.zcCommunityPendingOpen){window.zcCommunityPendingOpen=false;await window.zcOpenCommunityChat()}};
 schedule(FIRST_DELAY);
@@ -9314,7 +9473,7 @@ body[data-zc-theme] #app-content input.zc-calc-range::-moz-range-thumb{
   host.replaceChildren();
   var card=document.createElement("article");card.className="zc-referral-toast";
   var icon=document.createElement("div");icon.className="zc-referral-toast-icon";
-  icon.textContent=item.notification_type==="referral_joined"?"+":item.notification_type==="referred_by"?"↗":"✓";
+  icon.textContent=item.notification_type==="group_chat_message"?"💬":item.notification_type==="referral_joined"?"+":item.notification_type==="referred_by"?"↗":"✓";
   var copy=document.createElement("div");copy.className="zc-referral-toast-copy";
   var title=document.createElement("b");title.textContent=String(item.title||"New notification");
   var message=document.createElement("p");message.textContent=String(item.message||"You have a new account notification.");
@@ -9338,7 +9497,7 @@ body[data-zc-theme] #app-content input.zc-calc-range::-moz-range-thumb{
  function announceFresh(fresh){
   if(!fresh||!fresh.length)return;
   playSound();
-  var priority={referral_joined:3,referred_by:3,welcome:2};
+  var priority={group_chat_message:4,referral_joined:3,referred_by:3,welcome:2};
   var latest=fresh.slice().sort(function(a,b){
    var diff=(priority[b.notification_type]||1)-(priority[a.notification_type]||1);
    return diff||new Date(b.created_at)-new Date(a.created_at);
@@ -9377,8 +9536,8 @@ body[data-zc-theme] #app-content input.zc-calc-range::-moz-range-thumb{
   var card=document.querySelector("#transaction-modal .transaction-card");if(!card)return;
   if(typeof previousOpenAlerts==="function"){try{previousOpenAlerts.apply(window,arguments)}catch(e){console.warn("Legacy notifications could not be rendered:",e)}}
   var list=card.querySelector(".zc-notice-list"),unread=rows.filter(function(n){return !n.read_at});
-  var icons={welcome:"✓",referral_joined:"＋",referred_by:"↗"};
-  var itemsHtml=rows.map(function(n,i){return '<article class="zc-notice-item" style="animation-delay:'+Math.min(i*25,300)+'ms"><div class="zc-notice-icon">'+(icons[n.notification_type]||"•")+'</div><div class="zc-notice-copy"><b>'+escapeText(n.title||"Notification")+'</b><p>'+escapeText(n.message||"")+'</p><time>'+escapeText(formatWhen(n.created_at))+'</time></div></article>'}).join("");
+  var icons={welcome:"✓",referral_joined:"＋",referred_by:"↗",group_chat_message:"💬"};
+  var itemsHtml=rows.map(function(n,i){var isGroupChat=n.notification_type==="group_chat_message";var noticeId=escapeText(String(n.id||""));return '<article class="zc-notice-item'+(isGroupChat?' zc-notice-group-chat':'')+'" style="animation-delay:'+Math.min(i*25,300)+'ms"'+(isGroupChat?' data-zc-group-chat-notice="'+noticeId+'" role="button" tabindex="0" title="Open group chat"':'')+'><div class="zc-notice-icon">'+(icons[n.notification_type]||"•")+'</div><div class="zc-notice-copy"><b>'+escapeText(n.title||"Notification")+'</b><p>'+escapeText(n.message||"")+'</p><time>'+escapeText(formatWhen(n.created_at))+'</time></div></article>'}).join("");
   if(!list){
    card.innerHTML='<div class="zc-notice-head"><div><div class="eyebrow">ACCOUNT NOTIFICATIONS</div><h3>Notifications</h3></div><button class="x" aria-label="Close notifications" onclick="closeAlerts()">×</button></div><div class="zc-notice-list"></div><button class="btn primary" style="width:100%;margin-top:12px" onclick="closeAlerts()">Done</button>';
    list=card.querySelector(".zc-notice-list");
@@ -9391,7 +9550,28 @@ body[data-zc-theme] #app-content input.zc-calc-range::-moz-range-thumb{
   }
   updateBadge();
  };
- window.showTransactionAlert=function(title,message){
+document.addEventListener("click",function(event){
+  var item=event.target&&event.target.closest?event.target.closest("[data-zc-group-chat-notice]"):null;
+  if(!item)return;
+  if(typeof window.zcOpenCommunityFromNotification==="function")window.zcOpenCommunityFromNotification(item.getAttribute("data-zc-group-chat-notice"));
+ });
+ document.addEventListener("keydown",function(event){
+  if(event.key!=="Enter"&&event.key!==" ")return;
+  var item=event.target&&event.target.closest?event.target.closest("[data-zc-group-chat-notice]"):null;
+  if(!item)return;
+  event.preventDefault();
+  if(typeof window.zcOpenCommunityFromNotification==="function")window.zcOpenCommunityFromNotification(item.getAttribute("data-zc-group-chat-notice"));
+ });
+ window.zcOpenCommunityFromNotification=async function(id){
+  var item=rows.find(function(n){return String(n.id)===String(id)});
+  if(item&&currentUser&&db&&!item.read_at){
+   var readAt=new Date().toISOString();
+   try{var r=await db.from("user_notifications").update({read_at:readAt}).eq("id",id).eq("user_id",currentUser.id);if(r.error)throw r.error;item.read_at=readAt;updateBadge()}catch(e){console.warn("Could not mark group chat notification as read:",e&&e.message||e)}
+  }
+  if(typeof window.closeAlerts==="function")window.closeAlerts();
+  if(typeof window.zcOpenCommunityChat==="function")await window.zcOpenCommunityChat();
+ };
+  window.showTransactionAlert=function(title,message){
   playSound();if(typeof previousTransactionAlert==="function")return previousTransactionAlert.apply(window,arguments);
   if(typeof window.toast==="function")window.toast(String(title||"Notification")+": "+String(message||""));updateBadge();
  };
@@ -9423,7 +9603,7 @@ body[data-zc-theme] #app-content input.zc-calc-range::-moz-range-thumb{
  var init=function(){updateBadge();if(currentUser&&currentUser.id)refreshNotifications(true)};
  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",init,{once:true});else init();
 })();
-</script>
+</script><style id="zc-group-chat-notice-style">#transaction-modal .zc-notice-group-chat{cursor:pointer}#transaction-modal .zc-notice-group-chat:hover{background:color-mix(in srgb,var(--green) 9%,transparent)}#transaction-modal .zc-notice-group-chat:focus-visible{outline:2px solid var(--green);outline-offset:2px}</style>
 </body>
 
 <style id="zc-visitor-plan-card-height-reduction-v1">
