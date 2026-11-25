@@ -9116,6 +9116,7 @@ body[data-zc-theme] #app-content input.zc-calc-range::-moz-range-thumb{
     rows.sort(function(a,b){return new Date(b.created_at)-new Date(a.created_at)});
     var fresh=!seen.has(String(item.id));rememberSeen([item.id]);
     if(fresh){playSound();if(typeof window.toast==="function")window.toast(String(item.title||"New notification")+": "+String(item.message||"You have a new account notification."))}
+    if(item.notification_type==="referral_joined"&&typeof window.loadReferralList==="function")window.loadReferralList();
     updateBadge();
    })
    .subscribe(function(status){if(status==="CHANNEL_ERROR"||status==="TIMED_OUT")console.warn("Notification live updates:",status)});
