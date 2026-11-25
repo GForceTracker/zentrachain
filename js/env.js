@@ -5,7 +5,7 @@
 // copy and must keep MODE: 'cloud'. Never set this MODE to 'cloud' locally by
 // accident — sandbox keeps mistakes away from real data.
 window.ZC_CONFIG = {
-  MODE: 'cloud',
+  MODE: 'sandbox',
   sandbox: {
     SUPABASE_URL: 'https://mdpdcpxvohbcdlhirtdp.supabase.co',
     SUPABASE_KEY: 'sb_publishable_hySEI1W9BQV0AKny0THJsg_mOp8YsDF'

@@ -1,0 +1,24 @@
+# Local environment files and credentials
+.env
+.env.*
+!.env.example
+!.env.*.example
+supabase/.env.local
+supabase/.env.*.local
+supabase/sandbox-mnemonic.txt
+*mnemonic*.txt
+*.seed
+*.pem
+*.key
+*.p12
+*.keystore
+.dev.vars
+.dev.vars.*
+.wrangler/
+
+# Local tooling/build output
+node_modules/
+.vercel/
+coverage/
+dist/
+*.log

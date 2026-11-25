@@ -8,43 +8,61 @@ ZentraChain digital asset platform.
 node serve.js
 ```
 
-Then open http://localhost:8080. The page talks to the hosted Supabase backend
-(same as production). See `LOCAL-DEV.md` for details, the backend switch, and
-how to push fixes back to GitHub.
+Then open http://localhost:8080. The local browser configuration in `js/env.js`
+must use the separate sandbox Supabase project. The deployed copy in
+`src/js/env.js` must use the production project. See `LOCAL-DEV.md` for the
+workflow and security notes.
 
 ## Website source
 
 - `index.html` — editable HTML source for the visitor and account portal.
-- `src/site.html` — runtime HTML copy served by the Vercel website handler. Keep this file in sync with `index.html`.
+- `src/site.html` — runtime HTML copy served by the Vercel website handler.
 - `src/api/site.js` — Vercel Node.js serverless handler that serves `src/site.html`.
 - `src/chunks/part_00.js` through `part_33.js` — retained compressed recovery artifacts; the current handler no longer serves this stale snapshot.
 - `src/vercel.json` — Vercel rewrite configuration.
 
-The visitor page includes the public plan carousel and an anonymized on-chain activity feed. The feed reads at most 300 confirmed/credited deposits and paid withdrawals with a recorded transaction hash. It does not publish customer names or full wallet addresses.
+The visitor page includes the public plan carousel and an anonymized on-chain
+activity feed. Public feed data is restricted to the fields and rows selected by
+its database policies and reader function.
 
 ## Backend architecture
 
-The inspected live backend is not Python. It uses **Supabase Edge Functions written in TypeScript (Deno)** plus a **Supabase PostgreSQL** database. The Vercel website handler is Node.js.
+The backend uses **Supabase Edge Functions written in TypeScript (Deno)** and
+**Supabase PostgreSQL**. Vercel serves the website.
 
-Recovered Edge Functions:
-- `site-analytics`
-- `generate-deposit-address`
-- `bootstrap-admin`
-- `ensure-admin-account`
-- `market-data`
-
-The deposit-address function derives blockchain deposit addresses and depends on the private `WALLET_MNEMONIC` Supabase secret. Privileged functions also use server-side Supabase secrets.
+Important Edge Functions include:
+- `generate-deposit-address` — generates member deposit addresses using the
+  server-only `WALLET_MNEMONIC` secret.
+- `reveal-deposit-key` — restricted to administrators; returns a derived
+  private key and must only be used from the protected admin workflow.
+- `chain-send` — administrator-only on-chain sending.
+- `monitor-deposits` — administrator-only for manual scans, or authorized by a
+  long random `ZC_CRON_SECRET` for scheduled scans.
+- `bootstrap-admin` — one-time, secret-protected first-administrator setup.
+- `ensure-admin-account` — retired; returns HTTP 410 and no longer provisions
+  or resets administrator credentials.
 
 ## Database migrations
 
-The original migration SQL was exported into `supabase/migrations/`. The public visitor activity feed is defined in `20261118081731_public_chain_activity_feed.sql`. It uses a private, security-definer reader and a public security-invoker RPC wrapper; only masked addresses and transaction activity fields are returned.
-
-These files are migration statements, not a backup of live customer data.
+The versioned SQL in `supabase/migrations/` records the database structure and
+security changes. These statements are not a backup of live customer data.
+Apply migrations in filename/version order only when provisioning a new
+database; do not replay production migrations onto an already migrated project.
 
 ## Secrets and deployment
 
-Never commit service-role keys, wallet recovery phrases, admin setup secrets, admin passwords, or provider API keys. Keep these in Supabase Edge Function secrets or Vercel environment variables.
+The Supabase project URL and publishable key in browser code are public client
+configuration, not private credentials. Their safety depends on row-level
+security, table grants, and authorization checks.
+
+Never commit service-role or secret API keys, wallet recovery phrases, private
+keys, admin setup secrets, passwords, provider credentials, or real
+`.env` files. Keep them in Supabase Edge Function secrets or protected Vercel
+environment variables. Use the root `.gitignore` and `supabase/.gitignore`;
+do not remove those protections.
 
 ## Recovery limitations
 
-The website payload and Edge Function source were recovered from successful Vercel deployments and active Supabase functions. The migration SQL was recovered from Supabase migration history. A complete disaster-recovery plan should additionally include a secure database data backup and a separate inventory of required environment-variable names (never their secret values).
+A complete disaster-recovery plan should include a secure database data backup
+and an inventory of required environment-variable names (never their secret
+values).

@@ -28,6 +28,17 @@ function response(data: unknown, status = 200) {
   return new Response(JSON.stringify(data), { status, headers: { "Access-Control-Allow-Origin": "*", "Access-Control-Allow-Headers": "authorization, apikey, content-type, x-client-info, x-zc-cron-secret", "Access-Control-Allow-Methods": "POST, OPTIONS", "Content-Type": "application/json", "Cache-Control": "no-store" } });
 }
 
+function constantTimeEqual(a: string, b: string): boolean {
+  const left = new TextEncoder().encode(a);
+  const right = new TextEncoder().encode(b);
+  let diff = left.length ^ right.length;
+  const length = Math.max(left.length, right.length);
+  for (let i = 0; i < length; i++) {
+    diff |= (left[i] ?? 0) ^ (right[i] ?? 0);
+  }
+  return diff === 0;
+}
+
 async function getJson(url: string, init?: RequestInit, timeoutMs = 12000): Promise<unknown> {
   const ctrl = new AbortController();
   const t = setTimeout(() => ctrl.abort(), timeoutMs);
@@ -293,21 +304,41 @@ Deno.serve(async (req: Request) => {
   if (req.method !== "POST") return response({ error: "Method not allowed" }, 405);
   try {
     if (!SUPABASE_URL || !SERVICE_KEY) return response({ error: "Deposit monitoring is not configured" }, 503);
-    // Auth: any signed-in member may trigger a scan, or a cron secret for scheduled runs.
+    // Manual runs are restricted to administrators. Scheduled runs must present
+    // the long random ZC_CRON_SECRET configured as a Supabase Edge Function secret.
     const cronSecret = Deno.env.get("ZC_CRON_SECRET") ?? "";
     const providedSecret = req.headers.get("x-zc-cron-secret") ?? "";
+    const cronAuthorized =
+      cronSecret.length >= 32 &&
+      providedSecret.length > 0 &&
+      constantTimeEqual(providedSecret, cronSecret);
+
     let requesterId: string | null = null;
-    const authHeader = req.headers.get("Authorization") ?? "";
-    if (cronSecret && providedSecret && providedSecret === cronSecret) {
-      requesterId = null;
-    } else if (authHeader.startsWith("Bearer ")) {
-      const userRes = await fetch(`${SUPABASE_URL}/auth/v1/user`, { headers: { apikey: SERVICE_KEY, Authorization: authHeader } });
+    if (!cronAuthorized) {
+      const authHeader = req.headers.get("Authorization") ?? "";
+      if (!authHeader.startsWith("Bearer ")) {
+        return response({ error: "Administrator authentication or scheduled-job authorization is required" }, 401);
+      }
+
+      const userRes = await fetch(`${SUPABASE_URL}/auth/v1/user`, {
+        headers: { apikey: SERVICE_KEY, Authorization: authHeader },
+      });
       if (!userRes.ok) return response({ error: "Invalid session" }, 401);
+
       const user = await userRes.json();
       if (!user?.id) return response({ error: "Invalid session" }, 401);
-      requesterId = user.id as string;
-    } else {
-      return response({ error: "Authentication required" }, 401);
+
+      const profileRes = await fetch(
+        `${SUPABASE_URL}/rest/v1/profiles?id=eq.${encodeURIComponent(String(user.id))}&select=role&limit=1`,
+        { headers: { apikey: SERVICE_KEY, Authorization: `Bearer ${SERVICE_KEY}` } },
+      );
+      if (!profileRes.ok) return response({ error: "Could not verify administrator access" }, 503);
+      const profileRows = await profileRes.json();
+      if (!Array.isArray(profileRows) || profileRows[0]?.role !== "admin") {
+        return response({ error: "Administrator access required" }, 403);
+      }
+
+      requesterId = String(user.id);
     }
 
     const addrRes = await rest("user_deposit_addresses?address_status=eq.active&select=id,user_id,asset_network_id,asset_code,network_code,address", { method: "GET" });

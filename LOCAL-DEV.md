@@ -1,101 +1,88 @@
 # Running ZentraChain on this laptop
 
-## Test accounts (sandbox clone)
+## Sandbox accounts
 
-The sandbox is a **clone Supabase project** (`zentrachain-sandbox`, ref
-`mdpdcpxvohbcdlhirtdp`) with the full schema, its own data, and its own accounts.
-The local site reads it via `js/env.js` (`MODE: 'sandbox'`).
+The sandbox is a separate Supabase project (`mdpdcpxvohbcdlhirtdp`) with its own
+data and accounts. Do not store test account emails, passwords, recovery
+phrases, or API secrets in this repository. Create or reset local test users
+through the sandbox Supabase Auth dashboard.
 
-| Account | Email | Password | Role |
-| --- | --- | --- | --- |
-| Admin | inemesitobot1@gmail.com | 12345678 | admin |
-| Customer | inemesitobot2@gmail.com | 12345678 | user ($500 test balance) |
-
-Sandbox URL: https://mdpdcpxvohbcdlhirtdp.supabase.co (manage it at supabase.com dashboard)
+**Important:** older public Git history contained reusable sandbox test
+credentials. Removing them from this file does not erase those old commits or
+copies. Reset or disable the previously documented sandbox test accounts in
+Supabase Auth before using them again. Do not use sandbox accounts in production.
 
 ## The simple daily workflow
 
 Edit code on the laptop, test in the browser against the sandbox, then push to
-GitHub — Vercel deploys and the live site talks to the real project.
+GitHub — Vercel deploys and the live site talks to the production project.
 
 ```powershell
-node serve.js          # serves the project at http://localhost:8080
+node serve.js
 git add .
 git commit -m "Fix ..."
 git push
 ```
 
-`localhost:8080` uses the SANDBOX database. Your live site (Vercel) uses the REAL
-one. Same code, different data — so you can break anything safely.
+The root `js/env.js` is configured for the SANDBOX project. The deployed
+`src/js/env.js` must remain configured for the production project. Do not
+copy the production environment setting into the local file.
 
 ## Adding new names to the feed
 
-**Real users appear automatically** — when a real user makes a deposit that gets
-credited or a withdrawal that gets paid, their name joins the feed on its own.
-Nothing to do.
+**Real users appear automatically** when a real user makes a deposit that gets
+credited or a withdrawal that gets paid.
 
 To add more showcase names alongside the existing ones:
 
 ```powershell
 .\scripts\add-showcase-names.ps1 -Names "Adaeze Obi", "Kwame Asante" -Region "Nigeria"
-# or run it with no arguments and type the names when asked
 .\scripts\add-showcase-names.ps1
 ```
 
-The script appends to `supabase/data/showcase-names.json` (skips duplicates),
-regenerates the seed, pushes it to the sandbox, and puts the new names at the
-top of the feed. Commit the updated `showcase-names.json` + `showcase-seed.sql`
-so the live site gets them too.
+The script appends to `supabase/data/showcase-names.json`, regenerates the
+seed, and pushes it to the sandbox. Commit the updated JSON and seed files so
+the live site can receive the new showcase names.
 
-To fetch brand-new international names from a free API instead of typing them:
+To fetch new international names from the free randomuser.me API:
 
 ```powershell
 .\scripts\add-generated-names.ps1 -Count 25
 ```
 
-This pulls fresh names from randomuser.me (free, no key), adds them alongside
-everything already in the list, and pushes them to the feed the same way.
-Run it any time you want the feed to keep growing.
-
 ## Backend environment switch
 
 - `js/env.js` (root, local testing) → `MODE: 'sandbox'`
-- `src/js/env.js` (deployed copy) → `MODE: 'cloud'` — **never change this one**
+- `src/js/env.js` (deployed copy) → `MODE: 'cloud'`
 
-Both HTML files also hardcode the cloud fallback, so production stays safe even if
-env.js fails to load.
+Both HTML files may contain a production fallback for deployment. Never put a
+service-role key, wallet seed, or other private secret in either browser file.
 
 ## Sandbox project structure
 
 - `supabase/sandbox-base.sql` — base objects (profiles, private.is_admin, triggers)
   that predate migration history
-- `supabase/sandbox-tables.sql` — reconstructed request/ledger/report tables + the
-  RPCs the app calls (request_gforce_withdrawal, admin_review_gforce_deposit,
-  admin_pay_gforce_withdrawal)
-- `supabase/migrations/` — applied in order; recorded in
-  `supabase_migrations.schema_migrations` so CLI tools see them as applied
-- `supabase/data/showcase-names.json` — 254 fictional international names used by
-  the public feed seed (regenerate seed with `node supabase/data/gen-showcase-seed.js`)
-- Edge functions deployed: site-analytics, generate-deposit-address,
-  bootstrap-admin, ensure-admin-account, market-data, verify-payout
-- `verify-payout` checks withdrawal hashes on-chain via free public APIs
-  (mempool.space for BTC, Blockchair for ETH/DOGE, BSC public RPC for BEP20,
-  Tronscan for TRON, Solana public RPC for SOL) — no keys needed
-- Secrets on the sandbox: WALLET_MNEMONIC (fresh test seed, see
-  `supabase/sandbox-mnemonic.txt`, gitignored)
-- Sandbox secrets live in `supabase/.env.local` (gitignored)
+- `supabase/sandbox-tables.sql` — reconstructed request/ledger/report tables
+  and application RPCs
+- `supabase/migrations/` — versioned schema and security changes
+- `supabase/data/showcase-names.json` — fictional names used by the public feed
+- `supabase/sandbox-mnemonic.txt` and `supabase/.env.local` — local-only secrets;
+  both are gitignored and must never be committed
+
+The first-admin flow is `bootstrap-admin` and is one-time/secret-protected.
+The old `ensure-admin-account` provisioning endpoint has been retired.
 
 ## Managing the sandbox (CLI)
 
 ```powershell
-$env:SUPABASE_ACCESS_TOKEN = "sbp_..."   # or rely on the saved user env var
 supabase projects list
 supabase secrets list --project-ref mdpdcpxvohbcdlhirtdp
 ```
 
-SQL can also be run through the Supabase Management API query endpoint.
+Keep the Supabase CLI access token in your local environment, never in a file
+committed to GitHub.
 
-## Laptop backups (real project)
+## Laptop backups (production project)
 
 ```powershell
 supabase login
@@ -105,6 +92,7 @@ supabase db dump --file backup.sql
 
 ## Notes
 
-- Migrations in `supabase/migrations/` are schema history, not customer data backups.
-- Real secrets (`WALLET_MNEMONIC`, service-role keys, admin passwords, provider API keys)
-  live in Supabase Edge Function secrets / Vercel env vars — never in git.
+- Migration files are schema history, not customer data backups.
+- Real secrets (`WALLET_MNEMONIC`, service-role keys, admin passwords, provider
+  API keys, cron secrets) belong in Supabase Edge Function secrets or protected
+  Vercel environment variables — never in Git.
