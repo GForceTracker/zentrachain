@@ -66,23 +66,64 @@ window.zcTapAdminAction=async(action,id)=>{try{let r;if(action==='approve'){if(!
 
 // Dashboard B: 18 real clipped fragments; 8 random lightning bolts flash every 10s; B reassembles on a 5s cycle.
 function initBitcoin(el){
- if(!el||el.dataset.zcBitcoin18==='1')return;el.dataset.zcBitcoin18='1';
+ if(!el||el.dataset.zcBitcoin18V2==='1')return;
+ el.dataset.zcBitcoin18V2='1';
  const coin=document.createElement('span');coin.className='zc-bitcoin-coin';
  const svg=document.createElementNS('http://www.w3.org/2000/svg','svg');svg.setAttribute('class','zc-bitcoin-bolts');svg.setAttribute('viewBox','0 0 240 240');
  const paths=document.createElementNS('http://www.w3.org/2000/svg','g');svg.appendChild(paths);el.replaceChildren(coin,svg);
- const cols=3,rows=6;let seed=24119;const rand=()=>{seed=(seed*1664525+1013904223)>>>0;return seed/4294967296},j=v=>v+(rand()-.5)*2;
+ // The original Bitcoin glyph is divided into 18 irregular, interlocking pieces.
+ const cols=3,rows=6;let seed=24119;
+ const rand=()=>{seed=(seed*1664525+1013904223)>>>0;return seed/4294967296};
+ const jitter=v=>v+(rand()-.5)*2.2;
  const xs=[0,100/3,200/3,100],ys=[0,100/6,200/6,50,400/6,500/6,100];
- const grid=Array.from({length:rows+1},(_,r)=>Array.from({length:cols+1},(_,c)=>({x:c===0||c===cols?xs[c]:j(xs[c]),y:r===0||r===rows?ys[r]:j(ys[r])})));
- const h=Array.from({length:rows+1},(_,r)=>Array.from({length:cols},(_,c)=>({x:(grid[r][c].x+grid[r][c+1].x)/2,y:grid[r][c].y+(rand()-.5)})));
- const v=Array.from({length:rows},(_,r)=>Array.from({length:cols+1},(_,c)=>({x:grid[r][c].x+(rand()-.5),y:(grid[r][c].y+grid[r+1][c].y)/2})));
+ const corners=Array.from({length:rows+1},(_,r)=>Array.from({length:cols+1},(_,c)=>({x:c===0||c===cols?xs[c]:jitter(xs[c]),y:r===0||r===rows?ys[r]:jitter(ys[r])})));
+ const horizontal=Array.from({length:rows+1},(_,r)=>Array.from({length:cols},(_,c)=>({x:(corners[r][c].x+corners[r][c+1].x)/2+(rand()-.5)*1.3,y:corners[r][c].y+(rand()-.5)*1.1})));
+ const vertical=Array.from({length:rows},(_,r)=>Array.from({length:cols+1},(_,c)=>({x:corners[r][c].x+(rand()-.5)*1.1,y:(corners[r][c].y+corners[r+1][c].y)/2+(rand()-.5)*1.3})));
  const pieces=[];
- for(let r=0;r<rows;r++)for(let c=0;c<cols;c++){const a=grid[r][c],b=grid[r][c+1],d=grid[r+1][c],e=grid[r+1][c+1],poly=[a,h[r][c],b,v[r][c+1],e,h[r+1][c],d,v[r][c]].map(p=>p.x+'% '+p.y+'%').join(',');const n=document.createElement('span');n.className='zc-bitcoin-piece';n.textContent='₿';n.style.clipPath='polygon('+poly+')';coin.appendChild(n);pieces.push({n,x:(rand()-.5)*6,y:(rand()-.5)*6,rot:(rand()-.5)*15})}
+ for(let r=0;r<rows;r++)for(let c=0;c<cols;c++){
+  const a=corners[r][c],b=corners[r][c+1],d=corners[r+1][c],e=corners[r+1][c+1];
+  const poly=[a,horizontal[r][c],b,vertical[r][c+1],e,horizontal[r+1][c],d,vertical[r][c]].map(p=>p.x.toFixed(2)+'% '+p.y.toFixed(2)+'%').join(',');
+  const n=document.createElement('span');n.className='zc-bitcoin-piece';n.textContent='₿';n.style.clipPath='polygon('+poly+')';n.style.webkitClipPath='polygon('+poly+')';
+  const cx=(a.x+b.x+d.x+e.x)/4,cy=(a.y+b.y+d.y+e.y)/4;
+  pieces.push({n,x:(cx-50)/50*3.25+(rand()-.5)*.9,y:(cy-50)/50*3.25+(rand()-.5)*.9,rot:(rand()-.5)*13});coin.appendChild(n);
+ }
+ // Eight independent jagged lightning bolts flash at random directions every 10 seconds.
+ // Their tips stop in the gap around the B; the ring and B are never covered.
  const NS='http://www.w3.org/2000/svg',between=(a,b)=>a+Math.random()*(b-a);
- function bolt(angle){const p=[];for(let i=0;i<=5;i++){const r=111+(82-111)*i/5,a=angle+(i?between(-.18,.18):0),rr=r+(i>0&&i<5?between(-5,5):0);p.push([120+Math.cos(a)*rr,120+Math.sin(a)*rr])}const d=p.map((q,i)=>(i?'L':'M')+q[0].toFixed(1)+' '+q[1].toFixed(1)).join(' ');['zc-btc-bolt-glow','zc-btc-bolt-core'].forEach(cls=>{const n=document.createElementNS(NS,'path');n.setAttribute('class',cls);n.setAttribute('d',d);paths.appendChild(n)})}
- function flash(){if(!el.isConnected)return;paths.replaceChildren();Array.from({length:8},()=>between(0,Math.PI*2)).forEach(bolt);svg.classList.remove('flash');void svg.getBoundingClientRect();svg.classList.add('flash');setTimeout(()=>svg.classList.remove('flash'),700)}
- const boltTimer=setInterval(flash,10000),cycle=5000,epoch=performance.now();
- function animate(now){if(!el.isConnected){clearInterval(boltTimer);return}const t=(now-epoch)%cycle;pieces.forEach((p,i)=>{const out=600+i*45,back=2650+(pieces.length-i)*40;let k=0;if(t>=out&&t<out+260)k=(t-out)/260;else if(t>=out+260&&t<back)k=1;else if(t>=back&&t<back+260)k=1-(t-back)/260;k=Math.max(0,Math.min(1,k));p.n.style.transform='translate('+p.x*k+'px,'+p.y*k+'px) rotate('+p.rot*k+'deg)'});requestAnimationFrame(animate)}
- requestAnimationFrame(animate);
+ function makeBolt(angle){
+  const pts=[],outer=109,inner=84,steps=5;
+  for(let i=0;i<=steps;i++){
+   const f=i/steps,r=outer+(inner-outer)*f,a=angle+(i===0?0:between(-.19,.19)),rr=r+(i===0||i===steps?0:between(-4,4));
+   pts.push([120+Math.cos(a)*rr,120+Math.sin(a)*rr]);
+  }
+  const d=pts.map((q,i)=>(i?'L':'M')+q[0].toFixed(1)+' '+q[1].toFixed(1)).join(' ');
+  ['zc-btc-bolt-glow','zc-btc-bolt-core'].forEach(cls=>{const p=document.createElementNS(NS,'path');p.setAttribute('class',cls);p.setAttribute('d',d);paths.appendChild(p)});
+ }
+ function flashLightning(){
+  if(!el.isConnected)return;
+  paths.replaceChildren();
+  Array.from({length:8},()=>between(0,Math.PI*2)).forEach(makeBolt);
+  svg.classList.remove('flash');void svg.getBoundingClientRect();svg.classList.add('flash');
+  window.setTimeout(()=>svg.classList.remove('flash'),720);
+ }
+ const boltTimer=window.setInterval(flashLightning,10000);
+ // Fragments move out, remain separated briefly, then fit back into the intact B.
+ const cycle=5000,separation=650,stagger=42,duration=230,repair=2750,ease=v=>{v=Math.max(0,Math.min(1,v));return v*v*(3-2*v)};
+ let epoch=performance.now();
+ function frame(now){
+  if(!el.isConnected){window.clearInterval(boltTimer);return}
+  const t=(now-epoch)%cycle;
+  pieces.forEach((p,i)=>{
+   const out=separation+i*stagger,back=repair+(pieces.length-1-i)*stagger;let k=0;
+   if(t>=out&&t<out+duration)k=ease((t-out)/duration);
+   else if(t>=out+duration&&t<back)k=1;
+   else if(t>=back&&t<back+duration)k=1-ease((t-back)/duration);
+   p.n.style.transform='translate3d('+ (p.x*k).toFixed(2)+'px,'+(p.y*k).toFixed(2)+'px,'+(8*k).toFixed(2)+'px) rotate('+(p.rot*k).toFixed(2)+'deg)';
+   p.n.style.filter=k>.02?'drop-shadow(0 0 2px var(--mint)) drop-shadow(0 0 3px var(--green))':'drop-shadow(0 0 3px color-mix(in srgb,var(--green) 40%,transparent))';
+  });
+  window.requestAnimationFrame(frame);
+ }
+ window.requestAnimationFrame(frame);
 }
 function scan(node){if(!node)return;if(node.matches&&node.matches('.zc-mobile-bitcoin-emblem'))initBitcoin(node);if(node.querySelectorAll)node.querySelectorAll('.zc-mobile-bitcoin-emblem').forEach(initBitcoin);const hero=node.matches&&node.matches('.app-hero-row')?node:node.querySelector&&node.querySelector('.app-hero-row');if(hero&&!hero.querySelector('.zc-mobile-bitcoin-emblem')){const logo=document.createElement('span');logo.className='zc-mobile-bitcoin-emblem';logo.setAttribute('role','img');logo.setAttribute('aria-label','Bitcoin emblem');hero.insertBefore(logo,hero.querySelector('.app-quick-actions')||null);initBitcoin(logo)}}
 const app=$('app-content');if(app){scan(app);const mo=new MutationObserver(rs=>rs.forEach(r=>r.addedNodes.forEach(n=>{if(n.nodeType===1)scan(n)})));mo.observe(app,{childList:true,subtree:true})}
