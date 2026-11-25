@@ -1462,7 +1462,7 @@ async function loadReferralList(){try{
  const box=$('zc-ref-list');if(!box)return;
  if(!rows.length){box.innerHTML='<p class="muted">No invites yet. Share your link to grow your referral count.'+(amt>0?' Current reward: '+money(amt)+' per first deposit.':'')+'</p>';return}
  const ids=rows.map(r=>r.referred_id);
- let names={};try{const pr=await db.from('profiles').select('id,email,full_name,created_at').in('id',ids);for(const p of (pr.data||[]))names[p.id]=p}catch(err){}
+ let names={};try{const pr=await db.rpc('get_my_referral_profiles');if(pr.error)throw pr.error;for(const p of (pr.data||[]))names[p.id]=p}catch(err){console.warn('Referral profile lookup unavailable:',err?.message||err)}
  box.innerHTML='<div class="table-wrap"><table><thead><tr><th>Member</th><th>Joined</th><th>Reward</th></tr></thead><tbody>'+rows.map(r=>{const p=names[r.referred_id]||{};return '<tr><td><b>'+esc(p.full_name||'Member')+'</b><small style="display:block;color:var(--muted)">'+esc(p.email||r.referred_id.slice(0,8))+'</small></td><td>'+date(p.created_at||r.created_at)+'</td><td>'+(r.reward_paid?'<span class="pill">Paid</span>':'<span class="pill pending">Pending</span>')+'</td></tr>'}).join('')+'</tbody></table></div>'+(amt>0?'<p class="muted">Current reward: '+money(amt)+' per invited first deposit.</p>':'');
 }catch(err){const box=$('zc-ref-list');if(box)box.innerHTML='<p class="muted">Could not load referrals.</p>'}}
 async function saveProfile(){const {error}=await db.from('profiles').update({full_name:$('profile-name').value.trim(),updated_at:new Date().toISOString()}).eq('id',currentUser.id);if(error)return toast(error.message,true);profile.full_name=$('profile-name').value.trim();toast('Profile updated');showApp()}

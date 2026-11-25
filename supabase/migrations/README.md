@@ -15,6 +15,8 @@ Security hardening added on 2026-11-25 includes:
 - Revoking the obsolete plan-purchase RPC from client roles.
 - Adding restrictive RLS policies that deny anonymous storage uploads,
   updates, and deletes while preserving public reads for public buckets.
+- Restricting referral profile lookups to the minimum fields shown in the
+  referral list; a referrer can no longer query the invitee's entire profile.
 
 Secrets and environment variables are intentionally excluded. Configure those
 separately in Supabase Edge Function secrets or protected Vercel environment
