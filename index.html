@@ -11696,15 +11696,23 @@ box-sizing:border-box!important;display:inline-flex!important;align-items:center
 
 
 <style id="zc-dashboard-plan-lucide-circles-v1">
-/* Circular Lucide badges on the dashboard plan detail rows. */
+/* Circular Lucide badges on dashboard plan rows; accents follow the active site theme. */
 #dash-cards .gf-plan-detail-line>i,
 #dash-cards .gf-plan-detail-line>svg{
  display:inline-flex!important;align-items:center!important;justify-content:center!important;
  box-sizing:border-box!important;width:34px!important;height:34px!important;flex:0 0 34px!important;
- padding:8px!important;border:1px solid rgba(115,238,180,.34)!important;border-radius:50%!important;
- color:#83f0bd!important;
- background:radial-gradient(circle at 30% 22%,rgba(103,255,190,.20),rgba(20,105,76,.24) 68%,rgba(5,36,27,.42))!important;
- box-shadow:0 0 0 3px rgba(45,205,139,.055),0 0 12px rgba(48,220,150,.12),inset 0 1px 0 rgba(255,255,255,.12)!important;
+ padding:8px!important;
+ border:1px solid color-mix(in srgb,var(--green) 48%,var(--line))!important;
+ border-radius:50%!important;
+ color:var(--mint)!important;
+ background:radial-gradient(circle at 30% 22%,
+  color-mix(in srgb,var(--mint) 20%,transparent),
+  color-mix(in srgb,var(--green) 20%,var(--panel2)) 68%,
+  color-mix(in srgb,var(--panel) 72%,var(--bg)))!important;
+ box-shadow:
+  0 0 0 3px color-mix(in srgb,var(--green) 8%,transparent),
+  0 0 12px color-mix(in srgb,var(--green) 22%,transparent),
+  inset 0 1px 0 color-mix(in srgb,var(--text) 12%,transparent)!important;
  stroke:currentColor!important;stroke-width:2!important;
  vertical-align:middle!important;
 }
