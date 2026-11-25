@@ -25,23 +25,76 @@ const STYLE = `<style id="${MARKER}-css">
  border:1px solid color-mix(in srgb,var(--green) 25%,transparent)!important;
  background:linear-gradient(155deg,var(--panel2),var(--panel))!important;
  transition:border-color .18s ease,box-shadow .18s ease,transform .18s ease!important;
- cursor:pointer!important;position:relative!important;
+ cursor:pointer!important;position:relative!important;isolation:isolate!important;
+}
+/* Keep the original running emerald perimeter, but bind it to the single
+   card selected by this controller instead of the retired legacy classes. */
+#public-plan-cards>.gf-plan-compact-card::after{
+ content:""!important;display:block!important;position:absolute!important;inset:-1px!important;
+ z-index:8!important;pointer-events:none!important;border-radius:inherit!important;padding:3.5px!important;
+ background:conic-gradient(from var(--zc-edge-angle,0deg),transparent 0deg,transparent 225deg,
+  color-mix(in srgb,var(--green) 25%,transparent) 244deg,var(--green) 264deg,var(--mint) 281deg,
+  #fff 287deg,var(--mint) 294deg,var(--green) 307deg,
+  color-mix(in srgb,var(--green) 25%,transparent) 326deg,transparent 345deg,transparent 360deg)!important;
+ -webkit-mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0)!important;
+ -webkit-mask-composite:xor!important;mask-composite:exclude!important;
+ opacity:0!important;transition:opacity .25s ease!important;
 }
 html body #public-plan-cards>.gf-plan-compact-card.zc-plan-active-v3{
- z-index:2!important;border:2px solid var(--green)!important;
- box-shadow:0 0 0 2px color-mix(in srgb,var(--green) 22%,transparent),
-  0 12px 28px color-mix(in srgb,var(--green) 20%,transparent),
-  inset 0 0 0 1px rgba(255,255,255,.045)!important;
- transform:translateY(-2px)!important;
+ position:relative!important;z-index:12!important;border:2px solid var(--green)!important;
+ outline:1px solid color-mix(in srgb,var(--mint) 70%,transparent)!important;outline-offset:2px!important;
+ box-shadow:0 0 0 1px color-mix(in srgb,var(--green) 34%,transparent),
+  0 0 16px color-mix(in srgb,var(--green) 62%,transparent),
+  0 0 36px color-mix(in srgb,var(--green) 34%,transparent),
+  0 14px 36px rgba(0,0,0,.34),
+  inset 0 0 20px color-mix(in srgb,var(--green) 14%,transparent)!important;
+ transform:translateY(-3px)!important;
 }
-#public-plan-cards>.gf-plan-compact-card.zc-plan-active-v3::after{content:none!important;display:none!important}
+#public-plan-cards>.gf-plan-compact-card.zc-plan-active-v3::after{
+ content:""!important;display:block!important;
+ background:conic-gradient(from var(--zc-edge-angle,0deg),transparent 0deg,transparent 215deg,
+  color-mix(in srgb,var(--green) 24%,transparent) 238deg,
+  var(--green) 266deg,var(--mint) 281deg,var(--text) 287deg,var(--mint) 294deg,
+  var(--green) 307deg,color-mix(in srgb,var(--green) 24%,transparent) 326deg,
+  transparent 340deg,transparent 360deg)!important;
+ opacity:1!important;animation:zc-theme-edge-run 2.15s linear infinite!important;
+}
+/* Inactive cards stay quiet, while pointer hover retains the original edge preview. */
+#public-plan-cards>.gf-plan-compact-card:not(.zc-plan-active-v3)::after{
+ opacity:0!important;animation:none!important;
+}
+@media(hover:hover) and (pointer:fine){
+ #public-plan-cards>.gf-plan-compact-card:not(.zc-plan-active-v3):hover::after{
+  opacity:1!important;animation:zc-theme-edge-run 2.15s linear infinite!important;
+ }
+}
 #public-plan-cards>.gf-plan-compact-card.zc-plan-active-v3 .gf-plan-select-button{
  background:linear-gradient(135deg,var(--green),var(--panel2))!important;
- border:1px solid var(--green)!important;color:var(--bg)!important;
- box-shadow:none!important;animation:none!important;
+ background-size:220% 220%!important;border:1px solid var(--green)!important;
+ color:var(--text)!important;
+ box-shadow:0 0 0 2px color-mix(in srgb,var(--green) 34%,transparent),
+  0 0 14px color-mix(in srgb,var(--green) 76%,transparent),
+  0 0 30px color-mix(in srgb,var(--green) 42%,transparent),
+  inset 0 2px 6px rgba(0,0,0,.18)!important;
+ animation:zcVisitorPlanButtonGlowV4 2.2s ease-in-out infinite!important;
+ transform:translateY(1px)!important;
 }
 #public-plan-cards>.gf-plan-compact-card:not(.zc-plan-active-v3) .gf-plan-select-button{
  animation:none!important;filter:none!important;transform:none!important;
+}
+@keyframes zcVisitorPlanButtonGlowV4{
+ 0%,100%{background-position:0% 50%;
+  box-shadow:0 0 0 2px color-mix(in srgb,var(--green) 30%,transparent),
+   0 0 12px color-mix(in srgb,var(--green) 60%,transparent),
+   0 0 24px color-mix(in srgb,var(--green) 28%,transparent)}
+ 50%{background-position:100% 50%;
+  box-shadow:0 0 0 2px color-mix(in srgb,var(--mint) 52%,transparent),
+   0 0 19px color-mix(in srgb,var(--green) 94%,transparent),
+   0 0 38px color-mix(in srgb,var(--green) 48%,transparent)}
+}
+@media(prefers-reduced-motion:reduce){
+ #public-plan-cards>.gf-plan-compact-card.zc-plan-active-v3::after,
+ #public-plan-cards>.gf-plan-compact-card.zc-plan-active-v3 .gf-plan-select-button{animation:none!important}
 }
 /* Keep the ZentraChain brand and both visitor account actions on one clean row. */
 html body .logo.zc-brand-mark{
