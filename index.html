@@ -7836,7 +7836,7 @@ function showCommunityMessageMenu(message,eventX,eventY){
  if(profile?.role==='admin')actions.push(['Remove message',()=>removeMessage(message.id)]);
  actions.forEach(([label,action])=>{
   const button=document.createElement('button');button.type='button';button.textContent=label;
-  button.onclick=()=>{const copyAction=/^copy\\b/i.test(label);const result=action(button);if(copyAction){Promise.resolve(result).then(()=>setTimeout(hideCommunityMessageMenu,900),()=>setTimeout(hideCommunityMessageMenu,900))}else hideCommunityMessageMenu()};menu.append(button);
+  button.onclick=()=>{const copyAction=/^copy\b/i.test(label);const result=action(button);if(copyAction){Promise.resolve(result).then(()=>setTimeout(hideCommunityMessageMenu,900),()=>setTimeout(hideCommunityMessageMenu,900))}else hideCommunityMessageMenu()};menu.append(button);
  });
  menu.classList.remove('hidden');
  const width=menu.offsetWidth||170,height=menu.offsetHeight||150;
