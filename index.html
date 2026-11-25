@@ -14448,3 +14448,244 @@ body[data-zc-theme="metallic"] #app-drawer .zc-theme-choice[data-theme="metallic
 /* Add 20px more breathing room between plan cards in the member dashboard. */
 #dash-cards{gap:28px!important}
 </style>
+
+
+<style id="zc-member-plan-carousel-peek-v1">
+/* Member dashboard only: show one full plan and a preview of the next plan on phones. */
+@media (max-width:700px) {
+  #app-content #dash-cards.plan-grid {
+    display:flex!important;
+    flex-direction:row!important;
+    flex-wrap:nowrap!important;
+    align-items:stretch!important;
+    gap:28px!important;
+    width:100%!important;
+    max-width:100%!important;
+    overflow-x:auto!important;
+    overflow-y:hidden!important;
+    padding:8px 4px 24px!important;
+    -webkit-overflow-scrolling:touch!important;
+    overscroll-behavior-x:contain!important;
+    scroll-snap-type:x mandatory!important;
+    scroll-padding-inline:4px!important;
+    touch-action:pan-x pan-y;
+    scrollbar-width:none!important;
+  }
+  #app-content #dash-cards.plan-grid::-webkit-scrollbar {
+    display:none!important;
+  }
+  #app-content #dash-cards.plan-grid>.gf-plan-compact-card,
+  #app-content #dash-cards.plan-grid>.plan-card {
+    box-sizing:border-box!important;
+    flex:0 0 calc((100% - 28px)/1.5)!important;
+    width:calc((100% - 28px)/1.5)!important;
+    min-width:0!important;
+    max-width:none!important;
+    scroll-snap-align:start!important;
+    scroll-snap-stop:always!important;
+  }
+  #app-content #dash-cards.plan-grid>.gf-plan-compact-card:only-child,
+  #app-content #dash-cards.plan-grid>.plan-card:only-child {
+    flex-basis:100%!important;
+    width:100%!important;
+  }
+}
+</style>
+
+<script id="zc-member-plan-auto-swipe-v1">
+(function(){
+  if(window.__ZcMemberPlanAutoSwipeV1)return;
+  window.__ZcMemberPlanAutoSwipeV1=true;
+
+  var SELECTOR='#app-content #dash-cards';
+  var IDLE_DELAY=5000;
+
+  function cardsOf(rail){
+    return Array.prototype.filter.call(rail.children,function(card){
+      return card.classList&&(
+        card.classList.contains('gf-plan-compact-card')||
+        card.classList.contains('plan-card')
+      );
+    });
+  }
+
+  function isFormControl(element){
+    return !!element&&/^(INPUT|TEXTAREA|SELECT)$/.test(element.tagName);
+  }
+
+  function attach(rail){
+    if(!rail||rail.dataset.zcMemberAutoSwipeReady==='1')return;
+    rail.dataset.zcMemberAutoSwipeReady='1';
+
+    var timer=0;
+    var settleTimer=0;
+    var autoFinishTimer=0;
+    var pointerDown=false;
+    var pointerInside=false;
+    var autoScrolling=false;
+
+    function clearTimer(){
+      if(timer){window.clearTimeout(timer);timer=0;}
+    }
+
+    function calculatorIsBeingUsed(){
+      var active=document.activeElement;
+      var calculator=document.getElementById('calc-shell');
+      return isFormControl(active)&&(
+        rail.contains(active)||(calculator&&calculator.contains(active))
+      );
+    }
+
+    function buyPanelIsOpen(){
+      var panel=rail.querySelector('.zc-card-buy:not([hidden])');
+      return !!panel&&!panel.classList.contains('hidden');
+    }
+
+    function userIsBusy(){
+      if(document.hidden||pointerDown||pointerInside)return true;
+      if(calculatorIsBeingUsed()||buyPanelIsOpen())return true;
+      var authModal=document.getElementById('auth-modal');
+      return !!authModal&&!authModal.classList.contains('hidden');
+    }
+
+    function carouselIsReady(cards){
+      var mobile=window.matchMedia
+        ?window.matchMedia('(max-width:700px)').matches
+        :window.innerWidth<=700;
+      var reduced=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      return mobile&&!reduced&&cards.length>1&&rail.clientWidth>0&&
+        rail.scrollWidth>rail.clientWidth+8;
+    }
+
+    function nearestCardIndex(cards){
+      var railRect=rail.getBoundingClientRect();
+      var start=railRect.left+rail.clientLeft;
+      var bestDistance=Infinity;
+      var bestIndex=0;
+      cards.forEach(function(card,index){
+        var distance=Math.abs(card.getBoundingClientRect().left-start);
+        if(distance<bestDistance){
+          bestDistance=distance;
+          bestIndex=index;
+        }
+      });
+      return bestIndex;
+    }
+
+    function scrollToCard(card){
+      if(!card)return;
+      var railRect=rail.getBoundingClientRect();
+      var cardRect=card.getBoundingClientRect();
+      var target=rail.scrollLeft+cardRect.left-(railRect.left+rail.clientLeft);
+      var left=Math.max(0,target);
+      if(typeof rail.scrollTo==='function'){
+        rail.scrollTo({left:left,behavior:'smooth'});
+      }else{
+        rail.scrollLeft=left;
+      }
+    }
+
+    function scheduleNext(){
+      clearTimer();
+      var cards=cardsOf(rail);
+      if(userIsBusy()||!carouselIsReady(cards))return;
+      timer=window.setTimeout(function(){
+        timer=0;
+        cards=cardsOf(rail);
+        if(userIsBusy()||!carouselIsReady(cards)){
+          scheduleNext();
+          return;
+        }
+        var current=nearestCardIndex(cards);
+        var next=(current+1)%cards.length;
+        autoScrolling=true;
+        scrollToCard(cards[next]);
+        window.clearTimeout(autoFinishTimer);
+        autoFinishTimer=window.setTimeout(function(){
+          autoScrolling=false;
+        },750);
+        scheduleNext();
+      },IDLE_DELAY);
+    }
+
+    function pauseForPointer(){
+      pointerDown=true;
+      clearTimer();
+    }
+
+    function resumeAfterPointer(){
+      if(!pointerDown)return;
+      pointerDown=false;
+      scheduleNext();
+    }
+
+    rail.addEventListener('pointerdown',pauseForPointer,{passive:true});
+    document.addEventListener('pointerup',resumeAfterPointer,{passive:true});
+    document.addEventListener('pointercancel',resumeAfterPointer,{passive:true});
+    rail.addEventListener('touchstart',pauseForPointer,{passive:true});
+    document.addEventListener('touchend',resumeAfterPointer,{passive:true});
+    document.addEventListener('touchcancel',resumeAfterPointer,{passive:true});
+
+    rail.addEventListener('pointerenter',function(event){
+      if(event.pointerType==='touch')return;
+      pointerInside=true;
+      clearTimer();
+    },{passive:true});
+    rail.addEventListener('pointerleave',function(event){
+      if(event.pointerType==='touch')return;
+      pointerInside=false;
+      scheduleNext();
+    },{passive:true});
+
+    rail.addEventListener('scroll',function(){
+      if(autoScrolling)return;
+      clearTimer();
+      window.clearTimeout(settleTimer);
+      settleTimer=window.setTimeout(scheduleNext,180);
+    },{passive:true});
+
+    ['wheel','click','keydown','focusout','input','change'].forEach(function(type){
+      rail.addEventListener(type,scheduleNext,{passive:type==='wheel'});
+    });
+    rail.addEventListener('focusin',function(){
+      if(calculatorIsBeingUsed())clearTimer();
+      else scheduleNext();
+    });
+
+    document.addEventListener('focusin',function(event){
+      var calculator=document.getElementById('calc-shell');
+      if(calculator&&calculator.contains(event.target)&&isFormControl(event.target)){
+        clearTimer();
+      }
+    });
+    document.addEventListener('focusout',function(event){
+      var calculator=document.getElementById('calc-shell');
+      if(calculator&&calculator.contains(event.target)){
+        window.setTimeout(scheduleNext,0);
+      }
+    });
+
+    document.addEventListener('visibilitychange',scheduleNext);
+    window.addEventListener('resize',scheduleNext,{passive:true});
+    window.addEventListener('orientationchange',scheduleNext,{passive:true});
+
+    new MutationObserver(scheduleNext).observe(rail,{childList:true,subtree:true});
+    scheduleNext();
+  }
+
+  function scan(){
+    document.querySelectorAll(SELECTOR).forEach(attach);
+  }
+
+  function init(){
+    scan();
+    new MutationObserver(scan).observe(document.body,{childList:true,subtree:true});
+  }
+
+  if(document.readyState==='loading'){
+    document.addEventListener('DOMContentLoaded',init,{once:true});
+  }else{
+    init();
+  }
+})();
+</script>
