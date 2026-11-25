@@ -9021,6 +9021,168 @@ body[data-zc-theme] #app-content input.zc-calc-range::-moz-range-thumb{
 @media(prefers-reduced-motion:reduce){.zc-bitcoin-face-front{animation:none;background-position:50% 50%}}
 </style>
 
+<style id="zc-referral-notification-scroll-v2">
+.zc-referral-scroll{max-height:min(420px,58vh);overflow:auto;overscroll-behavior:contain;border:1px solid var(--line);border-radius:13px}
+.zc-referral-scroll table{margin:0;min-width:520px}
+.zc-referral-scroll thead th{position:sticky;top:0;z-index:2;background:var(--panel2)}
+.zc-referral-scroll tbody tr:last-child td{border-bottom:0}
+@media(max-width:560px){.zc-referral-scroll{max-height:360px}.zc-referral-scroll table{min-width:480px}}
+</style>
+<script id="zc-referral-notifications-v2">
+(function(){
+ if(window.__zcReferralNotificationsV2)return;
+ window.__zcReferralNotificationsV2=true;
+ var rows=[];
+ var seen=new Set();
+ var activeUid=null;
+ var channel=null;
+ var audioContext=null;
+ var previousBadge=window.updateAlertBadge;
+ var previousRefresh=window.refreshData;
+ var previousRealtime=window.startRealtimeAlerts;
+ var previousTransactionAlert=window.showTransactionAlert;
+ function unlockSound(){
+  try{var AudioCtor=window.AudioContext||window.webkitAudioContext;if(!AudioCtor)return;if(!audioContext)audioContext=new AudioCtor();if(audioContext.state==="suspended")audioContext.resume();}catch(e){}
+ }
+ function playSound(){
+  try{
+   unlockSound();
+   if(!audioContext||audioContext.state!=="running")return;
+   var osc=audioContext.createOscillator();
+   var gain=audioContext.createGain();
+   var now=audioContext.currentTime;
+   osc.type="sine";
+   osc.frequency.setValueAtTime(880,now);
+   osc.frequency.setValueAtTime(1174.66,now+0.09);
+   gain.gain.setValueAtTime(0.0001,now);
+   gain.gain.exponentialRampToValueAtTime(0.13,now+0.015);
+   gain.gain.exponentialRampToValueAtTime(0.0001,now+0.25);
+   osc.connect(gain);gain.connect(audioContext.destination);
+   osc.start(now);osc.stop(now+0.27);
+  }catch(e){}
+ }
+ document.addEventListener("pointerdown",unlockSound,{once:true,passive:true});
+ document.addEventListener("keydown",unlockSound,{once:true});
+ function escapeText(value){return typeof window.esc==="function"?window.esc(String(value==null?"":value)):String(value==null?"":value).replace(/[&<>"]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;"}[c]})}
+ function formatWhen(value){var d=new Date(value);return isNaN(d.getTime())?"—":d.toLocaleString(undefined,{year:"numeric",month:"short",day:"numeric",hour:"2-digit",minute:"2-digit"})}
+ function loadSeen(uid){
+  activeUid=uid;seen=new Set();
+  try{var data=JSON.parse(localStorage.getItem("zc-notification-seen-"+uid)||"[]");if(Array.isArray(data))data.forEach(function(id){seen.add(String(id))})}catch(e){}
+ }
+ function rememberSeen(ids){
+  (ids||[]).forEach(function(id){if(id)seen.add(String(id))});
+  try{localStorage.setItem("zc-notification-seen-"+activeUid,JSON.stringify(Array.from(seen).slice(-250)))}catch(e){}
+ }
+ function updateBadge(){
+  var el=document.getElementById("alert-count");if(!el)return;
+  var legacy=0;
+  try{if(typeof previousBadge==="function")previousBadge();legacy=parseInt(String(el.textContent||"0").replace(/[^0-9]/g,""),10)||0}catch(e){}
+  var unread=rows.filter(function(n){return !n.read_at}).length;
+  var total=legacy+unread;
+  el.textContent=total>9?"9+":String(total);
+  el.classList.toggle("hidden",total===0);
+ }
+ function announceFresh(fresh){
+  if(!fresh||!fresh.length)return;
+  playSound();
+  var latest=fresh.slice().sort(function(a,b){return new Date(b.created_at)-new Date(a.created_at)})[0];
+  if(latest&&typeof window.toast==="function")window.toast(String(latest.title||"New notification")+": "+String(latest.message||"You have a new account notification."));
+ }
+ async function refreshNotifications(announce){
+  var uid=window.currentUser&&window.currentUser.id;
+  if(!uid||!window.db){rows=[];updateBadge();return []}
+  if(activeUid!==uid)loadSeen(uid);
+  try{
+   var result=await db.from("user_notifications").select("id,notification_type,title,message,metadata,reference_id,created_at,read_at").eq("user_id",uid).order("created_at",{ascending:false}).limit(100);
+   if(result.error)throw result.error;
+   var next=result.data||[];
+   var fresh=next.filter(function(n){return n.id&&!seen.has(String(n.id))});
+   rows=next;
+   rememberSeen(fresh.map(function(n){return n.id}));
+   if(announce!==false)announceFresh(fresh);
+   updateBadge();
+   return rows;
+  }catch(error){console.warn("ZentraChain notifications could not be refreshed:",error&&error.message||error);updateBadge();return rows}
+ }
+ function subscribeNotifications(){
+  var uid=window.currentUser&&window.currentUser.id;
+  if(!uid||!window.db)return;
+  if(channel){try{db.removeChannel(channel)}catch(e){}channel=null}
+  channel=db.channel("zc-user-notifications-"+uid)
+   .on("postgres_changes",{event:"INSERT",schema:"public",table:"user_notifications",filter:"user_id=eq."+uid},function(payload){
+    var item=payload&&payload.new;if(!item||!item.id)return;
+    if(!rows.some(function(n){return n.id===item.id}))rows.unshift(item);
+    rows.sort(function(a,b){return new Date(b.created_at)-new Date(a.created_at)});
+    var fresh=!seen.has(String(item.id));rememberSeen([item.id]);
+    if(fresh){playSound();if(typeof window.toast==="function")window.toast(String(item.title||"New notification")+": "+String(item.message||"You have a new account notification."))}
+    updateBadge();
+   })
+   .subscribe(function(status){if(status==="CHANNEL_ERROR"||status==="TIMED_OUT")console.warn("Notification live updates:",status)});
+ }
+ window.refreshZcNotifications=refreshNotifications;
+ window.updateAlertBadge=updateBadge;
+ window.openAlerts=async function(){
+  await refreshNotifications(false);
+  var card=document.querySelector("#transaction-modal .transaction-card");
+  if(!card)return;
+  var unread=rows.filter(function(n){return !n.read_at});
+  var icons={welcome:"✓",referral_joined:"＋",referred_by:"↗"};
+  card.innerHTML='<div class="zc-notice-head"><div><div class="eyebrow">ACCOUNT NOTIFICATIONS</div><h3>Notifications</h3></div><button class="x" aria-label="Close notifications" onclick="closeAlerts()">×</button></div><div class="zc-notice-list">'
+   +(rows.length?rows.map(function(n,i){return '<article class="zc-notice-item" style="animation-delay:'+Math.min(i*25,300)+'ms"><div class="zc-notice-icon">'+(icons[n.notification_type]||"•")+'</div><div class="zc-notice-copy"><b>'+escapeText(n.title||"Notification")+'</b><p>'+escapeText(n.message||"") + '</p><time>'+escapeText(formatWhen(n.created_at))+'</time></div></article>'}).join(""):'<div class="zc-notice-empty">You’re all caught up. Welcome and referral updates will appear here.</div>')
+   +'</div><button class="btn primary" style="width:100%;margin-top:12px" onclick="closeAlerts()">Done</button>';
+  var modal=document.getElementById("transaction-modal");if(modal)modal.classList.remove("hidden");
+  if(unread.length){
+   var ids=unread.map(function(n){return n.id});
+   try{var marked=await db.from("user_notifications").update({read_at:new Date().toISOString()}).eq("user_id",currentUser.id).in("id",ids);if(marked.error)throw marked.error;rows=rows.map(function(n){return ids.indexOf(n.id)>=0?Object.assign({},n,{read_at:new Date().toISOString()}):n})}catch(e){console.warn("Could not mark notifications read:",e&&e.message||e)}
+  }
+  updateBadge();
+ };
+ window.showTransactionAlert=function(title,message){
+  playSound();
+  if(typeof previousTransactionAlert==="function")return previousTransactionAlert.apply(window,arguments);
+  if(typeof window.toast==="function")window.toast(String(title||"Notification")+": "+String(message||""));
+  updateBadge();
+ };
+ window.refreshData=async function(){
+  var result;if(typeof previousRefresh==="function")result=await previousRefresh.apply(this,arguments);
+  await refreshNotifications(true);return result;
+ };
+ window.startRealtimeAlerts=function(){
+  if(typeof previousRealtime==="function")previousRealtime.apply(this,arguments);
+  subscribeNotifications();
+ };
+ window.loadReferralList=async function(){
+  var uid=window.currentUser&&window.currentUser.id;
+  var link=document.getElementById("zc-ref-link");if(link)link.value=typeof window.zcReferralLink==="function"?window.zcReferralLink():"";
+  var box=document.getElementById("zc-ref-list");if(!uid||!window.db){if(box)box.innerHTML='<p class="muted">Sign in to view your invited members.</p>';return}
+  try{
+   var result=await db.from("referrals").select("id,referrer_id,referred_id,reward_paid,signup_paid,created_at").eq("referrer_id",uid).order("created_at",{ascending:false});
+   var inviteRows=result.error?(window.referrals||[]).filter(function(r){return r.referrer_id===uid}):(result.data||[]);
+   var names={};
+   try{var people=await db.rpc("get_my_referral_profiles");if(!people.error)(people.data||[]).forEach(function(p){names[p.id]=p})}catch(e){console.warn("Referral name lookup unavailable:",e&&e.message||e)}
+   var count=document.getElementById("zc-ref-count");if(count)count.textContent=String(inviteRows.length);
+   var earned=(window.ledger||[]).filter(function(x){return x.entry_type==="bonus"&&(x.reference_type==="referral_reward"||x.reference_type==="referral_signup")}).reduce(function(s,x){return s+Number(x.amount||0)},0);
+   var earnedEl=document.getElementById("zc-ref-earned");if(earnedEl)earnedEl.textContent=typeof window.money==="function"?window.money(earned):"$"+earned.toFixed(2);
+   var settings=await db.from("site_settings").select("setting_key,numeric_value").in("setting_key",["referral_reward_percent","referral_signup_bonus_usd"]);
+   var pct=null,bonus=null;(settings.data||[]).forEach(function(x){if(x.setting_key==="referral_reward_percent")pct=Number(x.numeric_value);if(x.setting_key==="referral_signup_bonus_usd")bonus=Number(x.numeric_value)});
+   var rewardParts=[];if(bonus&&bonus>0)rewardParts.push((typeof window.money==="function"?window.money(bonus):"$"+bonus.toFixed(2))+" when an invited member joins");if(pct&&pct>0)rewardParts.push(pct+"% of each deposit they make");
+   var rewardNote=rewardParts.length?'<p class="muted" style="margin-top:12px">Current reward: '+escapeText(rewardParts.join(" plus "))+".</p>":"";
+   if(!box)return;
+   if(!inviteRows.length){box.innerHTML='<p class="muted">No invites yet. Share your link to grow your referral count.</p>'+rewardNote;return}
+   var tableRows=inviteRows.map(function(r){
+    var p=names[r.referred_id]||{};
+    var name=p.full_name||((p.email||"").split("@")[0])||"Member";
+    var joined=formatWhen(p.created_at||r.created_at);
+    var paid=(r.signup_paid||r.reward_paid)?'<span class="pill">Paid</span>':'<span class="pill pending">Pending</span>';
+    return '<tr><td><b>'+escapeText(name)+'</b>'+(p.email?'<small style="display:block;color:var(--muted)">'+escapeText(p.email)+'</small>':"") + '</td><td>'+escapeText(joined)+'</td><td>'+paid+'</td></tr>';
+   }).join("");
+   box.innerHTML='<div class="zc-referral-scroll"><table><thead><tr><th>Member</th><th>Join date &amp; time</th><th>Join bonus</th></tr></thead><tbody>'+tableRows+'</tbody></table></div>'+rewardNote;
+  }catch(error){console.error("Referral list could not be loaded:",error);if(box)box.innerHTML='<p class="muted">Could not load referrals. Please refresh and try again.</p>'}
+ };
+ var init=function(){updateBadge();if(window.currentUser&&window.currentUser.id)refreshNotifications(true)};
+ if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",init,{once:true});else init();
+})();
+</script>
 </body>
 
 <style id="zc-visitor-plan-card-height-reduction-v1">
