@@ -14511,7 +14511,7 @@ body[data-zc-theme="metallic"] #app-drawer .zc-theme-choice[data-theme="metallic
     window.zcWalletWithdrawPage=async function(asset,network){
       var a=String(asset||'USDT').toUpperCase(),n=String(network||'TRC20').toUpperCase();
       if(!isSupportedTreasuryNetwork(a,n)){
-        if(typeof toast==='function')toast('Blockchain withdrawals are currently enabled for USDT on TRC20, ERC20 and BEP20 only. No bookkeeping-only withdrawal will be created.',true);
+        if(typeof toast==='function')toast('This asset and network are not enabled for automatic Treasury withdrawals. No bookkeeping-only withdrawal will be created.',true);
         return;
       }
       var result=await oldWalletWithdraw.apply(this,arguments);
@@ -14531,7 +14531,7 @@ body[data-zc-theme="metallic"] #app-drawer .zc-theme-choice[data-theme="metallic
     window.zcWalletPickAsset=function(key){
       var parts=String(key||'').toUpperCase().split('|');
       if(!isSupportedTreasuryNetwork(parts[0],parts[1])){
-        if(typeof toast==='function')toast('This network is not enabled for on-chain Treasury Wallet withdrawals yet.',true);
+        if(typeof toast==='function')toast('This asset and network are not enabled for on-chain Treasury Wallet withdrawals yet.',true);
         return;
       }
       var result=oldPickAsset.apply(this,arguments);
@@ -14545,7 +14545,7 @@ body[data-zc-theme="metallic"] #app-drawer .zc-theme-choice[data-theme="metallic
     window.zcWalletSubmitWithdraw=async function(){
       var W=window.zcWalletWd||{};
       if(!isSupportedTreasuryNetwork(W.asset,W.network)){
-        if(typeof toast==='function')toast('This network cannot be withdrawn from the Treasury Wallet yet. No ledger-only withdrawal was made.',true);
+        if(typeof toast==='function')toast('This asset and network cannot be withdrawn from the Treasury Wallet yet. No ledger-only withdrawal was made.',true);
         return;
       }
       var addressInput=document.getElementById('zc-wd-addr');
@@ -14560,7 +14560,7 @@ body[data-zc-theme="metallic"] #app-drawer .zc-theme-choice[data-theme="metallic
     window.zcWalletConfirmWithdraw=async function(){
       var W=window.zcWalletWd||{};
       if(!isSupportedTreasuryNetwork(W.asset,W.network)){
-        if(typeof toast==='function')toast('This network is not enabled for on-chain broadcasting. Nothing was recorded.',true);
+        if(typeof toast==='function')toast('This asset and network are not enabled for on-chain broadcasting. Nothing was recorded.',true);
         return;
       }
       return oldConfirm.apply(this,arguments);
