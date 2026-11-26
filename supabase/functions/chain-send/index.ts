@@ -200,13 +200,13 @@ function signTronRawTransaction(rawDataHex: string, privateKey: string): string 
   const v = sig.yParity === 0 ? "00" : "01";
   return sig.r.slice(2).padStart(64, "0") + sig.s.slice(2).padStart(64, "0") + v;
 }
-async function tronBroadcast(transaction: any, privateKey: string, beforeBroadcast: () => Promise<void>): Promise<string> {
+async function tronBroadcast(transaction: any, privateKey: string, beforeBroadcast: (feeNative: number, feeUnit: string) => Promise<void>, feeNative: number): Promise<string> {
   const raw = String(transaction?.raw_data_hex ?? "");
   if (!raw) throw new Error("TRON did not return a transaction to sign");
   const txid = String(transaction?.txID ?? "");
   if (!/^[0-9a-fA-F]{64}$/.test(txid)) throw new Error("TRON transaction ID is invalid before broadcast");
   const sigHex = signTronRawTransaction(raw, privateKey);
-  await beforeBroadcast();
+  await beforeBroadcast(feeNative, "TRX");
   const d = await fetchJson("https://api.trongrid.io/wallet/broadcasttransaction", {
     method: "POST", headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ ...transaction, signature: [sigHex], visible: true }),
@@ -225,7 +225,7 @@ function tronFeeFromState(state: TronState, rawDataHex: string, energy: number):
 type BroadcastResult = {
   txid: string; txUrl: string; feeNative: number; feeUnit: string; cryptoAmount: string; feeNote: string;
 };
-async function sendEvm(row: any, asset: string, network: string, to: string, amountUnits: bigint, decimals: number, beforeBroadcast: () => Promise<void>): Promise<BroadcastResult> {
+async function sendEvm(row: any, asset: string, network: string, to: string, amountUnits: bigint, decimals: number, beforeBroadcast: (feeNative: number, feeUnit: string) => Promise<void>): Promise<BroadcastResult> {
   const provider = new ethers.JsonRpcProvider(EVM_RPC[network]);
   const chain = await provider.getNetwork();
   const expectedChainId = network === "BEP20" ? 56n : 1n;
@@ -247,6 +247,7 @@ async function sendEvm(row: any, asset: string, network: string, to: string, amo
   const isNative = asset === "ETH" && network === "ETHEREUM";
   let tx: any;
   let gasUnits: bigint;
+  let feeNative = 0;
   if (isNative) {
     const gasEstimate = await provider.estimateGas({ from: row.address, to, value: amountUnits });
     gasUnits = (gasEstimate * 115n + 99n) / 100n;
@@ -257,7 +258,8 @@ async function sendEvm(row: any, asset: string, network: string, to: string, amo
         ethers.formatEther(needed) + " ETH (transfer plus estimated gas), but has " +
         ethers.formatEther(balance) + " ETH.");
     }
-    await beforeBroadcast();
+    feeNative = Number(gasUnits * maxFeePerGas) / 1e18;
+    await beforeBroadcast(feeNative, "ETH");
     tx = await signer.sendTransaction({ to, value: amountUnits, gasLimit: gasUnits, ...feeFields });
   } else {
     const tokenAddress = USDT_ADDR[network];
@@ -283,10 +285,10 @@ async function sendEvm(row: any, asset: string, network: string, to: string, amo
         (network === "BEP20" ? " BNB" : " ETH") + " for gas, but its native gas balance is " +
         ethers.formatEther(nativeBalance) + ". Fund the wallet's gas balance first.");
     }
-    await beforeBroadcast();
+    feeNative = Number(gasUnits * maxFeePerGas) / 1e18;
+    await beforeBroadcast(feeNative, network === "BEP20" ? "BNB" : "ETH");
     tx = await contract.transfer(to, amountUnits, { gasLimit: gasUnits, ...feeFields });
   }
-  const feeNative = Number(gasUnits * maxFeePerGas) / 1e18;
   const feeUnit = network === "BEP20" ? "BNB" : "ETH";
   const txid = String(tx.hash ?? "");
   if (!/^0x[0-9a-fA-F]{64}$/.test(txid)) throw new Error("EVM node did not return a valid transaction hash");
@@ -300,7 +302,7 @@ async function sendEvm(row: any, asset: string, network: string, to: string, amo
   };
 }
 
-async function sendTron(row: any, asset: string, to: string, amountUnits: bigint, decimals: number, beforeBroadcast: () => Promise<void>): Promise<BroadcastResult> {
+async function sendTron(row: any, asset: string, to: string, amountUnits: bigint, decimals: number, beforeBroadcast: (feeNative: number, feeUnit: string) => Promise<void>): Promise<BroadcastResult> {
   const wallet = deriveSecpWallet(row.derivation_path);
   const privateKey = wallet.privateKey.slice(2);
   const publicKey = wallet.signingKey.publicKey.slice(2);
@@ -362,7 +364,7 @@ async function sendTron(row: any, asset: string, to: string, amountUnits: bigint
     throw new Error("The sending wallet needs approximately " + nativeRequired.toFixed(6) +
       " TRX for the transfer and network fee, but has " + state.trx.toFixed(6) + " TRX.");
   }
-  const txid = await tronBroadcast(transaction, privateKey, beforeBroadcast);
+  const txid = await tronBroadcast(transaction, privateKey, beforeBroadcast, feeNative);
   return {
     txid,
     txUrl: "https://tronscan.org/#/transaction/" + txid,
@@ -373,7 +375,7 @@ async function sendTron(row: any, asset: string, to: string, amountUnits: bigint
   };
 }
 
-async function sendSolana(row: any, to: string, amountUnits: bigint, beforeBroadcast: () => Promise<void>): Promise<BroadcastResult> {
+async function sendSolana(row: any, to: string, amountUnits: bigint, beforeBroadcast: (feeNative: number, feeUnit: string) => Promise<void>): Promise<BroadcastResult> {
   const keypair = deriveSolanaWallet(row.derivation_path);
   const from = keypair.publicKey;
   if (from.toBase58() !== String(row.address)) {
@@ -404,7 +406,7 @@ async function sendSolana(row: any, to: string, amountUnits: bigint, beforeBroad
       " SOL (transfer plus fee), but has " + (balance / 1e9).toFixed(9) + " SOL.");
   }
   tx.sign(keypair);
-  await beforeBroadcast();
+  await beforeBroadcast(estimatedFee / 1e9, "SOL");
   const signature = await connection.sendRawTransaction(tx.serialize(), { skipPreflight: false, maxRetries: 3 });
   return {
     txid: signature,
@@ -417,7 +419,7 @@ async function sendSolana(row: any, to: string, amountUnits: bigint, beforeBroad
 }
 
 type UtxoRow = { txid: string; vout: number; value: number; height?: number; status?: { confirmed?: boolean } };
-async function sendUtxo(row: any, asset: "BTC" | "DOGE", to: string, amountUnits: bigint, beforeBroadcast: () => Promise<void>): Promise<BroadcastResult> {
+async function sendUtxo(row: any, asset: "BTC" | "DOGE", to: string, amountUnits: bigint, beforeBroadcast: (feeNative: number, feeUnit: string) => Promise<void>): Promise<BroadcastResult> {
   const doge = asset === "DOGE";
   const network = doge ? DOGE_NETWORK : BTC_NETWORK;
   const keyNode = deriveBip32Node(row.derivation_path);
@@ -518,7 +520,8 @@ async function sendUtxo(row: any, asset: "BTC" | "DOGE", to: string, amountUnits
   const rawHex = tx.toHex();
   const txid = tx.getId();
   let broadcastId = "";
-  await beforeBroadcast();
+  const estimatedFeeNative = fee / 1e8;
+  await beforeBroadcast(estimatedFeeNative, asset);
   if (!doge) {
     broadcastId = await fetchText(BTC_API + "/tx", {
       method: "POST", headers: { "Content-Type": "text/plain" }, body: rawHex,
@@ -623,32 +626,39 @@ Deno.serve(async (req: Request) => {
       : asset;
     const feeAssetPrice = feeAsset === asset ? price : await usdPrice(feeAsset);
 
-    // Reserve the member's verified USD balance and lock this exact source wallet.
-    const claimResponse = await fetch(SUPABASE_URL + "/rest/v1/rpc/admin_treasury_claim_onchain_withdrawal", {
-      method: "POST",
-      headers: { apikey: SERVICE_KEY, Authorization: authHeader, "Content-Type": "application/json" },
-      body: JSON.stringify({
-        p_user_id: userId,
-        p_asset: asset,
-        p_network: network,
-        p_amount: round2(amountUsd),
-        p_deposit_address_id: depositId,
-      }),
-    });
-    const claimBody = await claimResponse.text();
-    let claimValue: any = null;
-    try { claimValue = claimBody ? JSON.parse(claimBody) : null; } catch { claimValue = null; }
-    if (!claimResponse.ok || typeof claimValue !== "string") {
-      throw new Error(String(claimValue?.message || claimValue?.hint || claimBody || "Could not reserve the member's verified on-chain balance"));
-    }
-    reservationId = claimValue;
-    if (!/^[0-9a-fA-F-]{36}$/.test(reservationId)) {
-      reservationId = "";
-      throw new Error("The treasury could not create a valid withdrawal reservation. No transfer was sent.");
-    }
-
     let sent: BroadcastResult;
-    const markBroadcastAttempt = async () => {
+    // Reserve principal plus any fee paid in the same coin, after the sender
+    // has estimated the network fee and checked wallet balances, immediately
+    // before it submits the signed transaction to the blockchain.
+    const markBroadcastAttempt = async (feeNative: number, feeUnit: string) => {
+      if (!Number.isFinite(feeNative) || feeNative < 0 || feeUnit.toUpperCase() !== feeAsset) {
+        throw new Error("The network fee estimate does not match the expected native fee asset. No transfer was sent.");
+      }
+      const estimatedFeeUsd = feeNative * feeAssetPrice;
+      const sameAssetFeeUsd = feeAsset === asset ? round2(estimatedFeeUsd) : 0;
+      const claimResponse = await fetch(SUPABASE_URL + "/rest/v1/rpc/admin_treasury_claim_onchain_withdrawal", {
+        method: "POST",
+        headers: { apikey: SERVICE_KEY, Authorization: authHeader, "Content-Type": "application/json" },
+        body: JSON.stringify({
+          p_user_id: userId,
+          p_asset: asset,
+          p_network: network,
+          p_amount: round2(round2(amountUsd) + sameAssetFeeUsd),
+          p_deposit_address_id: depositId,
+        }),
+      });
+      const claimBody = await claimResponse.text();
+      let claimValue: any = null;
+      try { claimValue = claimBody ? JSON.parse(claimBody) : null; } catch { claimValue = null; }
+      if (!claimResponse.ok || typeof claimValue !== "string") {
+        throw new Error(String(claimValue?.message || claimValue?.hint || claimBody || "Could not reserve the member's verified on-chain balance including network fees"));
+      }
+      reservationId = claimValue;
+      if (!/^[0-9a-fA-F-]{36}$/.test(reservationId)) {
+        reservationId = "";
+        throw new Error("The treasury could not create a valid withdrawal reservation. No transfer was sent.");
+      }
+
       const markResponse = await fetch(SUPABASE_URL + "/rest/v1/rpc/admin_treasury_mark_onchain_broadcast_attempt", {
         method: "POST",
         headers: { apikey: SERVICE_KEY, Authorization: authHeader, "Content-Type": "application/json" },
