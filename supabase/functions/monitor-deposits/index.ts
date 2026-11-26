@@ -886,8 +886,10 @@ Deno.serve(async (req: Request) => {
 
     const prices = await loadPrices();
     const minimumRes = await rest("site_settings?setting_key=eq.minimum_deposit_usd&select=numeric_value&limit=1", { method: "GET" });
-    const minimumRows = minimumRes.ok ? await minimumRes.json() as Array<{ numeric_value?: number | string }> : [];
-    const minimumUsd = Number(minimumRows[0]?.numeric_value ?? 10);
+    if (!minimumRes.ok) throw new Error("Could not load the configured minimum deposit setting");
+    const minimumRows = await minimumRes.json() as Array<{ numeric_value?: number | string }>;
+    const minimumUsd = Number(minimumRows[0]?.numeric_value);
+    if (!Number.isFinite(minimumUsd) || minimumUsd <= 0) throw new Error("The configured minimum deposit must be greater than zero");
     const requiredFor = (network: string) => REQUIRED_CONFIRMATIONS[String(network || "").toUpperCase()] ?? 12;
 
     // 1. Record newly detected transfers.
