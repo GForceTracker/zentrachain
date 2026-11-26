@@ -12,7 +12,7 @@ const TRON_RPC_URL = Deno.env.get("TRON_RPC_URL") ?? "https://tron-evm-rpc.publi
 const TRON_SOLIDITY_HTTP_URL = Deno.env.get("TRON_SOLIDITY_HTTP_URL") ?? "https://tron-solidity-rpc.publicnode.com";
 const ETHEREUM_RPC_URL = Deno.env.get("ETHEREUM_RPC_URL") ?? "https://ethereum-rpc.publicnode.com";
 
-const TRON_EVM_RPC_URLS = [...new Set([TRON_RPC_URL, "https://tron-evm-rpc.publicnode.com"])];
+const TRON_EVM_RPC_URLS = [...new Set([TRON_RPC_URL, "https://tron-evm-rpc.publicnode.com", "https://tron-evm.publicnode.com", "https://api.trongrid.io/jsonrpc"])];
 const ETHEREUM_RPC_URLS = [...new Set([ETHEREUM_RPC_URL, "https://eth.llamarpc.com", "https://1rpc.io/eth"])];
 const BSC_RPC_URLS = ["https://bsc-rpc.publicnode.com", "https://bsc-dataseed.binance.org", "https://1rpc.io/bnb"];
 const SOLANA_RPC_URLS = ["https://solana-rpc.publicnode.com", "https://api.mainnet-beta.solana.com"];
