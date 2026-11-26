@@ -52,6 +52,16 @@ function tronHex(address:string):string{
   if(payload[0]!==0x41)throw new Error("Invalid TRON address prefix");
   return Array.from(payload.slice(1),x=>x.toString(16).padStart(2,"0")).join("");
 }
+async function tronUsdtBalance(address:string):Promise<number>{
+  const parameter=tronHex(address).padStart(64,"0");
+  const d=await getJson("https://api.trongrid.io/wallet/triggerconstantcontract",{
+    method:"POST",headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({owner_address:address,contract_address:TRON_USDT,function_selector:"balanceOf(address)",parameter,visible:true}),
+  });
+  const hex=String(d?.constant_result?.[0]||"0");
+  const units=BigInt("0x"+(hex||"0"));
+  return Number(ethers.formatUnits(units,6));
+}
 async function tronState(address:string){
   const [a,r,p]=await Promise.all([
     getJson("https://api.trongrid.io/wallet/getaccount",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({address,visible:true})}),
@@ -101,14 +111,20 @@ Deno.serve(async(req:Request)=>{
       const chain=await provider.getNetwork();
       const expectedChainId=network==="BEP20"?56n:1n;
       if(chain.chainId!==expectedChainId)throw new Error("The RPC endpoint is connected to the wrong blockchain network");
-      const fd=await provider.getFeeData(),gasPrice=fd.maxFeePerGas??fd.gasPrice;
+      const fd=await provider.getFeeData(),gasPrice=[fd.gasPrice,fd.maxFeePerGas].find((x:any)=>x!=null&&x>0n);
       if(!gasPrice||gasPrice<=0n)throw new Error("The EVM network fee service returned no usable gas price");
       let gas=21000n;
       const sender=from&&/^0x[a-fA-F0-9]{40}$/.test(from)?from:"0x0000000000000000000000000000000000000001";
       const recipient=to&&/^0x[a-fA-F0-9]{40}$/.test(to)?to:sender;
       if(asset==="USDT"){
-        const contract=new ethers.Contract(USDT_ADDR[network],["function transfer(address,uint256) returns (bool)"],provider);
-        gas=await contract.transfer.estimateGas(recipient,units,{from:sender});
+        const contract=new ethers.Contract(USDT_ADDR[network],["function transfer(address,uint256) returns (bool)","function balanceOf(address) view returns(uint256)"],provider);
+        const tokenBalance:bigint=from&&/^0x[a-fA-F0-9]{40}$/.test(from)?await contract.balanceOf(from):0n;
+        if(from&&/^0x[a-fA-F0-9]{40}$/.test(from)){
+          extra.wallet_asset_balance=Number(ethers.formatUnits(tokenBalance,decimals));
+          extra.wallet_usdt_balance=extra.wallet_asset_balance;
+        }
+        const estimateUnits=tokenBalance>0n&&tokenBalance<units?tokenBalance:units;
+        gas=await contract.transfer.estimateGas(recipient,estimateUnits,{from:sender});
       }else{
         gas=await provider.estimateGas({from:sender,to:recipient,value:units||1n});
       }
@@ -117,6 +133,14 @@ Deno.serve(async(req:Request)=>{
       unit=network==="BEP20"?"BNB":"ETH";
       if(from&&/^0x[a-fA-F0-9]{40}$/.test(from)){
         const bal=await provider.getBalance(from);extra.wallet_native=Number(ethers.formatEther(bal));
+        if(asset==="USDT"){
+          const token=new ethers.Contract(USDT_ADDR[network],["function balanceOf(address) view returns(uint256)"],provider);
+          const tokenBalance:bigint=await token.balanceOf(from);
+          extra.wallet_asset_balance=Number(ethers.formatUnits(tokenBalance,decimals));
+          extra.wallet_usdt_balance=extra.wallet_asset_balance;
+        }else{
+          extra.wallet_asset_balance=Number(ethers.formatUnits(bal,decimals));
+        }
       }
     }else if(network==="TRC20"||network==="TRON"){
       if(!from)throw new Error("The source TRON deposit address is not available");
@@ -134,6 +158,12 @@ Deno.serve(async(req:Request)=>{
         tx=d.transaction;energy=Number(d?.energy_used||0);
       }
       native=tronFee(state,String(tx.raw_data_hex),energy);unit="TRX";extra.wallet_trx=state.trx;
+      if(asset==="USDT"){
+        extra.wallet_asset_balance=await tronUsdtBalance(from);
+        extra.wallet_usdt_balance=extra.wallet_asset_balance;
+      }else{
+        extra.wallet_asset_balance=state.trx;
+      }
     }else if(network==="SOLANA"){
       const conn=new Connection(SOLANA_RPC,"confirmed");
       const sender=from&&/^[1-9A-HJ-NP-Za-km-z]{32,44}$/.test(from)?new PublicKey(from):new PublicKey("11111111111111111111111111111111");
@@ -146,7 +176,7 @@ Deno.serve(async(req:Request)=>{
       const fee=await conn.getFeeForMessage(tx.compileMessage(),"confirmed");
       if(fee===null)throw new Error("Solana did not return a fee estimate");
       native=fee/1e9;unit="SOL";
-      if(from){extra.wallet_native=(await conn.getBalance(sender,"confirmed"))/1e9}
+      if(from){extra.wallet_native=(await conn.getBalance(sender,"confirmed"))/1e9};extra.wallet_asset_balance=extra.wallet_native
     }else if(network==="BITCOIN"){
       const [fees,utxos]=await Promise.all([
         getJson(BTC_API+"/v1/fees/recommended"),
@@ -158,6 +188,7 @@ Deno.serve(async(req:Request)=>{
       const vbytes=10+68*inputs+31*2;
       native=Math.ceil(vbytes*rate)/1e8;unit="BTC";
       extra.wallet_native=(Array.isArray(utxos)?utxos:[]).reduce((sum:number,x:any)=>sum+(x?.status?.confirmed?Number(x.value||0):0),0)/1e8;
+      extra.wallet_asset_balance=extra.wallet_native;
     }else if(network==="DOGECOIN"){
       const [fees,utxos]=await Promise.all([
         getJson(DOGE_API+"/fees"),
@@ -170,8 +201,13 @@ Deno.serve(async(req:Request)=>{
       const bytes=10+148*inputs+34*2;
       native=Math.ceil(bytes*rate)/1e8;unit="DOGE";
       extra.wallet_native=rows.reduce((sum:number,x:any)=>sum+(Number(x?.height??x?.confirmations??0)>0?Number(x.value||0):0),0)/1e8;
+      extra.wallet_asset_balance=extra.wallet_native;
     }
+    if(["ERC20","BEP20","ETHEREUM"].includes(network)&&(!Number.isFinite(native)||native<=0))throw new Error("The live EVM gas estimate is zero or unavailable; no fee-free withdrawal quote can be returned.");
+    if(["ERC20","BEP20","ETHEREUM"].includes(network)&&(!Number.isFinite(native)||native<=0))throw new Error("The live EVM gas estimate is zero or unavailable; a fee-free quote cannot be returned.");
     const feeUsd=native*await price(unit);
+    if(!Number.isFinite(feeUsd)||feeUsd<0)throw new Error("The live network fee USD conversion is unavailable.");
+    if(!Number.isFinite(feeUsd)||feeUsd<0)throw new Error("The live fee USD conversion is unavailable.");
     return response(feeData(native,unit,feeUsd,extra));
   }catch(e){
     return response({error:"Could not estimate the live network fee: "+String((e as any)?.message??e)},502);

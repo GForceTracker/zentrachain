@@ -62,6 +62,7 @@ function response(data: unknown, status = 200) {
   });
 }
 function round2(n: number) { return Math.round(n * 100) / 100; }
+function round6(n: number) { return Math.round(n * 1e6) / 1e6; }
 function bytesToHex(bytes: Uint8Array) {
   return Array.from(bytes, x => x.toString(16).padStart(2, "0")).join("");
 }
@@ -200,7 +201,7 @@ function signTronRawTransaction(rawDataHex: string, privateKey: string): string 
   const v = sig.yParity === 0 ? "00" : "01";
   return sig.r.slice(2).padStart(64, "0") + sig.s.slice(2).padStart(64, "0") + v;
 }
-async function tronBroadcast(transaction: any, privateKey: string, beforeBroadcast: (feeNative: number, feeUnit: string) => Promise<void>, feeNative: number): Promise<string> {
+async function tronBroadcast(transaction: any, privateKey: string, beforeBroadcast: BeforeBroadcast, feeNative: number): Promise<string> {
   const raw = String(transaction?.raw_data_hex ?? "");
   if (!raw) throw new Error("TRON did not return a transaction to sign");
   const txid = String(transaction?.txID ?? "");
@@ -225,84 +226,97 @@ function tronFeeFromState(state: TronState, rawDataHex: string, energy: number):
 type BroadcastResult = {
   txid: string; txUrl: string; feeNative: number; feeUnit: string; cryptoAmount: string; feeNote: string;
 };
-async function sendEvm(row: any, asset: string, network: string, to: string, amountUnits: bigint, decimals: number, beforeBroadcast: (feeNative: number, feeUnit: string) => Promise<void>): Promise<BroadcastResult> {
+type BeforeBroadcast = (feeNative: number, feeUnit: string, amountUsdSent?: number) => Promise<void>;
+type FeeOptions = { feeMode: "native" | "coin"; amountUsd: number; assetPrice: number; feeAssetPrice: number };
+async function sendEvm(
+  row: any, asset: string, network: string, to: string, amountUnits: bigint, decimals: number,
+  beforeBroadcast: BeforeBroadcast, feeOptions: FeeOptions,
+): Promise<BroadcastResult> {
   const provider = new ethers.JsonRpcProvider(EVM_RPC[network]);
   const chain = await provider.getNetwork();
   const expectedChainId = network === "BEP20" ? 56n : 1n;
-  if (chain.chainId !== expectedChainId) {
-    throw new Error("The RPC endpoint is connected to the wrong blockchain network. Transfer blocked for safety.");
-  }
+  if (chain.chainId !== expectedChainId) throw new Error("The RPC endpoint is connected to the wrong blockchain network. Transfer blocked for safety.");
   const wallet = deriveSecpWallet(row.derivation_path);
-  if (wallet.address.toLowerCase() !== String(row.address).toLowerCase()) {
-    throw new Error("Derived EVM address does not match the saved deposit address. Transfer blocked for safety.");
-  }
+  if (wallet.address.toLowerCase() !== String(row.address).toLowerCase()) throw new Error("Derived EVM address does not match the saved deposit address. Transfer blocked for safety.");
   if (!/^0x[a-fA-F0-9]{40}$/.test(to)) throw new Error("The destination address is not a valid EVM address");
-  const feeData = await provider.getFeeData();
-  const maxFeePerGas = feeData.maxFeePerGas ?? feeData.gasPrice;
-  if (!maxFeePerGas || maxFeePerGas <= 0n) throw new Error("The network did not return a usable gas price");
-  const feeFields: Record<string, bigint> = feeData.maxFeePerGas && feeData.maxPriorityFeePerGas
-    ? { maxFeePerGas: feeData.maxFeePerGas, maxPriorityFeePerGas: feeData.maxPriorityFeePerGas }
-    : { gasPrice: feeData.gasPrice ?? maxFeePerGas };
+  const fd = await provider.getFeeData();
+  const gasPrice = [fd.gasPrice, fd.maxFeePerGas].find(x => x != null && x > 0n);
+  if (!gasPrice) throw new Error("The network did not return a usable gas price");
+  const feeFields: Record<string, bigint> = fd.maxFeePerGas && fd.maxPriorityFeePerGas && fd.maxFeePerGas > 0n
+    ? { maxFeePerGas: fd.maxFeePerGas, maxPriorityFeePerGas: fd.maxPriorityFeePerGas }
+    : { gasPrice: fd.gasPrice ?? gasPrice };
   const signer = new ethers.Wallet(wallet.privateKey, provider);
   const isNative = asset === "ETH" && network === "ETHEREUM";
   let tx: any;
   let gasUnits: bigint;
   let feeNative = 0;
+  let amountUnitsToSend = amountUnits;
+  let amountUsdToSend = round6(feeOptions.amountUsd);
   if (isNative) {
-    const gasEstimate = await provider.estimateGas({ from: row.address, to, value: amountUnits });
-    gasUnits = (gasEstimate * 115n + 99n) / 100n;
+    const estimate = await provider.estimateGas({ from: row.address, to, value: amountUnits });
+    gasUnits = (estimate * 115n + 99n) / 100n;
     const balance = await provider.getBalance(row.address);
-    const needed = amountUnits + gasUnits * maxFeePerGas;
-    if (balance < needed) {
-      throw new Error("The Ethereum deposit wallet needs " +
-        ethers.formatEther(needed) + " ETH (transfer plus estimated gas), but has " +
-        ethers.formatEther(balance) + " ETH.");
-    }
-    feeNative = Number(gasUnits * maxFeePerGas) / 1e18;
-    await beforeBroadcast(feeNative, "ETH");
+    const needed = amountUnits + gasUnits * gasPrice;
+    if (balance < needed) throw new Error("The Ethereum deposit wallet needs " + ethers.formatEther(needed) + " ETH (transfer plus estimated gas), but has " + ethers.formatEther(balance) + " ETH.");
+    feeNative = Number(gasUnits * gasPrice) / 1e18;
+    await beforeBroadcast(feeNative, "ETH", amountUsdToSend);
     tx = await signer.sendTransaction({ to, value: amountUnits, gasLimit: gasUnits, ...feeFields });
   } else {
     const tokenAddress = USDT_ADDR[network];
     if (asset !== "USDT" || !tokenAddress) throw new Error("Unsupported EVM asset and network combination");
     const tokenDecimals = network === "BEP20" ? 18 : 6;
     if (decimals !== tokenDecimals) throw new Error("Token decimal configuration mismatch");
-    const contract = new ethers.Contract(
-      tokenAddress,
-      ["function transfer(address to, uint256 amount) returns (bool)", "function balanceOf(address a) view returns (uint256)"],
-      signer,
-    );
+    const contract = new ethers.Contract(tokenAddress, [
+      "function transfer(address to, uint256 amount) returns (bool)",
+      "function balanceOf(address a) view returns (uint256)"
+    ], signer);
     const tokenBalance: bigint = await contract.balanceOf(row.address);
-    if (tokenBalance < amountUnits) {
-      throw new Error("The deposit wallet has " + ethers.formatUnits(tokenBalance, tokenDecimals) +
-        " USDT, which is less than the requested " + ethers.formatUnits(amountUnits, tokenDecimals) + " USDT.");
+    if (feeOptions.feeMode === "coin" && tokenBalance > 0n && tokenBalance < amountUnits) amountUnitsToSend = tokenBalance;
+
+    let settled = feeOptions.feeMode !== "coin";
+    for (let pass = 0; feeOptions.feeMode === "coin" && pass < 6; pass++) {
+      const estimate = await contract.transfer.estimateGas(to, amountUnitsToSend);
+      gasUnits = (estimate * 115n + 99n) / 100n;
+      feeNative = Number(gasUnits * gasPrice) / 1e18;
+      const feeUsd = round6(feeNative * feeOptions.feeAssetPrice);
+      if (!Number.isFinite(feeUsd) || feeUsd <= 0 || feeUsd >= feeOptions.amountUsd) throw new Error("The live EVM network fee is not valid for deduction from the USDT transfer. No transfer was sent.");
+      const nextUsd = round6(feeOptions.amountUsd - feeUsd);
+      const nextUnits = unitsFromUsd(nextUsd, feeOptions.assetPrice, tokenDecimals);
+      amountUsdToSend = nextUsd;
+      if (nextUnits === amountUnitsToSend) { settled = true; break; }
+      amountUnitsToSend = nextUnits;
     }
-    const estimate = await contract.transfer.estimateGas(to, amountUnits);
-    gasUnits = (estimate * 115n + 99n) / 100n;
+    if (!settled) throw new Error("The live EVM fee calculation did not stabilise. No transfer was sent.");
+    const finalEstimate = await contract.transfer.estimateGas(to, amountUnitsToSend);
+    gasUnits = (finalEstimate * 115n + 99n) / 100n;
+    feeNative = Number(gasUnits * gasPrice) / 1e18;
+    if (feeOptions.feeMode === "coin") {
+      const finalFeeUsd = round6(feeNative * feeOptions.feeAssetPrice);
+      const settledUsd = round6(feeOptions.amountUsd - finalFeeUsd);
+      if (unitsFromUsd(settledUsd, feeOptions.assetPrice, tokenDecimals) !== amountUnitsToSend) throw new Error("The live EVM network fee changed during the final estimate. Refresh the quote and retry.");
+      amountUsdToSend = settledUsd;
+    }
+    if (tokenBalance < amountUnitsToSend) throw new Error("The source wallet does not hold enough USDT for the final transfer amount.");
     const nativeBalance = await provider.getBalance(row.address);
-    const neededGas = gasUnits * maxFeePerGas;
-    if (nativeBalance < neededGas) {
-      throw new Error("The sending wallet needs approximately " + ethers.formatEther(neededGas) +
-        (network === "BEP20" ? " BNB" : " ETH") + " for gas, but its native gas balance is " +
-        ethers.formatEther(nativeBalance) + ". Fund the wallet's gas balance first.");
-    }
-    feeNative = Number(gasUnits * maxFeePerGas) / 1e18;
-    await beforeBroadcast(feeNative, network === "BEP20" ? "BNB" : "ETH");
-    tx = await contract.transfer(to, amountUnits, { gasLimit: gasUnits, ...feeFields });
+    const neededGas = gasUnits * gasPrice;
+    if (nativeBalance < neededGas) throw new Error("The sending wallet needs approximately " + ethers.formatEther(neededGas) + (network === "BEP20" ? " BNB" : " ETH") + " for gas, but its native gas balance is " + ethers.formatEther(nativeBalance) + ". Fund the wallet's gas balance first.");
+    await beforeBroadcast(feeNative, network === "BEP20" ? "BNB" : "ETH", amountUsdToSend);
+    tx = await contract.transfer(to, amountUnitsToSend, { gasLimit: gasUnits, ...feeFields });
   }
   const feeUnit = network === "BEP20" ? "BNB" : "ETH";
   const txid = String(tx.hash ?? "");
   if (!/^0x[0-9a-fA-F]{64}$/.test(txid)) throw new Error("EVM node did not return a valid transaction hash");
   return {
-    txid,
-    txUrl: (network === "BEP20" ? "https://bscscan.com/tx/" : "https://etherscan.io/tx/") + txid,
-    feeNative,
-    feeUnit,
-    cryptoAmount: ethers.formatUnits(amountUnits, decimals),
-    feeNote: "estimated EVM gas; actual fee may be lower",
+    txid, txUrl: (network === "BEP20" ? "https://bscscan.com/tx/" : "https://etherscan.io/tx/") + txid,
+    feeNative, feeUnit, cryptoAmount: ethers.formatUnits(amountUnitsToSend, decimals),
+    feeNote: feeOptions.feeMode === "coin" ? "USDT transfer reduced by live fee equivalent; native gas is still paid on-chain" : "live EVM gas; actual fee may be lower",
   };
 }
 
-async function sendTron(row: any, asset: string, to: string, amountUnits: bigint, decimals: number, beforeBroadcast: (feeNative: number, feeUnit: string) => Promise<void>): Promise<BroadcastResult> {
+async function sendTron(
+  row: any, asset: string, to: string, amountUnits: bigint, decimals: number,
+  beforeBroadcast: BeforeBroadcast, feeOptions: FeeOptions,
+): Promise<BroadcastResult> {
   const wallet = deriveSecpWallet(row.derivation_path);
   const privateKey = wallet.privateKey.slice(2);
   const publicKey = wallet.signingKey.publicKey.slice(2);
@@ -313,8 +327,7 @@ async function sendTron(row: any, asset: string, to: string, amountUnits: bigint
     const first = ethers.getBytes(ethers.sha256(payload));
     const sum = ethers.getBytes(ethers.sha256(first)).slice(0, 4);
     const combined = new Uint8Array(payload.length + 4);
-    combined.set(payload);
-    combined.set(sum, payload.length);
+    combined.set(payload); combined.set(sum, payload.length);
     const alphabet = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz";
     let n = BigInt("0x" + bytesToHex(combined)), out = "";
     while (n > 0n) { const rem = Number(n % 58n); out = alphabet[rem] + out; n /= 58n; }
@@ -324,8 +337,8 @@ async function sendTron(row: any, asset: string, to: string, amountUnits: bigint
   if (expected !== String(row.address)) throw new Error("Derived TRON address does not match the saved deposit address. Transfer blocked for safety.");
   tronAddressHex(to);
   const state = await tronState(row.address);
-  let transaction: any;
-  let energy = 0;
+  let transaction: any, energy = 0, feeNative = 0;
+  let amountUnitsToSend = amountUnits, amountUsdToSend = round6(feeOptions.amountUsd);
   if (asset === "TRX") {
     if (decimals !== 6) throw new Error("TRX decimal configuration mismatch");
     const amountSun = Number(amountUnits);
@@ -338,44 +351,56 @@ async function sendTron(row: any, asset: string, to: string, amountUnits: bigint
     transaction = d;
   } else if (asset === "USDT") {
     if (decimals !== 6 || to.length !== 34) throw new Error("TRC20 token configuration or destination is invalid");
-    const tokenBal = await tronUsdtBalance(row.address);
-    if (tokenBal < amountUnits) throw new Error("The TRON deposit wallet does not have enough USDT for this transfer");
-    const parameter = tronAddressHex(to).padStart(64, "0") +
-      amountUnits.toString(16).padStart(64, "0");
-    const d = await fetchJson("https://api.trongrid.io/wallet/triggersmartcontract", {
-      method: "POST", headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        owner_address: row.address, contract_address: TRON_USDT,
-        function_selector: "transfer(address,uint256)", parameter,
-        fee_limit: 400000000, visible: true,
-      }),
-    });
-    if (d?.result?.result !== true || !d?.transaction?.raw_data_hex) {
-      throw new Error("TRON rejected the USDT transfer build: " + String(d?.result?.message ?? "unknown error"));
+    const tokenBalance = await tronUsdtBalance(row.address);
+    const build = async (units: bigint) => {
+      const parameter = tronAddressHex(to).padStart(64, "0") + units.toString(16).padStart(64, "0");
+      const d = await fetchJson("https://api.trongrid.io/wallet/triggersmartcontract", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ owner_address: row.address, contract_address: TRON_USDT, function_selector: "transfer(address,uint256)", parameter, fee_limit: 400000000, visible: true }),
+      });
+      if (d?.result?.result !== true || !d?.transaction?.raw_data_hex) throw new Error("TRON rejected the USDT transfer build: " + String(d?.result?.message ?? "unknown error"));
+      return { transaction: d.transaction, energy: Number(d?.energy_used ?? 0) };
+    };
+    if (feeOptions.feeMode === "coin" && tokenBalance > 0n && tokenBalance < amountUnitsToSend) amountUnitsToSend = tokenBalance;
+    let built = await build(amountUnitsToSend);
+    transaction = built.transaction; energy = built.energy;
+    let settled = feeOptions.feeMode !== "coin";
+    for (let pass = 0; feeOptions.feeMode === "coin" && pass < 6; pass++) {
+      feeNative = tronFeeFromState(state, String(transaction.raw_data_hex), energy);
+      const feeUsd = round6(feeNative * feeOptions.feeAssetPrice);
+      if (!Number.isFinite(feeUsd) || feeUsd <= 0 || feeUsd >= feeOptions.amountUsd) throw new Error("The live TRON network fee is not valid for deduction from the USDT transfer. No transfer was sent.");
+      const nextUsd = round6(feeOptions.amountUsd - feeUsd);
+      const nextUnits = unitsFromUsd(nextUsd, feeOptions.assetPrice, decimals);
+      amountUsdToSend = nextUsd;
+      if (nextUnits === amountUnitsToSend) { settled = true; break; }
+      amountUnitsToSend = nextUnits;
+      built = await build(amountUnitsToSend);
+      transaction = built.transaction; energy = built.energy;
     }
-    transaction = d.transaction;
-    energy = Number(d?.energy_used ?? 0);
+    if (!settled) throw new Error("The live TRON fee calculation did not stabilise. No transfer was sent.");
+    feeNative = tronFeeFromState(state, String(transaction.raw_data_hex), energy);
+    if (feeOptions.feeMode === "coin") {
+      const finalFeeUsd = round6(feeNative * feeOptions.feeAssetPrice);
+      const settledUsd = round6(feeOptions.amountUsd - finalFeeUsd);
+      if (unitsFromUsd(settledUsd, feeOptions.assetPrice, decimals) !== amountUnitsToSend) throw new Error("The live TRON network fee changed during the final estimate. Refresh the quote and retry.");
+      amountUsdToSend = settledUsd;
+    }
+    if (tokenBalance < amountUnitsToSend) throw new Error("The source TRON wallet does not have enough USDT for the final transfer amount.");
   } else {
     throw new Error("Unsupported TRON asset and network combination");
   }
-  const feeNative = tronFeeFromState(state, String(transaction.raw_data_hex), energy);
+  feeNative = tronFeeFromState(state, String(transaction.raw_data_hex), energy);
   const nativeRequired = (asset === "TRX" ? Number(amountUnits) / 1e6 : 0) + feeNative;
-  if (state.trx + 0.0000001 < nativeRequired) {
-    throw new Error("The sending wallet needs approximately " + nativeRequired.toFixed(6) +
-      " TRX for the transfer and network fee, but has " + state.trx.toFixed(6) + " TRX.");
-  }
-  const txid = await tronBroadcast(transaction, privateKey, beforeBroadcast, feeNative);
+  if (state.trx + 0.0000001 < nativeRequired) throw new Error("The sending wallet needs approximately " + nativeRequired.toFixed(6) + " TRX for the transfer and network fee, but has " + state.trx.toFixed(6) + " TRX.");
+  const txid = await tronBroadcast(transaction, privateKey, async (fee, unit) => beforeBroadcast(fee, unit, amountUsdToSend), feeNative);
   return {
-    txid,
-    txUrl: "https://tronscan.org/#/transaction/" + txid,
-    feeNative,
-    feeUnit: "TRX",
-    cryptoAmount: ethers.formatUnits(amountUnits, decimals),
-    feeNote: "estimated TRON energy and bandwidth fee",
+    txid, txUrl: "https://tronscan.org/#/transaction/" + txid, feeNative, feeUnit: "TRX",
+    cryptoAmount: ethers.formatUnits(amountUnitsToSend, decimals),
+    feeNote: feeOptions.feeMode === "coin" ? "USDT transfer reduced by live fee equivalent; TRX gas is still paid on-chain" : "live TRON energy and bandwidth fee",
   };
 }
 
-async function sendSolana(row: any, to: string, amountUnits: bigint, beforeBroadcast: (feeNative: number, feeUnit: string) => Promise<void>): Promise<BroadcastResult> {
+async function sendSolana(row: any, to: string, amountUnits: bigint, beforeBroadcast: BeforeBroadcast): Promise<BroadcastResult> {
   const keypair = deriveSolanaWallet(row.derivation_path);
   const from = keypair.publicKey;
   if (from.toBase58() !== String(row.address)) {
@@ -419,7 +444,7 @@ async function sendSolana(row: any, to: string, amountUnits: bigint, beforeBroad
 }
 
 type UtxoRow = { txid: string; vout: number; value: number; height?: number; status?: { confirmed?: boolean } };
-async function sendUtxo(row: any, asset: "BTC" | "DOGE", to: string, amountUnits: bigint, beforeBroadcast: (feeNative: number, feeUnit: string) => Promise<void>): Promise<BroadcastResult> {
+async function sendUtxo(row: any, asset: "BTC" | "DOGE", to: string, amountUnits: bigint, beforeBroadcast: BeforeBroadcast): Promise<BroadcastResult> {
   const doge = asset === "DOGE";
   const network = doge ? DOGE_NETWORK : BTC_NETWORK;
   const keyNode = deriveBip32Node(row.derivation_path);
@@ -577,6 +602,10 @@ Deno.serve(async (req: Request) => {
     const network = String(b?.network ?? "").toUpperCase();
     const to = String(b?.to_address ?? "").normalize("NFKC").replace(/[\u200B-\u200D\uFEFF]/g, "").trim().replace(/^0X/i, "0x");
     const amountUsd = Number(b?.amount_usd ?? b?.amount_coin ?? 0);
+    const requestedFeeMode = String(b?.fee_mode ?? "native").toLowerCase();
+    const isDualFee = asset === "USDT" && ["TRC20","ERC20","BEP20"].includes(network);
+    if (requestedFeeMode === "coin" && !isDualFee) return response({ error: "USDT fee deduction is only available for USDT TRC20, ERC20 and BEP20 withdrawals." }, 400);
+    const feeMode: "native" | "coin" = isDualFee && requestedFeeMode === "coin" ? "coin" : "native";
     const note = String(b?.note ?? "").trim();
     if (!depositId || !userId || !to || !Number.isFinite(amountUsd) || amountUsd <= 0) {
       return response({ error: "Missing or invalid withdrawal details" }, 400);
@@ -627,15 +656,16 @@ Deno.serve(async (req: Request) => {
     const feeAssetPrice = feeAsset === asset ? price : await usdPrice(feeAsset);
 
     let sent: BroadcastResult;
-    // Reserve principal plus any fee paid in the same coin, after the sender
-    // has estimated the network fee and checked wallet balances, immediately
-    // before it submits the signed transaction to the blockchain.
-    const markBroadcastAttempt = async (feeNative: number, feeUnit: string) => {
-      if (!Number.isFinite(feeNative) || feeNative < 0 || feeUnit.toUpperCase() !== feeAsset) {
-        throw new Error("The network fee estimate does not match the expected native fee asset. No transfer was sent.");
+    let actualAmountUsd = round6(amountUsd);
+    // Reserve only the actual amount sent, plus network gas when it is paid
+    // in the same asset as the withdrawn coin.
+    const markBroadcastAttempt = async (feeNative: number, feeUnit: string, amountUsdSent = amountUsd) => {
+      if (!Number.isFinite(feeNative) || feeNative < 0 || feeUnit.toUpperCase() !== feeAsset ||
+          !Number.isFinite(amountUsdSent) || amountUsdSent <= 0 || amountUsdSent > amountUsd + 0.000001) {
+        throw new Error("The live fee or actual transfer amount is invalid. No transfer was sent.");
       }
-      const estimatedFeeUsd = feeNative * feeAssetPrice;
-      const sameAssetFeeUsd = feeAsset === asset ? round2(estimatedFeeUsd) : 0;
+      const sameAssetFeeUsd = feeAsset === asset ? round6(feeNative * feeAssetPrice) : 0;
+      actualAmountUsd = round6(amountUsdSent);
       const claimResponse = await fetch(SUPABASE_URL + "/rest/v1/rpc/admin_treasury_claim_onchain_withdrawal", {
         method: "POST",
         headers: { apikey: SERVICE_KEY, Authorization: authHeader, "Content-Type": "application/json" },
@@ -643,7 +673,7 @@ Deno.serve(async (req: Request) => {
           p_user_id: userId,
           p_asset: asset,
           p_network: network,
-          p_amount: round2(round2(amountUsd) + sameAssetFeeUsd),
+          p_amount: round6(actualAmountUsd + sameAssetFeeUsd),
           p_deposit_address_id: depositId,
         }),
       });
@@ -671,15 +701,15 @@ Deno.serve(async (req: Request) => {
       broadcastAttempted = true;
     };
     if (network === "TRC20" && asset === "USDT") {
-      sent = await sendTron(row, asset, to, amountUnits, decimals, markBroadcastAttempt);
+      sent = await sendTron(row, asset, to, amountUnits, decimals, markBroadcastAttempt, { feeMode, amountUsd, assetPrice: price, feeAssetPrice });
     } else if (network === "TRON" && asset === "TRX") {
-      sent = await sendTron(row, asset, to, amountUnits, decimals, markBroadcastAttempt);
+      sent = await sendTron(row, asset, to, amountUnits, decimals, markBroadcastAttempt, { feeMode, amountUsd, assetPrice: price, feeAssetPrice });
     } else if (network === "ERC20" && asset === "USDT") {
-      sent = await sendEvm(row, asset, network, to, amountUnits, decimals, markBroadcastAttempt);
+      sent = await sendEvm(row, asset, network, to, amountUnits, decimals, markBroadcastAttempt, { feeMode, amountUsd, assetPrice: price, feeAssetPrice });
     } else if (network === "BEP20" && asset === "USDT") {
-      sent = await sendEvm(row, asset, network, to, amountUnits, decimals, markBroadcastAttempt);
+      sent = await sendEvm(row, asset, network, to, amountUnits, decimals, markBroadcastAttempt, { feeMode, amountUsd, assetPrice: price, feeAssetPrice });
     } else if (network === "ETHEREUM" && asset === "ETH") {
-      sent = await sendEvm(row, asset, network, to, amountUnits, decimals, markBroadcastAttempt);
+      sent = await sendEvm(row, asset, network, to, amountUnits, decimals, markBroadcastAttempt, { feeMode, amountUsd, assetPrice: price, feeAssetPrice });
     } else if (network === "BITCOIN" && asset === "BTC") {
       sent = await sendUtxo(row, asset, to, amountUnits, markBroadcastAttempt);
     } else if (network === "DOGECOIN" && asset === "DOGE") {
@@ -694,6 +724,7 @@ Deno.serve(async (req: Request) => {
     const feeUsd = sent.feeNative * feeAssetPrice;
     const recordNote = [
       note,
+      "requested USD " + round6(amountUsd) + "; fee mode " + feeMode,
       "on-chain broadcast",
       sent.feeNote,
     ].filter(Boolean).join(" · ");
@@ -706,15 +737,17 @@ Deno.serve(async (req: Request) => {
         p_user_id: userId,
         p_asset: asset,
         p_network: network,
-        p_amount: round2(amountUsd),
+        p_amount: round6(actualAmountUsd),
         p_crypto_amount: sent.cryptoAmount,
-        p_gas_fee: feeAsset === asset ? round2(feeUsd) : 0,
+        p_gas_fee: feeAsset === asset ? round6(feeUsd) : 0,
         p_network_fee_native: sent.feeNative,
         p_network_fee_asset: sent.feeUnit,
         p_destination: to,
         p_note: recordNote,
         p_tx_hash: sent.txid,
         p_reservation_id: reservationId,
+        p_requested_amount_usd: round6(amountUsd),
+        p_fee_mode: feeMode,
       }),
     });
     const recordedId = recordResponse.ok ? await recordResponse.json().catch(() => null) : null;
@@ -734,11 +767,14 @@ Deno.serve(async (req: Request) => {
       tx_url: sent.txUrl,
       treasury_withdrawal_id: recordedId,
       asset, network,
-      amount_usd: round2(amountUsd),
+      amount_usd: round6(actualAmountUsd),
       crypto_amount: sent.cryptoAmount,
       fee_native: sent.feeNative,
       fee_native_unit: sent.feeUnit,
-      fee_usd: round2(feeUsd),
+      fee_usd: round6(feeUsd),
+      amount_usd_sent: actualAmountUsd,
+      requested_amount_usd: round6(amountUsd),
+      fee_mode: feeMode,
     });
   } catch (e) {
     const errorMessage = String((e as any)?.message ?? e);
