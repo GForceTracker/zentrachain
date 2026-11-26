@@ -8,8 +8,8 @@ import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
 const SERVICE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
-const TRONGRID_API_KEY = Deno.env.get("TRONGRID_API_KEY") ?? "";
 const TRON_RPC_URL = Deno.env.get("TRON_RPC_URL") ?? "https://tron-evm-rpc.publicnode.com";
+const TRON_SOLIDITY_HTTP_URL = Deno.env.get("TRON_SOLIDITY_HTTP_URL") ?? "https://tron-solidity-rpc.publicnode.com";
 const ETHEREUM_RPC_URL = Deno.env.get("ETHEREUM_RPC_URL") ?? "https://ethereum-rpc.publicnode.com";
 
 const TRON_USDT_CONTRACT = "TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t";
@@ -69,9 +69,6 @@ async function getJson(url: string, init?: RequestInit, timeoutMs = 12000): Prom
     }
   }
   throw lastError instanceof Error ? lastError : new Error("Blockchain provider request failed");
-}
-function tronHeaders(): Record<string, string> {
-  return { Accept: "application/json", ...(TRONGRID_API_KEY ? { "TRON-PRO-API-KEY": TRONGRID_API_KEY } : {}) };
 }
 let cachedEthHead = { value: 0, at: 0 };
 async function getEthLatestBlock(): Promise<number> {
@@ -212,50 +209,131 @@ async function scanTronToken(addr: string): Promise<Candidate[]> {
   return out;
 }
 
-async function scanTronNative(addr: string): Promise<Candidate[]> {
-  // Native TRX account history is an indexed-data endpoint. Require the
-  // owner's TronGrid key here instead of silently scanning an unreliable public quota.
-  if (!TRONGRID_API_KEY) {
-    throw new Error("Native TRX deposits require the TRONGRID_API_KEY Supabase Edge Function secret");
-  }
-  const data = (await getJson(
-    `https://api.trongrid.io/v1/accounts/${encodeURIComponent(addr)}/transactions?only_to=true&only_confirmed=true&limit=50`,
-    { headers: tronHeaders() },
-  )) as { data?: Array<{
-    txID?: string;
-    block_timestamp?: number;
-    blockTimestamp?: number;
-    raw_data?: { contract?: Array<{
+type TronNativeTx = {
+  txID?: string;
+  raw_data?: {
+    timestamp?: number;
+    contract?: Array<{
       type?: string;
       parameter?: { value?: { to_address?: string; owner_address?: string; amount?: number } };
-    }> };
-  }> };
+    }>;
+  };
+  ret?: Array<{ ret?: string; contractRet?: string }>;
+};
+type TronNativeBlock = {
+  block_header?: { raw_data?: { number?: number; timestamp?: number } };
+  transactions?: TronNativeTx[];
+};
+type TronNativeBlockBatch = { blocks: TronNativeBlock[]; provider: string };
 
+let cachedTronNativeBlockBatch: Promise<TronNativeBlockBatch> | null = null;
+
+async function getRecentTronNativeBlocks(): Promise<TronNativeBlockBatch> {
+  if (!cachedTronNativeBlockBatch) {
+    cachedTronNativeBlockBatch = (async () => {
+      const endpoints = [
+        { name: "PublicNode Solidity HTTP", base: TRON_SOLIDITY_HTTP_URL, path: "/walletsolidity/getblockbylatestnum" },
+        // No-key backup node endpoint. This is a block query, not an indexed per-address history request.
+        { name: "TronGrid public Solidity HTTP fallback", base: "https://api.trongrid.io", path: "/walletsolidity/getblockbylatestnum" },
+      ];
+      let lastError: unknown = new Error("No public TRON block provider responded");
+      for (const endpoint of endpoints) {
+        try {
+          const data = await getJson(endpoint.base + endpoint.path, {
+            method: "POST",
+            headers: { "Content-Type": "application/json", Accept: "application/json" },
+            body: JSON.stringify({ num: 99, visible: true }),
+          }) as { block?: TronNativeBlock[]; Error?: string };
+          if (data.Error) throw new Error(String(data.Error));
+          if (!Array.isArray(data.block) || data.block.length === 0) {
+            throw new Error("TRON public node returned no solidified blocks");
+          }
+          const validBlocks = data.block.filter(block =>
+            Number.isSafeInteger(Number(block.block_header?.raw_data?.number))
+          );
+          if (validBlocks.length === 0) throw new Error("TRON public node returned invalid block data");
+          console.info("TRX native scanner loaded solidified blocks", {
+            provider: endpoint.name,
+            blocks: validBlocks.length,
+            latest_block: Math.max(...validBlocks.map(block => Number(block.block_header?.raw_data?.number))),
+          });
+          return { blocks: validBlocks, provider: endpoint.name };
+        } catch (error) {
+          lastError = error;
+          console.warn("TRX native block provider unavailable", endpoint.name, String((error as Error)?.message || error));
+        }
+      }
+      throw lastError instanceof Error ? lastError : new Error("No public TRON block provider responded");
+    })();
+  }
+  try {
+    return await cachedTronNativeBlockBatch;
+  } catch (error) {
+    cachedTronNativeBlockBatch = null;
+    throw error;
+  }
+}
+
+async function scanTronNative(addr: string): Promise<Candidate[]> {
+  // Read solidified TRON blocks once per monitor run, then match them against
+  // each active deposit address. No TronGrid API key or account-history API is used.
+  const batch = await getRecentTronNativeBlocks();
   const out: Candidate[] = [];
-  for (const tx of data.data || []) {
-    for (let i = 0; i < (tx.raw_data?.contract || []).length; i++) {
-      const contract = tx.raw_data!.contract[i];
-      if (contract.type !== "TransferContract") continue;
-      const value = contract.parameter?.value;
-      const rawTo = String(value?.to_address || "");
-      if (!rawTo) continue;
-      const toAddress = rawTo.startsWith("T") ? rawTo : await hexToBase58Check(rawTo.replace(/^0x/i, ""));
-      if (toAddress !== addr) continue;
-      const amount = Number(value?.amount || 0) / 1e6;
-      if (!Number.isFinite(amount) || amount <= 0) continue;
-      const rawFrom = String(value?.owner_address || "");
-      const fromAddress = rawFrom ? (rawFrom.startsWith("T") ? rawFrom : await hexToBase58Check(rawFrom.replace(/^0x/i, ""))) : null;
-      const timestamp = Number(tx.block_timestamp || tx.blockTimestamp || 0);
-      out.push({
-        tx_hash: String(tx.txID || ""),
-        event_index: i,
-        from_address: fromAddress,
-        to_address: addr,
-        amount,
-        confirmations: REQUIRED_CONFIRMATIONS.TRON,
-        chain_timestamp: timestamp > 0 ? new Date(timestamp).toISOString() : null,
-        raw: contract,
+  for (const block of batch.blocks) {
+    const blockNumber = Number(block.block_header?.raw_data?.number || 0);
+    const blockTimestamp = Number(block.block_header?.raw_data?.timestamp || 0);
+    for (const tx of block.transactions || []) {
+      const results = tx.ret || [];
+      const failed = results.some(result => {
+        const code = String(result.ret || "").toUpperCase();
+        const contractResult = String(result.contractRet || "").toUpperCase();
+        return code === "FAILED" || (contractResult !== "" && !["SUCCESS", "DEFAULT"].includes(contractResult));
       });
+      if (failed) continue;
+
+      for (let i = 0; i < (tx.raw_data?.contract || []).length; i++) {
+        const contract = tx.raw_data!.contract[i];
+        if (contract.type !== "TransferContract") continue;
+        const value = contract.parameter?.value;
+        const rawTo = String(value?.to_address || "");
+        if (!rawTo) continue;
+
+        let toAddress = "";
+        try {
+          toAddress = rawTo.startsWith("T")
+            ? rawTo
+            : await hexToBase58Check(rawTo.replace(/^0x/i, ""));
+        } catch {
+          continue;
+        }
+        if (toAddress !== addr) continue;
+
+        const amount = Number(value?.amount || 0) / 1e6;
+        if (!Number.isFinite(amount) || amount <= 0) continue;
+        const rawFrom = String(value?.owner_address || "");
+        let fromAddress: string | null = null;
+        if (rawFrom) {
+          try {
+            fromAddress = rawFrom.startsWith("T")
+              ? rawFrom
+              : await hexToBase58Check(rawFrom.replace(/^0x/i, ""));
+          } catch {
+            fromAddress = null;
+          }
+        }
+        const timestamp = blockTimestamp || Number(tx.raw_data?.timestamp || 0);
+        out.push({
+          tx_hash: String(tx.txID || ""),
+          event_index: i,
+          from_address: fromAddress,
+          to_address: addr,
+          amount,
+          // The Solidity HTTP endpoint serves already-solidified blocks.
+          confirmations: REQUIRED_CONFIRMATIONS.TRON,
+          chain_timestamp: timestamp > 0 ? new Date(timestamp).toISOString() : null,
+          raw: { block_number: blockNumber, provider: batch.provider, contract },
+        });
+      }
     }
   }
   return out;
@@ -511,6 +589,23 @@ Deno.serve(async (req: Request) => {
     if (!addrRes.ok) throw new Error("Could not load the next deposit-monitor batch");
     const addresses = await addrRes.json() as AddressRow[];
 
+    // Native TRX uses one shared solidified-block scan for every active TRX
+    // deposit address, rather than waiting for the rotating six-address batch.
+    let scanAddresses = addresses;
+    const trxAddressRes = await rest(
+      "user_deposit_addresses?asset_network_id=eq.trx-tron&address_status=eq.active&select=id,user_id,asset_network_id,asset_code,network_code,address&order=created_at.asc&limit=1000",
+      { method: "GET" },
+    );
+    if (trxAddressRes.ok) {
+      const trxRows = await trxAddressRes.json() as AddressRow[];
+      scanAddresses = [
+        ...addresses.filter(row => !(String(row.network_code).toUpperCase() === "TRON" && String(row.asset_code).toUpperCase() === "TRX")),
+        ...trxRows,
+      ];
+    } else {
+      console.warn("Could not load all active native TRX addresses; using the current rotating batch");
+    }
+
     const prices = await loadPrices();
     const minimumRes = await rest("site_settings?setting_key=eq.minimum_deposit_usd&select=numeric_value&limit=1", { method: "GET" });
     const minimumRows = minimumRes.ok ? await minimumRes.json() as Array<{ numeric_value?: number | string }> : [];
@@ -520,8 +615,8 @@ Deno.serve(async (req: Request) => {
     // 1. Record newly detected transfers.
     const pendingRows: Array<Record<string, unknown>> = [];
     const concurrency = 3;
-    for (let i = 0; i < addresses.length; i += concurrency) {
-      const batch = addresses.slice(i, i + concurrency);
+    for (let i = 0; i < scanAddresses.length; i += concurrency) {
+      const batch = scanAddresses.slice(i, i + concurrency);
       const scanned = await Promise.all(batch.map(async row => ({ row, candidates: await scanAddress(row) })));
       for (const { row, candidates } of scanned) {
         for (const c of candidates) {
@@ -612,7 +707,7 @@ Deno.serve(async (req: Request) => {
     }
 
     const mine = requesterId ? credited.filter(c => c.user_id === requesterId) : credited;
-    return response({ ok: true, scanned: addresses.length, credited: mine, creditedTotal: credited.length, minimum_usd: minimumUsd });
+    return response({ ok: true, scanned: scanAddresses.length, credited: mine, creditedTotal: credited.length, minimum_usd: minimumUsd });
   } catch (e) {
     console.error("deposit monitor failed", e);
     return response({ error: "Deposit monitoring failed. Please try again later." }, 500);
