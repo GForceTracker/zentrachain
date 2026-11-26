@@ -111,33 +111,116 @@ async function hexToBase58Check(hex: string): Promise<string> {
   return base58Encode(new Uint8Array([...payload, ...h2.slice(0, 4)]));
 }
 
-async function scanTronToken(addr: string): Promise<Candidate[]> {
-  const data = (await getJson(
-    `https://api.trongrid.io/v1/accounts/${encodeURIComponent(addr)}/transactions/trc20?only_to=true&only_confirmed=true&contract_address=${TRON_USDT_CONTRACT}&limit=20`,
-    { headers: tronHeaders() },
-  )) as { data?: Array<{
-    transaction_id?: string; from?: string; to?: string; value?: string;
-    token_info?: { address?: string; symbol?: string; decimals?: number };
-    block_timestamp?: number; event_index?: number; eventIndex?: number; index?: number;
-  }> };
-  const out: Candidate[] = [];
-  for (const t of data.data || []) {
-    if (String(t.token_info?.address || "").toLowerCase() !== TRON_USDT_CONTRACT.toLowerCase()) continue;
-    if (String(t.to || "") !== addr) continue;
-    const decimals = Number(t.token_info?.decimals ?? 6);
-    if (!Number.isInteger(decimals) || decimals < 0 || decimals > 18) continue;
-    const amount = Number(t.value || 0) / 10 ** decimals;
-    if (!Number.isFinite(amount) || amount <= 0) continue;
-    const ts = Number(t.block_timestamp || 0);
-    out.push({
-      tx_hash: String(t.transaction_id || ""),
-      event_index: Number(t.event_index ?? t.eventIndex ?? t.index ?? 0),
-      from_address: t.from || null, to_address: addr, amount,
-      confirmations: REQUIRED_CONFIRMATIONS.TRC20,
-      chain_timestamp: ts > 0 ? new Date(ts).toISOString() : null, raw: t,
-    });
+let tronUsdtEventCache: { loadedAt: number; byAddress: Map<string, Candidate[]> } | null = null;
+let tronUsdtEventLoad: Promise<Map<string, Candidate[]>> | null = null;
+
+async function normalizeTronEventAddress(input: unknown): Promise<string> {
+  const raw = String(input || "");
+  if (!raw) return "";
+  if (/^T[1-9A-HJ-NP-Za-km-z]{33}$/.test(raw)) return raw;
+  const hex = raw.replace(/^0x/i, "");
+  if (hex.length === 40) return await hexToBase58Check("41" + hex);
+  if (hex.length === 42 && hex.slice(0, 2).toLowerCase() === "41") {
+    return await hexToBase58Check(hex);
   }
-  return out;
+  return "";
+}
+
+async function loadTronUsdtEvents(): Promise<Map<string, Candidate[]>> {
+  const byAddress = new Map<string, Candidate[]>();
+  const minTimestamp = Date.now() - 3 * 60 * 1000;
+  let fingerprint = "";
+
+  // Read the official USDT contract event feed once, then route transfers
+  // only to addresses issued by this project. The 3-minute overlap makes
+  // short scheduler/network interruptions recoverable; DB dedupe is authoritative.
+  for (let page = 0; page < 4; page++) {
+    const params = new URLSearchParams({
+      event_name: "Transfer",
+      only_confirmed: "true",
+      min_timestamp: String(minTimestamp),
+      limit: "200",
+      order_by: "block_timestamp,desc",
+    });
+    if (fingerprint) params.set("fingerprint", fingerprint);
+
+    const data = (await getJson(
+      `https://api.trongrid.io/v1/contracts/${TRON_USDT_CONTRACT}/events?${params.toString()}`,
+      { headers: tronHeaders() },
+    )) as {
+      data?: Array<{
+        contract_address?: string;
+        event_name?: string;
+        event_index?: number;
+        transaction_id?: string;
+        block_timestamp?: number;
+        _unconfirmed?: boolean;
+        success?: boolean;
+        result?: Record<string, string>;
+      }>;
+      meta?: { fingerprint?: string };
+    };
+
+    for (const event of data.data || []) {
+      if (String(event.contract_address || "").toLowerCase() !== TRON_USDT_CONTRACT.toLowerCase()) continue;
+      if (event.event_name !== "Transfer" || event._unconfirmed === true || event.success === false) continue;
+
+      const result = event.result || {};
+      const toAddress = await normalizeTronEventAddress(result.to);
+      if (!toAddress) continue;
+      const fromAddress = await normalizeTronEventAddress(result.from);
+      let amount = 0;
+      try {
+        amount = Number(BigInt(String(result.value || "0"))) / 1e6;
+      } catch {
+        continue;
+      }
+      if (!Number.isFinite(amount) || amount <= 0) continue;
+
+      const timestamp = Number(event.block_timestamp || 0);
+      const candidate: Candidate = {
+        tx_hash: String(event.transaction_id || ""),
+        event_index: Number(event.event_index ?? 0),
+        from_address: fromAddress || null,
+        to_address: toAddress,
+        amount,
+        confirmations: REQUIRED_CONFIRMATIONS.TRC20,
+        chain_timestamp: timestamp > 0 ? new Date(timestamp).toISOString() : null,
+        raw: event,
+      };
+      if (!candidate.tx_hash) continue;
+      const list = byAddress.get(toAddress) || [];
+      list.push(candidate);
+      byAddress.set(toAddress, list);
+    }
+
+    const nextFingerprint = String(data.meta?.fingerprint || "");
+    if (!nextFingerprint || nextFingerprint === fingerprint) break;
+    fingerprint = nextFingerprint;
+  }
+
+  return byAddress;
+}
+
+async function getTronUsdtEvents(): Promise<Map<string, Candidate[]>> {
+  if (tronUsdtEventCache && Date.now() - tronUsdtEventCache.loadedAt < 20000) {
+    return tronUsdtEventCache.byAddress;
+  }
+  if (tronUsdtEventLoad) return await tronUsdtEventLoad;
+
+  tronUsdtEventLoad = loadTronUsdtEvents();
+  try {
+    const byAddress = await tronUsdtEventLoad;
+    tronUsdtEventCache = { loadedAt: Date.now(), byAddress };
+    return byAddress;
+  } finally {
+    tronUsdtEventLoad = null;
+  }
+}
+
+async function scanTronToken(addr: string): Promise<Candidate[]> {
+  const events = await getTronUsdtEvents();
+  return events.get(addr) || [];
 }
 
 async function scanTronNative(addr: string): Promise<Candidate[]> {
