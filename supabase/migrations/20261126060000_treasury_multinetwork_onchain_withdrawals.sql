@@ -134,7 +134,7 @@ BEGIN
     AND upper(bd.asset_code)=v_asset
     AND upper(bd.network_code)=v_network;
 
-  SELECT coalesce(sum(tw.amount),0) INTO v_withdrawn
+  SELECT coalesce(sum(tw.amount + coalesce(tw.gas_fee,0)),0) INTO v_withdrawn
   FROM public.treasury_withdrawals tw
   WHERE tw.user_id=p_user_id
     AND upper(tw.asset_code)=v_asset
@@ -264,8 +264,12 @@ BEGIN
   IF p_crypto_amount IS NULL OR p_crypto_amount <= 0 THEN
     RAISE EXCEPTION 'Broadcast coin amount must be greater than zero';
   END IF;
-  IF coalesce(p_gas_fee,0) <> 0 THEN
-    RAISE EXCEPTION 'Network gas must be paid from the sending wallet native balance';
+  IF p_gas_fee IS NULL OR p_gas_fee < 0 THEN
+    RAISE EXCEPTION 'Same-asset network fee USD value must not be negative';
+  END IF;
+  IF round(coalesce(p_gas_fee,0),2) > 0
+     AND upper(btrim(coalesce(p_network_fee_asset,''))) <> v_asset THEN
+    RAISE EXCEPTION 'A native-asset fee can only be included in the member debit when the fee asset matches the withdrawn asset';
   END IF;
   IF p_network_fee_native IS NULL OR p_network_fee_native < 0 THEN
     RAISE EXCEPTION 'A valid network fee is required';
@@ -355,7 +359,7 @@ BEGIN
     AND upper(bd.asset_code)=v_asset
     AND upper(bd.network_code)=v_network;
 
-  SELECT coalesce(sum(tw.amount),0) INTO v_withdrawn
+  SELECT coalesce(sum(tw.amount + coalesce(tw.gas_fee,0)),0) INTO v_withdrawn
   FROM public.treasury_withdrawals tw
   WHERE tw.user_id=p_user_id
     AND upper(tw.asset_code)=v_asset
@@ -372,13 +376,13 @@ BEGIN
     (asset_code,network_code,amount,crypto_amount,gas_fee,network_fee_native,network_fee_asset,
      destination_address,tx_hash,note,user_id,created_by,status)
   VALUES
-    (v_asset,v_network,round(p_amount,2),p_crypto_amount,0,p_network_fee_native,
+    (v_asset,v_network,round(p_amount,2),p_crypto_amount,round(coalesce(p_gas_fee,0),2),p_network_fee_native,
      upper(btrim(p_network_fee_asset)),v_destination,v_tx_hash,
      nullif(btrim(coalesce(p_note,'')),''),p_user_id,v_admin,'sent')
   RETURNING id INTO v_id;
 
   INSERT INTO public.ledger_entries(user_id,amount,entry_type,description,reference_type,reference_id)
-  VALUES(p_user_id,-round(p_amount,2),'withdrawal',
+  VALUES(p_user_id,-round(p_amount+coalesce(p_gas_fee,0),2),'withdrawal',
     'Treasury on-chain withdrawal '||v_asset||' · '||v_network||' · tx '||v_tx_hash,
     'treasury_withdrawal',v_id);
 
@@ -387,7 +391,7 @@ BEGIN
     jsonb_build_object(
       'user_id',p_user_id,'asset',v_asset,'network',v_network,
       'amount_usd',round(p_amount,2),'crypto_amount',p_crypto_amount,
-      'member_fee_usd',0,'network_fee_native',p_network_fee_native,
+      'member_fee_usd',0,'same_asset_network_fee_usd',round(coalesce(p_gas_fee,0),2),'network_fee_native',p_network_fee_native,
       'network_fee_asset',upper(btrim(p_network_fee_asset)),
       'destination',v_destination,'tx_hash',v_tx_hash,
       'verified_onchain_deposits_usd',round(v_deposited,6),
