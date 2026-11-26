@@ -14651,3 +14651,379 @@ body[data-zc-theme="metallic"] #app-drawer .zc-theme-choice[data-theme="metallic
   }
 })();
 </script>
+
+
+<style id="zc-deposit-success-and-treasury-wallet-fix-v1">
+.zc-deposit-success-page{max-width:560px;margin:clamp(28px,8vh,80px) auto;padding:32px 22px;text-align:center;border:1px solid var(--line);border-radius:22px;background:linear-gradient(145deg,var(--panel2),var(--panel));box-shadow:0 20px 55px rgba(0,0,0,.16)}
+.zc-deposit-success-page .zc-success-mark{width:62px;height:62px;display:grid;place-items:center;margin:0 auto 18px;border-radius:50%;font-size:30px;font-weight:900;color:var(--mint);background:color-mix(in srgb,var(--green) 18%,transparent);border:1px solid color-mix(in srgb,var(--green) 55%,transparent)}
+.zc-deposit-success-page h1{font-size:clamp(21px,5vw,29px);line-height:1.25;margin:8px 0 10px}
+.zc-deposit-success-page p{color:var(--muted);line-height:1.6;font-size:13px;margin:0 auto 22px;max-width:390px}
+.zc-deposit-success-page .btn{width:100%;max-width:320px;min-height:48px}
+#zc-deposit-success-top-toast{position:fixed;z-index:1000000;top:max(10px,env(safe-area-inset-top));left:50%;transform:translateX(-50%);width:min(470px,calc(100vw - 24px));box-sizing:border-box;padding:13px 15px 15px;border-radius:16px;border:1px solid color-mix(in srgb,var(--green) 45%,var(--line));background:var(--panel);color:var(--text);box-shadow:0 14px 44px rgba(0,0,0,.28);display:flex;align-items:center;gap:11px;overflow:hidden;animation:zc-deposit-toast-in .22s ease-out}
+#zc-deposit-success-top-toast .zc-toast-check{width:34px;height:34px;flex:0 0 34px;border-radius:50%;display:grid;place-items:center;color:var(--mint);background:color-mix(in srgb,var(--green) 18%,transparent);font-size:18px;font-weight:900}
+#zc-deposit-success-top-toast .zc-toast-copy{min-width:0;flex:1;display:flex;flex-direction:column;gap:3px}
+#zc-deposit-success-top-toast strong{font-size:13px;line-height:1.3}
+#zc-deposit-success-top-toast span{font-size:12px;line-height:1.4;color:var(--muted)}
+#zc-deposit-success-top-toast .zc-toast-close{border:0;background:transparent;color:var(--muted);font-size:20px;line-height:1;padding:4px;cursor:pointer}
+#zc-deposit-success-top-toast .zc-toast-progress{position:absolute;left:0;right:0;bottom:0;height:3px;background:color-mix(in srgb,var(--green) 16%,transparent)}
+#zc-deposit-success-top-toast .zc-toast-progress i{display:block;width:100%;height:100%;background:var(--green);transform-origin:left;animation:zc-deposit-toast-countdown 5s linear forwards}
+@keyframes zc-deposit-toast-countdown{from{transform:scaleX(1)}to{transform:scaleX(0)}}
+@keyframes zc-deposit-toast-in{from{opacity:0;transform:translate(-50%,-10px)}to{opacity:1;transform:translate(-50%,0)}}
+.zc-treasury-chain-note{margin:10px 0 14px;padding:12px 14px;border:1px solid var(--line);border-radius:13px;background:var(--panel2);font-size:12px;line-height:1.55;color:var(--muted)}
+.zc-treasury-max-wrap{position:relative!important;display:flex!important;align-items:center!important;width:100%!important}
+.zc-treasury-max-wrap input{width:100%!important;box-sizing:border-box!important;padding-right:78px!important}
+.zc-treasury-max-button{position:absolute!important;right:8px!important;top:50%!important;transform:translateY(-50%)!important;z-index:2!important;min-width:56px!important;height:30px!important;padding:0 10px!important;border-radius:8px!important;border:1px solid var(--green)!important;background:color-mix(in srgb,var(--green) 16%,var(--panel))!important;color:var(--mint)!important;font-size:11px!important;font-weight:900!important;cursor:pointer!important}
+.zc-treasury-max-button:active{transform:translateY(-50%) scale(.97)!important}
+@media(max-width:480px){.zc-deposit-success-page{margin:24px 0;padding:27px 17px}}
+</style>
+
+<script id="zc-deposit-success-and-treasury-wallet-fix-v1">
+(function(){
+  if(window.__zcDepositSuccessTreasuryFixV1)return;
+  window.__zcDepositSuccessTreasuryFixV1=true;
+
+  function cleanAddress(value){
+    return String(value||'').normalize('NFKC').replace(/[\u200B-\u200D\uFEFF]/g,'').trim().replace(/^0X/i,'0x');
+  }
+  function isSupportedTreasuryNetwork(asset,network){
+    return String(asset||'').toUpperCase()==='USDT' &&
+      ['TRC20','ERC20','BEP20'].includes(String(network||'').toUpperCase());
+  }
+
+  // Use the correct chain-specific address format and ignore invisible copy/paste characters.
+  window.zcValidateAddress=function(network,address){
+    var a=cleanAddress(address),n=String(network||'').toUpperCase().replace(/[\s_-]/g,'');
+    if(n==='TRC20'||n==='TRON')return /^T[1-9A-HJ-NP-Za-km-z]{33}$/.test(a);
+    if(['ERC20','ETHEREUM','BEP20','BSC','BNBSMARTCHAIN'].includes(n))return /^0x[a-fA-F0-9]{40}$/.test(a);
+    if(n==='BITCOIN')return /^(bc1[a-z0-9]{11,71}|[13][a-km-zA-HJ-NP-Z1-9]{25,34})$/.test(a);
+    if(n==='DOGECOIN')return /^D[a-km-zA-HJ-NP-Z1-9]{25,34}$/.test(a);
+    if(n==='SOLANA')return /^[1-9A-HJ-NP-Za-km-z]{32,44}$/.test(a);
+    return a.length>=20&&a.length<=150;
+  };
+
+  // Treasury gas is always paid from the wallet's native token, never silently
+  // deducted from the customer's on-chain USDT amount.
+  window.zcWalletRefreshFeeMode=function(){
+    var W=window.zcWalletWd||{};
+    W.feeMode='native';
+    var host=document.getElementById('zc-wd-fee-mode-field');
+    if(host){
+      var unit=window.zcWalletGasUnit?window.zcWalletGasUnit(W.network):'';
+      host.innerHTML='<div class="notice" style="margin-top:12px">Network gas is paid separately from this deposit wallet’s native balance ('+
+        String(unit||'network token')+'). It does not reduce the member’s confirmed USDT deposit amount. The wallet must hold enough native gas before broadcasting.</div>';
+    }
+  };
+  window.zcWalletFeeModeChange=function(){
+    var W=window.zcWalletWd||{};W.feeMode='native';
+    if(typeof window.zcWalletFetchGas==='function')window.zcWalletFetchGas();
+  };
+
+  function buildOnchainBalances(){
+    var D=window.zcWalletData||{},W=window.zcWalletWd||{};
+    var asset=String(W.asset||'').toUpperCase(),network=String(W.network||'').toUpperCase();
+    var deposits=(D.deps||[]).filter(function(x){
+      return String(x.asset||'').toUpperCase()===asset &&
+        String(x.network||'').toUpperCase()===network &&
+        Number(x.amount||0)>0;
+    });
+    var sent=(D.tw||[]).filter(function(x){
+      return String(x.asset_code||'').toUpperCase()===asset &&
+        String(x.network_code||'').toUpperCase()===network &&
+        String(x.status||'').toLowerCase()==='sent' &&
+        String(x.tx_hash||'').trim()!=='';
+    });
+    var credited={},withdrawn={};
+    deposits.forEach(function(x){credited[x.user_id]=(credited[x.user_id]||0)+Number(x.amount||0)});
+    sent.forEach(function(x){withdrawn[x.user_id]=(withdrawn[x.user_id]||0)+Number(x.amount||0)});
+    var remaining={};
+    Object.keys(credited).forEach(function(uid){
+      remaining[uid]=Math.max(0,Math.round(((credited[uid]||0)-(withdrawn[uid]||0))*100)/100);
+    });
+    return {credited:credited,withdrawn:withdrawn,remaining:remaining,deposits:deposits};
+  }
+
+  function rebuildOnchainMemberSelector(){
+    var W=window.zcWalletWd||{};
+    if(!isSupportedTreasuryNetwork(W.asset,W.network))return;
+    var D=window.zcWalletData||{},balances=buildOnchainBalances();
+    W.availMap=balances.remaining;
+    var ids=Object.keys(balances.remaining).filter(function(uid){return balances.remaining[uid]>0;});
+    ids.sort(function(a,b){return balances.remaining[b]-balances.remaining[a]});
+    var select=document.getElementById('zc-wd-user');
+    var root=document.getElementById('app-content');
+    var note=root&&root.querySelector('.zc-treasury-chain-note');
+    if(!note&&root){
+      var top=root.querySelector('.zc-wallet-topbar');
+      if(top)top.insertAdjacentHTML('afterend','<div class="zc-treasury-chain-note">Treasury funds shown here come only from confirmed blockchain deposits for this exact coin and network, less withdrawals that have a recorded transaction hash. Bonuses, plan balances, admin adjustments and other internal ledger funds are excluded.</div>');
+    }
+    var availableLabel=document.getElementById('zc-wd-avail');
+    if(availableLabel&&availableLabel.parentElement){
+      availableLabel.parentElement.innerHTML='Confirmed on-chain deposit funds remaining: <b id="zc-wd-avail">$0.00</b>';
+    }
+    if(!ids.length){
+      if(select){select.innerHTML='';select.disabled=true;}
+      var submit=document.getElementById('zc-wd-submit');
+      if(submit)submit.disabled=true;
+      var form=root&&root.querySelector('#zc-wd-form');
+      var warning=root&&root.querySelector('#zc-wd-no-onchain-funds');
+      if(!warning&&form){
+        warning=document.createElement('div');warning.id='zc-wd-no-onchain-funds';
+        warning.className='wallet-warning';
+        warning.textContent='There are no remaining confirmed blockchain deposit funds for this member and network. Internal Available Funds are not eligible for a Treasury Wallet transfer.';
+        form.insertBefore(warning,form.firstChild);
+      }
+      return;
+    }
+    if(select){
+      select.disabled=false;
+      select.innerHTML=ids.map(function(uid){
+        var u=(D.users||{})[uid]||{};
+        var name=u.full_name||'Member';
+        var email=u.email?' · '+u.email:'';
+        return '<option value="'+String(uid).replace(/"/g,'&quot;')+'">'+
+          name+email+' — on-chain remaining '+(window.fmtUSD?fmtUSD(balances.remaining[uid]):'$'+balances.remaining[uid].toFixed(2))+
+          '</option>';
+      }).join('');
+    }
+    var selected=(W.user&&ids.indexOf(W.user)>=0)?W.user:ids[0];
+    W.user=selected;
+    if(select)select.value=selected;
+    if(typeof window.zcWalletPickUser==='function')window.zcWalletPickUser(selected);
+    var submitBtn=document.getElementById('zc-wd-submit');
+    if(submitBtn)submitBtn.disabled=false;
+  }
+
+  function installMaxButton(){
+    var input=document.getElementById('zc-wd-amount');
+    if(!input||input.dataset.zcMaxInside==='1')return;
+    var field=input.parentElement;
+    if(!field)return;
+    var oldMax=field.querySelector('label[for="zc-wd-amount"] a');
+    if(oldMax)oldMax.remove();
+    var wrap=document.createElement('div');
+    wrap.className='zc-treasury-max-wrap';
+    input.parentNode.insertBefore(wrap,input);
+    wrap.appendChild(input);
+    var btn=document.createElement('button');
+    btn.type='button';btn.className='zc-treasury-max-button';btn.textContent='MAX';
+    btn.setAttribute('aria-label','Use the full confirmed on-chain deposit amount');
+    btn.addEventListener('click',function(){if(typeof window.zcWalletMaxAmount==='function')window.zcWalletMaxAmount()});
+    wrap.appendChild(btn);
+    input.dataset.zcMaxInside='1';
+  }
+
+  window.zcWalletMaxAmount=function(){
+    var W=window.zcWalletWd||{},uid=W.user,input=document.getElementById('zc-wd-amount');
+    if(!uid||!input)return;
+    var value=Math.max(0,Number((W.availMap||{})[uid]||0));
+    input.value=value.toFixed(2);
+    input.dispatchEvent(new Event('input',{bubbles:true}));
+  };
+
+  var oldWalletWithdraw=window.zcWalletWithdrawPage;
+  if(typeof oldWalletWithdraw==='function'){
+    window.zcWalletWithdrawPage=async function(asset,network){
+      var a=String(asset||'USDT').toUpperCase(),n=String(network||'TRC20').toUpperCase();
+      if(!isSupportedTreasuryNetwork(a,n)){
+        if(typeof toast==='function')toast('Blockchain withdrawals are currently enabled for USDT on TRC20, ERC20 and BEP20 only. No bookkeeping-only withdrawal will be created.',true);
+        return;
+      }
+      var result=await oldWalletWithdraw.apply(this,arguments);
+      var chips=document.querySelectorAll('#app-content .zc-wallet-asset-chip[data-key]');
+      chips.forEach(function(chip){
+        var key=String(chip.dataset.key||'').toUpperCase().split('|');
+        chip.style.display=isSupportedTreasuryNetwork(key[0],key[1])?'':'none';
+      });
+      rebuildOnchainMemberSelector();
+      installMaxButton();
+      return result;
+    };
+  }
+
+  var oldPickAsset=window.zcWalletPickAsset;
+  if(typeof oldPickAsset==='function'){
+    window.zcWalletPickAsset=function(key){
+      var parts=String(key||'').toUpperCase().split('|');
+      if(!isSupportedTreasuryNetwork(parts[0],parts[1])){
+        if(typeof toast==='function')toast('This network is not enabled for on-chain Treasury Wallet withdrawals yet.',true);
+        return;
+      }
+      var result=oldPickAsset.apply(this,arguments);
+      window.setTimeout(function(){rebuildOnchainMemberSelector();installMaxButton()},0);
+      return result;
+    };
+  }
+
+  var oldSubmit=window.zcWalletSubmitWithdraw;
+  if(typeof oldSubmit==='function'){
+    window.zcWalletSubmitWithdraw=async function(){
+      var W=window.zcWalletWd||{};
+      if(!isSupportedTreasuryNetwork(W.asset,W.network)){
+        if(typeof toast==='function')toast('This network cannot be withdrawn from the Treasury Wallet yet. No ledger-only withdrawal was made.',true);
+        return;
+      }
+      var addressInput=document.getElementById('zc-wd-addr');
+      if(addressInput)addressInput.value=cleanAddress(addressInput.value);
+      W.feeMode='native';
+      return oldSubmit.apply(this,arguments);
+    };
+  }
+
+  var oldConfirm=window.zcWalletConfirmWithdraw;
+  if(typeof oldConfirm==='function'){
+    window.zcWalletConfirmWithdraw=async function(){
+      var W=window.zcWalletWd||{};
+      if(!isSupportedTreasuryNetwork(W.asset,W.network)){
+        if(typeof toast==='function')toast('This network is not enabled for on-chain broadcasting. Nothing was recorded.',true);
+        return;
+      }
+      return oldConfirm.apply(this,arguments);
+    };
+  }
+
+  var oldCoinPage=window.zcWalletCoinPage;
+  if(typeof oldCoinPage==='function'){
+    window.zcWalletCoinPage=async function(key){
+      var result=await oldCoinPage.apply(this,arguments);
+      var parts=String(key||'').toUpperCase().split('|');
+      var buttons=document.querySelectorAll('#app-content .zc-wallet-mini-actions button');
+      if(!isSupportedTreasuryNetwork(parts[0],parts[1])){
+        buttons.forEach(function(button){if(/withdraw/i.test(button.textContent||''))button.remove()});
+        var panel=document.querySelector('#app-content .zc-wallet-mini-actions');
+        if(panel)panel.insertAdjacentHTML('afterend','<div class="zc-treasury-chain-note">On-chain withdrawal is not enabled for this asset/network yet. The Treasury Wallet will not create a bookkeeping-only withdrawal.</div>');
+      }
+      return result;
+    };
+  }
+
+  // Deposit success: keep checking after the member leaves the address screen.
+  // Only a credited request linked to a confirmed blockchain deposit can trigger it.
+  var depositPollTimer=null,depositSessionStart=null,depositSessionAsset='USDT',depositSessionNetwork='';
+  function setPendingToast(amount){
+    var payload={amount:Number(amount||0),createdAt:Date.now()};
+    window.__zcPendingDepositToast=payload;
+    try{sessionStorage.setItem('zc-pending-deposit-toast',JSON.stringify(payload))}catch(e){}
+  }
+  function readPendingToast(){
+    if(window.__zcPendingDepositToast)return window.__zcPendingDepositToast;
+    try{
+      var raw=sessionStorage.getItem('zc-pending-deposit-toast');
+      return raw?JSON.parse(raw):null;
+    }catch(e){return null}
+  }
+  function isDashboard(){
+    return (typeof page!=='undefined'&&(page==='overview'||page==='dashboard'))||
+      !!document.querySelector('#app-content .zc-alt-dashboard, #app-content .zc-terminal-dashboard, #app-content .zc-finflex-dashboard');
+  }
+  function showDepositSuccessToast(amount){
+    var n=Number(amount||0);
+    if(!(n>0))return;
+    document.getElementById('zc-deposit-success-top-toast')?.remove();
+    var oldTimer=window.__zcDepositToastTimer;
+    if(oldTimer)clearTimeout(oldTimer);
+    var node=document.createElement('div');
+    node.id='zc-deposit-success-top-toast';
+    var amountText=window.money?money(n):'$'+n.toFixed(2);
+    node.innerHTML='<span class="zc-toast-check">✓</span><div class="zc-toast-copy"><strong>Deposit successful</strong><span>Your deposit of '+amountText+' was successful and credited.</span></div><button type="button" class="zc-toast-close" aria-label="Dismiss">×</button><div class="zc-toast-progress"><i></i></div>';
+    node.querySelector('.zc-toast-close').addEventListener('click',function(){node.remove();if(window.__zcDepositToastTimer)clearTimeout(window.__zcDepositToastTimer)});
+    document.body.appendChild(node);
+    window.__zcDepositToastTimer=setTimeout(function(){node.remove();window.__zcDepositToastTimer=null},5000);
+  }
+  function consumePendingToast(){
+    if(!isDashboard())return;
+    var payload=readPendingToast();
+    if(!payload||!(Number(payload.amount)>0))return;
+    window.__zcPendingDepositToast=null;
+    try{sessionStorage.removeItem('zc-pending-deposit-toast')}catch(e){}
+    showDepositSuccessToast(Number(payload.amount));
+  }
+  function renderDepositSuccessPage(total){
+    var amount=Number(total||0);
+    setPendingToast(amount);
+    if(depositPollTimer){clearInterval(depositPollTimer);depositPollTimer=null}
+    var root=document.getElementById('app-content');
+    var depositPage=(typeof page!=='undefined'&&(page==='deposits'||page==='deposit'))||
+      !!document.getElementById('generated-wallet-address');
+    if(root&&depositPage){
+      var amountText=window.money?money(amount):'$'+amount.toFixed(2);
+      root.innerHTML='<section class="zc-deposit-success-page"><div class="zc-success-mark">✓</div><div class="eyebrow">BLOCKCHAIN CONFIRMED</div><h1>Your deposit of '+amountText+' was successful</h1><p>Your transfer was verified on the blockchain and credited to your Deposit Balance.</p><button type="button" class="btn primary" onclick="zcReturnAfterDepositSuccess()">Return to Dashboard</button></section>';
+      return;
+    }
+    consumePendingToast();
+  }
+  window.zcReturnAfterDepositSuccess=function(){
+    if(typeof window.navigate==='function')window.navigate('overview');
+    window.setTimeout(consumePendingToast,260);
+  };
+  window.zcShowDepositSuccessToast=showDepositSuccessToast;
+
+  window.zcStartDepositSessionWatch=function(){
+    if(depositPollTimer){clearInterval(depositPollTimer);depositPollTimer=null}
+    depositSessionStart=new Date().toISOString();
+    var selected=null;
+    try{
+      selected=(typeof walletNetworks!=='undefined'?(walletNetworks||[]):[]).find(function(x){return String(x.id)===String(activeDepositNetwork)});
+    }catch(e){}
+    depositSessionAsset=String(selected&&selected.asset_code||'USDT').toUpperCase();
+    depositSessionNetwork=String(selected&&selected.network_code||'').toUpperCase();
+
+    var address=document.getElementById('generated-wallet-address');
+    if(address){
+      var host=document.getElementById('zc-deposit-status');
+      if(!host){host=document.createElement('div');host.id='zc-deposit-status';address.parentElement.insertAdjacentElement('afterend',host)}
+      host.innerHTML='<div class="zc-deposit-waiting"><b>Waiting for your transfer…</b><small>We will update this page after your transfer is confirmed and credited on the blockchain. You may leave this page; monitoring will continue.</small></div>';
+    }
+    window.__zcDepositSessionStartedAt=depositSessionStart;
+    var expiresAt=Date.now()+3600000;
+    var poll=async function(){
+      if(!depositSessionStart||!window.currentUser&&!currentUser||!db)return;
+      if(Date.now()>expiresAt){
+        if(depositPollTimer){clearInterval(depositPollTimer);depositPollTimer=null}
+        return;
+      }
+      try{
+        var query=db.from('deposit_requests')
+          .select('id,amount,asset,network,status,blockchain_deposit_id,created_at')
+          .eq('user_id',currentUser.id)
+          .eq('status','credited')
+          .not('blockchain_deposit_id','is',null)
+          .gte('created_at',depositSessionStart)
+          .eq('asset',depositSessionAsset);
+        if(depositSessionNetwork)query=query.eq('network',depositSessionNetwork);
+        var result=await query.order('created_at',{ascending:false}).limit(20);
+        if(result.error)throw result.error;
+        var rows=result.data||[];
+        if(rows.length){
+          var total=rows.reduce(function(sum,row){return sum+Number(row.amount||0)},0);
+          (window.__zcNotifiedDeposits||(window.__zcNotifiedDeposits=new Set()));
+          rows.forEach(function(row){window.__zcNotifiedDeposits.add(String(row.id))});
+          renderDepositSuccessPage(total);
+        }
+      }catch(error){console.warn('Blockchain deposit confirmation check failed',error?.message||error)}
+    };
+    poll();
+    depositPollTimer=setInterval(poll,10000);
+  };
+
+  // When a member navigates back to the dashboard, show the queued five-second toast.
+  var priorNavigate=window.navigate;
+  if(typeof priorNavigate==='function'&&!window.__zcDepositToastNavigateWrapped){
+    window.__zcDepositToastNavigateWrapped=true;
+    window.navigate=function(){
+      var result=priorNavigate.apply(this,arguments);
+      window.setTimeout(consumePendingToast,280);
+      return result;
+    };
+  }
+  var priorShowApp=window.showApp;
+  if(typeof priorShowApp==='function'&&!window.__zcDepositToastShowAppWrapped){
+    window.__zcDepositToastShowAppWrapped=true;
+    window.showApp=function(){
+      var result=priorShowApp.apply(this,arguments);
+      window.setTimeout(consumePendingToast,350);
+      return result;
+    };
+  }
+  window.setTimeout(consumePendingToast,500);
+})();
+</script>
