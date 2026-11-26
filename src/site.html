@@ -14396,6 +14396,7 @@ body[data-zc-theme="metallic"] #app-drawer .zc-theme-choice[data-theme="metallic
     var deposits=(D.deps||[]).filter(function(x){
       return String(x.asset||'').toUpperCase()===asset &&
         String(x.network||'').toUpperCase()===network &&
+        String(x.deposit_status||'').toLowerCase()==='credited' &&
         Number(x.amount||0)>0;
     });
     var sent=(D.tw||[]).filter(function(x){
@@ -14648,7 +14649,7 @@ body[data-zc-theme="metallic"] #app-drawer .zc-theme-choice[data-theme="metallic
     window.__zcDepositSessionStartedAt=depositSessionStart;
     var expiresAt=Date.now()+3600000;
     var poll=async function(){
-      if(!depositSessionStart||!window.currentUser&&!currentUser||!db)return;
+      if(!depositSessionStart||typeof currentUser==='undefined'||!currentUser||!currentUser.id||!db)return;
       if(Date.now()>expiresAt){
         if(depositPollTimer){clearInterval(depositPollTimer);depositPollTimer=null}
         return;
