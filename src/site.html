@@ -11994,22 +11994,7 @@ box-sizing:border-box!important;display:inline-flex!important;align-items:center
  function markNotified(id){if(!id)return;if(!window.__zcNotifiedDeposits)window.__zcNotifiedDeposits=new Set();window.__zcNotifiedDeposits.add(String(id))}
  function alreadyNotified(id){return !id||(window.__zcNotifiedDeposits&&window.__zcNotifiedDeposits.has(String(id)))}
  function announceDeposit(amount){try{showTransactionAlert('Deposit successful','Deposit of '+money(amount)+' was successful. The amount has been credited to your Deposit Balance.')}catch(e){}}
- async function runMonitorScan(){
-  if(!currentUser||!db)return null;
-  try{
-   const invoke=await db.functions.invoke('monitor-deposits');
-   if(invoke.error)throw invoke.error;
-   await refreshData();
-   const hist=document.getElementById('zc-deposit-history');
-   if(hist&&typeof requestsTable==='function')hist.innerHTML=requestsTable(typeof deposits!=='undefined'?deposits:[],'deposit');
-   return invoke.data;
-  }catch(e){console.warn('Deposit monitor scan unavailable:',(e&&(e.message||e))||e);return null}
- }
- window.zcStartDepositMonitor=function(){
-  if(monitorTimer)return;
-  monitorTimer=setInterval(runMonitorScan,20000);
-  runMonitorScan();
- };
+ // Deposit detection and crediting run server-side on the scheduled monitor.
  function stopSessionWatch(){if(sessionTimer){clearInterval(sessionTimer);sessionTimer=null}}
  function renderDepositWaiting(){
   const host=document.getElementById('zc-deposit-status');if(!host||host.dataset.state==='waiting')return;
@@ -12023,7 +12008,7 @@ box-sizing:border-box!important;display:inline-flex!important;align-items:center
  }
  async function sessionTick(){
   if(!document.getElementById('generated-wallet-address')){stopSessionWatch();return}
-  await runMonitorScan();
+  // The server-side monitor runs independently; this timer only refreshes this user's credit status.
   if(!sessionStartIso||!document.getElementById('generated-wallet-address'))return;
   try{
    const q=await db.from('ledger_entries').select('id,amount').eq('user_id',currentUser.id).eq('entry_type','deposit').gte('created_at',sessionStartIso).order('created_at',{ascending:false}).limit(20);
@@ -12054,8 +12039,7 @@ box-sizing:border-box!important;display:inline-flex!important;align-items:center
   await prevSelectWalletNetwork(id);
   if(document.getElementById('generated-wallet-address'))window.zcStartDepositSessionWatch();
  };
- const prevShowApp=showApp;
- showApp=function(){prevShowApp();window.zcStartDepositMonitor()};
+ // No client-side deposit scan: scheduled Supabase job owns the monitor.
 })();
 </script>
 

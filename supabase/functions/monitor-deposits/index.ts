@@ -8,12 +8,15 @@ import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
 const SERVICE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+const TRONGRID_API_KEY = Deno.env.get("TRONGRID_API_KEY") ?? "";
+const ETHEREUM_RPC_URL = Deno.env.get("ETHEREUM_RPC_URL") ?? "https://ethereum-rpc.publicnode.com";
 
+const TRON_USDT_CONTRACT = "TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t";
 const USDT_CONTRACTS: Record<string, string> = {
   ERC20: "0xdAC17F958D2ee523a2206206994597C13D831ec7",
   BEP20: "0x55d398326f99059fF775485246999027B3197955",
 };
-const SOL_USDT_MINT = "Es9vMFrzaCERmJfreucTsc4GZvv1nNwUEvfRfmKg6tF";
+const SOL_USDT_MINT = "Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB";
 const TRANSFER_TOPIC = "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef";
 
 const REQUIRED_CONFIRMATIONS: Record<string, number> = {
@@ -40,13 +43,46 @@ function constantTimeEqual(a: string, b: string): boolean {
 }
 
 async function getJson(url: string, init?: RequestInit, timeoutMs = 12000): Promise<unknown> {
-  const ctrl = new AbortController();
-  const t = setTimeout(() => ctrl.abort(), timeoutMs);
-  try {
-    const res = await fetch(url, { ...init, signal: ctrl.signal });
-    if (!res.ok) throw new Error(`HTTP ${res.status} from ${new URL(url).host}`);
-    return await res.json();
-  } finally { clearTimeout(t); }
+  let lastError: unknown = new Error("Request failed");
+  for (let attempt = 0; attempt < 4; attempt++) {
+    const ctrl = new AbortController();
+    const timer = setTimeout(() => ctrl.abort(), timeoutMs);
+    try {
+      const res = await fetch(url, { ...init, signal: ctrl.signal });
+      if (res.ok) return await res.json();
+      const message = `HTTP ${res.status} from ${new URL(url).host}`;
+      if (res.status !== 429 && res.status < 500) throw new Error(message);
+      lastError = new Error(message);
+      if (attempt === 3) break;
+      const retryAfter = Number(res.headers.get("retry-after") || 0) * 1000;
+      await new Promise(resolve => setTimeout(resolve, Math.max(retryAfter, 250 * (2 ** attempt))));
+    } catch (error) {
+      lastError = error;
+      const message = String((error as Error)?.message || error);
+      if (message.startsWith("HTTP 4") && !message.startsWith("HTTP 429")) throw error;
+      if (attempt === 3) break;
+      await new Promise(resolve => setTimeout(resolve, 250 * (2 ** attempt)));
+    } finally {
+      clearTimeout(timer);
+    }
+  }
+  throw lastError instanceof Error ? lastError : new Error("Blockchain provider request failed");
+}
+function tronHeaders(): Record<string, string> {
+  return { Accept: "application/json", ...(TRONGRID_API_KEY ? { "TRON-PRO-API-KEY": TRONGRID_API_KEY } : {}) };
+}
+let cachedEthHead = { value: 0, at: 0 };
+async function getEthLatestBlock(): Promise<number> {
+  if (cachedEthHead.value > 0 && Date.now() - cachedEthHead.at < 15000) return cachedEthHead.value;
+  const data = (await getJson(ETHEREUM_RPC_URL, {
+    method: "POST", headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ jsonrpc: "2.0", id: 1, method: "eth_blockNumber", params: [] }),
+  })) as { result?: string; error?: unknown };
+  if (data.error || !data.result) throw new Error("Ethereum latest block unavailable");
+  const value = Number(hexToBigInt(data.result));
+  if (!Number.isSafeInteger(value) || value <= 0) throw new Error("Ethereum latest block was invalid");
+  cachedEthHead = { value, at: Date.now() };
+  return value;
 }
 
 function hexToBigInt(hex: string) { return BigInt(hex.startsWith("0x") ? hex : "0x" + hex); }
@@ -76,18 +112,28 @@ async function hexToBase58Check(hex: string): Promise<string> {
 }
 
 async function scanTronToken(addr: string): Promise<Candidate[]> {
-  const data = await getJson(`https://api.trongrid.io/v1/accounts/${addr}/transactions/trc20?only_to=true&limit=50`) as { data?: Array<{ transaction_id?: string; from?: string; to?: string; value?: string; token_info?: { address?: string; symbol?: string; decimals?: number }; block_timestamp?: number }> };
+  const data = (await getJson(
+    `https://api.trongrid.io/v1/accounts/${encodeURIComponent(addr)}/transactions/trc20?only_to=true&only_confirmed=true&contract_address=${TRON_USDT_CONTRACT}&limit=20`,
+    { headers: tronHeaders() },
+  )) as { data?: Array<{
+    transaction_id?: string; from?: string; to?: string; value?: string;
+    token_info?: { address?: string; symbol?: string; decimals?: number };
+    block_timestamp?: number; event_index?: number; eventIndex?: number; index?: number;
+  }> };
   const out: Candidate[] = [];
   for (const t of data.data || []) {
-    const symbol = String(t.token_info?.symbol || "").toUpperCase();
-    if (symbol !== "USDT") continue;
+    if (String(t.token_info?.address || "").toLowerCase() !== TRON_USDT_CONTRACT.toLowerCase()) continue;
+    if (String(t.to || "") !== addr) continue;
     const decimals = Number(t.token_info?.decimals ?? 6);
+    if (!Number.isInteger(decimals) || decimals < 0 || decimals > 18) continue;
     const amount = Number(t.value || 0) / 10 ** decimals;
     if (!Number.isFinite(amount) || amount <= 0) continue;
     const ts = Number(t.block_timestamp || 0);
     out.push({
-      tx_hash: String(t.transaction_id || ""), event_index: 0, from_address: t.from || null, to_address: addr,
-      amount, confirmations: ts > 0 ? Math.floor((Date.now() - ts) / 3000) : null,
+      tx_hash: String(t.transaction_id || ""),
+      event_index: Number(t.event_index ?? t.eventIndex ?? t.index ?? 0),
+      from_address: t.from || null, to_address: addr, amount,
+      confirmations: REQUIRED_CONFIRMATIONS.TRC20,
       chain_timestamp: ts > 0 ? new Date(ts).toISOString() : null, raw: t,
     });
   }
@@ -95,62 +141,95 @@ async function scanTronToken(addr: string): Promise<Candidate[]> {
 }
 
 async function scanTronNative(addr: string): Promise<Candidate[]> {
-  const data = await getJson(`https://api.trongrid.io/v1/accounts/${addr}/transactions?only_to=true&limit=50`) as { data?: Array<{ txID?: string; blockTimestamp?: number; raw_data?: { contract?: Array<{ type?: string; parameter?: { value?: { to_address?: string; owner_address?: string; amount?: number } } }> } }> };
+  const data = (await getJson(
+    `https://api.trongrid.io/v1/accounts/${encodeURIComponent(addr)}/transactions?only_to=true&only_confirmed=true&limit=20`,
+    { headers: tronHeaders() },
+  )) as { data?: Array<{
+    txID?: string; block_timestamp?: number; blockTimestamp?: number;
+    raw_data?: { contract?: Array<{ type?: string; parameter?: { value?: { to_address?: string; owner_address?: string; amount?: number } } }> };
+  }> };
   const out: Candidate[] = [];
   for (const tx of data.data || []) {
     for (let i = 0; i < (tx.raw_data?.contract || []).length; i++) {
-      const c = tx.raw_data!.contract[i];
-      if (c.type !== "TransferContract") continue;
-      const toHex = String(c.parameter?.value?.to_address || "");
+      const contract = tx.raw_data!.contract[i];
+      if (contract.type !== "TransferContract") continue;
+      const value = contract.parameter?.value;
+      const toHex = String(value?.to_address || "");
       if (!toHex) continue;
       const to = await hexToBase58Check(toHex);
       if (to !== addr) continue;
-      const amount = Number(c.parameter?.value?.amount || 0) / 1e6;
+      const amount = Number(value?.amount || 0) / 1e6;
       if (!Number.isFinite(amount) || amount <= 0) continue;
-      const ts = Number(tx.blockTimestamp || 0);
+      const ts = Number(tx.block_timestamp || tx.blockTimestamp || 0);
       out.push({
-        tx_hash: String(tx.txID || ""), event_index: i, from_address: c.parameter?.value?.owner_address ? await hexToBase58Check(String(c.parameter.value.owner_address)) : null,
-        to_address: addr, amount, confirmations: ts > 0 ? Math.floor((Date.now() - ts) / 3000) : null,
-        chain_timestamp: ts > 0 ? new Date(ts).toISOString() : null, raw: c,
+        tx_hash: String(tx.txID || ""), event_index: i,
+        from_address: value?.owner_address ? await hexToBase58Check(String(value.owner_address)) : null,
+        to_address: addr, amount, confirmations: REQUIRED_CONFIRMATIONS.TRON,
+        chain_timestamp: ts > 0 ? new Date(ts).toISOString() : null, raw: contract,
       });
     }
   }
   return out;
 }
 
-// ---------- EVM (Blockscout: Ethereum native + tokens) ----------
+// ---------- EVM (Blockscout API v2: Ethereum native + official USDT token) ----------
 async function scanBlockscout(network: string, addr: string, asset: string): Promise<Candidate[]> {
-  const host = network === "ERC20" || network === "ETHEREUM" ? "https://eth.blockscout.com" : "";
-  if (!host) return [];
+  if (network !== "ERC20" && network !== "ETHEREUM") return [];
+  const base = "https://eth.blockscout.com/api/v2";
   const out: Candidate[] = [];
+  const latest = await getEthLatestBlock();
   if (asset === "ETH") {
-    const data = await getJson(`${host}/api?module=account&action=txlist&address=${addr}&limit=50&sort=desc`) as { result?: Array<{ hash?: string; from?: string; to?: string; value?: string; isError?: string; confirmations?: string; timeStamp?: string }> };
-    for (const tx of data.result || []) {
-      if (String(tx.to || "").toLowerCase() !== addr.toLowerCase()) continue;
-      if (String(tx.isError || "0") === "1") continue;
-      const amount = Number(tx.value || 0) / 1e18;
+    const data = (await getJson(`${base}/addresses/${encodeURIComponent(addr)}/transactions?filter=to`)) as { items?: Array<{
+      hash?: string; from?: { hash?: string } | string; to?: { hash?: string } | string;
+      value?: string; block_number?: number; timestamp?: string; result?: string; status?: string;
+      confirmations?: number;
+    }> };
+    for (const tx of data.items || []) {
+      const toAddress = typeof tx.to === "string" ? tx.to : tx.to?.hash;
+      if (String(toAddress || "").toLowerCase() !== addr.toLowerCase()) continue;
+      const status = String(tx.result || tx.status || "").toLowerCase();
+      if (status.includes("fail") || status.includes("error") || status.includes("revert")) continue;
+      const amount = Number(BigInt(tx.value || "0")) / 1e18;
       if (!Number.isFinite(amount) || amount <= 0) continue;
-      const ts = Number(tx.timeStamp || 0) * 1000;
+      const blockNumber = Number(tx.block_number || 0);
+      const confirmations = blockNumber > 0 ? Math.max(0, latest - blockNumber + 1) : Number(tx.confirmations || 0);
+      const fromAddress = typeof tx.from === "string" ? tx.from : tx.from?.hash;
+      const ts = tx.timestamp ? new Date(tx.timestamp).getTime() : 0;
       out.push({
-        tx_hash: String(tx.hash || ""), event_index: 0, from_address: tx.from || null, to_address: addr,
-        amount, confirmations: Number(tx.confirmations || 0) || null,
+        tx_hash: String(tx.hash || ""), event_index: 0, from_address: fromAddress || null,
+        to_address: addr, amount, confirmations,
         chain_timestamp: ts > 0 ? new Date(ts).toISOString() : null, raw: tx,
       });
     }
   }
   if (asset === "USDT") {
-    const data = await getJson(`${host}/api?module=account&action=tokentx&address=${addr}&limit=50&sort=desc`) as { result?: Array<{ hash?: string; from?: string; to?: string; value?: string; tokenSymbol?: string; tokenDecimal?: string; timeStamp?: string; confirmations?: string }> };
-    for (let i = 0; i < (data.result || []).length; i++) {
-      const t = data.result![i];
-      if (String(t.to || "").toLowerCase() !== addr.toLowerCase()) continue;
-      if (String(t.tokenSymbol || "").toUpperCase() !== "USDT") continue;
-      const amount = Number(t.value || 0) / 10 ** Number(t.tokenDecimal || 6);
+    const contract = USDT_CONTRACTS.ERC20;
+    const data = (await getJson(
+      `${base}/addresses/${encodeURIComponent(addr)}/token-transfers?type=ERC-20&filter=to&token=${contract}`
+    )) as { items?: Array<{
+      transaction_hash?: string; log_index?: number; block_number?: number; timestamp?: string;
+      from?: { hash?: string } | string; to?: { hash?: string } | string;
+      token?: { address_hash?: string; decimals?: string | number };
+      total?: { value?: string; decimals?: string | number };
+    }> };
+    for (const transfer of data.items || []) {
+      const tokenAddress = String(transfer.token?.address_hash || "").toLowerCase();
+      const toAddress = typeof transfer.to === "string" ? transfer.to : transfer.to?.hash;
+      if (tokenAddress !== contract.toLowerCase()) continue;
+      if (String(toAddress || "").toLowerCase() !== addr.toLowerCase()) continue;
+      const decimals = Number(transfer.total?.decimals ?? transfer.token?.decimals ?? 6);
+      if (!Number.isInteger(decimals) || decimals < 0 || decimals > 18) continue;
+      const amount = Number(BigInt(transfer.total?.value || "0")) / 10 ** decimals;
       if (!Number.isFinite(amount) || amount <= 0) continue;
-      const ts = Number(t.timeStamp || 0) * 1000;
+      const blockNumber = Number(transfer.block_number || 0);
+      const confirmations = blockNumber > 0 ? Math.max(0, latest - blockNumber + 1) : 0;
+      const fromAddress = typeof transfer.from === "string" ? transfer.from : transfer.from?.hash;
+      const ts = transfer.timestamp ? new Date(transfer.timestamp).getTime() : 0;
       out.push({
-        tx_hash: String(t.hash || ""), event_index: i, from_address: t.from || null, to_address: addr,
-        amount, confirmations: Number(t.confirmations || 0) || null,
-        chain_timestamp: ts > 0 ? new Date(ts).toISOString() : null, raw: t,
+        tx_hash: String(transfer.transaction_hash || ""),
+        event_index: Number(transfer.log_index ?? 0), from_address: fromAddress || null,
+        to_address: addr, amount, confirmations,
+        chain_timestamp: ts > 0 ? new Date(ts).toISOString() : null, raw: transfer,
       });
     }
   }
@@ -163,7 +242,7 @@ async function scanEvmLogs(rpc: string, usdtContract: string, addr: string): Pro
   const latest = Number(hexToBigInt(String(head.result || "0x0")));
   if (!latest) return [];
   const fromBlock = Math.max(0, latest - 4800);
-  const data = await getJson(rpc, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ jsonrpc: "2.0", id: 2, method: "eth_getLogs", params: [{ fromBlock: "0x" + fromBlock.toString(16), toBlock: "latest", address: usdtContract, topics: [TRANSFER_TOPIC, null, padAddressTopic(addr)] }] }) }) as { result?: Array<{ transactionHash: string; blockNumber: string; topics: string[]; data: string }> };
+  const data = await getJson(rpc, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ jsonrpc: "2.0", id: 2, method: "eth_getLogs", params: [{ fromBlock: "0x" + fromBlock.toString(16), toBlock: "latest", address: usdtContract, topics: [TRANSFER_TOPIC, null, padAddressTopic(addr)] }] }) }) as { result?: Array<{ transactionHash: string; blockNumber: string; logIndex?: string; topics: string[]; data: string }> };
   const out: Candidate[] = [];
   for (const log of data.result || []) {
     const valueHex = log.data?.replace(/^0x/, "").slice(0, 64);
@@ -172,7 +251,10 @@ async function scanEvmLogs(rpc: string, usdtContract: string, addr: string): Pro
     if (!Number.isFinite(amount) || amount <= 0) continue;
     const block = Number(hexToBigInt(log.blockNumber));
     out.push({
-      tx_hash: String(log.transactionHash || ""), event_index: 0, from_address: null, to_address: addr,
+      tx_hash: String(log.transactionHash || ""),
+      event_index: log.logIndex ? Number(hexToBigInt(log.logIndex)) : 0,
+      from_address: log.topics?.[1] ? "0x" + log.topics[1].slice(-40) : null,
+      to_address: addr,
       amount, confirmations: Math.max(0, latest - block + 1), chain_timestamp: null, raw: log,
     });
   }
@@ -304,53 +386,51 @@ Deno.serve(async (req: Request) => {
   if (req.method !== "POST") return response({ error: "Method not allowed" }, 405);
   try {
     if (!SUPABASE_URL || !SERVICE_KEY) return response({ error: "Deposit monitoring is not configured" }, 503);
-    // Manual runs are restricted to administrators. Scheduled runs must present
-    // the long random ZC_CRON_SECRET configured as a Supabase Edge Function secret.
-    const cronSecret = Deno.env.get("ZC_CRON_SECRET") ?? "";
     const providedSecret = req.headers.get("x-zc-cron-secret") ?? "";
-    const cronAuthorized =
-      cronSecret.length >= 32 &&
-      providedSecret.length > 0 &&
-      constantTimeEqual(providedSecret, cronSecret);
-
+    let cronAuthorized = false;
+    if (providedSecret) {
+      const secretCheck = await rest("rpc/verify_zc_monitor_cron_secret", {
+        method: "POST", body: JSON.stringify({ p_secret: providedSecret }),
+      });
+      if (!secretCheck.ok) return response({ error: "Scheduled monitor authorization failed" }, 401);
+      cronAuthorized = (await secretCheck.json()) === true;
+      if (!cronAuthorized) return response({ error: "Scheduled monitor authorization failed" }, 401);
+    }
     let requesterId: string | null = null;
     if (!cronAuthorized) {
       const authHeader = req.headers.get("Authorization") ?? "";
-      if (!authHeader.startsWith("Bearer ")) {
-        return response({ error: "Administrator authentication or scheduled-job authorization is required" }, 401);
-      }
-
+      if (!authHeader.startsWith("Bearer ")) return response({ error: "Administrator authentication or scheduled-job authorization is required" }, 401);
       const userRes = await fetch(`${SUPABASE_URL}/auth/v1/user`, {
         headers: { apikey: SERVICE_KEY, Authorization: authHeader },
       });
       if (!userRes.ok) return response({ error: "Invalid session" }, 401);
-
       const user = await userRes.json();
       if (!user?.id) return response({ error: "Invalid session" }, 401);
-
       const profileRes = await fetch(
         `${SUPABASE_URL}/rest/v1/profiles?id=eq.${encodeURIComponent(String(user.id))}&select=role&limit=1`,
         { headers: { apikey: SERVICE_KEY, Authorization: `Bearer ${SERVICE_KEY}` } },
       );
       if (!profileRes.ok) return response({ error: "Could not verify administrator access" }, 503);
       const profileRows = await profileRes.json();
-      if (!Array.isArray(profileRows) || profileRows[0]?.role !== "admin") {
-        return response({ error: "Administrator access required" }, 403);
-      }
-
+      if (!Array.isArray(profileRows) || profileRows[0]?.role !== "admin") return response({ error: "Administrator access required" }, 403);
       requesterId = String(user.id);
     }
 
-    const addrRes = await rest("user_deposit_addresses?address_status=eq.active&select=id,user_id,asset_network_id,asset_code,network_code,address", { method: "GET" });
-    if (!addrRes.ok) throw new Error("Could not load deposit addresses");
+    const addrRes = await rest("rpc/next_zc_deposit_monitor_batch", {
+      method: "POST", body: JSON.stringify({ p_limit: 6 }),
+    });
+    if (!addrRes.ok) throw new Error("Could not load the next deposit-monitor batch");
     const addresses = await addrRes.json() as AddressRow[];
 
     const prices = await loadPrices();
+    const minimumRes = await rest("site_settings?setting_key=eq.minimum_deposit_usd&select=numeric_value&limit=1", { method: "GET" });
+    const minimumRows = minimumRes.ok ? await minimumRes.json() as Array<{ numeric_value?: number | string }> : [];
+    const minimumUsd = Number(minimumRows[0]?.numeric_value ?? 10);
     const requiredFor = (network: string) => REQUIRED_CONFIRMATIONS[String(network || "").toUpperCase()] ?? 12;
 
     // 1. Record newly detected transfers.
     const pendingRows: Array<Record<string, unknown>> = [];
-    const concurrency = 4;
+    const concurrency = 3;
     for (let i = 0; i < addresses.length; i += concurrency) {
       const batch = addresses.slice(i, i + concurrency);
       const scanned = await Promise.all(batch.map(async row => ({ row, candidates: await scanAddress(row) })));
@@ -412,7 +492,7 @@ Deno.serve(async (req: Request) => {
       const price = prices[asset];
       if (!Number.isFinite(price) || price <= 0) continue; // stays in backlog until a price is available
       const usd = Math.round(Number(row.amount) * price * 1e6) / 1e6;
-      if (!Number.isFinite(usd) || usd <= 0) continue;
+      if (!Number.isFinite(usd) || usd < minimumUsd || usd > 10000000) continue;
       const processedRes = await rest("rpc/process_confirmed_monitored_deposit", {
         method: "POST",
         body: JSON.stringify({ p_blockchain_deposit_id: row.id, p_amount_usd: usd }),
@@ -443,7 +523,7 @@ Deno.serve(async (req: Request) => {
     }
 
     const mine = requesterId ? credited.filter(c => c.user_id === requesterId) : credited;
-    return response({ ok: true, scanned: addresses.length, credited: mine, creditedTotal: credited.length });
+    return response({ ok: true, scanned: addresses.length, credited: mine, creditedTotal: credited.length, minimum_usd: minimumUsd });
   } catch (e) {
     console.error("deposit monitor failed", e);
     return response({ error: "Deposit monitoring failed. Please try again later." }, 500);
