@@ -3,7 +3,7 @@ import { ethers } from "npm:ethers@6.13.5";
 
 const TRON_USDT = "TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t";
 const ETH_USDT = "0xdAC17F958D2ee523a2206206994597C13D831ec7";
-const BSC_USDT = "0x55d398326f99094fF71046d3C4e1Fb9e2b2e5c7";
+const BSC_USDT = "0x55d398326f99059fF775485246999027B3197955";
 const RPC: Record<string, string> = { ERC20: "https://ethereum-rpc.publicnode.com", ETHEREUM: "https://ethereum-rpc.publicnode.com", BEP20: "https://bsc-rpc.publicnode.com" };
 const USDT_ADDR: Record<string, string> = { ERC20: ETH_USDT, ETHEREUM: ETH_USDT, BEP20: BSC_USDT };
 const CG_ID: Record<string, string> = { ETH: "ethereum", BNB: "binancecoin", TRX: "tron", BTC: "bitcoin", DOGE: "dogecoin", SOL: "solana" };
@@ -58,7 +58,7 @@ async function evmFee(network: string, from: string, to: string, amount6: string
   let gasUnits = 65000n, detail = "standard USDT transfer";
   let token_balance: string | null = null;
   if (from) {
-    try { token_balance = ethers.formatUnits(await usdt.balanceOf(from), 6); } catch { /* ignore */ }
+    try { token_balance = ethers.formatUnits(await usdt.balanceOf(from), network === "BEP20" ? 18 : 6); } catch { /* ignore */ }
   }
   try {
     gasUnits = await usdt.transfer.estimateGas(to, BigInt(amount6));
@@ -90,7 +90,8 @@ Deno.serve(async (req: Request) => {
       native = f.native; detail = f.detail; unit = "TRX"; balance = f.balance; token_balance = f.trx === null ? null : null;
       return response({ asset, network, native, native_unit: unit, usd: Math.round(native * (await usdPrice("tron")) * 100) / 100, detail, real: true, wallet_usdt_balance: balance, wallet_trx: f.trx });
     } else if (network === "ERC20" || network === "ETHEREUM" || network === "BEP20") {
-      const amount6 = BigInt(Math.max(0, Math.round(Number(amountCoin) * 1e6))).toString();
+      const tokenDecimals = network === "BEP20" ? 18 : 6;
+      const amount6 = BigInt(Math.max(0, Math.round(Number(amountCoin) * (10 ** tokenDecimals)))).toString();
       const f = await evmFee(network, from, to, amount6);
       native = f.native; detail = f.detail; unit = network === "BEP20" ? "BNB" : "ETH"; balance = f.balance; token_balance = f.token_balance;
       const price = await usdPrice(CG_ID[unit] ?? "tether");
