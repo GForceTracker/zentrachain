@@ -5623,7 +5623,7 @@ window.zcWalletPickUser=function(uid){
   const u=(window.zcWalletData&&window.zcWalletData.users?window.zcWalletData.users:{})[uid]||{};
   const sameCoin={ETH:['ERC20','ETHEREUM'],TRX:['TRC20','TRON'],BTC:['BITCOIN'],DOGE:['DOGECOIN'],SOL:['SOLANA']};
   const coinTitle=(sameCoin[W.asset]||[]).indexOf(W.network)>=0?W.asset:W.asset+' · '+W.network;
-  const coinDecimals=(W.asset==='BTC'||W.asset==='DOGE')?8:(W.asset==='SOL'?9:(W.asset==='TRX'?6:((W.asset==='ETH'||W.network==='BEP20')?18:6));
+  const coinDecimals=(W.asset==='BTC'||W.asset==='DOGE')?8:(W.asset==='SOL'?9:(W.asset==='TRX'?6:((W.asset==='ETH'||W.network==='BEP20')?18:6)));
   window.__zcPendingWd={uid:uid,amount:amount,addr:addr,note:note,mode:mode,feeNative:feeNative,feeUnit:feeUnit,feeUsd:feeUsd,avail:avail,cryptoAmount:W.cryptoAmountEstimate||0};
   document.getElementById('zc-wd-confirm-modal')?.remove();
   const m=document.createElement('div');m.id='zc-wd-confirm-modal';
