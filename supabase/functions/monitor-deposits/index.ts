@@ -160,7 +160,7 @@ async function getTronLatestBlock(): Promise<number> {
 async function scanTronToken(addr: string): Promise<Candidate[]> {
   const recipient = await tronAddressToEvmAddress(addr);
   const latest = await getTronLatestBlock();
-  const fromBlock = Math.max(0, latest - 10000);
+  const fromBlock = Math.max(0, latest - 4800);
   const recipientTopic = padAddressTopic(recipient);
   const data = (await getJson(TRON_RPC_URL, {
     method: "POST",
