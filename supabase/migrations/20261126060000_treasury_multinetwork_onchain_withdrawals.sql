@@ -467,8 +467,8 @@ BEGIN
   WHERE id=p_reservation_id
   FOR UPDATE;
 
-  IF NOT found OR v_res.status<>'pending' THEN
-    RAISE EXCEPTION 'Treasury withdrawal reservation is missing or no longer active';
+  IF NOT found OR v_res.status<>'pending' OR v_res.broadcast_attempted IS NOT TRUE THEN
+    RAISE EXCEPTION 'Treasury withdrawal reservation is missing, was not broadcast, or is no longer active';
   END IF;
   IF v_res.created_by IS DISTINCT FROM v_admin
     OR v_res.user_id IS DISTINCT FROM p_user_id
