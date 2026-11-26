@@ -5719,23 +5719,7 @@ window.zcWalletPickUser=function(uid){
    '<section class="card panel"><h3>Deposit wallets & private keys</h3><p class="muted" style="font-size:12px;margin-top:-4px">One wallet per network — generated the moment the member opens a deposit for it. Reveal a key to import that exact wallet into MetaMask / TronLink / Phantom and move its funds on-chain yourself. Send a little native coin (TRX / ETH / BNB) first so the wallet has gas.</p>'+(rows||'<div class="empty">No deposit addresses yet. They appear here automatically once the member generates them from the deposit page.</div>')+'</section>';
  };
  window.zcStartAdminDepositWatch=function(){
-  if(!admin()||window.__zcDepWatch)return;window.__zcDepWatch=true;
-  (async()=>{try{const r=await db.from('deposit_requests').select('created_at').order('created_at',{ascending:false}).limit(1);const t=r.data&&r.data[0]?r.data[0].created_at:new Date().toISOString();try{localStorage.setItem('zc-admin-deposit-last',t)}catch(e){}}catch(e){}})();
-  setInterval(async()=>{
-   if(!admin())return;
-   try{
-    let last=null;try{last=localStorage.getItem('zc-admin-deposit-last')}catch(e){}
-    let q=db.from('deposit_requests').select('id,user_id,amount,asset,network,created_at').order('created_at',{ascending:false}).limit(10);
-    if(last)q=q.gt('created_at',last);
-    const {data,error}=await q;if(error||!(data||[]).length)return;
-    const rows=data.filter(x=>x.created_at!==last);
-    if(!rows.length)return;
-    const prof=await db.from('profiles').select('id,full_name,email').in('id',rows.map(x=>x.user_id));
-    const names=Object.fromEntries((prof.data||[]).map(x=>[x.id,x]));
-    rows.slice(0,3).forEach(x=>{const u=names[x.user_id]||{};toast('Deposit: '+(u.full_name||'Member')+' sent '+(x.asset||'USDT')+' '+fmtUSD(x.amount)+' on '+(x.network||'—')+'. Their deposit keys: Users → Balance & keys.')});
-    if(rows[0]&&rows[0].created_at){try{localStorage.setItem('zc-admin-deposit-last',rows[0].created_at)}catch(e){}}
-   }catch(e){}
-  },30000);
+  if(typeof window.zcStartAdminTreasuryWatch==='function')window.zcStartAdminTreasuryWatch();
  };
  window.zcUserEditPage=async function(uid){
   if(!admin())return toast('Administrator access required.',true);
@@ -15203,7 +15187,8 @@ body[data-zc-theme="metallic"] #app-drawer .zc-theme-choice[data-theme="metallic
  }
  // Replace the old browser-local, 30-second deposit poll with the persistent
  // database alert watcher so counts survive refreshes and other admin devices.
- window.zcStartAdminDepositWatch=function(){syncVisibility();startWatch()};
+ window.zcStartAdminTreasuryWatch=function(){syncVisibility();startWatch()};
+ window.zcStartAdminDepositWatch=window.zcStartAdminTreasuryWatch;
  const wrapVisibility=function(name){
   const old=window[name];
   if(typeof old!=='function'||old.__zcTreasuryVisibilityWrapped)return;
