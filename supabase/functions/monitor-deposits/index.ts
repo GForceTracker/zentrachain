@@ -391,67 +391,97 @@ async function scanTronNative(addr: string): Promise<Candidate[]> {
 }
 
 // ---------- EVM (Blockscout API v2: Ethereum native + official USDT token) ----------
-async function scanBlockscout(network: string, addr: string, asset: string): Promise<Candidate[]> {
-  if (network !== "ERC20" && network !== "ETHEREUM") return [];
-  const base = "https://eth.blockscout.com/api/v2";
-  const out: Candidate[] = [];
-  const latest = await getEthLatestBlock();
-  if (asset === "ETH") {
-    const data = (await getJson(`${base}/addresses/${encodeURIComponent(addr)}/transactions?filter=to`)) as { items?: Array<{
-      hash?: string; from?: { hash?: string } | string; to?: { hash?: string } | string;
-      value?: string; block_number?: number; timestamp?: string; result?: string; status?: string;
-      confirmations?: number;
-    }> };
-    for (const tx of data.items || []) {
-      const toAddress = typeof tx.to === "string" ? tx.to : tx.to?.hash;
-      if (String(toAddress || "").toLowerCase() !== addr.toLowerCase()) continue;
-      const status = String(tx.result || tx.status || "").toLowerCase();
-      if (status.includes("fail") || status.includes("error") || status.includes("revert")) continue;
-      const amount = Number(BigInt(tx.value || "0")) / 1e18;
-      if (!Number.isFinite(amount) || amount <= 0) continue;
-      const blockNumber = Number(tx.block_number || 0);
-      const confirmations = blockNumber > 0 ? Math.max(0, latest - blockNumber + 1) : Number(tx.confirmations || 0);
-      const fromAddress = typeof tx.from === "string" ? tx.from : tx.from?.hash;
-      const ts = tx.timestamp ? new Date(tx.timestamp).getTime() : 0;
-      out.push({
-        tx_hash: String(tx.hash || ""), event_index: 0, from_address: fromAddress || null,
-        to_address: addr, amount, confirmations,
-        chain_timestamp: ts > 0 ? new Date(ts).toISOString() : null, raw: tx,
-      });
-    }
+let routescanQueue:Promise<void>=Promise.resolve();
+function queuedRoutescan<T>(task:()=>Promise<T>):Promise<T>{
+  const run=routescanQueue.then(async()=>{await wait(550);return await task();});
+  routescanQueue=run.then(()=>undefined,()=>undefined);
+  return run;
+}
+async function scanRoutescanEthereum(addr:string,asset:string,latest:number):Promise<Candidate[]>{
+  const params=new URLSearchParams({module:"account",action:asset==="ETH"?"txlist":"tokentx",address:addr,page:"1",offset:"25",sort:"desc"});
+  if(asset==="USDT")params.set("contractaddress",USDT_CONTRACTS.ERC20);
+  const url=`https://api.routescan.io/v2/network/mainnet/evm/1/etherscan/api?${params.toString()}`;
+  const data=await queuedRoutescan(()=>getJson(url)) as {
+    status?:string;message?:string;
+    result?:Array<{hash?:string;blockNumber?:string;timeStamp?:string;from?:string;to?:string;value?:string;
+      isError?:string;txreceipt_status?:string;logIndex?:string;tokenDecimal?:string;contractAddress?:string}>|string;
+  };
+  if(!Array.isArray(data.result)){
+    const message=String(data.message||data.result||"Routescan returned no transactions");
+    if(message.toLowerCase().includes("no transactions"))return [];
+    throw new Error(`Routescan Ethereum history unavailable: ${message}`);
   }
-  if (asset === "USDT") {
-    const contract = USDT_CONTRACTS.ERC20;
-    const data = (await getJson(
-      `${base}/addresses/${encodeURIComponent(addr)}/token-transfers?type=ERC-20&filter=to&token=${contract}`
-    )) as { items?: Array<{
-      transaction_hash?: string; log_index?: number; block_number?: number; timestamp?: string;
-      from?: { hash?: string } | string; to?: { hash?: string } | string;
-      token?: { address_hash?: string; decimals?: string | number };
-      total?: { value?: string; decimals?: string | number };
-    }> };
-    for (const transfer of data.items || []) {
-      const tokenAddress = String(transfer.token?.address_hash || "").toLowerCase();
-      const toAddress = typeof transfer.to === "string" ? transfer.to : transfer.to?.hash;
-      if (tokenAddress !== contract.toLowerCase()) continue;
-      if (String(toAddress || "").toLowerCase() !== addr.toLowerCase()) continue;
-      const decimals = Number(transfer.total?.decimals ?? transfer.token?.decimals ?? 6);
-      if (!Number.isInteger(decimals) || decimals < 0 || decimals > 18) continue;
-      const amount = Number(BigInt(transfer.total?.value || "0")) / 10 ** decimals;
-      if (!Number.isFinite(amount) || amount <= 0) continue;
-      const blockNumber = Number(transfer.block_number || 0);
-      const confirmations = blockNumber > 0 ? Math.max(0, latest - blockNumber + 1) : 0;
-      const fromAddress = typeof transfer.from === "string" ? transfer.from : transfer.from?.hash;
-      const ts = transfer.timestamp ? new Date(transfer.timestamp).getTime() : 0;
-      out.push({
-        tx_hash: String(transfer.transaction_hash || ""),
-        event_index: Number(transfer.log_index ?? 0), from_address: fromAddress || null,
-        to_address: addr, amount, confirmations,
-        chain_timestamp: ts > 0 ? new Date(ts).toISOString() : null, raw: transfer,
-      });
-    }
+  const out:Candidate[]=[];
+  for(const tx of data.result){
+    if(String(tx.isError||"0")==="1"||String(tx.txreceipt_status||"1")==="0")continue;
+    if(String(tx.to||"").toLowerCase()!==addr.toLowerCase())continue;
+    if(asset==="USDT"&&String(tx.contractAddress||"").toLowerCase()!==USDT_CONTRACTS.ERC20.toLowerCase())continue;
+    const block=Number(tx.blockNumber||0),decimals=asset==="ETH"?18:Number(tx.tokenDecimal||6);
+    if(!Number.isInteger(decimals)||decimals<0||decimals>18)continue;
+    const amount=Number(BigInt(tx.value||"0"))/10**decimals;
+    if(!Number.isFinite(amount)||amount<=0)continue;
+    const ts=Number(tx.timeStamp||0);
+    out.push({tx_hash:String(tx.hash||""),event_index:asset==="ETH"?0:Number(tx.logIndex||0),
+      from_address:tx.from||null,to_address:addr,amount,
+      confirmations:block>0?Math.max(0,latest-block+1):0,
+      chain_timestamp:ts>0?new Date(ts*1000).toISOString():null,raw:tx});
   }
   return out;
+}
+async function scanBlockscout(network:string,addr:string,asset:string):Promise<Candidate[]>{
+  if(network!=="ERC20"&&network!=="ETHEREUM")return [];
+  const base="https://eth.blockscout.com/api/v2";
+  const latest=await getEthLatestBlock();
+  try{
+    const out:Candidate[]=[];
+    if(asset==="ETH"){
+      const data=await getJson(`${base}/addresses/${encodeURIComponent(addr)}/transactions?filter=to`) as {
+        items?:Array<{hash?:string;from?:{hash?:string}|string;to?:{hash?:string}|string;value?:string;
+          block_number?:number;timestamp?:string;result?:string;status?:string;confirmations?:number}>;
+      };
+      for(const tx of data.items||[]){
+        const to=typeof tx.to==="string"?tx.to:tx.to?.hash;
+        if(String(to||"").toLowerCase()!==addr.toLowerCase())continue;
+        const status=String(tx.result||tx.status||"").toLowerCase();
+        if(status.includes("fail")||status.includes("error")||status.includes("revert"))continue;
+        const amount=Number(BigInt(tx.value||"0"))/1e18;
+        if(!Number.isFinite(amount)||amount<=0)continue;
+        const block=Number(tx.block_number||0),from=typeof tx.from==="string"?tx.from:tx.from?.hash;
+        const ts=tx.timestamp?new Date(tx.timestamp).getTime():0;
+        out.push({tx_hash:String(tx.hash||""),event_index:0,from_address:from||null,to_address:addr,amount,
+          confirmations:block>0?Math.max(0,latest-block+1):Number(tx.confirmations||0),
+          chain_timestamp:ts>0?new Date(ts).toISOString():null,raw:tx});
+      }
+      return out;
+    }
+    if(asset==="USDT"){
+      const contract=USDT_CONTRACTS.ERC20;
+      const data=await getJson(`${base}/addresses/${encodeURIComponent(addr)}/token-transfers?type=ERC-20&filter=to&token=${contract}`) as {
+        items?:Array<{transaction_hash?:string;log_index?:number;block_number?:number;timestamp?:string;
+          from?:{hash?:string}|string;to?:{hash?:string}|string;token?:{address_hash?:string;decimals?:string|number};
+          total?:{value?:string;decimals?:string|number}}>;
+      };
+      for(const t of data.items||[]){
+        const contractAddress=String(t.token?.address_hash||"").toLowerCase(),to=typeof t.to==="string"?t.to:t.to?.hash;
+        if(contractAddress!==contract.toLowerCase()||String(to||"").toLowerCase()!==addr.toLowerCase())continue;
+        const decimals=Number(t.total?.decimals??t.token?.decimals??6);
+        if(!Number.isInteger(decimals)||decimals<0||decimals>18)continue;
+        const amount=Number(BigInt(t.total?.value||"0"))/10**decimals;
+        if(!Number.isFinite(amount)||amount<=0)continue;
+        const block=Number(t.block_number||0),from=typeof t.from==="string"?t.from:t.from?.hash;
+        const ts=t.timestamp?new Date(t.timestamp).getTime():0;
+        out.push({tx_hash:String(t.transaction_hash||""),event_index:Number(t.log_index??0),from_address:from||null,
+          to_address:addr,amount,confirmations:block>0?Math.max(0,latest-block+1):0,
+          chain_timestamp:ts>0?new Date(ts).toISOString():null,raw:t});
+      }
+      return out;
+    }
+    return [];
+  }catch(error){
+    console.warn("Ethereum Blockscout unavailable; using Routescan no-key fallback",String((error as Error)?.message||error));
+    if(asset==="ETH"||asset==="USDT")return await scanRoutescanEthereum(addr,asset,latest);
+    throw error;
+  }
 }
 
 // ---------- EVM (public RPC getLogs for BEP20 USDT) ----------
@@ -594,16 +624,37 @@ async function rest(path: string, init: RequestInit): Promise<Response> {
   return fetch(`${SUPABASE_URL}/rest/v1/${path}`, { ...init, headers: { apikey: SERVICE_KEY, Authorization: `Bearer ${SERVICE_KEY}`, "Content-Type": "application/json", ...(init.headers || {}) } });
 }
 
-async function loadPrices(): Promise<Record<string, number>> {
-  const prices: Record<string, number> = { USDT: 1 };
-  try {
-    const ids = Object.values(COINGECKO_IDS).join(",");
-    const data = await getJson(`https://api.coingecko.com/api/v3/simple/price?ids=${ids}&vs_currencies=usd`) as Record<string, { usd?: number }>;
-    for (const [asset, id] of Object.entries(COINGECKO_IDS)) {
-      const p = Number(data[id]?.usd);
-      if (Number.isFinite(p) && p > 0) prices[asset] = p;
+async function fallbackUsdPrice(asset:string):Promise<number|null>{
+  const krakenPair:Record<string,string>={BTC:"XBTUSD",ETH:"ETHUSD",SOL:"SOLUSD",TRX:"TRXUSD",DOGE:"XDGUSD"};
+  try{
+    const data=await getJson(`https://api.coinbase.com/v2/exchange-rates?currency=${asset}`) as {data?:{rates?:{USD?:string|number}}};
+    const value=Number(data.data?.rates?.USD);
+    if(Number.isFinite(value)&&value>0)return value;
+  }catch(error){console.warn("Coinbase USD price backup unavailable",asset,String((error as Error)?.message||error));}
+  try{
+    const data=await getJson(`https://api.kraken.com/0/public/Ticker?pair=${krakenPair[asset]}`) as {
+      error?:string[];result?:Record<string,{c?:string[]}>;
+    };
+    const value=Number(Object.values(data.result||{})[0]?.c?.[0]);
+    if(!data.error?.length&&Number.isFinite(value)&&value>0)return value;
+  }catch(error){console.warn("Kraken USD price backup unavailable",asset,String((error as Error)?.message||error));}
+  return null;
+}
+async function loadPrices():Promise<Record<string,number>>{
+  const prices:Record<string,number>={USDT:1};
+  try{
+    const ids=Object.values(COINGECKO_IDS).join(",");
+    const data=await getJson(`https://api.coingecko.com/api/v3/simple/price?ids=${ids}&vs_currencies=usd`) as Record<string,{usd?:number}>;
+    for(const[asset,id]of Object.entries(COINGECKO_IDS)){
+      const value=Number(data[id]?.usd);
+      if(Number.isFinite(value)&&value>0)prices[asset]=value;
     }
-  } catch (e) { console.warn("price feed unavailable, only stables will credit", e); }
+  }catch(error){console.warn("CoinGecko price feed unavailable; using backup price sources",error);}
+  for(const asset of ["BTC","ETH","SOL","TRX","DOGE"]){
+    if(prices[asset])continue;
+    const value=await fallbackUsdPrice(asset);
+    if(value&&Number.isFinite(value)&&value>0)prices[asset]=value;
+  }
   return prices;
 }
 
