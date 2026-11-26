@@ -578,20 +578,45 @@ type DogechainEnvelope<T> = {
   message?: string;
 };
 
-async function scanDogecoin(addr:string):Promise<Candidate[]> {
+let cachedDogechainTip={value:0,at:0};
+async function getDogechainTip():Promise<number>{
+  if(cachedDogechainTip.value>0&&Date.now()-cachedDogechainTip.at<15000)return cachedDogechainTip.value;
+  const response=await getJson("https://dogechain.com/api/v3/network") as DogechainEnvelope<{
+    network?:string;
+    info?:{block_count?:number};
+  }>;
+  const tip=Number(response.data?.info?.block_count||0);
+  if(response.status!=="success"||!Number.isSafeInteger(tip)||tip<=0){
+    throw new Error("Dogechain latest block height is unavailable");
+  }
+  cachedDogechainTip={value:tip,at:Date.now()};
+  return tip;
+}
+
+async function scanDogecoin(
+  addr:string,
+  detailBudget:{details:number;maxDetails:number},
+):Promise<Candidate[]>{
   const base="https://dogechain.com/api/v3";
-  // Dogechain is a free, no-key source. It permits 120 calls/minute with
-  // bursts up to 30; this monitor checks the three DOGE addresses only once
-  // per 30-second cycle and fetches full transaction detail only when needed.
-  const addressResponse=await getJson(
-    `${base}/address/${encodeURIComponent(addr)}?page=1`
-  ) as DogechainEnvelope<{transactions?:DogechainAddressTransaction[]}>;
-  if(addressResponse.status!=="success"||!Array.isArray(addressResponse.data?.transactions)){
-    throw new Error("Dogechain returned an invalid Dogecoin address-history response");
+  // Dogechain is keyless (120 requests/minute, burst 30). Pagination is
+  // bounded and transaction-detail fetches share a per-run budget so a sudden
+  // burst cannot exhaust the provider quota. Anything not yet read remains
+  // in address history for the next 30-second scan.
+  const history:DogechainAddressTransaction[]=[];
+  for(let page=1;page<=5;page++){
+    const response=await getJson(`${base}/address/${encodeURIComponent(addr)}?page=${page}`) as DogechainEnvelope<{
+      transactions?:DogechainAddressTransaction[];
+    }>;
+    if(response.status!=="success"||!Array.isArray(response.data?.transactions)){
+      const message=String((response as {data?:{error_message?:string}}).data?.error_message||"Dogechain returned invalid address history");
+      throw new Error(message);
+    }
+    const pageRows=response.data.transactions;
+    history.push(...pageRows);
+    if(pageRows.length<10)break;
   }
 
-  const incoming=addressResponse.data.transactions
-    .filter(tx=>Boolean(tx.hash)&&Number(tx.balance_change)>0);
+  const incoming=history.filter(tx=>Boolean(tx.hash)&&Number(tx.balance_change)>0);
   if(!incoming.length)return [];
 
   const hashes=[...new Set(incoming.map(tx=>String(tx.hash)))];
@@ -604,7 +629,7 @@ async function scanDogecoin(addr:string):Promise<Candidate[]> {
     tx_hash:string;event_index:number;deposit_status:string;amount:number|string;
     from_address:string|null;to_address:string;chain_timestamp:string|null;raw_event?:unknown;
   };
-  if(!knownRes.ok) throw new Error("Could not check previously recorded Dogecoin transfers");
+  if(!knownRes.ok)throw new Error("Could not check previously recorded Dogecoin transfers");
   const knownRows=await knownRes.json() as KnownDogeRow[];
   const knownByTx=new Map<string,KnownDogeRow[]>();
   for(const row of knownRows){
@@ -613,29 +638,36 @@ async function scanDogecoin(addr:string):Promise<Candidate[]> {
     knownByTx.set(row.tx_hash,list);
   }
 
-  const out:Candidate[]=[];
-  for(const history of incoming){
-    const txHash=String(history.hash);
-    const existing=knownByTx.get(txHash)||[];
-    if(existing.length&&existing.every(row=>["confirmed","credited"].includes(String(row.deposit_status).toLowerCase()))){
-      continue;
-    }
+  let latestHeight=0;
+  try{
+    latestHeight=await getDogechainTip();
+  }catch(error){
+    console.warn("Dogechain tip temporarily unavailable; pending transactions will be checked from full transaction details",String((error as Error)?.message||error));
+  }
 
-    // Already-recorded confirming outputs can be advanced from the latest
-    // address-history confirmation count without repeatedly fetching TX detail.
+  const out:Candidate[]=[];
+  for(const addressTx of incoming){
+    const txHash=String(addressTx.hash);
+    const existing=knownByTx.get(txHash)||[];
+    if(existing.length&&existing.every(row=>["confirmed","credited"].includes(String(row.deposit_status).toLowerCase())))continue;
+
+    // Advance already-detected transactions using the current network tip.
+    // This avoids another /tx call every 30 seconds while still confirming
+    // from the canonical block height recorded in the first observation.
     const savedPending=existing.filter(row=>String(row.deposit_status).toLowerCase()==="confirming");
-    if(savedPending.length>0&&Number(history.block||0)>0){
-      for(const row of savedPending){
+    const savedWithHeight=savedPending.filter(row=>{
+      const raw=row.raw_event&&typeof row.raw_event==="object"?row.raw_event as Record<string,unknown>:{};
+      return Number(raw.block_height||addressTx.block||0)>0;
+    });
+    if(savedWithHeight.length&&latestHeight>0){
+      for(const row of savedWithHeight){
         const raw=row.raw_event&&typeof row.raw_event==="object"?row.raw_event as Record<string,unknown>:{};
-        const blockHeight=Number(raw.block_height||history.block||0);
-        const confirmations=Number(history.confirmations??(raw.confirmations||0));
+        const blockHeight=Number(raw.block_height||addressTx.block||0);
         out.push({
-          tx_hash:row.tx_hash,
-          event_index:Number(row.event_index||0),
-          from_address:row.from_address,
-          to_address:row.to_address||addr,
+          tx_hash:row.tx_hash,event_index:Number(row.event_index||0),
+          from_address:row.from_address,to_address:row.to_address||addr,
           amount:Number(row.amount),
-          confirmations:Number.isFinite(confirmations)?confirmations:0,
+          confirmations:Math.max(0,latestHeight-blockHeight+1),
           chain_timestamp:row.chain_timestamp,
           raw:{...raw,provider:"Dogechain",block_height:blockHeight},
         });
@@ -643,9 +675,16 @@ async function scanDogecoin(addr:string):Promise<Candidate[]> {
       continue;
     }
 
-    const txResponse=await getJson(
-      `${base}/tx/${encodeURIComponent(txHash)}`
-    ) as DogechainEnvelope<{transaction?:DogechainTransaction;explain?:{headline?:string}}>;
+    if(detailBudget.details>=detailBudget.maxDetails){
+      // Do not discard anything: it remains in the newest-first address
+      // history and will be picked up after this budget resets next cycle.
+      continue;
+    }
+    detailBudget.details++;
+
+    const txResponse=await getJson(`${base}/tx/${encodeURIComponent(txHash)}`) as DogechainEnvelope<{
+      transaction?:DogechainTransaction;explain?:{headline?:string};
+    }>;
     if(txResponse.status!=="success"||!txResponse.data?.transaction){
       const message=String((txResponse as {data?:{error_message?:string}}).data?.error_message||"Dogechain returned no transaction detail");
       throw new Error(message);
@@ -655,32 +694,28 @@ async function scanDogecoin(addr:string):Promise<Candidate[]> {
       throw new Error("Dogechain transaction hash did not match the requested transfer");
     }
     const outputs=Array.isArray(transaction.outputs)?transaction.outputs:[];
-    const toOutputs=outputs.filter(output=>String(output.address||"")===addr);
-    if(toOutputs.length===0){
+    const matching=outputs.filter(output=>String(output.address||"")===addr);
+    if(matching.length===0){
       console.warn("Dogecoin address history reported incoming value but transaction outputs did not match the deposit address",txHash);
       continue;
     }
 
-    const confirmations=Number(transaction.confirmations||0);
-    const timestamp=Number(transaction.time||history.time||0);
+    const blockHeight=Number(transaction.block_height||addressTx.block||0);
+    const confirmations=Number(transaction.confirmations||
+      (latestHeight>0&&blockHeight>0?Math.max(0,latestHeight-blockHeight+1):0));
+    const timestamp=Number(transaction.time||addressTx.time||0);
     const fromAddress=String(transaction.inputs?.find(input=>input.address)?.address||"")||null;
-    for(const output of toOutputs){
+    for(const output of matching){
       const amount=Number(output.value||0);
       const eventIndex=Number(output.index);
       if(!Number.isFinite(amount)||amount<=0||!Number.isSafeInteger(eventIndex)||eventIndex<0)continue;
       out.push({
-        tx_hash:txHash,
-        event_index:eventIndex,
-        from_address:fromAddress,
-        to_address:addr,
-        amount,
-        confirmations,
+        tx_hash:txHash,event_index:eventIndex,from_address:fromAddress,to_address:addr,
+        amount,confirmations,
         chain_timestamp:timestamp>0?new Date(timestamp*1000).toISOString():null,
         raw:{
-          provider:"Dogechain",
-          block_hash:transaction.block_hash||null,
-          block_height:transaction.block_height||history.block||null,
-          output_index:eventIndex,
+          provider:"Dogechain",block_hash:transaction.block_hash||null,
+          block_height:blockHeight||null,output_index:eventIndex,
         },
       });
     }
@@ -729,7 +764,10 @@ async function scanSolana(addr:string,asset:string):Promise<Candidate[]> {
   return out;
 }
 
-async function scanAddress(row: AddressRow): Promise<Candidate[]> {
+async function scanAddress(
+  row:AddressRow,
+  dogeBudget:{details:number;maxDetails:number},
+):Promise<Candidate[]>{
   const asset=String(row.asset_code||"").toUpperCase(),network=String(row.network_code||"").toUpperCase(),addr=row.address;
   try{
     if(network==="TRC20"&&asset==="USDT")return await scanTronToken(addr);
@@ -737,7 +775,7 @@ async function scanAddress(row: AddressRow): Promise<Candidate[]> {
     if(network==="ERC20"||network==="ETHEREUM")return await scanBlockscout(network,addr,asset);
     if(network==="BEP20"&&asset==="USDT")return await scanEvmLogs(BSC_RPC_URLS,USDT_CONTRACTS.BEP20,addr);
     if(network==="BITCOIN"&&asset==="BTC")return await scanBitcoin(addr);
-    if(network==="DOGECOIN"&&asset==="DOGE")return await scanDogecoin(addr);
+    if(network==="DOGECOIN"&&asset==="DOGE")return await scanDogecoin(addr,dogeBudget);
     if(network==="SOLANA")return await scanSolana(addr,asset);
     return [];
   }catch(error){
@@ -855,9 +893,13 @@ Deno.serve(async (req: Request) => {
     // 1. Record newly detected transfers.
     const pendingRows: Array<Record<string, unknown>> = [];
     const concurrency = 3;
+    // At most 15 new Dogecoin TX detail lookups per run. Three active DOGE
+    // addresses are currently monitored; the shared budget protects the
+    // provider's public 120-requests/minute allowance as address count grows.
+    const dogeBudget = { details: 0, maxDetails: 15 };
     for (let i = 0; i < scanAddresses.length; i += concurrency) {
       const batch = scanAddresses.slice(i, i + concurrency);
-      const scanned = await Promise.all(batch.map(async row => ({ row, candidates: await scanAddress(row) })));
+      const scanned = await Promise.all(batch.map(async row => ({ row, candidates: await scanAddress(row, dogeBudget) })));
       for (const { row, candidates } of scanned) {
         for (const c of candidates) {
           if (!c.tx_hash || !Number.isFinite(c.amount) || c.amount <= 0) continue;
