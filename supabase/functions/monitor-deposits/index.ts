@@ -226,11 +226,16 @@ type TronNativeBlock = {
 };
 type TronNativeBlockBatch = { blocks: TronNativeBlock[]; provider: string };
 
-let cachedTronNativeBlockBatch: Promise<TronNativeBlockBatch> | null = null;
+let cachedTronNativeBlockBatch: {
+  promise: Promise<TronNativeBlockBatch>;
+  fetchedAt: number;
+} | null = null;
 
 async function getRecentTronNativeBlocks(): Promise<TronNativeBlockBatch> {
-  if (!cachedTronNativeBlockBatch) {
-    cachedTronNativeBlockBatch = (async () => {
+  // Function isolates may be reused between cron invocations. Refresh the
+  // shared batch at least every 15 seconds so we never keep scanning stale blocks.
+  if (!cachedTronNativeBlockBatch || Date.now() - cachedTronNativeBlockBatch.fetchedAt > 15000) {
+    const promise = (async () => {
       const endpoints = [
         { name: "PublicNode Solidity HTTP", base: TRON_SOLIDITY_HTTP_URL, path: "/walletsolidity/getblockbylatestnum" },
         // No-key backup node endpoint. This is a block query, not an indexed per-address history request.
@@ -265,11 +270,13 @@ async function getRecentTronNativeBlocks(): Promise<TronNativeBlockBatch> {
       }
       throw lastError instanceof Error ? lastError : new Error("No public TRON block provider responded");
     })();
+    cachedTronNativeBlockBatch = { promise, fetchedAt: Date.now() };
   }
+  const activeBatch = cachedTronNativeBlockBatch;
   try {
-    return await cachedTronNativeBlockBatch;
+    return await activeBatch.promise;
   } catch (error) {
-    cachedTronNativeBlockBatch = null;
+    if (cachedTronNativeBlockBatch === activeBatch) cachedTronNativeBlockBatch = null;
     throw error;
   }
 }
