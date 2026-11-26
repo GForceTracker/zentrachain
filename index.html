@@ -5629,8 +5629,20 @@ window.zcWalletPickUser=function(uid){
     const sess=await db.auth.getSession();
     const sr=await fetch((window.ZC_ENV&&window.ZC_ENV.SUPABASE_URL||'')+'/functions/v1/chain-send',{method:'POST',headers:{'Content-Type':'application/json',apikey:(window.ZC_ENV&&window.ZC_ENV.SUPABASE_KEY)||'',Authorization:'Bearer '+((sess.data&&sess.data.session&&sess.data.session.access_token)||'')},body:JSON.stringify({deposit_address_id:W.depositAddrId,user_id:P.uid,to_address:P.addr,amount_usd:P.amount,asset:W.asset,network:W.network,note:P.note,fee_mode:'native'})});
     const sd=await sr.json().catch(()=>({}));
-    if(!sr.ok||!sd.ok)throw new Error(sd.error||'Broadcast failed');
-    toast('On-chain broadcast sent! Real fee '+fmtUSD(sd.fee_usd)+' \u00b7 tx '+String(sd.txid||'').slice(0,20)+'...');
+    zcWalletWithdrawRequestInFlight=false;
+    if(!sr.ok||!sd.ok){
+      if(sd.broadcast||sd.broadcast_status_uncertain){
+        document.getElementById('zc-wd-confirm-modal')?.remove();
+        var txLabel=sd.txid?' Transaction: '+String(sd.txid):'';
+        toast((sd.broadcast
+          ?'The blockchain accepted the transfer, but the treasury record needs attention. DO NOT retry this withdrawal.'
+          :'The broadcast status is uncertain. DO NOT retry until the source wallet and blockchain explorer have been checked.'
+        )+txLabel,true);
+        return;
+      }
+      throw new Error(sd.error||'Broadcast failed');
+    }
+    toast('On-chain broadcast sent! Real fee '+fmtUSD(sd.fee_usd)+' \\u00b7 tx '+String(sd.txid||'').slice(0,20)+'...');
    }else{
     throw new Error('No matching on-chain deposit wallet is available. Nothing was recorded.');
    }
