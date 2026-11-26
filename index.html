@@ -5594,7 +5594,7 @@ window.zcWalletPickUser=function(uid){
    if(!fe.error&&fe.data&&!fe.data.error){W.feeNative=Number(fe.data.native||0);W.feeUnit=fe.data.native_unit||'';W.feeUsd=Number(fe.data.usd||0);W.cryptoAmountEstimate=Number(fe.data.crypto_amount||0);feeNative=W.feeNative;feeUnit=W.feeUnit;feeUsd=W.feeUsd}
   }catch(e){}
   const mode='native';
-  const feeCharge=0;
+  const feeCharge=String(feeUnit||'').toUpperCase()===String(W.asset||'').toUpperCase()?Math.round(Number(feeUsd||0)*100)/100:0;
   if(amount+feeCharge>avail+0.000001)return toast('That is more than the member\u2019s Available Funds ('+fmtUSD(avail)+').',true);
   const u=(window.zcWalletData&&window.zcWalletData.users?window.zcWalletData.users:{})[uid]||{};
   const sameCoin={ETH:['ERC20','ETHEREUM'],TRX:['TRC20','TRON'],BTC:['BITCOIN'],DOGE:['DOGECOIN'],SOL:['SOLANA']};
@@ -5612,8 +5612,8 @@ window.zcWalletPickUser=function(uid){
    row('Amount (USD value)',fmtUSD(amount)+' USD')+
    row('Estimated coin amount',Number(W.cryptoAmountEstimate||0).toFixed(coinDecimals)+' '+safe(W.asset))+
    row('Estimated network fee','~'+Number(feeNative)+' '+safe(feeUnit)+' \u2248 '+fmtUSD(feeUsd)+' USD')+
-   row('Fee paid by','The sending wallet’s native balance ('+safe(feeUnit)+'). No extra member fee.')+
-   row('Member balance debit',fmtUSD(amount)+' USD')+
+   row('Network fee treatment',feeCharge>0?('Paid in '+safe(feeUnit)+' and included in the member balance debit'):('Paid in '+safe(feeUnit)+' from the source wallet; not deducted from the member '+safe(W.asset)+' principal'))+
+   row('Member balance debit',fmtUSD(amount+feeCharge)+' USD')+
    (note?row('Note',safe(note)):'')+
    '<div class="notice warn" style="margin-top:12px">This broadcasts a real on-chain transaction. Double-check the destination address — it cannot be undone.</div>'+
    '<div style="display:flex;gap:10px;margin-top:14px"><button class="btn" type="button" onclick="document.getElementById(\'zc-wd-confirm-modal\').remove()">Cancel</button><button class="btn primary" type="button" id="zc-wd-confirm-btn" onclick="zcWalletConfirmWithdraw()">Confirm withdrawal</button></div></div>';
@@ -14748,7 +14748,7 @@ body[data-zc-theme="metallic"] #app-drawer .zc-theme-choice[data-theme="metallic
     });
     var credited={},withdrawn={};
     deposits.forEach(function(x){credited[x.user_id]=(credited[x.user_id]||0)+Number(x.amount||0)});
-    sent.forEach(function(x){withdrawn[x.user_id]=(withdrawn[x.user_id]||0)+Number(x.amount||0)});
+    sent.forEach(function(x){withdrawn[x.user_id]=(withdrawn[x.user_id]||0)+Number(x.amount||0)+Number(x.gas_fee||0)});
     var remaining={};
     Object.keys(credited).forEach(function(uid){
       remaining[uid]=Math.max(0,Math.round(((credited[uid]||0)-(withdrawn[uid]||0))*100)/100);
@@ -14829,7 +14829,9 @@ body[data-zc-theme="metallic"] #app-drawer .zc-theme-choice[data-theme="metallic
   window.zcWalletMaxAmount=function(){
     var W=window.zcWalletWd||{},uid=W.user,input=document.getElementById('zc-wd-amount');
     if(!uid||!input)return;
-    var value=Math.max(0,Number((W.availMap||{})[uid]||0));
+    var available=Math.max(0,Number((W.availMap||{})[uid]||0));
+    var feeCharge=String(W.feeUnit||'').toUpperCase()===String(W.asset||'').toUpperCase()?Math.round(Number(W.feeUsd||0)*100)/100:0;
+    var value=Math.max(0,available-feeCharge);
     input.value=value.toFixed(2);
     input.dispatchEvent(new Event('input',{bubbles:true}));
   };
