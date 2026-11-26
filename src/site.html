@@ -9553,7 +9553,7 @@ body[data-zc-theme] #app-content input.zc-calc-range::-moz-range-thumb{
   var icons={welcome:"✓",referral_joined:"＋",referred_by:"↗",group_chat_message:"💬",admin_deposit_detected:"↓"};
   var itemsHtml=rows.map(function(n,i){var isGroupChat=n.notification_type==="group_chat_message";var noticeId=escapeText(String(n.id||""));return '<article class="zc-notice-item'+(isGroupChat?' zc-notice-group-chat':'')+'" style="animation-delay:'+Math.min(i*25,300)+'ms"'+(isGroupChat?' data-zc-group-chat-notice="'+noticeId+'" role="button" tabindex="0" title="Open group chat"':'')+'><div class="zc-notice-icon">'+(icons[n.notification_type]||"•")+'</div><div class="zc-notice-copy"><b>'+escapeText(n.title||"Notification")+'</b><p>'+escapeText(n.message||"")+'</p><time>'+escapeText(formatWhen(n.created_at))+'</time></div></article>'}).join("");
   if(!list){
-   card.innerHTML='<div class="zc-notice-head"><div><div class="eyebrow">ACCOUNT NOTIFICATIONS</div><h3>Notifications</h3></div><button class="x" aria-label="Close notifications" onclick="closeAlerts()">×</button></div><div class="zc-notice-list"></div><button class="btn primary" style="width:100%;margin-top:12px" onclick="closeAlerts()">Done</button>';
+   card.innerHTML='<div class="zc-notice-head"><div><div class="eyebrow">'+(profile?.role==='admin'?'ADMIN NOTIFICATIONS':'ACCOUNT NOTIFICATIONS')+'</div><h3>Notifications</h3></div><button class="x" aria-label="Close notifications" onclick="closeAlerts()">×</button></div><div class="zc-notice-list"></div><button class="btn primary" style="width:100%;margin-top:12px" onclick="closeAlerts()">Done</button>';
    list=card.querySelector(".zc-notice-list");
   }
   if(list&&itemsHtml)list.insertAdjacentHTML("afterbegin",itemsHtml);
