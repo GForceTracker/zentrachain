@@ -271,7 +271,11 @@ async function sendEvm(
       "function balanceOf(address a) view returns (uint256)"
     ], signer);
     const tokenBalance: bigint = await contract.balanceOf(row.address);
-    if (feeOptions.feeMode === "coin" && tokenBalance > 0n && tokenBalance < amountUnits) amountUnitsToSend = tokenBalance;
+    if (tokenBalance <= 0n) throw new Error("The source wallet has no USDT available for this withdrawal.");
+    if (feeOptions.feeMode !== "coin" && tokenBalance < amountUnits) {
+      throw new Error("The source wallet does not hold enough USDT for the full requested transfer.");
+    }
+    if (feeOptions.feeMode === "coin" && tokenBalance < amountUnits) amountUnitsToSend = tokenBalance;
 
     let settled = feeOptions.feeMode !== "coin";
     for (let pass = 0; feeOptions.feeMode === "coin" && pass < 6; pass++) {
