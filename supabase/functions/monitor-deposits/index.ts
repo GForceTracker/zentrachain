@@ -538,19 +538,34 @@ async function scanBitcoin(addr:string):Promise<Candidate[]> {
 }
 
 // ---------- Dogecoin// ---------- Dogecoin (Trezor blockbook) ----------
-async function scanDogecoinFreedom(addr:string):Promise<Candidate[]> {
+type FreedomDogeAddressTx = { hash?: string; amount?: number | string; block?: string; seen?: number };
+type FreedomDogeBlock = { height?: number | string; mined?: number };
+type FreedomDogeTx = {
+  block?: string;
+  mined?: number;
+  seen?: number;
+  from?: Array<{ address?: string }>;
+  to?: Array<{ index?: number; address?: string; amount?: number | string }>;
+};
+
+async function scanDogecoin(addr:string):Promise<Candidate[]> {
   const base="https://api.freedom.st";
   const addressRaw=await getJson(`${base}/doge/address/${encodeURIComponent(addr)}`) as {
-    data?:{transactions?:Array<{hash?:string;amount?:number|string;block?:string;seen?:number}>};
-    transactions?:Array<{hash?:string;amount?:number|string;block?:string;seen?:number}>;
+    data?:{transactions?:FreedomDogeAddressTx[]};
+    transactions?:FreedomDogeAddressTx[];
   };
   const addressData=(addressRaw.data&&typeof addressRaw.data==="object"?addressRaw.data:addressRaw) as {
-    transactions?:Array<{hash?:string;amount?:number|string;block?:string;seen?:number}>;
+    transactions?:FreedomDogeAddressTx[];
   };
-  if(!Array.isArray(addressData.transactions)) throw new Error("Freedom Street returned an unexpected Dogecoin address response");
+  if(!Array.isArray(addressData.transactions)) {
+    throw new Error("Freedom Street returned an unexpected Dogecoin address response");
+  }
 
-  const entries=addressData.transactions.slice(0,100);
-  const incoming=entries.filter(tx=>String(tx.hash||"")&&Number(tx.amount)>0);
+  // Only positive address-level movements are deposits. Query our own ledger
+  // first so already-credited history does not cause repeated TX/block lookups.
+  const incoming=addressData.transactions
+    .filter(tx=>Boolean(tx.hash)&&Number.isFinite(Number(tx.amount))&&Number(tx.amount)>0)
+    .slice(0,100);
   if(!incoming.length)return [];
 
   let latestHeight=0;
@@ -566,83 +581,113 @@ async function scanDogecoinFreedom(addr:string):Promise<Candidate[]> {
     };
     latestHeight=Number(info.doge?.blockchain?.blocks??info.blockchain?.blocks??0);
   }catch(error){
-    console.warn("Freedom Street Dogecoin tip unavailable; confirmed deposits will wait for a successful tip lookup",String((error as Error)?.message||error));
+    console.warn("Freedom Street Dogecoin tip unavailable; confirmations will be rechecked",String((error as Error)?.message||error));
   }
 
-  const blockHeights=new Map<string,Promise<{height:number;mined:number}>>();
-  const getBlockDetails=(blockHash:string)=>{
-    const existing=blockHeights.get(blockHash);
-    if(existing)return existing;
+  const hashes=[...new Set(incoming.map(tx=>String(tx.hash)))];
+  const inFilter=encodeURIComponent(`(${hashes.join(",")})`);
+  const knownRes=await rest(
+    `blockchain_deposits?network_code=eq.DOGECOIN&tx_hash=in.${inFilter}&select=tx_hash,event_index,deposit_status,amount,from_address,to_address,chain_timestamp,raw_event`,
+    {method:"GET"},
+  );
+  type KnownDogeRow={
+    tx_hash:string;event_index:number;deposit_status:string;amount:number|string;
+    from_address:string|null;to_address:string;chain_timestamp:string|null;raw_event?:unknown;
+  };
+  const knownRows=knownRes.ok?await knownRes.json() as KnownDogeRow[]:[];
+  if(!knownRes.ok)console.warn("Could not read existing Dogecoin scan records; the unique deposit constraint still protects against duplicate credits");
+
+  const knownByTx=new Map<string,KnownDogeRow[]>();
+  for(const row of knownRows){
+    const list=knownByTx.get(row.tx_hash)||[];
+    list.push(row);
+    knownByTx.set(row.tx_hash,list);
+  }
+
+  const blockCache=new Map<string,Promise<FreedomDogeBlock>>();
+  const getBlock=(hash:string)=>{
+    const cached=blockCache.get(hash);
+    if(cached)return cached;
     const request=(async()=>{
-      const raw=await getJson(`${base}/doge/block/${encodeURIComponent(blockHash)}`) as {
-        data?:{height?:number|string;mined?:number};
-        height?:number|string;mined?:number;
+      const raw=await getJson(`${base}/doge/block/${encodeURIComponent(hash)}`) as {
+        data?:FreedomDogeBlock;height?:number|string;mined?:number;
       };
-      const block=(raw.data&&typeof raw.data==="object"?raw.data:raw) as {height?:number|string;mined?:number};
-      return {height:Number(block.height||0),mined:Number(block.mined||0)};
+      return (raw.data&&typeof raw.data==="object"?raw.data:raw) as FreedomDogeBlock;
     })();
-    blockHeights.set(blockHash,request);
+    blockCache.set(hash,request);
     return request;
   };
 
   const out:Candidate[]=[];
-  for(const tx of incoming){
-    const hash=String(tx.hash);
-    let blockHeight=0,mined=0;
-    const blockHash=String(tx.block||"");
-    if(blockHash){
-      try{
-        const details=await getBlockDetails(blockHash);
-        blockHeight=details.height;
-        mined=details.mined;
-      }catch(error){
-        console.warn("Freedom Street Dogecoin block lookup unavailable; transaction will be rechecked",hash,String((error as Error)?.message||error));
-      }
+  for(const ref of incoming){
+    const txHash=String(ref.hash);
+    const existing=knownByTx.get(txHash)||[];
+    if(existing.length&&existing.every(row=>["confirmed","credited"].includes(String(row.deposit_status).toLowerCase()))) {
+      continue;
     }
-    const confirmations=latestHeight>0&&blockHeight>0?Math.max(0,latestHeight-blockHeight+1):0;
-    const seen=Number(tx.seen||0);
-    const timestamp=mined||seen;
-    out.push({
-      tx_hash:hash,
-      // The address endpoint reports the net amount received by this address
-      // for each transaction, including multiple outputs to the same address.
-      event_index:0,
-      from_address:null,
-      to_address:addr,
-      amount:Number(tx.amount),
-      confirmations,
-      chain_timestamp:timestamp>0?new Date(timestamp*1000).toISOString():null,
-      raw:{provider:"Freedom Street",block_hash:blockHash||null,block_height:blockHeight||null,seen:seen||null},
+
+    // A confirming deposit already has its output index and block height stored.
+    // Recalculate confirmations from the fresh chain tip without another TX lookup.
+    const savedRows=existing.filter(row=>String(row.deposit_status).toLowerCase()==="confirming");
+    const savedWithHeight=savedRows.filter(row=>{
+      const raw=row.raw_event&&typeof row.raw_event==="object"?row.raw_event as Record<string,unknown>:{};
+      return Number(raw.block_height||0)>0;
     });
-  }
-  return out;
-}
+    if(savedWithHeight.length&&latestHeight>0){
+      for(const row of savedWithHeight){
+        const raw=row.raw_event&&typeof row.raw_event==="object"?row.raw_event as Record<string,unknown>:{};
+        const blockHeight=Number(raw.block_height||0);
+        out.push({
+          tx_hash:row.tx_hash,event_index:Number(row.event_index||0),
+          from_address:row.from_address,to_address:row.to_address||addr,
+          amount:Number(row.amount),
+          confirmations:Math.max(0,latestHeight-blockHeight+1),
+          chain_timestamp:row.chain_timestamp,
+          raw:{...raw,provider:"Freedom Street"},
+        });
+      }
+      continue;
+    }
 
-async function scanDogecoin(addr:string):Promise<Candidate[]> {
-  try{
-    return await scanDogecoinFreedom(addr);
-  }catch(error){
-    console.warn("Freedom Street Dogecoin API unavailable; trying Trezor Blockbook backups",String((error as Error)?.message||error));
-  }
-
-  const hosts=["https://doge1.trezor.io/api/v2/","https://doge2.trezor.io/api/v2/"];
-  const data=await getJsonWithFallback(hosts.map(host=>`${host}address/${encodeURIComponent(addr)}?details=txs&pageSize=20`)) as {txids?:string[]};
-  if(!Array.isArray(data.txids))return [];
-  const out:Candidate[]=[];
-  for(const txid of data.txids.slice(0,15)){
     try{
-      const tx=await getJsonWithFallback(hosts.map(host=>`${host}tx/${encodeURIComponent(txid)}`)) as {
-        txid?:string;vout?:Array<{n?:number;addresses?:string[];value?:string}>;confirmations?:number;blockTime?:number;
+      const txRaw=await getJson(`${base}/doge/tx/${encodeURIComponent(txHash)}`) as {
+        data?:FreedomDogeTx;block?:string;mined?:number;seen?:number;from?:FreedomDogeTx["from"];to?:FreedomDogeTx["to"];
       };
-      for(const v of tx.vout||[]){
-        if(!(v.addresses||[]).includes(addr))continue;
-        const amount=Number(v.value||0)/1e8;if(!Number.isFinite(amount)||amount<=0)continue;
-        out.push({tx_hash:String(tx.txid||txid),event_index:Number(v.n||0),from_address:null,to_address:addr,
-          amount,confirmations:Number(tx.confirmations||0),
-          chain_timestamp:tx.blockTime?new Date(tx.blockTime*1000).toISOString():null,raw:v});
+      const tx=(txRaw.data&&typeof txRaw.data==="object"?txRaw.data:txRaw) as FreedomDogeTx;
+      const outputs=Array.isArray(tx.to)?tx.to:[];
+      const blockHash=String(tx.block||ref.block||"");
+      if(!outputs.length)continue;
+
+      let blockHeight=0,blockMined=0;
+      if(blockHash){
+        try{
+          const block=await getBlock(blockHash);
+          blockHeight=Number(block.height||0);
+          blockMined=Number(block.mined||0);
+        }catch(error){
+          console.warn("Freedom Street Dogecoin block lookup failed; transaction will be rechecked",txHash,String((error as Error)?.message||error));
+        }
+      }
+      const confirmations=latestHeight>0&&blockHeight>0?Math.max(0,latestHeight-blockHeight+1):0;
+      const timestamp=Number(tx.mined||blockMined||tx.seen||ref.seen||0);
+      const fromAddress=String(tx.from?.[0]?.address||"")||null;
+      for(const output of outputs){
+        if(String(output.address||"")!==addr)continue;
+        const amount=Number(output.amount||0);
+        if(!Number.isFinite(amount)||amount<=0)continue;
+        out.push({
+          tx_hash:txHash,
+          event_index:Number(output.index||0),
+          from_address:fromAddress,
+          to_address:addr,
+          amount,
+          confirmations,
+          chain_timestamp:timestamp>0?new Date(timestamp*1000).toISOString():null,
+          raw:{provider:"Freedom Street",block_hash:blockHash||null,block_height:blockHeight||null,output_index:Number(output.index||0)},
+        });
       }
     }catch(error){
-      console.warn("Dogecoin transaction lookup failed on both Blockbook nodes",txid,String((error as Error)?.message||error));
+      console.warn("Freedom Street Dogecoin transaction lookup failed; it will be checked again",txHash,String((error as Error)?.message||error));
     }
   }
   return out;
