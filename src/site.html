@@ -14801,7 +14801,7 @@ body[data-zc-theme="metallic"] #app-drawer .zc-theme-choice[data-theme="metallic
  function startWatch(){
   const uid=userId();
   if(!uid||!isAdmin()||!appVisible()||!db){stopWatch();return}
-  if(activeUid===uid&&channel){refreshCount();return}
+  if(activeUid===uid&&channel)return
   stopWatch();activeUid=uid;refreshCount();
   channel=db.channel('zc-admin-treasury-deposit-alerts-'+uid)
    .on('postgres_changes',{
@@ -14839,12 +14839,11 @@ body[data-zc-theme="metallic"] #app-drawer .zc-theme-choice[data-theme="metallic
  const originalOpen=window.zcOpenAdminSection;
  if(typeof originalOpen==='function'&&!originalOpen.__zcTreasurySeenWrapped){
   const wrapped=async function(id){
-   if(id==='treasury-wallet'&&isAdmin()){
+   const result=await originalOpen.apply(this,arguments);
+   if(id==='treasury-wallet'&&isAdmin()&&document.getElementById('zc-wallet-grid')){
     try{await markTreasuryAlertsSeen()}
     catch(error){console.warn('Treasury alerts could not be marked as seen:',error&&error.message||error)}
-   }
-   const result=await originalOpen.apply(this,arguments);
-   if(id==='treasury-wallet')refreshCount();
+   }else if(id==='treasury-wallet')refreshCount();
    return result;
   };
   wrapped.__zcTreasurySeenWrapped=true;
