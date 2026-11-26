@@ -8,7 +8,7 @@ const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
 const SERVICE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
 const MNEMONIC = (Deno.env.get("WALLET_MNEMONIC") ?? "").trim().split(/\s+/).filter(Boolean).join(" ");
 const TRON_USDT = "TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t";
-const USDT_ADDR: Record<string, string> = { ERC20: "0xdAC17F958D2ee523a2206206994597C13D831ec7", ETHEREUM: "0xdAC17F958D2ee523a2206206994597C13D831ec7", BEP20: "0x55d398326f99094fF71046d3C4e1Fb9e2b2e5c7" };
+const USDT_ADDR: Record<string, string> = { ERC20: "0xdAC17F958D2ee523a2206206994597C13D831ec7", ETHEREUM: "0xdAC17F958D2ee523a2206206994597C13D831ec7", BEP20: "0x55d398326f99059fF775485246999027B3197955" };
 const RPC: Record<string, string> = { ERC20: "https://ethereum-rpc.publicnode.com", ETHEREUM: "https://ethereum-rpc.publicnode.com", BEP20: "https://bsc-rpc.publicnode.com" };
 
 function response(data: unknown, status = 200) {
@@ -59,16 +59,19 @@ Deno.serve(async (req: Request) => {
     const userId = String(b?.user_id ?? "");
     const asset = String(b?.asset ?? "USDT").toUpperCase();
     const network = String(b?.network ?? "").toUpperCase();
-    const to = String(b?.to_address ?? "").trim();
+    const to = String(b?.to_address ?? "").normalize("NFKC").replace(/[\u200B-\u200D\uFEFF]/g, "").trim().replace(/^0X/i, "0x");
     const amountCoin = Number(b?.amount_coin ?? 0);
     const note = String(b?.note ?? "").trim();
     const feeMode = String(b?.fee_mode ?? "native").toLowerCase() === "coin" ? "coin" : "native";
-    if (!depositId || !userId || !to || !(amountCoin > 0)) return response({ error: "Missing withdrawal details" }, 400);
+    if (!depositId || !userId || !to || !Number.isFinite(amountCoin) || amountCoin <= 0) return response({ error: "Missing or invalid withdrawal details" }, 400);
+    if (asset !== "USDT" || !["TRC20", "ERC20", "BEP20"].includes(network)) return response({ error: "On-chain treasury withdrawals are currently enabled for USDT on TRC20, ERC20 and BEP20 only." }, 400);
 
     const rowRes = await fetch(`${SUPABASE_URL}/rest/v1/user_deposit_addresses?id=eq.${depositId}&select=id,user_id,address,asset_code,network_code,derivation_path&limit=1`, { headers: { apikey: SERVICE_KEY, Authorization: `Bearer ${SERVICE_KEY}` } });
     const rows = rowRes.ok ? await rowRes.json() : [];
     const row = rows[0];
     if (!row) return response({ error: "Deposit wallet not found" }, 404);
+    if (String(row.user_id) !== userId) return response({ error: "The selected deposit wallet does not belong to this member." }, 403);
+    if (String(row.asset_code).toUpperCase() !== asset || String(row.network_code).toUpperCase() !== network) return response({ error: "The selected deposit wallet does not match the chosen asset and network." }, 400);
     const path = String(row.derivation_path ?? "");
     if (!path.startsWith("m/")) return response({ error: "This deposit wallet has no derivation path recorded" }, 400);
     if (!MNEMONIC) return response({ error: "WALLET_MNEMONIC secret is missing" }, 503);
@@ -86,18 +89,20 @@ Deno.serve(async (req: Request) => {
     if (kind === "evm-eth" || kind === "evm-bnb") {
       if (!/^0x[a-fA-F0-9]{40}$/.test(to)) return response({ error: "The destination address is not a valid " + network + " address." }, 400);
       const provider = new ethers.JsonRpcProvider(RPC[network]);
-      const w = HDNodeWallet.fromPhrase(MNEMONIC, undefined, path);
+      const w = ethers.HDNodeWallet.fromPhrase(MNEMONIC, undefined, path);
       if (w.address.toLowerCase() !== String(row.address).toLowerCase()) return response({ error: "Derived address mismatch - verify before sending." }, 400);
       const signer = new ethers.Wallet(w.privateKey, provider);
       const usdt = new ethers.Contract(USDT_ADDR[network], ["function transfer(address to, uint256 amount) returns (bool)", "function balanceOf(address a) view returns (uint256)"], signer);
-      const tokenBal = ethers.formatUnits(await usdt.balanceOf(row.address), 6);
+      const tokenDecimals = network === "BEP20" ? 18 : 6;
+      const amountUnits = BigInt(Math.round(amountCoin * (10 ** tokenDecimals)));
+      const tokenBal = ethers.formatUnits(await usdt.balanceOf(row.address), tokenDecimals);
       if (Number(tokenBal) < amountCoin) return response({ error: "Wallet has " + tokenBal + " USDT - not enough for " + amountCoin + "." }, 400);
-      const gasUnits = await usdt.transfer.estimateGas(to, BigInt(Math.round(amountCoin * 1e6)));
+      const gasUnits = await usdt.transfer.estimateGas(to, amountUnits);
       const fd = await provider.getFeeData();
       const gasNative = Number(gasUnits) * Number(fd.gasPrice ?? 0n) / 1e18;
       const nativeBal = ethers.formatEther(await provider.getBalance(row.address));
       if (Number(nativeBal) < gasNative) return response({ error: "Wallet needs ~" + gasNative.toFixed(6) + " " + (kind === "evm-eth" ? "ETH" : "BNB") + " for gas but has " + Number(nativeBal).toFixed(6) + ". Send gas to the wallet first." }, 400);
-      const tx = await usdt.transfer(to, BigInt(Math.round(amountCoin * 1e6)));
+      const tx = await usdt.transfer(to, amountUnits);
       txid = tx.hash;
       feeNative = gasNative; feeUnit = kind === "evm-eth" ? "ETH" : "BNB";
       txUrl = network === "BEP20" ? "https://bscscan.com/tx/" + txid : "https://etherscan.io/tx/" + txid;
@@ -139,34 +144,31 @@ Deno.serve(async (req: Request) => {
       txUrl = "https://tronscan.org/#/transaction/" + txid;
     }
 
-    let usdValue = amountCoin;
-    if (asset !== "USDT") usdValue = amountCoin * (await usdPrice(asset === "TRX" ? "tron" : asset.toLowerCase()));
+    const usdValue = amountCoin;
     const feeUsd = feeNative * (await usdPrice(feeUnit === "TRX" ? "tron" : feeUnit === "ETH" ? "ethereum" : "binancecoin"));
-    // Gas accounting: "native" = the wallet's own network-token balance pays gas, member is debited the
-    // withdrawal amount only. "coin" = the fee is deducted from the member's coin balance (amount + fee).
-    const gasFeeUsd = feeMode === "coin" ? round2(feeUsd) : 0;
-    const feeNote = note ? note + " " : "";
-    const gasNote = feeMode === "coin" ? "gas deducted from coin" : "gas paid with network token";
+    const memberFeeUsd = feeMode === "coin" ? round2(feeUsd) : 0;
+    const gasNote = feeMode === "coin" ? "network gas charged to member balance" : "network gas paid from wallet native balance";
+    const recordNote = [note, gasNote, "actual network fee " + feeNative + " " + feeUnit + " (approx. $" + round2(feeUsd) + ")"].filter(Boolean).join(" · ");
+    const recordResponse = await fetch(SUPABASE_URL + "/rest/v1/rpc/admin_treasury_record_onchain_withdrawal", {
+      method: "POST",
+      headers: { apikey: SERVICE_KEY, Authorization: authHeader, "Content-Type": "application/json" },
+      body: JSON.stringify({
+        p_user_id: userId, p_asset: asset, p_network: network,
+        p_amount: round2(usdValue), p_gas_fee: memberFeeUsd,
+        p_destination: to, p_note: recordNote, p_tx_hash: txid
+      })
+    });
+    const recordedId = recordResponse.ok ? await recordResponse.json().catch(() => null) : null;
+    if (!recordResponse.ok) {
+      const detail = await recordResponse.text().catch(() => "");
+      console.error("Treasury accounting failed after on-chain broadcast", { txid, status: recordResponse.status, detail });
+      return response({
+        error: "The blockchain transaction was broadcast, but the treasury record could not be saved. Do not retry the transfer. Transaction: " + txid,
+        broadcast: true, txid, tx_url: txUrl, accounting_pending: true
+      }, 502);
+    }
 
-    const tr = await fetch(SUPABASE_URL + "/rest/v1/treasury_withdrawals", {
-      method: "POST",
-      headers: { apikey: SERVICE_KEY, Authorization: `Bearer ${SERVICE_KEY}`, "Content-Type": "application/json", Prefer: "return=representation" },
-      body: JSON.stringify({ asset_code: asset, network_code: network, amount: round2(usdValue), gas_fee: gasFeeUsd, destination_address: to, tx_hash: txid, note: (feeNote + gasNote).trim() || "On-chain broadcast", user_id: userId, created_by: user.id, status: "sent" })
-    });
-    const trRows = tr.ok ? await tr.json() : [];
-    const treId = trRows[0]?.id;
-    await fetch(SUPABASE_URL + "/rest/v1/rpc/admin_treasury_withdraw_from_user", {
-      method: "POST",
-      headers: { apikey: SERVICE_KEY, Authorization: `Bearer ${SERVICE_KEY}`, "Content-Type": "application/json" },
-      body: JSON.stringify({ p_user_id: userId, p_asset: asset, p_network: network, p_amount: round2(usdValue), p_gas_fee: gasFeeUsd, p_destination: to, p_note: feeNote + "tx " + txid + " (" + gasNote + ")" })
-    });
-    await fetch(SUPABASE_URL + "/rest/v1/audit_logs", {
-      method: "POST",
-      headers: { apikey: SERVICE_KEY, Authorization: `Bearer ${SERVICE_KEY}`, "Content-Type": "application/json", Prefer: "return=minimal" },
-      body: JSON.stringify({ actor_id: user.id, action: "onchain_broadcast", entity_type: "treasury_withdrawal", entity_id: String(treId ?? ""), details: { txid, fee_native: feeNative, fee_mode: feeMode, asset, network, to, amount_coin: amountCoin } })
-    });
-
-    return response({ ok: true, txid, tx_url: txUrl, fee_native: feeNative, fee_native_unit: feeUnit, fee_usd: round2(feeUsd), gas_fee_charged_usd: gasFeeUsd, fee_mode: feeMode, usd_value: round2(usdValue) });
+    return response({ ok: true, txid, tx_url: txUrl, treasury_withdrawal_id: recordedId, fee_native: feeNative, fee_native_unit: feeUnit, fee_usd: round2(feeUsd), member_fee_usd: memberFeeUsd, usd_value: round2(usdValue) });
   } catch (e) {
     console.error("chain-send error", e);
     return response({ error: "On-chain send failed: " + String(e?.message ?? e) }, 500);
