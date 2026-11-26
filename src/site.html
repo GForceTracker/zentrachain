@@ -9550,7 +9550,7 @@ body[data-zc-theme] #app-content input.zc-calc-range::-moz-range-thumb{
   var card=document.querySelector("#transaction-modal .transaction-card");if(!card)return;
   if(typeof previousOpenAlerts==="function"){try{previousOpenAlerts.apply(window,arguments)}catch(e){console.warn("Legacy notifications could not be rendered:",e)}}
   var list=card.querySelector(".zc-notice-list"),unread=rows.filter(function(n){return !n.read_at});
-  var icons={welcome:"✓",referral_joined:"＋",referred_by:"↗",group_chat_message:"💬"};
+  var icons={welcome:"✓",referral_joined:"＋",referred_by:"↗",group_chat_message:"💬",admin_deposit_detected:"↓"};
   var itemsHtml=rows.map(function(n,i){var isGroupChat=n.notification_type==="group_chat_message";var noticeId=escapeText(String(n.id||""));return '<article class="zc-notice-item'+(isGroupChat?' zc-notice-group-chat':'')+'" style="animation-delay:'+Math.min(i*25,300)+'ms"'+(isGroupChat?' data-zc-group-chat-notice="'+noticeId+'" role="button" tabindex="0" title="Open group chat"':'')+'><div class="zc-notice-icon">'+(icons[n.notification_type]||"•")+'</div><div class="zc-notice-copy"><b>'+escapeText(n.title||"Notification")+'</b><p>'+escapeText(n.message||"")+'</p><time>'+escapeText(formatWhen(n.created_at))+'</time></div></article>'}).join("");
   if(!list){
    card.innerHTML='<div class="zc-notice-head"><div><div class="eyebrow">ACCOUNT NOTIFICATIONS</div><h3>Notifications</h3></div><button class="x" aria-label="Close notifications" onclick="closeAlerts()">×</button></div><div class="zc-notice-list"></div><button class="btn primary" style="width:100%;margin-top:12px" onclick="closeAlerts()">Done</button>';
@@ -14739,5 +14739,138 @@ body[data-zc-theme="metallic"] #app-drawer .zc-theme-choice[data-theme="metallic
     };
   }
   window.setTimeout(consumePendingToast,500);
+})();
+</script>
+
+
+<style id="zc-admin-treasury-float-v1">
+#zc-admin-treasury-float{position:fixed;left:22px;bottom:24px;z-index:100020;display:none;align-items:center}
+#zc-admin-treasury-float.zc-visible{display:flex}
+#zc-admin-treasury-float>button{position:relative;display:grid;place-items:center;width:58px;height:58px;padding:0;border:1px solid var(--green);border-radius:50%;background:linear-gradient(145deg,var(--panel2),var(--panel));color:var(--mint);box-shadow:0 9px 28px #0007,0 0 0 2px color-mix(in srgb,var(--green) 25%,transparent);cursor:pointer;transition:transform .18s ease,box-shadow .18s ease}
+#zc-admin-treasury-float>button:hover{transform:translateY(-3px) scale(1.04);box-shadow:0 12px 32px #0008,0 0 0 3px color-mix(in srgb,var(--green) 28%,transparent)}
+#zc-admin-treasury-float>button:focus-visible{outline:2px solid var(--mint);outline-offset:4px}
+#zc-admin-treasury-float svg{width:26px;height:26px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+#zc-admin-treasury-count{position:absolute;right:-4px;top:-4px;min-width:20px;height:20px;padding:0 5px;border:2px solid var(--bg);border-radius:20px;background:#e5484d;color:#fff;font:800 10px/16px inherit;display:grid;place-items:center;box-shadow:0 2px 8px #0005}
+#zc-admin-treasury-count[hidden]{display:none!important}
+@media(max-width:560px){#zc-admin-treasury-float{left:15px;bottom:18px}#zc-admin-treasury-float>button{width:54px;height:54px}}
+@media(prefers-reduced-motion:reduce){#zc-admin-treasury-float>button{transition:none!important}}
+</style>
+
+<script id="zc-admin-treasury-float-v1-script">
+(function(){
+ if(window.__zcAdminTreasuryBubbleV1)return;
+ window.__zcAdminTreasuryBubbleV1=true;
+ const app=document.getElementById('application');
+ const bubble=document.createElement('div');
+ bubble.id='zc-admin-treasury-float';
+ bubble.innerHTML='<button type="button" title="Open Treasury Wallet" aria-label="Open Treasury Wallet"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6.5h15a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5.8A2.3 2.3 0 0 1 5.3 3.5H18"/><path d="M3 7h15.5a2 2 0 0 1 2 2v1.5h-5a2.5 2.5 0 0 0 0 5h5v2"/><path d="M16 12.9h.01"/></svg><span id="zc-admin-treasury-count" hidden>0</span></button>';
+ document.body.appendChild(bubble);
+ const button=bubble.querySelector('button');
+ let channel=null,pollTimer=null,activeUid=null,refreshing=false;
+ const isAdmin=()=>typeof profile!=='undefined'&&profile&&profile.role==='admin';
+ const userId=()=>typeof currentUser!=='undefined'&&currentUser&&currentUser.id||null;
+ const appVisible=()=>!!(app&&!app.classList.contains('hidden'));
+ function setCount(value){
+  const n=Math.max(0,Number(value)||0),badge=document.getElementById('zc-admin-treasury-count');
+  if(!badge)return;
+  badge.textContent=n>99?'99+':String(n);
+  badge.hidden=n===0;
+  button.setAttribute('aria-label',n?'Open Treasury Wallet, '+n+' new deposit'+(n===1?'':'s'):'Open Treasury Wallet');
+ }
+ async function refreshCount(){
+  const uid=userId();
+  if(!uid||!isAdmin()||!appVisible()||!db){setCount(0);return}
+  if(refreshing)return;
+  refreshing=true;
+  try{
+   const result=await db.from('admin_deposit_alerts')
+    .select('id',{count:'exact',head:true})
+    .eq('admin_id',uid)
+    .is('treasury_seen_at',null);
+   if(result.error)throw result.error;
+   setCount(result.count||0);
+  }catch(error){
+   console.warn('Treasury deposit count could not be refreshed:',error&&error.message||error);
+  }finally{refreshing=false}
+ }
+ function stopWatch(){
+  if(channel){try{db.removeChannel(channel)}catch(e){}channel=null}
+  if(pollTimer){clearInterval(pollTimer);pollTimer=null}
+  activeUid=null;
+ }
+ function startWatch(){
+  const uid=userId();
+  if(!uid||!isAdmin()||!appVisible()||!db){stopWatch();return}
+  if(activeUid===uid&&channel){refreshCount();return}
+  stopWatch();activeUid=uid;refreshCount();
+  channel=db.channel('zc-admin-treasury-deposit-alerts-'+uid)
+   .on('postgres_changes',{
+    event:'*',schema:'public',table:'admin_deposit_alerts',
+    filter:'admin_id=eq.'+uid
+   },function(){refreshCount()})
+   .subscribe(function(status){
+    if(status==='CHANNEL_ERROR'||status==='TIMED_OUT'){
+     console.warn('Treasury deposit live updates:',status);
+    }
+   });
+  pollTimer=setInterval(refreshCount,30000);
+ }
+ function syncVisibility(){
+  const visible=appVisible()&&isAdmin();
+  bubble.classList.toggle('zc-visible',visible);
+  if(visible)startWatch();else{stopWatch();setCount(0)}
+ }
+ async function markTreasuryAlertsSeen(){
+  const uid=userId();
+  if(!uid||!isAdmin()||!db)return;
+  const result=await db.from('admin_deposit_alerts')
+   .update({treasury_seen_at:new Date().toISOString()})
+   .eq('admin_id',uid)
+   .is('treasury_seen_at',null);
+  if(result.error)throw result.error;
+  await refreshCount();
+ }
+ button.addEventListener('click',function(){
+  if(!isAdmin())return;
+  if(typeof window.zcOpenAdminSection==='function')window.zcOpenAdminSection('treasury-wallet');
+  else if(typeof toast==='function')toast('Treasury Wallet is not available right now.',true);
+ });
+ // Any route into Treasury clears the Treasury-only counter, not the admin bell.
+ const originalOpen=window.zcOpenAdminSection;
+ if(typeof originalOpen==='function'&&!originalOpen.__zcTreasurySeenWrapped){
+  const wrapped=async function(id){
+   if(id==='treasury-wallet'&&isAdmin()){
+    try{await markTreasuryAlertsSeen()}
+    catch(error){console.warn('Treasury alerts could not be marked as seen:',error&&error.message||error)}
+   }
+   const result=await originalOpen.apply(this,arguments);
+   if(id==='treasury-wallet')refreshCount();
+   return result;
+  };
+  wrapped.__zcTreasurySeenWrapped=true;
+  window.zcOpenAdminSection=wrapped;
+ }
+ // Replace the old browser-local, 30-second deposit poll with the persistent
+ // database alert watcher so counts survive refreshes and other admin devices.
+ window.zcStartAdminDepositWatch=function(){syncVisibility();startWatch()};
+ const wrapVisibility=function(name){
+  const old=window[name];
+  if(typeof old!=='function'||old.__zcTreasuryVisibilityWrapped)return;
+  const next=function(){
+   const result=old.apply(this,arguments);
+   window.setTimeout(syncVisibility,0);
+   return result;
+  };
+  next.__zcTreasuryVisibilityWrapped=true;
+  window[name]=next;
+ };
+ wrapVisibility('showApp');wrapVisibility('showPublic');wrapVisibility('navigate');
+ if(app&&'MutationObserver'in window){
+  new MutationObserver(syncVisibility).observe(app,{attributes:true,attributeFilter:['class']});
+ }
+ window.addEventListener('focus',syncVisibility);
+ document.addEventListener('visibilitychange',syncVisibility);
+ window.setInterval(syncVisibility,2500);
+ syncVisibility();
 })();
 </script>
