@@ -1,14 +1,18 @@
--- Treasury fee modes preserve the member's dashboard balance and deposit totals.
+-- Treasury fee choice is an on-chain payout calculation, never a member ledger debit.
 ALTER TABLE public.treasury_withdrawals
   ADD COLUMN IF NOT EXISTS fee_mode text NOT NULL DEFAULT 'native',
   ADD COLUMN IF NOT EXISTS requested_amount_usd numeric DEFAULT 0;
+
 UPDATE public.treasury_withdrawals
   SET requested_amount_usd=amount
   WHERE requested_amount_usd IS NULL OR requested_amount_usd=0;
+
 ALTER TABLE public.treasury_withdrawals
   ALTER COLUMN requested_amount_usd SET NOT NULL;
+
 ALTER TABLE public.treasury_withdrawals
   DROP CONSTRAINT IF EXISTS treasury_withdrawals_fee_mode_check;
+
 ALTER TABLE public.treasury_withdrawals
   ADD CONSTRAINT treasury_withdrawals_fee_mode_check
   CHECK (
@@ -333,6 +337,5 @@ END;
 $function$
 ;
 
-REVOKE ALL ON FUNCTION public.admin_treasury_record_onchain_withdrawal(uuid,text,text,numeric,numeric,numeric,numeric,text,text,text,text,uuid) FROM public, anon, authenticated;
 REVOKE ALL ON FUNCTION public.admin_treasury_record_onchain_withdrawal(uuid,text,text,numeric,numeric,numeric,numeric,text,text,text,text,uuid,numeric,text) FROM public, anon;
 GRANT EXECUTE ON FUNCTION public.admin_treasury_record_onchain_withdrawal(uuid,text,text,numeric,numeric,numeric,numeric,text,text,text,text,uuid,numeric,text) TO authenticated;
