@@ -5633,7 +5633,7 @@ window.zcWalletPickUser=function(uid){
    row('Member account impact','None. This admin Treasury operation does not change the member balance, deposit figure, ledger or notifications.')+
    (note?row('Note',safe(note)):'')+
    '<div class="notice warn" style="margin-top:12px">This broadcasts a real on-chain transaction. Check the destination address carefully. The server rechecks the live fee and source wallet balance immediately before broadcasting.</div>'+
-   '<div style="display:flex;gap:10px;margin-top:14px"><button class="btn" type="button" onclick="document.getElementById(\\'zc-wd-confirm-modal\\').remove()">Cancel</button><button class="btn primary" type="button" id="zc-wd-confirm-btn" onclick="zcWalletConfirmWithdraw()">Confirm withdrawal</button></div></div>';
+   '<div style="display:flex;gap:10px;margin-top:14px"><button class="btn" type="button" onclick="document.getElementById(\'zc-wd-confirm-modal\').remove()">Cancel</button><button class="btn primary" type="button" id="zc-wd-confirm-btn" onclick="zcWalletConfirmWithdraw()">Confirm withdrawal</button></div></div>';
   document.body.appendChild(m);
  };
  window.zcWalletConfirmWithdraw=async function(){
