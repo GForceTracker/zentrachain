@@ -5582,7 +5582,7 @@ window.zcWalletPickUser=function(uid){
   let feeNative=W.feeNative||0,feeUnit=W.feeUnit||zcWalletGasUnit(W.network),feeUsd=W.feeUsd||0;
   try{
    const fe=await db.functions.invoke('chain-fee-estimate',{body:{asset:W.asset,network:W.network,from_address:W.depositAddr||'',to_address:addr,amount_usd:String(amount)}});
-   if(!fe.error&&fe.data&&!fe.data.error){W.feeNative=Number(fe.data.native||0);W.feeUnit=fe.data.native_unit||'';W.feeUsd=Number(fe.data.usd||0);feeNative=W.feeNative;feeUnit=W.feeUnit;feeUsd=W.feeUsd}
+   if(!fe.error&&fe.data&&!fe.data.error){W.feeNative=Number(fe.data.native||0);W.feeUnit=fe.data.native_unit||'';W.feeUsd=Number(fe.data.usd||0);W.cryptoAmountEstimate=Number(fe.data.crypto_amount||0);feeNative=W.feeNative;feeUnit=W.feeUnit;feeUsd=W.feeUsd}
   }catch(e){}
   const mode='native';
   const feeCharge=0;
