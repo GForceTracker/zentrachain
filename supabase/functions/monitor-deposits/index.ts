@@ -13,9 +13,9 @@ const TRON_SOLIDITY_HTTP_URL = Deno.env.get("TRON_SOLIDITY_HTTP_URL") ?? "https:
 const ETHEREUM_RPC_URL = Deno.env.get("ETHEREUM_RPC_URL") ?? "https://ethereum-rpc.publicnode.com";
 
 const TRON_EVM_RPC_URLS = [...new Set([TRON_RPC_URL, "https://tron-evm-rpc.publicnode.com", "https://tron-evm.publicnode.com", "https://api.trongrid.io/jsonrpc"])];
-const ETHEREUM_RPC_URLS = [...new Set([ETHEREUM_RPC_URL, "https://eth.llamarpc.com", "https://1rpc.io/eth"])];
+const ETHEREUM_RPC_URLS = [...new Set([ETHEREUM_RPC_URL, "https://eth.llamarpc.com", "https://1rpc.io/eth", "https://public-ethereum-mainnet.rpcnode.dev", "https://www.rpcfree.com/ethereum-rpc"])];
 const BSC_RPC_URLS = ["https://bsc-rpc.publicnode.com", "https://bsc-dataseed.binance.org", "https://1rpc.io/bnb"];
-const SOLANA_RPC_URLS = ["https://solana-rpc.publicnode.com", "https://api.mainnet-beta.solana.com"];
+const SOLANA_RPC_URLS = ["https://solana-rpc.publicnode.com", "https://public-solana-mainnet.rpcnode.dev", "https://api.mainnet-beta.solana.com"];
 const BITCOIN_API_BASES = ["https://mempool.space/api", "https://blockstream.info/api"];
 
 const TRON_USDT_CONTRACT = "TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t";
@@ -512,57 +512,56 @@ async function scanEvmLogs(rpcUrls:string[],usdtContract:string,addr:string):Pro
 
 // ---------- Bitcoin// ---------- Bitcoin ----------
 async function scanBitcoin(addr:string):Promise<Candidate[]> {
-  const tipText=await getTextWithFallback(BITCOIN_API_BASES.map(base=>`${base}/blocks/tip/height`)).catch(error=>{
-    console.warn("Bitcoin tip unavailable; confirmations will wait for a successful tip check",error);
-    return "0";
-  });
-  const tip=Number(tipText);
-  const txs=await getJsonWithFallback(BITCOIN_API_BASES.map(base=>`${base}/address/${encodeURIComponent(addr)}/txs`)) as Array<{
-    txid?:string;vout?:Array<{scriptpubkey_address?:string;value?:number}>;
-    vin?:Array<{prevout?:{scriptpubkey_address?:string;value?:number}}>;
-    status?:{confirmed?:boolean;block_height?:number};blocktime?:number;
-  }>;
-  const out:Candidate[]=[];
-  for(const tx of txs.slice(0,25)){
-    for(let i=0;i<(tx.vout||[]).length;i++){
-      const v=tx.vout![i];if(v.scriptpubkey_address!==addr)continue;
-      const amount=Number(v.value||0)/1e8;if(!Number.isFinite(amount)||amount<=0)continue;
-      const spent=(tx.vin||[]).some(vi=>vi.prevout?.scriptpubkey_address===addr);
-      const conf=tx.status?.confirmed&&tx.status.block_height&&tip>0
-        ?Math.max(0,tip-tx.status.block_height+1):(tx.status?.confirmed?1:0);
-      out.push({tx_hash:String(tx.txid||""),event_index:i,from_address:spent?addr:null,to_address:addr,
-        amount,confirmations:conf,chain_timestamp:tx.blocktime?new Date(tx.blocktime*1000).toISOString():null,raw:{txid:tx.txid,vout:v}});
+  try {
+    const tipText=await getTextWithFallback(BITCOIN_API_BASES.map(base=>`${base}/blocks/tip/height`)).catch(error=>{
+      console.warn("Bitcoin tip unavailable; confirmations will wait for a successful tip check",error);
+      return "0";
+    });
+    const tip=Number(tipText);
+    const txs=await getJsonWithFallback(BITCOIN_API_BASES.map(base=>`${base}/address/${encodeURIComponent(addr)}/txs`)) as Array<{
+      txid?:string;vout?:Array<{scriptpubkey_address?:string;value?:number}>;
+      vin?:Array<{prevout?:{scriptpubkey_address?:string;value?:number}}>;
+      status?:{confirmed?:boolean;block_height?:number};blocktime?:number;
+    }>;
+    const out:Candidate[]=[];
+    for(const tx of txs.slice(0,25)){
+      for(let i=0;i<(tx.vout||[]).length;i++){
+        const v=tx.vout![i];if(v.scriptpubkey_address!==addr)continue;
+        const amount=Number(v.value||0)/1e8;if(!Number.isFinite(amount)||amount<=0)continue;
+        const spent=(tx.vin||[]).some(vi=>vi.prevout?.scriptpubkey_address===addr);
+        const conf=tx.status?.confirmed&&tx.status.block_height&&tip>0
+          ?Math.max(0,tip-tx.status.block_height+1):(tx.status?.confirmed?1:0);
+        out.push({tx_hash:String(tx.txid||""),event_index:i,from_address:spent?addr:null,to_address:addr,
+          amount,confirmations:conf,chain_timestamp:tx.blocktime?new Date(tx.blocktime*1000).toISOString():null,raw:{txid:tx.txid,vout:v}});
+      }
     }
+    return out;
+  } catch(error) {
+    console.warn("Bitcoin Esplora providers unavailable; trying Freedom Street no-key fallback",String((error as Error)?.message||error));
+    return await scanFreedomUtxo("btc","BITCOIN",addr);
   }
-  return out;
 }
 
 // ---------- Dogecoin// ---------- Dogecoin (Trezor blockbook) ----------
-type FreedomDogeAddressTx = { hash?: string; amount?: number | string; block?: string; seen?: number };
-type FreedomDogeBlock = { height?: number | string; mined?: number };
-type FreedomDogeTx = {
-  block?: string;
-  mined?: number;
-  seen?: number;
-  from?: Array<{ address?: string }>;
-  to?: Array<{ index?: number; address?: string; amount?: number | string }>;
+type FreedomAddressTx = {hash?:string;amount?:number|string;block?:string;seen?:number};
+type FreedomBlock = {height?:number|string;mined?:number};
+type FreedomTransaction = {
+  block?:string;mined?:number;seen?:number;
+  from?:Array<{address?:string}>;
+  to?:Array<{index?:number;address?:string;amount?:number|string}>;
 };
 
-async function scanDogecoin(addr:string):Promise<Candidate[]> {
+async function scanFreedomUtxo(network:"btc"|"doge",networkCode:"BITCOIN"|"DOGECOIN",addr:string):Promise<Candidate[]> {
   const base="https://api.freedom.st";
-  const addressRaw=await getJson(`${base}/doge/address/${encodeURIComponent(addr)}`) as {
-    data?:{transactions?:FreedomDogeAddressTx[]};
-    transactions?:FreedomDogeAddressTx[];
+  const addressRaw=await getJson(`${base}/${network}/address/${encodeURIComponent(addr)}`) as {
+    data?:{transactions?:FreedomAddressTx[]};
+    transactions?:FreedomAddressTx[];
   };
   const addressData=(addressRaw.data&&typeof addressRaw.data==="object"?addressRaw.data:addressRaw) as {
-    transactions?:FreedomDogeAddressTx[];
+    transactions?:FreedomAddressTx[];
   };
-  if(!Array.isArray(addressData.transactions)) {
-    throw new Error("Freedom Street returned an unexpected Dogecoin address response");
-  }
+  if(!Array.isArray(addressData.transactions))throw new Error("Freedom Street returned an unexpected address response");
 
-  // Only positive address-level movements are deposits. Query our own ledger
-  // first so already-credited history does not cause repeated TX/block lookups.
   const incoming=addressData.transactions
     .filter(tx=>Boolean(tx.hash)&&Number.isFinite(Number(tx.amount))&&Number(tx.amount)>0)
     .slice(0,100);
@@ -570,49 +569,45 @@ async function scanDogecoin(addr:string):Promise<Candidate[]> {
 
   let latestHeight=0;
   try{
-    const infoRaw=await getJson(`${base}/doge/info`) as {
-      data?:{blockchain?:{blocks?:number|string};doge?:{blockchain?:{blocks?:number|string}}};
-      doge?:{blockchain?:{blocks?:number|string}};
+    const infoRaw=await getJson(`${base}/${network}/info`) as {
+      data?:{blockchain?:{blocks?:number|string}};
       blockchain?:{blocks?:number|string};
     };
-    const info=(infoRaw.data&&typeof infoRaw.data==="object"?infoRaw.data:infoRaw) as {
-      doge?:{blockchain?:{blocks?:number|string}};
-      blockchain?:{blocks?:number|string};
-    };
-    latestHeight=Number(info.doge?.blockchain?.blocks??info.blockchain?.blocks??0);
+    const info=(infoRaw.data&&typeof infoRaw.data==="object"?infoRaw.data:infoRaw) as {blockchain?:{blocks?:number|string}};
+    latestHeight=Number(info.blockchain?.blocks||0);
   }catch(error){
-    console.warn("Freedom Street Dogecoin tip unavailable; confirmations will be rechecked",String((error as Error)?.message||error));
+    console.warn(`Freedom Street ${network} tip unavailable; confirmations will be rechecked`,String((error as Error)?.message||error));
   }
 
   const hashes=[...new Set(incoming.map(tx=>String(tx.hash)))];
   const inFilter=encodeURIComponent(`(${hashes.join(",")})`);
   const knownRes=await rest(
-    `blockchain_deposits?network_code=eq.DOGECOIN&tx_hash=in.${inFilter}&select=tx_hash,event_index,deposit_status,amount,from_address,to_address,chain_timestamp,raw_event`,
+    `blockchain_deposits?network_code=eq.${networkCode}&tx_hash=in.${inFilter}&select=tx_hash,event_index,deposit_status,amount,from_address,to_address,chain_timestamp,raw_event`,
     {method:"GET"},
   );
-  type KnownDogeRow={
+  type KnownRow={
     tx_hash:string;event_index:number;deposit_status:string;amount:number|string;
     from_address:string|null;to_address:string;chain_timestamp:string|null;raw_event?:unknown;
   };
-  const knownRows=knownRes.ok?await knownRes.json() as KnownDogeRow[]:[];
-  if(!knownRes.ok)console.warn("Could not read existing Dogecoin scan records; the unique deposit constraint still protects against duplicate credits");
+  const knownRows=knownRes.ok?await knownRes.json() as KnownRow[]:[];
+  if(!knownRes.ok)console.warn(`Could not read existing ${networkCode} scan records; unique transaction/output constraints still protect credits`);
 
-  const knownByTx=new Map<string,KnownDogeRow[]>();
+  const knownByTx=new Map<string,KnownRow[]>();
   for(const row of knownRows){
     const list=knownByTx.get(row.tx_hash)||[];
     list.push(row);
     knownByTx.set(row.tx_hash,list);
   }
 
-  const blockCache=new Map<string,Promise<FreedomDogeBlock>>();
+  const blockCache=new Map<string,Promise<FreedomBlock>>();
   const getBlock=(hash:string)=>{
     const cached=blockCache.get(hash);
     if(cached)return cached;
     const request=(async()=>{
-      const raw=await getJson(`${base}/doge/block/${encodeURIComponent(hash)}`) as {
-        data?:FreedomDogeBlock;height?:number|string;mined?:number;
+      const raw=await getJson(`${base}/${network}/block/${encodeURIComponent(hash)}`) as {
+        data?:FreedomBlock;height?:number|string;mined?:number;
       };
-      return (raw.data&&typeof raw.data==="object"?raw.data:raw) as FreedomDogeBlock;
+      return (raw.data&&typeof raw.data==="object"?raw.data:raw) as FreedomBlock;
     })();
     blockCache.set(hash,request);
     return request;
@@ -622,12 +617,8 @@ async function scanDogecoin(addr:string):Promise<Candidate[]> {
   for(const ref of incoming){
     const txHash=String(ref.hash);
     const existing=knownByTx.get(txHash)||[];
-    if(existing.length&&existing.every(row=>["confirmed","credited"].includes(String(row.deposit_status).toLowerCase()))) {
-      continue;
-    }
+    if(existing.length&&existing.every(row=>["confirmed","credited"].includes(String(row.deposit_status).toLowerCase())))continue;
 
-    // A confirming deposit already has its output index and block height stored.
-    // Recalculate confirmations from the fresh chain tip without another TX lookup.
     const savedRows=existing.filter(row=>String(row.deposit_status).toLowerCase()==="confirming");
     const savedWithHeight=savedRows.filter(row=>{
       const raw=row.raw_event&&typeof row.raw_event==="object"?row.raw_event as Record<string,unknown>:{};
@@ -639,8 +630,7 @@ async function scanDogecoin(addr:string):Promise<Candidate[]> {
         const blockHeight=Number(raw.block_height||0);
         out.push({
           tx_hash:row.tx_hash,event_index:Number(row.event_index||0),
-          from_address:row.from_address,to_address:row.to_address||addr,
-          amount:Number(row.amount),
+          from_address:row.from_address,to_address:row.to_address||addr,amount:Number(row.amount),
           confirmations:Math.max(0,latestHeight-blockHeight+1),
           chain_timestamp:row.chain_timestamp,
           raw:{...raw,provider:"Freedom Street"},
@@ -650,10 +640,12 @@ async function scanDogecoin(addr:string):Promise<Candidate[]> {
     }
 
     try{
-      const txRaw=await getJson(`${base}/doge/tx/${encodeURIComponent(txHash)}`) as {
-        data?:FreedomDogeTx;block?:string;mined?:number;seen?:number;from?:FreedomDogeTx["from"];to?:FreedomDogeTx["to"];
+      const txRaw=await getJson(`${base}/${network}/tx/${encodeURIComponent(txHash)}`) as {
+        data?:FreedomTransaction;
+        block?:string;mined?:number;seen?:number;
+        from?:FreedomTransaction["from"];to?:FreedomTransaction["to"];
       };
-      const tx=(txRaw.data&&typeof txRaw.data==="object"?txRaw.data:txRaw) as FreedomDogeTx;
+      const tx=(txRaw.data&&typeof txRaw.data==="object"?txRaw.data:txRaw) as FreedomTransaction;
       const outputs=Array.isArray(tx.to)?tx.to:[];
       const blockHash=String(tx.block||ref.block||"");
       if(!outputs.length)continue;
@@ -665,7 +657,7 @@ async function scanDogecoin(addr:string):Promise<Candidate[]> {
           blockHeight=Number(block.height||0);
           blockMined=Number(block.mined||0);
         }catch(error){
-          console.warn("Freedom Street Dogecoin block lookup failed; transaction will be rechecked",txHash,String((error as Error)?.message||error));
+          console.warn(`Freedom Street ${network} block lookup failed; transaction will be rechecked`,txHash,String((error as Error)?.message||error));
         }
       }
       const confirmations=latestHeight>0&&blockHeight>0?Math.max(0,latestHeight-blockHeight+1):0;
@@ -675,19 +667,45 @@ async function scanDogecoin(addr:string):Promise<Candidate[]> {
         if(String(output.address||"")!==addr)continue;
         const amount=Number(output.amount||0);
         if(!Number.isFinite(amount)||amount<=0)continue;
+        const eventIndex=Number(output.index??0);
         out.push({
-          tx_hash:txHash,
-          event_index:Number(output.index||0),
-          from_address:fromAddress,
-          to_address:addr,
-          amount,
-          confirmations,
+          tx_hash:txHash,event_index:eventIndex,from_address:fromAddress,to_address:addr,
+          amount,confirmations,
           chain_timestamp:timestamp>0?new Date(timestamp*1000).toISOString():null,
-          raw:{provider:"Freedom Street",block_hash:blockHash||null,block_height:blockHeight||null,output_index:Number(output.index||0)},
+          raw:{provider:"Freedom Street",block_hash:blockHash||null,block_height:blockHeight||null,output_index:eventIndex},
         });
       }
     }catch(error){
-      console.warn("Freedom Street Dogecoin transaction lookup failed; it will be checked again",txHash,String((error as Error)?.message||error));
+      console.warn(`Freedom Street ${network} transaction lookup failed; it will be checked again`,txHash,String((error as Error)?.message||error));
+    }
+  }
+  return out;
+}
+
+async function scanDogecoin(addr:string):Promise<Candidate[]> {
+  try {
+    return await scanFreedomUtxo("doge","DOGECOIN",addr);
+  } catch(error) {
+    console.warn("Freedom Street Dogecoin API unavailable; trying Trezor Blockbook backups",String((error as Error)?.message||error));
+  }
+  const hosts=["https://doge1.trezor.io/api/v2/","https://doge2.trezor.io/api/v2/"];
+  const data=await getJsonWithFallback(hosts.map(host=>`${host}address/${encodeURIComponent(addr)}?details=txs&pageSize=20`)) as {txids?:string[]};
+  if(!Array.isArray(data.txids))return [];
+  const out:Candidate[]=[];
+  for(const txid of data.txids.slice(0,15)){
+    try{
+      const tx=await getJsonWithFallback(hosts.map(host=>`${host}tx/${encodeURIComponent(txid)}`)) as {
+        txid?:string;vout?:Array<{n?:number;addresses?:string[];value?:string}>;confirmations?:number;blockTime?:number;
+      };
+      for(const v of tx.vout||[]){
+        if(!(v.addresses||[]).includes(addr))continue;
+        const amount=Number(v.value||0)/1e8;if(!Number.isFinite(amount)||amount<=0)continue;
+        out.push({tx_hash:String(tx.txid||txid),event_index:Number(v.n||0),from_address:null,to_address:addr,
+          amount,confirmations:Number(tx.confirmations||0),
+          chain_timestamp:tx.blockTime?new Date(tx.blockTime*1000).toISOString():null,raw:v});
+      }
+    }catch(error){
+      console.warn("Dogecoin transaction lookup failed on both Blockbook nodes",txid,String((error as Error)?.message||error));
     }
   }
   return out;
