@@ -698,7 +698,7 @@ Deno.serve(async (req: Request) => {
         p_network: network,
         p_amount: round2(amountUsd),
         p_crypto_amount: sent.cryptoAmount,
-        p_gas_fee: 0,
+        p_gas_fee: feeAsset === asset ? round2(feeUsd) : 0,
         p_network_fee_native: sent.feeNative,
         p_network_fee_asset: sent.feeUnit,
         p_destination: to,
