@@ -9,9 +9,11 @@ import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
 const SERVICE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
 const TRONGRID_API_KEY = Deno.env.get("TRONGRID_API_KEY") ?? "";
+const TRON_RPC_URL = Deno.env.get("TRON_RPC_URL") ?? "https://tron-rpc.publicnode.com";
 const ETHEREUM_RPC_URL = Deno.env.get("ETHEREUM_RPC_URL") ?? "https://ethereum-rpc.publicnode.com";
 
 const TRON_USDT_CONTRACT = "TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t";
+const TRON_USDT_CONTRACT_EVM = "0xa614f803b6fd780986a42c78ec9c7f77e6ded13c";
 const USDT_CONTRACTS: Record<string, string> = {
   ERC20: "0xdAC17F958D2ee523a2206206994597C13D831ec7",
   BEP20: "0x55d398326f99059fF775485246999027B3197955",
@@ -111,116 +113,103 @@ async function hexToBase58Check(hex: string): Promise<string> {
   return base58Encode(new Uint8Array([...payload, ...h2.slice(0, 4)]));
 }
 
-let tronUsdtEventCache: { loadedAt: number; byAddress: Map<string, Candidate[]> } | null = null;
-let tronUsdtEventLoad: Promise<Map<string, Candidate[]>> | null = null;
-
-async function normalizeTronEventAddress(input: unknown): Promise<string> {
-  const raw = String(input || "");
-  if (!raw) return "";
-  if (/^T[1-9A-HJ-NP-Za-km-z]{33}$/.test(raw)) return raw;
-  const hex = raw.replace(/^0x/i, "");
-  if (hex.length === 40) return await hexToBase58Check("41" + hex);
-  if (hex.length === 42 && hex.slice(0, 2).toLowerCase() === "41") {
-    return await hexToBase58Check(hex);
+async function base58Decode(value: string): Promise<Uint8Array> {
+  let number = 0n;
+  for (const char of value) {
+    const digit = BASE32_ALPHABET.indexOf(char);
+    if (digit < 0) throw new Error("Invalid Base58 address");
+    number = number * 58n + BigInt(digit);
   }
-  return "";
+  let hex = number.toString(16);
+  if (hex.length % 2) hex = "0" + hex;
+  const body = hex ? (hex.match(/../g) || []).map(v => parseInt(v, 16)) : [];
+  let leadingZeroes = 0;
+  while (leadingZeroes < value.length && value[leadingZeroes] === "1") leadingZeroes++;
+  return new Uint8Array([...new Array(leadingZeroes).fill(0), ...body]);
 }
 
-async function loadTronUsdtEvents(): Promise<Map<string, Candidate[]>> {
-  const byAddress = new Map<string, Candidate[]>();
-  const minTimestamp = Date.now() - 3 * 60 * 1000;
-  let fingerprint = "";
-
-  // Read the official USDT contract event feed once, then route transfers
-  // only to addresses issued by this project. The 3-minute overlap makes
-  // short scheduler/network interruptions recoverable; DB dedupe is authoritative.
-  for (let page = 0; page < 4; page++) {
-    const params = new URLSearchParams({
-      event_name: "Transfer",
-      only_confirmed: "true",
-      min_timestamp: String(minTimestamp),
-      limit: "200",
-      order_by: "block_timestamp,desc",
-    });
-    if (fingerprint) params.set("fingerprint", fingerprint);
-
-    const data = (await getJson(
-      `https://api.trongrid.io/v1/contracts/${TRON_USDT_CONTRACT}/events?${params.toString()}`,
-      { headers: tronHeaders() },
-    )) as {
-      data?: Array<{
-        contract_address?: string;
-        event_name?: string;
-        event_index?: number;
-        transaction_id?: string;
-        block_timestamp?: number;
-        _unconfirmed?: boolean;
-        success?: boolean;
-        result?: Record<string, string>;
-      }>;
-      meta?: { fingerprint?: string };
-    };
-
-    for (const event of data.data || []) {
-      if (String(event.contract_address || "").toLowerCase() !== TRON_USDT_CONTRACT.toLowerCase()) continue;
-      if (event.event_name !== "Transfer" || event._unconfirmed === true || event.success === false) continue;
-
-      const result = event.result || {};
-      const toAddress = await normalizeTronEventAddress(result.to);
-      if (!toAddress) continue;
-      const fromAddress = await normalizeTronEventAddress(result.from);
-      let amount = 0;
-      try {
-        amount = Number(BigInt(String(result.value || "0"))) / 1e6;
-      } catch {
-        continue;
-      }
-      if (!Number.isFinite(amount) || amount <= 0) continue;
-
-      const timestamp = Number(event.block_timestamp || 0);
-      const candidate: Candidate = {
-        tx_hash: String(event.transaction_id || ""),
-        event_index: Number(event.event_index ?? 0),
-        from_address: fromAddress || null,
-        to_address: toAddress,
-        amount,
-        confirmations: REQUIRED_CONFIRMATIONS.TRC20,
-        chain_timestamp: timestamp > 0 ? new Date(timestamp).toISOString() : null,
-        raw: event,
-      };
-      if (!candidate.tx_hash) continue;
-      const list = byAddress.get(toAddress) || [];
-      list.push(candidate);
-      byAddress.set(toAddress, list);
-    }
-
-    const nextFingerprint = String(data.meta?.fingerprint || "");
-    if (!nextFingerprint || nextFingerprint === fingerprint) break;
-    fingerprint = nextFingerprint;
+async function tronAddressToEvmAddress(address: string): Promise<string> {
+  const decoded = await base58Decode(address);
+  if (decoded.length !== 25) throw new Error("Invalid TRON Base58Check address length");
+  const payload = decoded.slice(0, 21);
+  if (payload[0] !== 0x41) throw new Error("Invalid TRON mainnet address prefix");
+  const first = await sha256Hex(payload);
+  const second = await sha256Hex(first);
+  const checksum = decoded.slice(21);
+  for (let i = 0; i < 4; i++) {
+    if (checksum[i] !== second[i]) throw new Error("Invalid TRON Base58Check checksum");
   }
-
-  return byAddress;
+  return "0x" + Array.from(payload.slice(1), b => b.toString(16).padStart(2, "0")).join("");
 }
 
-async function getTronUsdtEvents(): Promise<Map<string, Candidate[]>> {
-  if (tronUsdtEventCache && Date.now() - tronUsdtEventCache.loadedAt < 20000) {
-    return tronUsdtEventCache.byAddress;
-  }
-  if (tronUsdtEventLoad) return await tronUsdtEventLoad;
-
-  tronUsdtEventLoad = loadTronUsdtEvents();
-  try {
-    const byAddress = await tronUsdtEventLoad;
-    tronUsdtEventCache = { loadedAt: Date.now(), byAddress };
-    return byAddress;
-  } finally {
-    tronUsdtEventLoad = null;
-  }
+let cachedTronHead = { value: 0, at: 0 };
+async function getTronLatestBlock(): Promise<number> {
+  if (cachedTronHead.value > 0 && Date.now() - cachedTronHead.at < 15000) return cachedTronHead.value;
+  const data = (await getJson(TRON_RPC_URL, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ jsonrpc: "2.0", id: 1, method: "eth_blockNumber", params: [] }),
+  })) as { result?: string; error?: unknown };
+  if (data.error || !data.result) throw new Error("TRON latest block unavailable");
+  const value = Number(hexToBigInt(data.result));
+  if (!Number.isSafeInteger(value) || value <= 0) throw new Error("TRON latest block was invalid");
+  cachedTronHead = { value, at: Date.now() };
+  return value;
 }
 
 async function scanTronToken(addr: string): Promise<Candidate[]> {
-  const events = await getTronUsdtEvents();
-  return events.get(addr) || [];
+  const recipient = await tronAddressToEvmAddress(addr);
+  const latest = await getTronLatestBlock();
+  const fromBlock = Math.max(0, latest - 10000);
+  const recipientTopic = padAddressTopic(recipient);
+  const data = (await getJson(TRON_RPC_URL, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      jsonrpc: "2.0",
+      id: 2,
+      method: "eth_getLogs",
+      params: [{
+        fromBlock: "0x" + fromBlock.toString(16),
+        toBlock: "latest",
+        address: TRON_USDT_CONTRACT_EVM,
+        topics: [TRANSFER_TOPIC, null, recipientTopic],
+      }],
+    }),
+  })) as { result?: Array<{
+    transactionHash?: string; blockNumber?: string; logIndex?: string;
+    topics?: string[]; data?: string; removed?: boolean;
+  }>; error?: { message?: string; code?: number } };
+
+  if (data.error) throw new Error("TRON USDT event query failed: " + String(data.error.message || data.error.code || "RPC error"));
+  const out: Candidate[] = [];
+  for (const log of data.result || []) {
+    if (log.removed === true) continue;
+    if (String(log.topics?.[2] || "").toLowerCase() !== recipientTopic.toLowerCase()) continue;
+    const valueHex = String(log.data || "").replace(/^0x/, "");
+    if (!/^[0-9a-fA-F]{1,64}$/.test(valueHex)) continue;
+    const amount = Number(BigInt("0x" + valueHex)) / 1e6;
+    if (!Number.isFinite(amount) || amount <= 0) continue;
+    const blockNumber = Number(hexToBigInt(String(log.blockNumber || "0x0")));
+    const confirmations = Math.max(0, latest - blockNumber + 1);
+    if (confirmations < REQUIRED_CONFIRMATIONS.TRC20) continue;
+    const fromHex = String(log.topics?.[1] || "").replace(/^0x/, "").slice(-40);
+    let fromAddress: string | null = null;
+    if (/^[0-9a-fA-F]{40}$/.test(fromHex)) {
+      try { fromAddress = await hexToBase58Check("41" + fromHex); } catch { fromAddress = null; }
+    }
+    out.push({
+      tx_hash: String(log.transactionHash || ""),
+      event_index: Number(hexToBigInt(String(log.logIndex || "0x0"))),
+      from_address: fromAddress,
+      to_address: addr,
+      amount,
+      confirmations,
+      chain_timestamp: null,
+      raw: log,
+    });
+  }
+  return out;
 }
 
 async function scanTronNative(addr: string): Promise<Candidate[]> {
