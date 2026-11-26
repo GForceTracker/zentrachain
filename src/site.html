@@ -5302,24 +5302,24 @@ body[data-zc-theme] #app-content #wd-network-cards::-webkit-scrollbar-thumb{back
  window.zcWalletData=null;
  window.zcWalletLoad=async function(force){
   if(window.zcWalletData&&!force)return window.zcWalletData;
-  const [n1,b1,t1,p1,l1,w1]=await Promise.all([
+  const [n1,b1,t1,p1,l1,w1,d1]=await Promise.all([
    db.from('crypto_asset_networks').select('id,asset_code,network_code,asset_name,network_name,is_enabled').order('asset_code'),
-   db.from('blockchain_deposits').select('id,user_id,asset_code,network_code,tx_hash,amount,deposit_status,credited_at,detected_at,chain_timestamp').in('deposit_status',['credited','confirmed']).order('detected_at',{ascending:false}).limit(2000),
+   db.from('blockchain_deposits').select('id,user_id,asset_code,network_code,tx_hash,amount,deposit_status,credited_at,detected_at,chain_timestamp').eq('deposit_status','credited').order('detected_at',{ascending:false}).limit(2000),
    db.from('treasury_withdrawals').select('*').order('created_at',{ascending:false}).limit(300),
    db.from('profiles').select('id,full_name,email'),
    db.from('ledger_entries').select('user_id,amount,entry_type,reference_type'),
-   db.from('withdrawal_requests').select('user_id,amount,status')
+   db.from('withdrawal_requests').select('user_id,amount,status'),
+   db.from('deposit_requests').select('id,user_id,amount,asset,network,status,blockchain_deposit_id,tx_hash').eq('status','credited').not('blockchain_deposit_id','is',null).limit(2000)
   ]);
   let nets=n1.error?[]:(n1.data||[]);
   if(!nets.length)nets=walletCatalog.map(x=>({id:x.id,asset_code:x.asset_code,network_code:x.network_code,asset_name:x.asset_name,network_name:x.network_name}));
   const users=Object.fromEntries((p1.data||[]).map(x=>[x.id,x]));
-  try{if(!prices||!prices.bitcoin)await loadPrices()}catch(e){}
-  const priceOf=function(a){a=String(a||'').toUpperCase();if(a==='USDT')return 1;const m={BTC:'bitcoin',ETH:'ethereum',TRX:'tron',DOGE:'dogecoin',SOL:'solana',BNB:'binancecoin'};const p=(prices[m[a]]||{}).usd;return Number(p)>0?Number(p):0};
-  // Only on-chain detected deposits (scanned from each member's wallet) count here.
-  const deps=(b1.error?[]:(b1.data||[])).map(function(x){
-   const coin=Number(x.amount||0),rate=priceOf(x.asset_code),usd=Math.round(coin*rate*100)/100;
-   return {id:x.id,user_id:x.user_id,amount:usd,coin_amount:coin,asset:x.asset_code,network:x.network_code,status:'approved',created_at:x.credited_at||x.detected_at||x.chain_timestamp,tx_hash:x.tx_hash,onchain:true,deposit_status:x.deposit_status};
-  }).filter(function(x){return x.amount>0});
+  // Use the USD amount credited at confirmation, linked to its exact blockchain deposit.
+  const requestsByChain=Object.fromEntries((d1.error?[]:(d1.data||[])).filter(function(x){return !!x.blockchain_deposit_id&&String(x.asset||'').toUpperCase()==='USDT'}).map(function(x){return [x.blockchain_deposit_id,x]}));
+  const deps=(b1.error?[]:(b1.data||[])).filter(function(x){var r=requestsByChain[x.id];return x.deposit_status==='credited'&&!!r&&String(r.user_id)===String(x.user_id)&&String(r.network||'').toUpperCase()===String(x.network_code).toUpperCase()}).map(function(x){
+   const r=requestsByChain[x.id];
+   return {id:x.id,user_id:x.user_id,amount:Number(r.amount||0),coin_amount:Number(x.amount||0),asset:x.asset_code,network:x.network_code,status:'approved',created_at:x.credited_at||x.detected_at||x.chain_timestamp,tx_hash:x.tx_hash,onchain:true,deposit_status:x.deposit_status,deposit_request_id:r.id};
+  }).filter(function(x){return Number.isFinite(x.amount)&&x.amount>0});
   const approvedDeps={};
   deps.forEach(function(x){if(Number(x.amount||0)>0)approvedDeps[x.user_id]=(approvedDeps[x.user_id]||0)+Number(x.amount||0)});
   const real={};
@@ -5475,7 +5475,7 @@ body[data-zc-theme] #app-content #wd-network-cards::-webkit-scrollbar-thumb{back
    '<div class="field" style="margin-top:12px"><label for="zc-wd-addr">Destination address (your trading wallet)</label><input id="zc-wd-addr" placeholder="Paste the wallet address" oninput="zcWalletAddrHint();zcWalletFeeSoon()"><small id="zc-wd-addr-hint" style="display:block;margin-top:4px"></small></div>'+
    '<div class="field" style="margin-top:12px"><label for="zc-wd-note">Note (optional)</label><input id="zc-wd-note" placeholder="e.g. moved to trading wallet"></div>'+
    '<button class="btn primary" id="zc-wd-submit" style="margin-top:16px" onclick="zcWalletSubmitWithdraw()">Withdraw now</button>'+
-   '<p class="muted" style="font-size:11px;margin-top:10px">Withdraw now opens a confirmation with all details and the live network fee. When the fee is charged by the coin it is added to the member debit; when paid with the network token it comes from the wallet Gas Balance. Other networks are recorded only and broadcast manually via the private key.</p></section>';
+   '<p class="muted" style="font-size:11px;margin-top:10px">Withdraw now opens a confirmation with the USD value, estimated coin amount and live network fee. The sending wallet pays the network fee; only the requested USD value is debited from the member.</p></section>';
   window.zcWalletPickUser(window.zcWalletWd.user);
   zcWalletPrepSend();
  };
@@ -5509,9 +5509,9 @@ body[data-zc-theme] #app-content #wd-network-cards::-webkit-scrollbar-thumb{back
   const to=($('zc-wd-addr')?.value||'').trim();
   if(!W.network){if(el)el.textContent='';return}
   try{
-   const {data,error}=await db.functions.invoke('chain-fee-estimate',{body:{asset:W.asset,network:W.network,from_address:W.depositAddr||'',to_address:to,amount_coin:String(amount||0)}});
+   const {data,error}=await db.functions.invoke('chain-fee-estimate',{body:{asset:W.asset,network:W.network,from_address:W.depositAddr||'',to_address:to,amount_usd:String(amount||0)}});
    if(error||!data||data.error)throw new Error((data&&data.error)||(error&&error.message)||'unavailable');
-    W.feeNative=Number(data.native||0);W.feeUnit=data.native_unit||'';W.feeUsd=Number(data.usd||0);
+    W.feeNative=Number(data.native||0);W.feeUnit=data.native_unit||'';W.feeUsd=Number(data.usd||0);W.cryptoAmountEstimate=Number(data.crypto_amount||0);
     const dual=zcWalletIsDualFee(),mode=W.feeMode||'native';
     const amountNow=Number($('zc-wd-amount')?.value||0);
     let modeNote='';
@@ -5581,16 +5581,17 @@ window.zcWalletPickUser=function(uid){
   // Fresh real-time fee estimate at the moment of confirmation.
   let feeNative=W.feeNative||0,feeUnit=W.feeUnit||zcWalletGasUnit(W.network),feeUsd=W.feeUsd||0;
   try{
-   const fe=await db.functions.invoke('chain-fee-estimate',{body:{asset:W.asset,network:W.network,from_address:W.depositAddr||'',to_address:addr,amount_coin:String(amount)}});
+   const fe=await db.functions.invoke('chain-fee-estimate',{body:{asset:W.asset,network:W.network,from_address:W.depositAddr||'',to_address:addr,amount_usd:String(amount)}});
    if(!fe.error&&fe.data&&!fe.data.error){W.feeNative=Number(fe.data.native||0);W.feeUnit=fe.data.native_unit||'';W.feeUsd=Number(fe.data.usd||0);feeNative=W.feeNative;feeUnit=W.feeUnit;feeUsd=W.feeUsd}
   }catch(e){}
-  const mode=zcWalletIsDualFee()?(W.feeMode||'native'):'coin';
-  const feeCharge=mode==='coin'?feeUsd:0;
+  const mode='native';
+  const feeCharge=0;
   if(amount+feeCharge>avail+0.000001)return toast('That is more than the member\u2019s Available Funds ('+fmtUSD(avail)+').',true);
   const u=(window.zcWalletData&&window.zcWalletData.users?window.zcWalletData.users:{})[uid]||{};
   const sameCoin={ETH:['ERC20','ETHEREUM'],TRX:['TRC20','TRON'],BTC:['BITCOIN'],DOGE:['DOGECOIN'],SOL:['SOLANA']};
   const coinTitle=(sameCoin[W.asset]||[]).indexOf(W.network)>=0?W.asset:W.asset+' · '+W.network;
-  window.__zcPendingWd={uid:uid,amount:amount,addr:addr,note:note,mode:mode,feeNative:feeNative,feeUnit:feeUnit,feeUsd:feeUsd,avail:avail};
+  const coinDecimals=(W.asset==='BTC'||W.asset==='DOGE')?8:(W.asset==='SOL'?9:(W.asset==='TRX'?6:((W.asset==='ETH'||W.network==='BEP20')?18:6));
+  window.__zcPendingWd={uid:uid,amount:amount,addr:addr,note:note,mode:mode,feeNative:feeNative,feeUnit:feeUnit,feeUsd:feeUsd,avail:avail,cryptoAmount:W.cryptoAmountEstimate||0};
   document.getElementById('zc-wd-confirm-modal')?.remove();
   const m=document.createElement('div');m.id='zc-wd-confirm-modal';
   m.style.cssText='position:fixed;inset:0;background:rgba(3,10,7,.78);backdrop-filter:blur(4px);z-index:99999;display:grid;place-items:center;padding:16px';
@@ -5599,10 +5600,11 @@ window.zcWalletPickUser=function(uid){
    row('Member',safe(u.full_name||'Member')+(u.email?'<small style="display:block;color:var(--muted);font-weight:500">'+safe(u.email)+'</small>':''))+
    row('Coin & network',safe(coinTitle))+
    row('Destination address','<span style="overflow-wrap:anywhere">'+safe(addr)+'</span>')+
-   row('Amount (USDT)',fmtUSD(amount))+
-   row('Real network fee','~'+Number(feeNative)+' '+safe(feeUnit)+' \u2248 '+fmtUSD(feeUsd)+' USDT')+
-   row('Fee paid by',mode==='coin'?('The coin itself (USDT) — you are charged <b>'+fmtUSD(feeUsd)+' USDT</b> fee'):'Network token ('+safe(feeUnit)+') from the wallet\u2019s Gas Balance')+
-   row('Total charged',fmtUSD(amount+feeCharge)+' USDT')+
+   row('Amount (USD value)',fmtUSD(amount)+' USD')+
+   row('Estimated coin amount',Number(W.cryptoAmountEstimate||0).toFixed(coinDecimals)+' '+safe(W.asset))+
+   row('Estimated network fee','~'+Number(feeNative)+' '+safe(feeUnit)+' \u2248 '+fmtUSD(feeUsd)+' USD')+
+   row('Fee paid by','The sending wallet’s native balance ('+safe(feeUnit)+'). No extra member fee.')+
+   row('Member balance debit',fmtUSD(amount)+' USD')+
    (note?row('Note',safe(note)):'')+
    '<div class="notice warn" style="margin-top:12px">This broadcasts a real on-chain transaction. Double-check the destination address — it cannot be undone.</div>'+
    '<div style="display:flex;gap:10px;margin-top:14px"><button class="btn" type="button" onclick="document.getElementById(\'zc-wd-confirm-modal\').remove()">Cancel</button><button class="btn primary" type="button" id="zc-wd-confirm-btn" onclick="zcWalletConfirmWithdraw()">Confirm withdrawal</button></div></div>';
@@ -5613,17 +5615,15 @@ window.zcWalletPickUser=function(uid){
   const W=window.zcWalletWd||{};const btn=$('zc-wd-confirm-btn');
   if(btn){btn.disabled=true;btn.textContent='Broadcasting…'}
   try{
-   const supported=(W.asset==='USDT'&&['TRC20','ERC20','BEP20'].indexOf(W.network)>=0&&W.depositAddrId);
+   const supported=!!(W.asset&&W.network&&W.depositAddrId);
    if(supported){
     const sess=await db.auth.getSession();
-    const sr=await fetch((window.ZC_ENV&&window.ZC_ENV.SUPABASE_URL||'')+'/functions/v1/chain-send',{method:'POST',headers:{'Content-Type':'application/json',apikey:(window.ZC_ENV&&window.ZC_ENV.SUPABASE_KEY)||'',Authorization:'Bearer '+((sess.data&&sess.data.session&&sess.data.session.access_token)||'')},body:JSON.stringify({deposit_address_id:W.depositAddrId,user_id:P.uid,to_address:P.addr,amount_coin:P.amount,asset:W.asset,network:W.network,note:P.note,fee_mode:P.mode})});
+    const sr=await fetch((window.ZC_ENV&&window.ZC_ENV.SUPABASE_URL||'')+'/functions/v1/chain-send',{method:'POST',headers:{'Content-Type':'application/json',apikey:(window.ZC_ENV&&window.ZC_ENV.SUPABASE_KEY)||'',Authorization:'Bearer '+((sess.data&&sess.data.session&&sess.data.session.access_token)||'')},body:JSON.stringify({deposit_address_id:W.depositAddrId,user_id:P.uid,to_address:P.addr,amount_usd:P.amount,asset:W.asset,network:W.network,note:P.note,fee_mode:'native'})});
     const sd=await sr.json().catch(()=>({}));
     if(!sr.ok||!sd.ok)throw new Error(sd.error||'Broadcast failed');
     toast('On-chain broadcast sent! Real fee '+fmtUSD(sd.fee_usd)+' \u00b7 tx '+String(sd.txid||'').slice(0,20)+'...');
    }else{
-    const {error}=await db.rpc('admin_treasury_withdraw_from_user',{p_user_id:P.uid,p_asset:W.asset,p_network:W.network,p_amount:P.amount,p_gas_fee:(P.mode==='coin'?P.feeUsd:0),p_destination:P.addr,p_note:(P.note?P.note+' ':'')+'(bookkeeping only - broadcast this network manually via the private key)'});
-    if(error)throw error;
-    toast('Recorded. This network broadcasts manually via the private key.');
+    throw new Error('No matching on-chain deposit wallet is available. Nothing was recorded.');
    }
    document.getElementById('zc-wd-confirm-modal')?.remove();
    if(typeof refreshData==='function'){try{await refreshData()}catch(e){}}
@@ -14358,8 +14358,10 @@ body[data-zc-theme="metallic"] #app-drawer .zc-theme-choice[data-theme="metallic
     return String(value||'').normalize('NFKC').replace(/[\u200B-\u200D\uFEFF]/g,'').trim().replace(/^0X/i,'0x');
   }
   function isSupportedTreasuryNetwork(asset,network){
-    return String(asset||'').toUpperCase()==='USDT' &&
-      ['TRC20','ERC20','BEP20'].includes(String(network||'').toUpperCase());
+    var a=String(asset||'').toUpperCase(),n=String(network||'').toUpperCase();
+    var D=window.zcWalletData||{},rows=D.nets||[];
+    if(rows.length)return rows.some(function(x){return x.is_enabled===true&&String(x.asset_code||'').toUpperCase()===a&&String(x.network_code||'').toUpperCase()===n});
+    return ['USDT|TRC20','USDT|ERC20','USDT|BEP20','BTC|BITCOIN','ETH|ETHEREUM','TRX|TRON','DOGE|DOGECOIN','SOL|SOLANA'].indexOf(a+'|'+n)>=0;
   }
 
   // Use the correct chain-specific address format and ignore invisible copy/paste characters.
@@ -14381,8 +14383,8 @@ body[data-zc-theme="metallic"] #app-drawer .zc-theme-choice[data-theme="metallic
     var host=document.getElementById('zc-wd-fee-mode-field');
     if(host){
       var unit=window.zcWalletGasUnit?window.zcWalletGasUnit(W.network):'';
-      host.innerHTML='<div class="notice" style="margin-top:12px">Network gas is paid separately from this deposit wallet’s native balance ('+
-        String(unit||'network token')+'). It does not reduce the member’s confirmed USDT deposit amount. The wallet must hold enough native gas before broadcasting.</div>';
+      host.innerHTML='<div class="notice" style="margin-top:12px">Network fees are paid from this deposit wallet’s native coin or chain gas token ('+
+        String(unit||'network token')+'). It is not added as a second member debit. The wallet must have enough to cover the transfer and network fee.</div>';
     }
   };
   window.zcWalletFeeModeChange=function(){
