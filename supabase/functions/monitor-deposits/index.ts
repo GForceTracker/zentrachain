@@ -12,6 +12,12 @@ const TRON_RPC_URL = Deno.env.get("TRON_RPC_URL") ?? "https://tron-evm-rpc.publi
 const TRON_SOLIDITY_HTTP_URL = Deno.env.get("TRON_SOLIDITY_HTTP_URL") ?? "https://tron-solidity-rpc.publicnode.com";
 const ETHEREUM_RPC_URL = Deno.env.get("ETHEREUM_RPC_URL") ?? "https://ethereum-rpc.publicnode.com";
 
+const TRON_EVM_RPC_URLS = [...new Set([TRON_RPC_URL, "https://tron-evm-rpc.publicnode.com"])];
+const ETHEREUM_RPC_URLS = [...new Set([ETHEREUM_RPC_URL, "https://eth.llamarpc.com", "https://1rpc.io/eth"])];
+const BSC_RPC_URLS = ["https://bsc-rpc.publicnode.com", "https://bsc-dataseed.binance.org", "https://1rpc.io/bnb"];
+const SOLANA_RPC_URLS = ["https://solana-rpc.publicnode.com", "https://api.mainnet-beta.solana.com"];
+const BITCOIN_API_BASES = ["https://mempool.space/api", "https://blockstream.info/api"];
+
 const TRON_USDT_CONTRACT = "TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t";
 const TRON_USDT_CONTRACT_EVM = "0xa614f803b6fd780986a42c78ec9c7f77e6ded13c";
 const USDT_CONTRACTS: Record<string, string> = {
@@ -44,43 +50,98 @@ function constantTimeEqual(a: string, b: string): boolean {
   return diff === 0;
 }
 
-async function getJson(url: string, init?: RequestInit, timeoutMs = 12000): Promise<unknown> {
+function wait(ms: number): Promise<void> {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+function retryAfterMs(value: string | null): number {
+  if (!value) return 0;
+  const seconds = Number(value);
+  if (Number.isFinite(seconds) && seconds >= 0) return seconds * 1000;
+  const date = Date.parse(value);
+  return Number.isFinite(date) ? Math.max(0, date - Date.now()) : 0;
+}
+async function getJson(url: string, init?: RequestInit, timeoutMs = 10000): Promise<unknown> {
   let lastError: unknown = new Error("Request failed");
-  for (let attempt = 0; attempt < 4; attempt++) {
+  for (let attempt = 0; attempt < 3; attempt++) {
     const ctrl = new AbortController();
     const timer = setTimeout(() => ctrl.abort(), timeoutMs);
     try {
       const res = await fetch(url, { ...init, signal: ctrl.signal });
       if (res.ok) return await res.json();
       const message = `HTTP ${res.status} from ${new URL(url).host}`;
-      if (res.status !== 429 && res.status < 500) throw new Error(message);
+      const retryable = res.status === 408 || res.status === 425 || res.status === 429 || res.status >= 500;
+      if (!retryable) throw new Error(message);
       lastError = new Error(message);
-      if (attempt === 3) break;
-      const retryAfter = Number(res.headers.get("retry-after") || 0) * 1000;
-      await new Promise(resolve => setTimeout(resolve, Math.max(retryAfter, 250 * (2 ** attempt))));
+      if (attempt === 2) break;
+      const backoff = 350 * (2 ** attempt) + Math.floor(Math.random() * 250);
+      await wait(Math.min(Math.max(retryAfterMs(res.headers.get("retry-after")), backoff), 5000));
     } catch (error) {
       lastError = error;
       const message = String((error as Error)?.message || error);
-      if (message.startsWith("HTTP 4") && !message.startsWith("HTTP 429")) throw error;
-      if (attempt === 3) break;
-      await new Promise(resolve => setTimeout(resolve, 250 * (2 ** attempt)));
-    } finally {
-      clearTimeout(timer);
-    }
+      if (message.startsWith("HTTP ") && !/^HTTP (408|425|429|5\d\d) /.test(message)) throw error;
+      if (attempt === 2) break;
+      await wait(350 * (2 ** attempt) + Math.floor(Math.random() * 250));
+    } finally { clearTimeout(timer); }
   }
   throw lastError instanceof Error ? lastError : new Error("Blockchain provider request failed");
+}
+async function getJsonWithFallback(urls: string[], init?: RequestInit, timeoutMs = 10000): Promise<unknown> {
+  let lastError: unknown = new Error("No blockchain provider configured");
+  for (const url of [...new Set(urls.filter(Boolean))]) {
+    try { return await getJson(url, init, timeoutMs); }
+    catch (error) {
+      lastError = error;
+      console.warn("Blockchain provider failed; trying a backup", new URL(url).host, String((error as Error)?.message || error));
+    }
+  }
+  throw lastError instanceof Error ? lastError : new Error("All public blockchain providers failed");
+}
+async function getTextWithFallback(urls: string[], timeoutMs = 10000): Promise<string> {
+  let lastError: unknown = new Error("No text provider configured");
+  for (const url of [...new Set(urls.filter(Boolean))]) {
+    for (let attempt=0; attempt<2; attempt++) {
+      const ctrl = new AbortController(), timer = setTimeout(() => ctrl.abort(), timeoutMs);
+      try {
+        const res = await fetch(url, {headers:{Accept:"text/plain"},signal:ctrl.signal});
+        if (res.ok) return (await res.text()).trim();
+        const message = `HTTP ${res.status} from ${new URL(url).host}`;
+        if (res.status!==408 && res.status!==425 && res.status!==429 && res.status<500) throw new Error(message);
+        lastError = new Error(message);
+        if (attempt===0) await wait(Math.min(Math.max(retryAfterMs(res.headers.get("retry-after")),500),3000));
+      } catch(error) {
+        lastError=error;
+        const message=String((error as Error)?.message||error);
+        if(message.startsWith("HTTP ")&&!/^HTTP (408|425|429|5\d\d) /.test(message)) throw error;
+        if(attempt===0) await wait(400);
+      } finally { clearTimeout(timer); }
+    }
+    console.warn("Text provider failed; trying backup",new URL(url).host,String((lastError as Error)?.message||lastError));
+  }
+  throw lastError instanceof Error ? lastError : new Error("All text providers failed");
+}
+async function rpcJsonWithFallback(urls: string[], method: string, params: unknown[]): Promise<{result?:unknown;error?:unknown}> {
+  let lastError: unknown = new Error("No RPC provider configured");
+  const body=JSON.stringify({jsonrpc:"2.0",id:1,method,params});
+  for(const url of [...new Set(urls.filter(Boolean))]) {
+    try {
+      const data=await getJson(url,{method:"POST",headers:{"Content-Type":"application/json"},body}) as {result?:unknown;error?:unknown};
+      if(data?.error) throw new Error(`RPC ${method} failed at ${new URL(url).host}: ${JSON.stringify(data.error)}`);
+      return data;
+    } catch(error) {
+      lastError=error;
+      console.warn("RPC provider failed; trying backup",new URL(url).host,String((error as Error)?.message||error));
+    }
+  }
+  throw lastError instanceof Error ? lastError : new Error(`All RPC providers failed for ${method}`);
 }
 let cachedEthHead = { value: 0, at: 0 };
 async function getEthLatestBlock(): Promise<number> {
   if (cachedEthHead.value > 0 && Date.now() - cachedEthHead.at < 15000) return cachedEthHead.value;
-  const data = (await getJson(ETHEREUM_RPC_URL, {
-    method: "POST", headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ jsonrpc: "2.0", id: 1, method: "eth_blockNumber", params: [] }),
-  })) as { result?: string; error?: unknown };
-  if (data.error || !data.result) throw new Error("Ethereum latest block unavailable");
-  const value = Number(hexToBigInt(data.result));
-  if (!Number.isSafeInteger(value) || value <= 0) throw new Error("Ethereum latest block was invalid");
-  cachedEthHead = { value, at: Date.now() };
+  const data=await rpcJsonWithFallback(ETHEREUM_RPC_URLS,"eth_blockNumber",[]);
+  if(typeof data.result!=="string") throw new Error("Ethereum latest block unavailable");
+  const value=Number(hexToBigInt(data.result));
+  if(!Number.isSafeInteger(value)||value<=0) throw new Error("Ethereum latest block was invalid");
+  cachedEthHead={value,at:Date.now()};
   return value;
 }
 
@@ -141,16 +202,12 @@ async function tronAddressToEvmAddress(address: string): Promise<string> {
 
 let cachedTronHead = { value: 0, at: 0 };
 async function getTronLatestBlock(): Promise<number> {
-  if (cachedTronHead.value > 0 && Date.now() - cachedTronHead.at < 15000) return cachedTronHead.value;
-  const data = (await getJson(TRON_RPC_URL, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ jsonrpc: "2.0", id: 1, method: "eth_blockNumber", params: [] }),
-  })) as { result?: string; error?: unknown };
-  if (data.error || !data.result) throw new Error("TRON latest block unavailable");
-  const value = Number(hexToBigInt(data.result));
-  if (!Number.isSafeInteger(value) || value <= 0) throw new Error("TRON latest block was invalid");
-  cachedTronHead = { value, at: Date.now() };
+  if (cachedTronHead.value > 0 && Date.now()-cachedTronHead.at<15000) return cachedTronHead.value;
+  const data=await rpcJsonWithFallback(TRON_EVM_RPC_URLS,"eth_blockNumber",[]);
+  if(typeof data.result!=="string") throw new Error("TRON latest block unavailable");
+  const value=Number(hexToBigInt(data.result));
+  if(!Number.isSafeInteger(value)||value<=0) throw new Error("TRON latest block was invalid");
+  cachedTronHead={value,at:Date.now()};
   return value;
 }
 
@@ -159,26 +216,13 @@ async function scanTronToken(addr: string): Promise<Candidate[]> {
   const latest = await getTronLatestBlock();
   const fromBlock = Math.max(0, latest - 4800);
   const recipientTopic = padAddressTopic(recipient);
-  const data = (await getJson(TRON_RPC_URL, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      jsonrpc: "2.0",
-      id: 2,
-      method: "eth_getLogs",
-      params: [{
-        fromBlock: "0x" + fromBlock.toString(16),
-        toBlock: "latest",
-        address: TRON_USDT_CONTRACT_EVM,
-        topics: [TRANSFER_TOPIC, null, recipientTopic],
-      }],
-    }),
-  })) as { result?: Array<{
-    transactionHash?: string; blockNumber?: string; logIndex?: string;
-    topics?: string[]; data?: string; removed?: boolean;
-  }>; error?: { message?: string; code?: number } };
+  const data = await rpcJsonWithFallback(TRON_EVM_RPC_URLS,"eth_getLogs",[{
+    fromBlock:"0x"+fromBlock.toString(16),toBlock:"latest",
+    address:TRON_USDT_CONTRACT_EVM,topics:[TRANSFER_TOPIC,null,recipientTopic],
+  }]) as {result?:Array<{
+    transactionHash?:string;blockNumber?:string;logIndex?:string;topics?:string[];data?:string;removed?:boolean;
+  } >};
 
-  if (data.error) throw new Error("TRON USDT event query failed: " + String(data.error.message || data.error.code || "RPC error"));
   const out: Candidate[] = [];
   for (const log of data.result || []) {
     if (log.removed === true) continue;
@@ -411,127 +455,135 @@ async function scanBlockscout(network: string, addr: string, asset: string): Pro
 }
 
 // ---------- EVM (public RPC getLogs for BEP20 USDT) ----------
-async function scanEvmLogs(rpc: string, usdtContract: string, addr: string): Promise<Candidate[]> {
-  const head = await getJson(rpc, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ jsonrpc: "2.0", id: 1, method: "eth_blockNumber", params: [] }) }) as { result?: string };
-  const latest = Number(hexToBigInt(String(head.result || "0x0")));
-  if (!latest) return [];
-  const fromBlock = Math.max(0, latest - 4800);
-  const data = await getJson(rpc, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ jsonrpc: "2.0", id: 2, method: "eth_getLogs", params: [{ fromBlock: "0x" + fromBlock.toString(16), toBlock: "latest", address: usdtContract, topics: [TRANSFER_TOPIC, null, padAddressTopic(addr)] }] }) }) as { result?: Array<{ transactionHash: string; blockNumber: string; logIndex?: string; topics: string[]; data: string }> };
-  const out: Candidate[] = [];
-  for (const log of data.result || []) {
-    const valueHex = log.data?.replace(/^0x/, "").slice(0, 64);
-    if (!valueHex) continue;
-    const amount = Number(BigInt("0x" + valueHex)) / 1e18;
-    if (!Number.isFinite(amount) || amount <= 0) continue;
-    const block = Number(hexToBigInt(log.blockNumber));
+async function scanEvmLogs(rpcUrls:string[],usdtContract:string,addr:string):Promise<Candidate[]> {
+  const head=await rpcJsonWithFallback(rpcUrls,"eth_blockNumber",[]);
+  const latest=Number(hexToBigInt(String(head.result||"0x0")));
+  if(!latest)return [];
+  const fromBlock=Math.max(0,latest-4800);
+  const data=await rpcJsonWithFallback(rpcUrls,"eth_getLogs",[{
+    fromBlock:"0x"+fromBlock.toString(16),toBlock:"latest",address:usdtContract,
+    topics:[TRANSFER_TOPIC,null,padAddressTopic(addr)],
+  }]) as {result?:Array<{transactionHash:string;blockNumber:string;logIndex?:string;topics:string[];data:string}>};
+  const out:Candidate[]=[];
+  for(const log of data.result||[]){
+    const valueHex=log.data?.replace(/^0x/,"").slice(0,64);
+    if(!valueHex)continue;
+    const amount=Number(BigInt("0x"+valueHex))/1e18;
+    if(!Number.isFinite(amount)||amount<=0)continue;
+    const block=Number(hexToBigInt(log.blockNumber));
     out.push({
-      tx_hash: String(log.transactionHash || ""),
-      event_index: log.logIndex ? Number(hexToBigInt(log.logIndex)) : 0,
-      from_address: log.topics?.[1] ? "0x" + log.topics[1].slice(-40) : null,
-      to_address: addr,
-      amount, confirmations: Math.max(0, latest - block + 1), chain_timestamp: null, raw: log,
+      tx_hash:String(log.transactionHash||""),event_index:log.logIndex?Number(hexToBigInt(log.logIndex)):0,
+      from_address:log.topics?.[1]?"0x"+log.topics[1].slice(-40):null,to_address:addr,
+      amount,confirmations:Math.max(0,latest-block+1),chain_timestamp:null,raw:log,
     });
   }
   return out;
 }
 
-// ---------- Bitcoin ----------
-async function scanBitcoin(addr: string): Promise<Candidate[]> {
-  let tip = 0;
-  try {
-    const res = await fetch("https://mempool.space/api/blocks/tip/height", { headers: { Accept: "text/plain" } });
-    if (res.ok) tip = Number((await res.text()).trim());
-  } catch { /* tip optional */ }
-  const txs = await getJson(`https://mempool.space/api/address/${addr}/txs`) as Array<{ txid?: string; vout?: Array<{ scriptpubkey_address?: string; value?: number }>; vin?: Array<{ prevout?: { scriptpubkey_address?: string; value?: number } }>; status?: { confirmed?: boolean; block_height?: number }; blocktime?: number }>;
-  const out: Candidate[] = [];
-  for (const tx of txs.slice(0, 25)) {
-    for (let i = 0; i < (tx.vout || []).length; i++) {
-      const v = tx.vout![i];
-      if (v.scriptpubkey_address !== addr) continue;
-      const amount = Number(v.value || 0) / 1e8;
-      if (!Number.isFinite(amount) || amount <= 0) continue;
-      const spent = (tx.vin || []).some(vi => vi.prevout?.scriptpubkey_address === addr);
-      const conf = tx.status?.confirmed && tx.status.block_height && tip > tx.status.block_height ? tip - tx.status.block_height + 1 : (tx.status?.confirmed ? 1 : 0);
-      out.push({
-        tx_hash: String(tx.txid || ""), event_index: i, from_address: spent ? addr : null, to_address: addr,
-        amount, confirmations: conf || 0,
-        chain_timestamp: tx.blocktime ? new Date(tx.blocktime * 1000).toISOString() : null, raw: { txid: tx.txid, vout: v },
-      });
+// ---------- Bitcoin// ---------- Bitcoin ----------
+async function scanBitcoin(addr:string):Promise<Candidate[]> {
+  const tipText=await getTextWithFallback(BITCOIN_API_BASES.map(base=>`${base}/blocks/tip/height`)).catch(error=>{
+    console.warn("Bitcoin tip unavailable; confirmations will wait for a successful tip check",error);
+    return "0";
+  });
+  const tip=Number(tipText);
+  const txs=await getJsonWithFallback(BITCOIN_API_BASES.map(base=>`${base}/address/${encodeURIComponent(addr)}/txs`)) as Array<{
+    txid?:string;vout?:Array<{scriptpubkey_address?:string;value?:number}>;
+    vin?:Array<{prevout?:{scriptpubkey_address?:string;value?:number}}>;
+    status?:{confirmed?:boolean;block_height?:number};blocktime?:number;
+  }>;
+  const out:Candidate[]=[];
+  for(const tx of txs.slice(0,25)){
+    for(let i=0;i<(tx.vout||[]).length;i++){
+      const v=tx.vout![i];if(v.scriptpubkey_address!==addr)continue;
+      const amount=Number(v.value||0)/1e8;if(!Number.isFinite(amount)||amount<=0)continue;
+      const spent=(tx.vin||[]).some(vi=>vi.prevout?.scriptpubkey_address===addr);
+      const conf=tx.status?.confirmed&&tx.status.block_height&&tip>0
+        ?Math.max(0,tip-tx.status.block_height+1):(tx.status?.confirmed?1:0);
+      out.push({tx_hash:String(tx.txid||""),event_index:i,from_address:spent?addr:null,to_address:addr,
+        amount,confirmations:conf,chain_timestamp:tx.blocktime?new Date(tx.blocktime*1000).toISOString():null,raw:{txid:tx.txid,vout:v}});
     }
   }
   return out;
 }
 
-// ---------- Dogecoin (Trezor blockbook) ----------
-async function scanDogecoin(addr: string): Promise<Candidate[]> {
-  const hosts = ["https://doge1.trezor.io/api/v2/address/", "https://doge2.trezor.io/api/v2/address/"];
-  let data: { txids?: string[] } | null = null;
-  for (const host of hosts) {
-    try { data = await getJson(host + addr + "?details=txs&pageSize=15") as { txids?: string[] }; break; } catch { /* try next host */ }
-  }
-  if (!data || !Array.isArray(data.txids)) return [];
-  const out: Candidate[] = [];
-  for (const txid of data.txids.slice(0, 8)) {
-    try {
-      const tx = await getJson(`https://doge1.trezor.io/api/v2/tx/${txid}`) as { txid?: string; vout?: Array<{ n?: number; addresses?: string[]; value?: string }>; confirmations?: number; blockTime?: number };
-      for (const v of tx.vout || []) {
-        if (!(v.addresses || []).includes(addr)) continue;
-        const amount = Number(v.value || 0) / 1e8;
-        if (!Number.isFinite(amount) || amount <= 0) continue;
-        out.push({
-          tx_hash: String(tx.txid || txid), event_index: Number(v.n || 0), from_address: null, to_address: addr,
-          amount, confirmations: Number(tx.confirmations || 0), chain_timestamp: tx.blockTime ? new Date(tx.blockTime * 1000).toISOString() : null, raw: v,
-        });
+// ---------- Dogecoin// ---------- Dogecoin (Trezor blockbook) ----------
+async function scanDogecoin(addr:string):Promise<Candidate[]> {
+  const hosts=["https://doge1.trezor.io/api/v2/","https://doge2.trezor.io/api/v2/"];
+  const data=await getJsonWithFallback(hosts.map(host=>`${host}address/${encodeURIComponent(addr)}?details=txs&pageSize=20`)) as {txids?:string[]};
+  if(!Array.isArray(data.txids))return [];
+  const out:Candidate[]=[];
+  for(const txid of data.txids.slice(0,15)){
+    try{
+      const tx=await getJsonWithFallback(hosts.map(host=>`${host}tx/${encodeURIComponent(txid)}`)) as {
+        txid?:string;vout?:Array<{n?:number;addresses?:string[];value?:string}>;confirmations?:number;blockTime?:number;
+      };
+      for(const v of tx.vout||[]){
+        if(!(v.addresses||[]).includes(addr))continue;
+        const amount=Number(v.value||0)/1e8;if(!Number.isFinite(amount)||amount<=0)continue;
+        out.push({tx_hash:String(tx.txid||txid),event_index:Number(v.n||0),from_address:null,to_address:addr,
+          amount,confirmations:Number(tx.confirmations||0),
+          chain_timestamp:tx.blockTime?new Date(tx.blockTime*1000).toISOString():null,raw:v});
       }
-    } catch { /* skip tx */ }
+    }catch(error){console.warn("Dogecoin tx lookup failed on both nodes",txid,String((error as Error)?.message||error));}
   }
   return out;
 }
 
-// ---------- Solana ----------
-async function scanSolana(addr: string, asset: string): Promise<Candidate[]> {
-  const rpc = "https://api.mainnet-beta.solana.com";
-  const call = (method: string, params: unknown[]) => getJson(rpc, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ jsonrpc: "2.0", id: 1, method, params }) }) as Promise<{ result?: unknown; error?: unknown }>;
-  const sigs = await call("getSignaturesForAddress", [addr, { limit: 12 }]) as { result?: Array<{ signature: string; confirmationStatus?: string; blockTime?: number }> };
-  const out: Candidate[] = [];
-  for (const s of (sigs.result || []).slice(0, 8)) {
-    if (!s.signature) continue;
-    if (s.confirmationStatus && s.confirmationStatus !== "finalized") continue;
-    try {
-      const tx = await call("getTransaction", [s.signature, { encoding: "json", commitment: "finalized", maxSupportedTransactionVersion: 0 }]) as { result?: { meta?: { preBalances?: number[]; postBalances?: number[]; preTokenBalances?: Array<{ owner?: string; mint?: string; uiTokenAmount?: { uiAmount?: number } }> | null; postTokenBalances?: Array<{ owner?: string; mint?: string; uiTokenAmount?: { uiAmount?: number } }> | null; status?: { Err?: unknown } }; transaction?: { message?: { accountKeys?: string[] } } } };
-      const meta = tx.result?.meta, keys = tx.result?.transaction?.message?.accountKeys || [];
-      if (!meta || meta.status?.Err) continue;
-      if (asset === "SOL") {
-        const idx = keys.indexOf(addr);
-        if (idx >= 0) {
-          const amount = ((meta.postBalances?.[idx] || 0) - (meta.preBalances?.[idx] || 0)) / 1e9;
-          if (amount > 0) out.push({ tx_hash: s.signature, event_index: 0, from_address: null, to_address: addr, amount, confirmations: 32, chain_timestamp: s.blockTime ? new Date(s.blockTime * 1000).toISOString() : null, raw: { signature: s.signature, delta: amount } });
+// ---------- Solana// ---------- Solana ----------
+async function scanSolana(addr:string,asset:string):Promise<Candidate[]> {
+  const call=(method:string,params:unknown[])=>
+    rpcJsonWithFallback(SOLANA_RPC_URLS,method,params) as Promise<{result?:unknown;error?:unknown}>;
+  const sigs=await call("getSignaturesForAddress",[addr,{limit:20,commitment:"finalized"}]) as {
+    result?:Array<{signature:string;confirmationStatus?:string;blockTime?:number}>;
+  };
+  const out:Candidate[]=[];
+  for(const sig of (sigs.result||[]).slice(0,12)){
+    if(!sig.signature)continue;
+    if(sig.confirmationStatus&&sig.confirmationStatus!=="finalized")continue;
+    try{
+      const tx=await call("getTransaction",[sig.signature,{encoding:"json",commitment:"finalized",maxSupportedTransactionVersion:0}]) as {
+        result?:{meta?:{preBalances?:number[];postBalances?:number[];
+          preTokenBalances?:Array<{owner?:string;mint?:string;uiTokenAmount?:{uiAmount?:number}}>|null;
+          postTokenBalances?:Array<{owner?:string;mint?:string;uiTokenAmount?:{uiAmount?:number}}>|null;status?:{Err?:unknown}};
+          transaction?:{message?:{accountKeys?:string[]}}};
+      };
+      const meta=tx.result?.meta,keys=tx.result?.transaction?.message?.accountKeys||[];
+      if(!meta||meta.status?.Err)continue;
+      if(asset==="SOL"){
+        const idx=keys.indexOf(addr);
+        if(idx>=0){
+          const amount=((meta.postBalances?.[idx]||0)-(meta.preBalances?.[idx]||0))/1e9;
+          if(amount>0)out.push({tx_hash:sig.signature,event_index:0,from_address:null,to_address:addr,amount,
+            confirmations:32,chain_timestamp:sig.blockTime?new Date(sig.blockTime*1000).toISOString():null,raw:{signature:sig.signature,delta:amount}});
         }
       }
-      if (asset === "USDT") {
-        const pre = meta.preTokenBalances || [], post = meta.postTokenBalances || [];
-        const pick = (arr: typeof post) => arr.filter(b => b.owner === addr && b.mint === SOL_USDT_MINT).reduce((s2, b) => s2 + Number(b.uiTokenAmount?.uiAmount || 0), 0);
-        const amount = pick(post) - pick(pre);
-        if (amount > 0) out.push({ tx_hash: s.signature, event_index: 1, from_address: null, to_address: addr, amount, confirmations: 32, chain_timestamp: s.blockTime ? new Date(s.blockTime * 1000).toISOString() : null, raw: { signature: s.signature, delta: amount } });
+      if(asset==="USDT"){
+        const pre=meta.preTokenBalances||[],post=meta.postTokenBalances||[];
+        const pick=(items:typeof post)=>items.filter(item=>item.owner===addr&&item.mint===SOL_USDT_MINT)
+          .reduce((sum,item)=>sum+Number(item.uiTokenAmount?.uiAmount||0),0);
+        const amount=pick(post)-pick(pre);
+        if(amount>0)out.push({tx_hash:sig.signature,event_index:1,from_address:null,to_address:addr,amount,
+          confirmations:32,chain_timestamp:sig.blockTime?new Date(sig.blockTime*1000).toISOString():null,raw:{signature:sig.signature,delta:amount}});
       }
-    } catch { /* skip tx */ }
+    }catch(error){console.warn("Solana transaction lookup failed on public RPCs",sig.signature,String((error as Error)?.message||error));}
   }
   return out;
 }
 
 async function scanAddress(row: AddressRow): Promise<Candidate[]> {
-  const asset = String(row.asset_code || "").toUpperCase(), network = String(row.network_code || "").toUpperCase(), addr = row.address;
-  try {
-    if (network === "TRC20" && asset === "USDT") return await scanTronToken(addr);
-    if (network === "TRON" && asset === "TRX") return await scanTronNative(addr);
-    if (network === "ERC20" || network === "ETHEREUM") return await scanBlockscout(network, addr, asset);
-    if (network === "BEP20" && asset === "USDT") return await scanEvmLogs("https://bsc-dataseed.binance.org", USDT_CONTRACTS.BEP20, addr);
-    if (network === "BITCOIN" && asset === "BTC") return await scanBitcoin(addr);
-    if (network === "DOGECOIN" && asset === "DOGE") return await scanDogecoin(addr);
-    if (network === "SOLANA") return await scanSolana(addr, asset);
+  const asset=String(row.asset_code||"").toUpperCase(),network=String(row.network_code||"").toUpperCase(),addr=row.address;
+  try{
+    if(network==="TRC20"&&asset==="USDT")return await scanTronToken(addr);
+    if(network==="TRON"&&asset==="TRX")return await scanTronNative(addr);
+    if(network==="ERC20"||network==="ETHEREUM")return await scanBlockscout(network,addr,asset);
+    if(network==="BEP20"&&asset==="USDT")return await scanEvmLogs(BSC_RPC_URLS,USDT_CONTRACTS.BEP20,addr);
+    if(network==="BITCOIN"&&asset==="BTC")return await scanBitcoin(addr);
+    if(network==="DOGECOIN"&&asset==="DOGE")return await scanDogecoin(addr);
+    if(network==="SOLANA")return await scanSolana(addr,asset);
     return [];
-  } catch (e) {
-    console.warn(`scan failed for ${network} ${addr}`, e);
+  }catch(error){
+    console.warn(`scan failed for ${network} ${addr}; it will be checked again next cycle`,error);
     return [];
   }
 }
